@@ -1,9 +1,10 @@
-README for c.vim (Version 3.6) / July 06 2004
+README for c.vim (Version 3.7) / Dec 17 2004
 
   *  INSTALLATION
   *  RELEASE NOTES 
   *  FILES
   *  ADDITIONAL TIPS
+  *  CREDITS
 
 =======================================================================================
   INSTALLATION
@@ -37,13 +38,39 @@ There are a lot of features and options which can be used and influenced:
   *  C/C++ dictionaries for keyword completion
   *  removing the root menu
 
-Restart gVim/Vim and look at the csupport help with
+Restart gVim/Vim and generate the help tags file(s):
+
+  :helptags ~/.vim/doc
+
+Now look at the csupport help with
 
   :help csupport 
 
->>>>>                             <<<<<
->>>>>    or read  csupport.txt    <<<<<
->>>>>                             <<<<<
+                 +--------------------------------------------+
+                 | +----------------------------------------+ |
+                 | |  ** Please read the documentation **   | |
+                 | |  Actions differ for different modes!   | |
+                 | +----------------------------------------+ |
+                 +--------------------------------------------+
+
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.7
+=======================================================================================
+
++ Running a program:
+  (1) Run program from the gVim command line.
+  (2) Run program and direct the output into a window with name "C-Output". 
+      This buffer and its content will disappear when closing the window. 
+      The buffer is reused when still open.
+  (3) Run program in an xterm (adjustable).
++ Command line arguments are now buffer related (each buffer can have its own arguments).
++ Code snippets can be protected from being indented during insertion. 
++ Picked up prototypes will be deleted after insertion.
++ A code snippet with the file name extension "ni" or "noindent" will not be
+  indented on insertion.
++ for- and calloc-/malloc-idioms improved.
++ Bug fixed (word list handling).
 
 
 =======================================================================================
@@ -154,6 +181,7 @@ ftplugin/c.vim                  A filetype plugin. Define hotkeys, creates a loc
                                 dictionary for each C/C++ file.
 
 plugin/c.vim                    The C/C++ plugin for GVIM.
+plugin/wrapper.sh               The wrapper script for the use of an xterm.
 
 plugin/templates/c-class-description            -+- C-style and C++-style template files
 plugin/templates/c-file-header                   |  (see csupport.txt)
@@ -218,5 +246,30 @@ rc/customization.ctags    Additional settings I use in  .ctags to enable navigat
 (4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and right
     button at the same time without moving your fingers is faster then moving a finger
     to the middle button (often a wheel).
+
+=======================================================================================
+  CREDITS
+=======================================================================================
+
+  Some ideas are taken from the following documents (recommended!):
+
+  1. Recommended C Style and Coding Standards (Indian Hill Style Guide)
+      www.doc.ic.ac.uk/lab/secondyear/cstyle/cstyle.html
+  2. Programming in C++, Ellemtel Telecommunication Systems Laboratories
+      www.it.bton.ac.uk/burks/burks/language/cpp/cppstyle/ellhome.htm
+  3. C++ Coding Standard, Todd Hoff
+     www.possibility.com/Cpp/CppCodingStandard.html
+  
+------------------
+
+  ... finally
+
+  Johann Wolfgang von Goethe (1749-1832), the greatest of the german poets,
+  about LINUX, Vim/gVim and other great tools (Ok, almost.) :
+
+    Ein Mann, der recht zu wirken denkt,         Who on efficient work is bent, 
+    Muß auf das beste Werkzeug halten.           Must choose the fittest instrument.  
+
+  Faust, Teil 1, Vorspiel auf dem Theater      Faust, Part 1, Prologue for the Theatre 
 
 =======================================================================================

@@ -3,7 +3,7 @@
 " Language   :  C / C++
 " Plugin     :  c.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  Jul 31 2003 
+" Last Change:  27.11.2004
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -27,15 +27,18 @@ endif
 "   Alt-F9   write buffer and compile
 "       F9   compile and link
 "  Ctrl-F9   run executable
-" Shift-F9   run make
+" Shift-F9   command line arguments
 "
- map  <buffer>  <A-F9>       :call C_Compile()<CR><CR>
-imap  <buffer>  <A-F9>  <Esc>:call C_Compile()<CR><CR>
- map  <buffer>    <F9>       :call C_Link()<CR><CR>
-imap  <buffer>    <F9>  <Esc>:call C_Link()<CR><CR>
- map  <buffer>  <C-F9>       :call C_Run(0)<CR><CR>
-imap  <buffer>  <C-F9>  <Esc>:call C_Run(0)<CR><CR>
- map  <buffer>  <S-F9>       :call C_Make()<CR>
-imap  <buffer>  <S-F9>  <Esc>:call C_Make()<CR>
-
+ map  <buffer>  <A-F9>            :call C_Compile()<CR><CR>
+imap  <buffer>  <A-F9>       <Esc>:call C_Compile()<CR><CR>
+"
+ map  <buffer>    <F9>            :call C_Link()<CR><CR>
+imap  <buffer>    <F9>       <Esc>:call C_Link()<CR>
+"
+" <C-C> seems to be essential here:
+ map  <buffer>  <C-F9>       <C-C>:call C_Run()<CR>
+imap  <buffer>  <C-F9>  <C-C><C-C>:call C_Run()<CR>
+"
+ map  <buffer>  <S-F9>            :call C_Arguments()<CR>
+imap  <buffer>  <S-F9>       <Esc>:call C_Arguments()<CR>
 

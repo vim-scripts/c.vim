@@ -1,7 +1,7 @@
-*csupport.txt*             C/C++ Support            Last Change:  July 06 2004
+*csupport.txt*             C/C++ Support            Last Change:   Dec 17 2004
 
 C/C++ Support                                           *c-support* *csupport*
-                            Plugin version 3.6
+                            Plugin version 3.7
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -26,6 +26,9 @@ Write and run C/C++ programs using menus.
  1.5.2   Command line arguments                        |csupport-run-2|
  1.5.3   Run make                                      |csupport-run-3|
  1.5.4   Command line arguments for make               |csupport-run-4|
+ 1.5.5   Hardcopy                                      |csupport-run-5|
+ 1.5.6   Xterm size                                    |csupport-run-6|
+ 1.5.7   Output redirection                            |csupport-run-7|
 
  2.    Hotkeys                                         |csupport-hotkeys|           
  3.    Customization and configuration                 |csupport-custom|     
@@ -379,6 +382,12 @@ The inserted lines will be indented.
 EDIT A SNIPPET
 This is a normal edit.
 
+INDENTATION / NO INDENTATION
+Code snippets are normally indented after insertion. To suppress indentation
+add the file extension "ni" or "noindent" to the snippet file name, e.g.
+
+  parameter_handling.c.noindent
+
 
 1.4.2   PICKING UP PROTOTYPES                                 *csupport-proto*
 
@@ -413,6 +422,7 @@ Further prototypes can be picked up and gathered in the buffer.
 INSERT PROTOTYPES  
 With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
 the buffer will be inserted below the cursur.
+The prototype buffer will be cleared after insertion.
 
 
 DISCARD PROTOTYPES  
@@ -461,9 +471,14 @@ executed first.
 
 1.5.2  COMMAND LINE ARGUMENTS                                 *csupport-run-2*
 
-The entry 'command line arguments' calls an input dialog which asks for
-command line arguments. These arguments are forwarded to the executable which
-is run by the 'run' entry. The arguments are kept until you change them.
+The entry 'command line arguments' calls an input dialog which asks for command
+line arguments. These arguments are forwarded to the program which is run by
+the 'run' entry. The arguments are kept until you change them.
+
+The arguments belong to the current buffer (that is, each buffer can have its 
+own arguments).
+If the buffer gets a new name with "save as" the arguments will now belong to
+the buffer with the new name.
 
 1.5.3  RUN make                                               *csupport-run-3*
 
@@ -476,16 +491,57 @@ for command line arguments for make. These arguments are forwarded to make
 when called by the entry 'make' .
 
 
+1.5.5  HARDCOPY                                               *csupport-run-5*
+
+Generates a PostScript file from the whole buffer or from a marked region.
+
+
+1.5.6  XTERM SIZE                                             *csupport-run-6*
+
+The size of the xterm used for  running a program (below) can be set by this
+menu entry. The default is 80 columns with 24 lines.  
+
+
+1.5.7  OUTPUT REDIRECTION                                     *csupport-run-7*
+
+Running a program can be done in one of three ways:
+(1) Run the program from the gVim command line (interactive).
+(2) Run the program and direct the output into a window with name "C-Output".
+    The C-Output buffer is not a shell for interactive programs. Its purpose
+    is to capture a large output and to use gVim to diplay and examine it.
+    The buffer and its content will disappear when the window is closed and 
+    reused otherwise.
+(3) Run the program in an xterm (interactive).
+
+The output method can be chosen from the menu entry 'Run->output: ...'.
+This menu has three states:
+ 
+  output: VIM->buffer->xterm
+  output: BUFFER->xterm->vim
+  output: XTERM->vim->buffer
+
+The first (uppercase) item shows the current method.  The default is 'vim'.
+This can be changed by setting the variable g:C_OutputGvim to another value.
+Possible values are 'vim', 'buffer' and 'xterm' .
+
+The xterm defaults can be set in .vimrc by the variable g:C_XtermDefaults .
+The default is "-fa courier -fs 12 -geometry 80x24" :
+  font name     : -fa courier
+  font size     : -fs 12
+  terminal size : -geometry 80x24
+See 'xterm -help' for more options.
+
+
 ==============================================================================
 2.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
 
 The following hotkeys are defined in normal, visual and insert mode: 
 
-   Alt-F9   write buffer and compile
        F9   compile and link
+   Alt-F9   write buffer and compile
   Ctrl-F9   run executable
- Shift-F9   run make
+ Shift-F9   set command line arguments
 
 The hotkeys are defined in the filetype plugin  c.vim .
 
@@ -526,10 +582,11 @@ Several global variables are checked by the script to customize it:
 
   g:C_Comments              "yes"
   g:C_CodeSnippets          $HOME."/.vim/codesnippets-c/"
-  g:C_Pager                 "less"
   g:C_Dictionary_File       ""
   g:C_LoadMenus             "yes"
   g:C_MenuHeader            "yes"
+  g:C_OutputGvim            "vim"
+  g:C_XtermDefaults         "-fa courier -fs 12 -geometry 80x24"
 
   g:C_CExtension            "c"              
   g:C_CCompiler             "gcc"            
@@ -556,14 +613,15 @@ Several global variables are checked by the script to customize it:
 3. group: g:C_Comments           : The initial comment style (C = yes, C++ = no).
           g:C_CodeSnippets       : The name of the code snippet directory 
                                    (see |csupport-code-snippets|).
-          g:C_Pager              : The name of the filter used when the output of a 
-                                   C program is run through a filter for paging 
-                                   through text.
           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
                                    word completion (see also |csupport-dictionary|)
           g:C_Root               : the name of the root menu of this plugin
           g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
           g:C_MenuHeader         : Switch the submenu header on/off.
+          g:C_OutputGvim         : when program is running output goes to the vim 
+                                   command line ("vim"), to a buffer ("buffer") or to
+                                   an xterm ("xterm").
+          g:C_XtermDefaults      : the xterm defaults
 
 4. group: g:C_CExtension         : The extension of C files. Everything else is C++ .
           g:C_CCompiler          : The name of the C compiler.
@@ -613,7 +671,7 @@ Six menu entries generate block comments:
 
     C/C++-file header
     Class Description
-    Frame Block
+    Frame Comment
     Function Description
     H-file header
     Method Description
@@ -625,7 +683,7 @@ The comments which will be inserted by these menus entries are read from files:
 +--------------------------+---------------------------+----------------------------+
 | C/C++-file header        | g:C_Template_C_File       | c-file-header              |
 | Class Description        | g:C_Template_Class        | c-class-description        |
-| Frame Block              | g:C_Template_Frame        | c-frame                    |
+| Frame Comment            | g:C_Template_Frame        | c-frame                    |
 | Function Description     | g:C_Template_Function     | c-function-description     |
 | H-file header            | g:C_Template_H_File       | h-file-header              |
 | Method Description       | g:C_Template_Method       | c-method-description       |
@@ -706,17 +764,17 @@ are a part of this plugin and can be used (together with your own lists) as
 dictionaries for automatic word completion.  This feature is enabled by
 default. The default word lists are
 
-	$HOME/.vim/wordlists/c-c++-keywords.list
-	$HOME/.vim/wordlists/k+r.list
-	$HOME/.vim/wordlists/stl_index.list
+  $HOME/.vim/wordlists/c-c++-keywords.list
+  $HOME/.vim/wordlists/k+r.list
+  $HOME/.vim/wordlists/stl_index.list
 
 If you want to use an additional list MyC.list put the following lines into
  .vimrc :
 
-	let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
-				\                   $HOME."/.vim/wordlists/k+r.list,".
-	      \                   $HOME."/.vim/wordlists/stl_index.list,".
-	      \                   $HOME."/.vim/wordlists/MyC.list"
+  let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
+        \                   $HOME."/.vim/wordlists/k+r.list,".
+        \                   $HOME."/.vim/wordlists/stl_index.list,".
+        \                   $HOME."/.vim/wordlists/MyC.list"
   
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 
@@ -729,7 +787,7 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 ==============================================================================
 
 The use of the Vim plugin taglist.vim (Author: Yegappan Lakshmanan) is highly
-recommended. It uses the programm ctags which generates tag files for 3 dozen 
+recommended. It uses the program ctags which generates tag files for 3 dozen 
 languages (Exuberant Ctags, Darren Hiebert, http://ctags.sourceforge.net).
 With the following extensions the list of targets in a makefile can be shown 
 in the taglist window.

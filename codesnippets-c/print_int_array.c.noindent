@@ -1,0 +1,28 @@
+
+/*----------------------------------------------------------------------
+ *  print_int_array
+ *  Print an int-array with one dimension 
+ *  Use
+ *    print_int_array( *matrix, n1*n2, n2, "matrix" ); 
+ *  for
+ *    int matrix[n1][n2];   
+ *----------------------------------------------------------------------*/
+static void
+print_int_array ( int   array[],  /* array to print              */
+                  int   n,        /* number of elements to print */
+                  int   nrow,     /* number of elements per row  */
+                  char *arrayname /* array name                  */
+                  )
+{
+  int i;
+  printf ("\n\n  array \"%s\", length %d\n", arrayname, n );
+  for ( i=0; i<n; i+=1 )
+  {
+    if(i%nrow==0)
+      printf ("\n%6d : ", i );
+    printf (" %6d", array[i] );
+  }
+	printf ("\n");
+  return ;
+}       /* ----------  end of function print_int_array  ---------- */
+

@@ -29,6 +29,7 @@ Berechnungsvorschrift
 Bildunterschrift
 Block
 Buchstabe
+Compiler
 Compilierung
 Darstellungsgenauigkeit
 Dateiausgabe
@@ -61,7 +62,6 @@ Ereignistyp
 Ergebnisvariable
 Ersatzdarstellung
 Ersatzwert
-Feld
 Feldelement
 Felder
 Feldindex
@@ -79,12 +79,11 @@ Funktionskopf
 Funktionsname
 Funktionsparameter
 Funktionsprototyp
-Funktionstemplatets
+Funktionstemplate
 Funktionswert
 Genauigkeit
 Gültigkeitsbereich
 Haltepunkt
-Hash
 Hauptprogramm
 Hexadezimalwert
 Hexadezimalzahl
@@ -103,7 +102,7 @@ Kommando
 Kommandozeilenbefehl
 Kommandozeilenoptionen
 Kommandozeilenversion
-Kommanentar
+Kommentar
 Komponentenfunktion
 Komponentenzugriff
 Konsonant
@@ -228,7 +227,7 @@ Zustandswechsel
 Zuweisung
 Zuweisungsoperator
 aktueller
-alphnumerisch
+alphanumerisch
 ausgeben
 dezimal
 dynamisch
