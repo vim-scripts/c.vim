@@ -1,7 +1,7 @@
-*csupport.txt*             C/C++ Support            Last Change:   Dec 17 2004
+*csupport.txt*             C/C++ Support            Last Change:   Dec 20 2004
 
 C/C++ Support                                           *c-support* *csupport*
-                            Plugin version 3.7
+                           Plugin version 3.7.1
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -283,11 +283,11 @@ can be surrounded by one of the following statements:
   |                                                          |
   |    #endif     /* ----- #ifndef CONDITION  ----- */       |
   +----------------------------------------------------------+
-  |    #ifndef  TEST_INC                                     |
-  |    #define  TEST_INC                                     |
+  |    #ifndef  INC_TEST                                     |
+  |    #define  INC_TEST                                     |
   |    xxxxx                                                 |
   |    xxxxx                                                 |
-  |    #endif   /* ----- #ifndef TEST_INC  ----- */          |
+  |    #endif   /* ----- #ifndef INC_TEST  ----- */          |
   +----------------------------------------------------------+
 
 The whole statement will be indented after insertion.
@@ -469,6 +469,7 @@ buffer. If the buffer is not saved, or no executable is available or the
 executable is older then the source steps 'save and compile' and 'link' are
 executed first.
 
+
 1.5.2  COMMAND LINE ARGUMENTS                                 *csupport-run-2*
 
 The entry 'command line arguments' calls an input dialog which asks for command
@@ -480,9 +481,19 @@ own arguments).
 If the buffer gets a new name with "save as" the arguments will now belong to
 the buffer with the new name.
 
+The command line arguments can be followed by pipes and redirections:
+
+  11 22 | sort -rn | head -10 > out
+
+Caveat: If you look for the current arguments by calling this menu entry again
+be shure to leave it with a CR (not Esc !). Due to a limitation of an internal
+Vim function CR will keep the arguments, Esc with discard them.
+
+
 1.5.3  RUN make                                               *csupport-run-3*
 
 The entry 'make' runs the external make program.
+
 
 1.5.4  COMMAND LINE ARGUMENTS FOR make                        *csupport-run-4*
 
@@ -505,13 +516,14 @@ menu entry. The default is 80 columns with 24 lines.
 1.5.7  OUTPUT REDIRECTION                                     *csupport-run-7*
 
 Running a program can be done in one of three ways:
-(1) Run the program from the gVim command line (interactive).
+(1) Run the program from the gVim command line.
+    This is for interactive programs with little input and output.
 (2) Run the program and direct the output into a window with name "C-Output".
-    The C-Output buffer is not a shell for interactive programs. Its purpose
-    is to capture a large output and to use gVim to diplay and examine it.
     The buffer and its content will disappear when the window is closed and 
     reused otherwise.
-(3) Run the program in an xterm (interactive).
+    This is for noninteractive programs with little to very much output.
+    You have unlimited line length, regex search, navigation, ...
+(3) Run the program in an xterm.
 
 The output method can be chosen from the menu entry 'Run->output: ...'.
 This menu has three states:
@@ -594,6 +606,7 @@ Several global variables are checked by the script to customize it:
   g:C_CFlags                "-Wall -g -O0 -c"
   g:C_LFlags                "-Wall -g -O0"   
   g:C_Libs                  "-lm"            
+  g:C_ExeExtension          ""
 
   ----------------------------------------------------------------------------
 
@@ -629,6 +642,8 @@ Several global variables are checked by the script to customize it:
           g:C_CFlags             : Compiler flags used for a compilation.
           g:C_LFlags             : Compiler flags used for linkage.
           g:C_Libs               : Libraries to link with.
+          g:C_ExeExtension       : C/C+ file extension for executables 
+                                   (leading point required if not empty)
 
 To override the default add appropriate assignments to .vimrc .
 Here are my settings as an example:
@@ -695,7 +710,7 @@ The comments which will be inserted by these menus entries are read from files:
 +--------------------------+--------------------------------------------------------+
 
 There may be a second set of files pointed to by the global variables whose 
-names start with  s:Cpp_Temp... .
+names start with  g:Cpp_Temp... .
 The second set of variables can point to the same files as the first set or to
 another set (but both in the template directory).
 If the second set is empty (i.e. all file names are empty strings: "") 

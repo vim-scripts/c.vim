@@ -1,4 +1,4 @@
-README for c.vim (Version 3.7) / Dec 17 2004
+README for c.vim (Version 3.7.1) / Dec 20 2004
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -38,11 +38,7 @@ There are a lot of features and options which can be used and influenced:
   *  C/C++ dictionaries for keyword completion
   *  removing the root menu
 
-Restart gVim/Vim and generate the help tags file(s):
-
-  :helptags ~/.vim/doc
-
-Now look at the csupport help with
+Restart gVim/Vim and look at the csupport help with
 
   :help csupport 
 
@@ -53,6 +49,15 @@ Now look at the csupport help with
                  | +----------------------------------------+ |
                  +--------------------------------------------+
 
+
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.7.1
+=======================================================================================
+
++ Bug fixed (comand line arguments not passed to the executable).
++ File extension for executables can be set.
++ Minor improvements.
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.7

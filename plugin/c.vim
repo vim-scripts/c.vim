@@ -20,7 +20,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  09.12.2004
+"       Revision:  21.12.2004
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "
@@ -31,7 +31,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.7"  							" version number of this script; do not change
+let g:C_Version= "3.7.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -68,7 +68,8 @@ let s:C_CplusCompiler  = "g++"                  " the C++ compiler
 let s:C_CFlags         = "-Wall -g -O0 -c"      " compiler flags: compile, don't optimize
 let s:C_LFlags         = "-Wall -g -O0"         " compiler flags: link   , don't optimize
 let s:C_Libs           = "-lm"                  " libraries to use
-"                     
+let s:C_ExeExtension   = ""                     " C/C+ file extension for executables 
+"                                                  (leading point required)
 let s:C_Comments       = "yes"
 let s:C_MenuHeader     = "yes"
 "  
@@ -147,11 +148,11 @@ call C_CheckGlobal("Cpp_Template_Function")
 call C_CheckGlobal("Cpp_Template_H_File  ")
 call C_CheckGlobal("Cpp_Template_Method  ")
 "
-call C_CheckGlobal("C_Class                ")
-call C_CheckGlobal("C_ClassUsingNew        ")
-call C_CheckGlobal("C_TemplateClass        ")
-call C_CheckGlobal("C_TemplateClassUsingNew")
-call C_CheckGlobal("C_ErrorClass           ")
+call C_CheckGlobal("C_Class                  ")
+call C_CheckGlobal("C_ClassUsingNew          ")
+call C_CheckGlobal("C_TemplateClass          ")
+call C_CheckGlobal("C_TemplateClassUsingNew  ")
+call C_CheckGlobal("C_ErrorClass             ")
 call C_CheckGlobal("Cpp_Class                ")
 call C_CheckGlobal("Cpp_ClassUsingNew        ")
 call C_CheckGlobal("Cpp_TemplateClass        ")
@@ -159,6 +160,7 @@ call C_CheckGlobal("Cpp_TemplateClassUsingNew")
 call C_CheckGlobal("Cpp_ErrorClass           ")
 call C_CheckGlobal("C_OutputGvim             ")
 call C_CheckGlobal("C_XtermDefaults          ")
+call C_CheckGlobal("C_ExeExtension           ")
 "
 call C_CheckGlobal("C_MenuHeader        ")
 "
@@ -451,8 +453,8 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.-SEP2-                          :'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab><.h><Esc>F.i'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ \"&\.\.\.\"           <Esc><Esc>o#include<Tab>".h"<Esc>F.i'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab><><Esc>i'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ \"&\.\.\.\"           <Esc><Esc>o#include<Tab>""<Esc>i'
 	exe "amenu  ".s:C_Root.'St&atements.&#define                        <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a'
 	exe "amenu  ".s:C_Root.'St&atements.#&undef                         <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a'
 	"
@@ -1403,8 +1405,10 @@ function! C_CodeSnippet(arg1)
 				:execute "read ".l:snippetfile
 				let	linesread= line("$")-linesread-1
 				if linesread>=0 && match( l:snippetfile, '\.\(ni\|noindent\)$' ) < 0 
-					silent exe "normal =".linesread."+"
 				endif
+			endif
+			if line(".")==2 && getline(1)=~"^$"
+				silent exe ":1,1d"
 			endif
 		endif
 		"
@@ -1901,10 +1905,10 @@ function! C_Link ()
 
 	call	C_Compile()
 
-	let	Sou		= expand("%")								" name of the file in the current buffer
-	let	Obj		= expand("%:r").".o"				" name of the object file
-	let	Exe		= expand("%:r").".e"				" name of the executable
-	let	Ext		= expand("%:e")							" file extension
+	let	Sou		= expand("%")						       		" name of the file in the current buffer
+	let	Obj		= expand("%:r").".o"							" name of the object file
+	let	Exe		= expand("%:r").s:C_ExeExtension	" name of the executable
+	let	Ext		= expand("%:e")										" file extension
 	
 	" no linkage if:
 	"   executable exists
@@ -1974,11 +1978,11 @@ let s:C_OutputBufferNumber = -1
 "
 function! C_Run ()
   "
-	let Sou                 = expand("%")                   " name of the source file
-	let Obj                 = expand("%:r").".o"            " name of the object file
-	let Exe                 = "./".expand("%:r").".e"       " name of the executable
-	let l:arguments         = exists("b:C_ExeCmdLineArgs") ? " ".b:C_ExeCmdLineArgs : ""
-	let	l:currentbuffer			= bufname("%")
+	let Sou             = expand("%")                 				" name of the source file
+	let Obj             = expand("%:r").".o"    			        " name of the object file
+	let Exe             = "./".expand("%:r").s:C_ExeExtension	" name of the executable
+	let l:arguments     = exists("b:C_CmdLineArgs") ? " ".b:C_CmdLineArgs : ""
+	let	l:currentbuffer	= bufname("%")
 	"
 	"==============================================================================
 	"  run : run from the vim command line
@@ -2062,7 +2066,8 @@ endfunction    " ----------  end of function C_Run ----------
 "  run : Arguments for the executable
 "------------------------------------------------------------------------------
 function! C_Arguments ()
-	let	prompt	= 'command line arguments for "'.expand("%:r").'.e" : '
+	let	Exe		  = expand("%:r").s:C_ExeExtension
+	let	prompt	= 'command line arguments for "'.Exe.'" : '
 	if exists("b:C_CmdLineArgs")
 		let	b:C_CmdLineArgs= C_Input( prompt, b:C_CmdLineArgs )
 	else
@@ -2111,22 +2116,24 @@ endfunction
 "------------------------------------------------------------------------------
 function! C_Settings ()
 	let	txt =     " C/C++-Support settings\n\n"
-	let txt = txt."                 author :  ".s:C_AuthorName."\n"
-	let txt = txt."               initials :  ".s:C_AuthorRef."\n"
-	let txt = txt."                  email :  ".s:C_Email."\n"
-	let txt = txt."                company :  ".s:C_Company."\n"
-	let txt = txt."                project :  ".s:C_Project."\n"
-	let txt = txt."       copyright holder :  ".s:C_CopyrightHolder."\n"
-	let txt = txt."       C / C++ compiler :  ".s:C_CCompiler." / ".s:C_CplusCompiler."\n"
-	let txt = txt."       C file extension :  ".s:C_CExtension."  (everything else is C++)\n"
-	let txt = txt."         compiler flags :  ".s:C_CFlags."\n"
-	let txt = txt."    compiler+link flags :  ".s:C_LFlags."\n"
-	let txt = txt."              libraries :  ".s:C_Libs."\n"
-	let txt = txt." code snippet directory :  ".s:C_CodeSnippets."\n"
-	let txt = txt."     template directory :  ".s:C_Template_Directory."\n"
+	let txt = txt.'                   author :  "'.s:C_AuthorName."\"\n"
+	let txt = txt.'                 initials :  "'.s:C_AuthorRef."\"\n"
+	let txt = txt.'                    email :  "'.s:C_Email."\"\n"
+	let txt = txt.'                  company :  "'.s:C_Company."\"\n"
+	let txt = txt.'                  project :  "'.s:C_Project."\"\n"
+	let txt = txt.'         copyright holder :  "'.s:C_CopyrightHolder."\"\n"
+	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
+	let txt = txt.'         C file extension :  '.s:C_CExtension.'  (everything else is C++)'."\n"
+	let txt = txt.'extension for executables :  "'.s:C_ExeExtension."\"\n"
+	let txt = txt.'           compiler flags :  '.s:C_CFlags."\n"
+	let txt = txt.'      compiler+link flags :  '.s:C_LFlags."\n"
+	let txt = txt.'                libraries :  '.s:C_Libs."\n"
+	let txt = txt.'   code snippet directory :  '.s:C_CodeSnippets."\n"
+	let txt = txt.'       template directory :  '.s:C_Template_Directory."\n"
+	let txt = txt.'           xterm defaults :  '.s:C_XtermDefaults."\n"
 	if g:C_Dictionary_File != ""
-		let ausgabe= substitute( g:C_Dictionary_File, ",", ",\n                         + ", "g" )
-		let txt = txt."     dictionary file(s) :  ".ausgabe."\n"
+		let ausgabe= substitute( g:C_Dictionary_File, ",", ",\n                           + ", "g" )
+		let txt = txt."       dictionary file(s) :  ".ausgabe."\n"
 	endif
 	let txt = txt."\n"
 	let	txt = txt."__________________________________________________________________________\n"
