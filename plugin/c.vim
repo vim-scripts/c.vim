@@ -25,12 +25,12 @@
 "                  3. C++ Coding Standard, Todd Hoff
 "                     www.possibility.com/Cpp/CppCodingStandard.html
 "  
-let s:C_Version = "3.5"              " version number of this script; do not change
+let s:C_Version = "3.6"              " version number of this script; do not change
 "  
 "         Author:  Dr.-Ing. Fritz Mehner, FH Südwestfalen, 58644 Iserlohn, Germany
 "          Email:  mehner@fh-swf.de
 "  
-"       Revision:  02.04.2004
+"       Revision:  28.06.2004
 "        Created:  04.11.2000
 "        
 "      Copyright:  Copyright (C) 2000-2004 Dr.-Ing. Fritz Mehner
@@ -56,6 +56,17 @@ let s:C_Version = "3.5"              " version number of this script; do not cha
 "
 "  Global variables (with default values) which can be overridden.
 "
+"  Key word completion is enabled by the filetype plugin 'c.vim'
+"  g:C_Dictionary_File  must be global
+"          
+if !exists("g:Perl_Dictionary_File")
+  let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
+        \                   $HOME."/.vim/wordlists/k+r.list,".
+        \                   $HOME."/.vim/wordlists/stl_index.list"
+endif
+"
+"  Modul global variables (with default values) which can be overridden.
+"
 let s:C_AuthorName     = ""
 let s:C_AuthorRef      = ""
 let s:C_Email          = ""
@@ -63,14 +74,14 @@ let s:C_Company        = ""
 let s:C_Project        = ""
 let s:C_CopyrightHolder= ""
 "
-let	s:C_Root           = '&C\/C\+\+.'						" the name of the root menu of this plugin
+let  s:C_Root          = '&C\/C\+\+.'           " the name of the root menu of this plugin
 "
 let s:C_LoadMenus      = "yes"
 " 
-let s:C_CodeSnippets   = $HOME."/.vim/codesnippets-c"
+let s:C_CodeSnippets   = $HOME."/.vim/codesnippets-c/"
+let s:C_Doc_Directory  = $HOME.'/.vim/doc/'
 "                     
 let s:C_Pager          = "less"
-let s:C_Dictionary_File= ""
 " 
 let s:C_CExtension     = "c"                    " C file extension; everything else is C++
 let s:C_CCompiler      = "gcc"                  " the C   compiler
@@ -80,7 +91,7 @@ let s:C_LFlags         = "-Wall -g -O0"         " compiler flags: link   , don't
 let s:C_Libs           = "-lm"                  " libraries to use
 "                     
 let s:C_Comments       = "yes"
-let s:C_MenuHeader		 = "yes"
+let s:C_MenuHeader     = "yes"
 "  
 "   ----- template files ---- ( 1. set of templates ) ----------------
 let s:C_Template_Directory       = $HOME."/.vim/plugin/templates/"
@@ -119,9 +130,9 @@ let s:Cpp_ErrorClass             = "cpp-error-class"
 "  Look for global variables (if any), to override the defaults.
 "  
 function! C_CheckGlobal ( name )
-	if exists('g:'.a:name)
-		exe 'let s:'.a:name.'  = g:'.a:name
-	endif
+  if exists('g:'.a:name)
+    exe 'let s:'.a:name.'  = g:'.a:name
+  endif
 endfunction
 "
 call C_CheckGlobal("C_AuthorName         ")
@@ -133,6 +144,7 @@ call C_CheckGlobal("C_CopyrightHolder    ")
 call C_CheckGlobal("C_Root               ")
 call C_CheckGlobal("C_LoadMenus          ")
 call C_CheckGlobal("C_CodeSnippets       ")
+call C_CheckGlobal("C_Doc_Directory      ")
 call C_CheckGlobal("C_Pager              ")
 call C_CheckGlobal("C_CExtension         ")
 call C_CheckGlobal("C_CCompiler          ")
@@ -166,7 +178,6 @@ call C_CheckGlobal("Cpp_TemplateClass        ")
 call C_CheckGlobal("Cpp_TemplateClassUsingNew")
 call C_CheckGlobal("Cpp_ErrorClass           ")
 "
-call C_CheckGlobal("C_Dictionary_File   ")
 call C_CheckGlobal("C_MenuHeader        ")
 "
 "----- some variables for internal use only -----------------------------------
@@ -176,11 +187,11 @@ let s:C_MakeCmdLineArgs = ""       " command line arguments for Run-make; initia
 let s:C_ClassName       = ""       " remember class name ; initially empty
 
 if s:C_Comments=="yes"
-	let s:C_Com1          = '/*'     " C-style : comment start 
-	let s:C_Com2          = '*/'     " C-style : comment end
+  let s:C_Com1          = '/*'     " C-style : comment start 
+  let s:C_Com2          = '*/'     " C-style : comment end
 else
-	let s:C_Com1          = '//'     " C++style : comment start 
-	let s:C_Com2          = ''       " C++style : comment end
+  let s:C_Com1          = '//'     " C++style : comment start 
+  let s:C_Com2          = ''       " C++style : comment end
 endif
 "
 "
@@ -190,12 +201,6 @@ endif
 "------------------------------------------------------------------------------
 "
 function! C_InitC ()
-	"
-	"
-	"----- The following two maps are only used for the developement of this plugin ----------------
-	"
-	 noremap  <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
-	inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
 	"
 	"===============================================================================================
 	"----- Menu : C --------------------------------------------------------------------------------
@@ -252,10 +257,10 @@ function! C_InitC ()
 				\'<Esc><Esc>:call C_CommentSection("HEADER FILE INCLUDES")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Macros           '
 				\'<Esc><Esc>:call C_CommentSection("MACROS  -  LOCAL TO THIS SOURCE FILE")<CR>0i'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Data\ Types      '
-				\'<Esc><Esc>:call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Type\ Def\.      '
 				\'<Esc><Esc>:call C_CommentSection("TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")<CR>0i'
+	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Data\ Types      '
+				\'<Esc><Esc>:call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Variables        '
 				\'<Esc><Esc>:call C_CommentSection("VARIABLES  -  LOCAL TO THIS SOURCE FILE")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Prototypes       '
@@ -287,10 +292,10 @@ function! C_InitC ()
 				\'<Esc><Esc>:call C_CommentSection("HEADER FILE INCLUDES")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Macros          '
 				\'<Esc><Esc>:call C_CommentSection("EXPORTED MACROS")<CR>0i'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Data\ Types     '
-				\'<Esc><Esc>:call C_CommentSection("EXPORTED DATA TYPES")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Type\ Def\.     '
 				\'<Esc><Esc>:call C_CommentSection("EXPORTED TYPE DEFINITIONS")<CR>0i'
+	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Data\ Types     '
+				\'<Esc><Esc>:call C_CommentSection("EXPORTED DATA TYPES")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Variables       '
 				\'<Esc><Esc>:call C_CommentSection("EXPORTED VARIABLES")<CR>0i'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Funct\.\ Decl\. '
@@ -431,32 +436,32 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..-Sep0-         :'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&assert\.h     <Esc><Esc>o#include<Tab><assert.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&ctype\.h      <Esc><Esc>o#include<Tab><ctype.h><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&errno\.h      <Esc><Esc>o#include<Tab><errno.h><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&float\.h      <Esc><Esc>o#include<Tab><float.h><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&ctype\.h      <Esc><Esc>o#include<Tab><ctype.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&errno\.h      <Esc><Esc>o#include<Tab><errno.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&float\.h      <Esc><Esc>o#include<Tab><float.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&limits\.h     <Esc><Esc>o#include<Tab><limits.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..l&ocale\.h     <Esc><Esc>o#include<Tab><locale.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&math\.h       <Esc><Esc>o#include<Tab><math.h><Space><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&math\.h       <Esc><Esc>o#include<Tab><math.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..set&jmp\.h     <Esc><Esc>o#include<Tab><setjmp.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..s&ignal\.h     <Esc><Esc>o#include<Tab><signal.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..stdar&g\.h     <Esc><Esc>o#include<Tab><stdarg.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..st&ddef\.h     <Esc><Esc>o#include<Tab><stddef.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&stdio\.h      <Esc><Esc>o#include<Tab><stdio.h><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&stdio\.h      <Esc><Esc>o#include<Tab><stdio.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..stdli&b\.h     <Esc><Esc>o#include<Tab><stdlib.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..st&ring\.h     <Esc><Esc>o#include<Tab><string.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h><Space><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h>'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.<Tab>C\/C\+\+         <Esc>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.-Sep0-                :'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h><Space><Space><Space><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h>'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&inttypes\.h          <Esc><Esc>o#include<Tab><inttypes.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.is&o646\.h            <Esc><Esc>o#include<Tab><iso646.h><Space><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&stdbool\.h           <Esc><Esc>o#include<Tab><stdbool.h><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.s&tdint\.h            <Esc><Esc>o#include<Tab><stdint.h><Space><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.tg&math\.h            <Esc><Esc>o#include<Tab><tgmath.h><Space><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&wchar\.h             <Esc><Esc>o#include<Tab><wchar.h><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h><Space><Space>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.is&o646\.h            <Esc><Esc>o#include<Tab><iso646.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&stdbool\.h           <Esc><Esc>o#include<Tab><stdbool.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.s&tdint\.h            <Esc><Esc>o#include<Tab><stdint.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.tg&math\.h            <Esc><Esc>o#include<Tab><tgmath.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&wchar\.h             <Esc><Esc>o#include<Tab><wchar.h>'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.-SEP2-                          :'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab><.h><Esc>F.i'
@@ -488,11 +493,11 @@ function! C_InitC ()
 	exe "amenu <silent> ".s:C_Root.'&Idioms.s&tatic\ function           <Esc><Esc>:call C_CodeFunction("sa")<CR>w'
 	exe "vmenu <silent> ".s:C_Root.'&Idioms.s&tatic\ function           <Esc><Esc>:call C_CodeFunction("sv")<CR>w'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.&main                       <Esc><Esc>:call C_CodeMain()<CR>3jA'
+
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP1-                      :'
-	exe "amenu          ".s:C_Root.'&Idioms.for(i=&0;\ \ i<n;\ \ i\+=1) <Esc><Esc>ofor ( i=0; i<n; i+=1 )<Esc>0fni'
-	exe "amenu          ".s:C_Root.'&Idioms.for(i=n&-1;i>=0;\ i\-=1)    <Esc><Esc>ofor ( i=n-1; i>=0; i-=1 )<Esc>0fni'
-	exe "amenu          ".s:C_Root.'&Idioms.for(i=&1;\ \ i<=n;\ i\+=1)  <Esc><Esc>ofor ( i=1; i<=n; i+=1 )<Esc>0fni'
-	exe "amenu          ".s:C_Root.'&Idioms.for(i=&n;\ \ i>=1;\ i\-=1)  <Esc><Esc>ofor ( i=n; i>=1; i-=1 )<Esc>0fni'
+	exe "amenu          ".s:C_Root.'&Idioms.for(x=&0;\ \ x<n;\ \ x\+=1)     <Esc><Esc>:call C_CodeFor("up"  )<CR>a'
+	exe "amenu          ".s:C_Root.'&Idioms.for(x=&n-1;\ \ x>=0;\ \ x\-=1)  <Esc><Esc>:call C_CodeFor("down")<CR>a'
+	
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP2-                      :'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.&enum\+typedef              <Esc><Esc>:call C_EST("enum")<CR>jo'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.&struct\+typedef            <Esc><Esc>:call C_EST("struct")<CR>jo'
@@ -505,8 +510,8 @@ function! C_InitC ()
 	exe "imenu          ".s:C_Root.'&Idioms.s&canf                      scanf ("", & );<Esc>F"i'
 	"
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP4-                      :'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.p\ =\ ca&lloc\(\ ,\)        <Esc><Esc>:call C_CodeMalloc("c")<CR>f(la'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.p\ =\ m&alloc\(\ \)         <Esc><Esc>:call C_CodeMalloc("m")<CR>f(la'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.p\ =\ ca&lloc\(\ ,\)        <Esc><Esc>:call C_CodeMalloc("c")<CR>i'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.p\ =\ m&alloc\(\ \)         <Esc><Esc>:call C_CodeMalloc("m")<CR>i'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                isizeof(  )<Esc>hi'
 	exe "vmenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                disizeof(  )<Esc>hPa'
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP5-                      :'
@@ -529,11 +534,11 @@ function! C_InitC ()
 		exe "amenu  <silent> ".s:C_Root.'S&nippets.&edit\ code\ snippet   <C-C>:call C_CodeSnippet("e")<CR>'
 		exe " menu  <silent> ".s:C_Root.'S&nippets.-SEP1-									:'
 	endif
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_Proto1()<CR>'
-	exe "vmenu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_Proto2()<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&insert\ prototype(s)  	<C-C>:call C_Proto3()<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&clear\ prototype(s)			<C-C>:call C_Proto0()<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&show\ prototype(s)			<C-C>:call C_Proto4()<CR>'
+	exe " menu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("n")<CR>'
+	exe "vmenu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("v")<CR>'
+	exe " menu  <silent> ".s:C_Root.'S&nippets.&insert\ prototype(s)  	<C-C>:call C_ProtoInsert()<CR>'
+	exe " menu  <silent> ".s:C_Root.'S&nippets.&clear\ prototype(s)			<C-C>:call C_ProtoClear()<CR>'
+	exe " menu  <silent> ".s:C_Root.'S&nippets.&show\ prototype(s)			<C-C>:call C_ProtoShow()<CR>'
 
 	"
 	"===============================================================================================
@@ -559,63 +564,63 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.<Tab>C\/C\+\+   <Esc>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.-Sep0-          :'
 	"
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&algorithm      <Esc><Esc>o#include<Tab><algorithm><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&bitset         <Esc><Esc>o#include<Tab><bitset><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&complex        <Esc><Esc>o#include<Tab><complex><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&deque          <Esc><Esc>o#include<Tab><deque><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&exception      <Esc><Esc>o#include<Tab><exception><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&fstream        <Esc><Esc>o#include<Tab><fstream><Space><Space><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&algorithm      <Esc><Esc>o#include<Tab><algorithm>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&bitset         <Esc><Esc>o#include<Tab><bitset>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&complex        <Esc><Esc>o#include<Tab><complex>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&deque          <Esc><Esc>o#include<Tab><deque>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&exception      <Esc><Esc>o#include<Tab><exception>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&fstream        <Esc><Esc>o#include<Tab><fstream>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.f&unctional     <Esc><Esc>o#include<Tab><functional>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iomani&p        <Esc><Esc>o#include<Tab><iomanip><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&ios            <Esc><Esc>o#include<Tab><ios><Space><Space><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iosf&wd         <Esc><Esc>o#include<Tab><iosfwd><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.io&stream       <Esc><Esc>o#include<Tab><iostream><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.istrea&m        <Esc><Esc>o#include<Tab><istream><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iterato&r       <Esc><Esc>o#include<Tab><iterator><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&limits         <Esc><Esc>o#include<Tab><limits><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.lis&t           <Esc><Esc>o#include<Tab><list><Space><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.l&ocale         <Esc><Esc>o#include<Tab><locale><Space><Space><Space><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iomani&p        <Esc><Esc>o#include<Tab><iomanip>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&ios            <Esc><Esc>o#include<Tab><ios>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iosf&wd         <Esc><Esc>o#include<Tab><iosfwd>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.io&stream       <Esc><Esc>o#include<Tab><iostream>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.istrea&m        <Esc><Esc>o#include<Tab><istream>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iterato&r       <Esc><Esc>o#include<Tab><iterator>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&limits         <Esc><Esc>o#include<Tab><limits>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.lis&t           <Esc><Esc>o#include<Tab><list>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.l&ocale         <Esc><Esc>o#include<Tab><locale>'
 	"
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.<Tab>C\/C\+\+   <Esc>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.-Sep0-          :'
 
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&map            <Esc><Esc>o#include<Tab><map><Space><Space><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.memor&y         <Esc><Esc>o#include<Tab><memory><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&new            <Esc><Esc>o#include<Tab><new><Space><Space><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.numeri&c        <Esc><Esc>o#include<Tab><numeric><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&ostream        <Esc><Esc>o#include<Tab><ostream><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&queue          <Esc><Esc>o#include<Tab><queue><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&set            <Esc><Esc>o#include<Tab><set><Space><Space><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.sst&ream        <Esc><Esc>o#include<Tab><sstream><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.st&ack          <Esc><Esc>o#include<Tab><stack><Space><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stde&xcept      <Esc><Esc>o#include<Tab><stdexcept><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stream&buf      <Esc><Esc>o#include<Tab><streambuf><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.str&ing         <Esc><Esc>o#include<Tab><string><Space><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&typeinfo       <Esc><Esc>o#include<Tab><typeinfo><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&utility        <Esc><Esc>o#include<Tab><utility><Space><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&valarray       <Esc><Esc>o#include<Tab><valarray><Space><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.v&ector         <Esc><Esc>o#include<Tab><vector><Space><Space><Space><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&map            <Esc><Esc>o#include<Tab><map>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.memor&y         <Esc><Esc>o#include<Tab><memory>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&new            <Esc><Esc>o#include<Tab><new>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.numeri&c        <Esc><Esc>o#include<Tab><numeric>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&ostream        <Esc><Esc>o#include<Tab><ostream>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&queue          <Esc><Esc>o#include<Tab><queue>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&set            <Esc><Esc>o#include<Tab><set>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.sst&ream        <Esc><Esc>o#include<Tab><sstream>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.st&ack          <Esc><Esc>o#include<Tab><stack>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stde&xcept      <Esc><Esc>o#include<Tab><stdexcept>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stream&buf      <Esc><Esc>o#include<Tab><streambuf>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.str&ing         <Esc><Esc>o#include<Tab><string>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&typeinfo       <Esc><Esc>o#include<Tab><typeinfo>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&utility        <Esc><Esc>o#include<Tab><utility>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&valarray       <Esc><Esc>o#include<Tab><valarray>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&map\.\.vec>.v&ector         <Esc><Esc>o#include<Tab><vector>'
 	"
 	"----- Submenu : C     library  -------------------------------------------------------------------
 	"
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.<Tab>C\/C\+\+ <Esc>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.-Sep0-        :'
 	"
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&assert      <Esc><Esc>o#include<Tab><&cXert>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&ctype       <Esc><Esc>o#include<Tab><cctype><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&errno       <Esc><Esc>o#include<Tab><cerrno><Space>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&float       <Esc><Esc>o#include<Tab><cfloat><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&assert      <Esc><Esc>o#include<Tab><cassert>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&ctype       <Esc><Esc>o#include<Tab><cctype>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&errno       <Esc><Esc>o#include<Tab><cerrno>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&float       <Esc><Esc>o#include<Tab><cfloat>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&limits      <Esc><Esc>o#include<Tab><climits>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cl&ocale      <Esc><Esc>o#include<Tab><clocale>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&math        <Esc><Esc>o#include<Tab><cmath><Space><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&math        <Esc><Esc>o#include<Tab><cmath>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cset&jmp      <Esc><Esc>o#include<Tab><csetjmp>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cs&ignal      <Esc><Esc>o#include<Tab><csignal>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cstdar&g      <Esc><Esc>o#include<Tab><cstdarg>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cst&ddef      <Esc><Esc>o#include<Tab><cstddef>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&stdio       <Esc><Esc>o#include<Tab><cstdio><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&stdio       <Esc><Esc>o#include<Tab><cstdio>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cstdli&b      <Esc><Esc>o#include<Tab><cstdlib>'
 	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.cst&ring      <Esc><Esc>o#include<Tab><cstring>'
-	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&time        <Esc><Esc>o#include<Tab><ctime><Space><Space>'
+	exe "amenu  ".s:C_Root.'C&++.#include\ <&cX>.c&time        <Esc><Esc>o#include<Tab><ctime>'
 
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
@@ -763,6 +768,7 @@ function! C_InitC ()
 	exe "amenu  <silent>  ".s:C_Root.'&Run.har&dcopy\ buffer\ to\ FILENAME\.ps   <C-C>:call C_Hardcopy("n")<CR>'
 	exe "vmenu  <silent>  ".s:C_Root.'&Run.hardcop&y\ part\ to\ FILENAME\.part\.ps  <C-C>:call C_Hardcopy("v")<CR>'
 	exe "imenu  <silent>  ".s:C_Root.'&Run.-SEP2-                                :'
+
 	exe "amenu  <silent>  ".s:C_Root.'&Run.&settings                             <C-C>:call C_Settings()<CR>'
 
 endfunction    " ----------  end of function  C_InitC  ----------
@@ -770,6 +776,18 @@ endfunction    " ----------  end of function  C_InitC  ----------
 "===============================================================================================
 "----- Menu Functions --------------------------------------------------------------------------
 "===============================================================================================
+"
+"------------------------------------------------------------------------------
+"  Input after a highlighted prompt
+"------------------------------------------------------------------------------
+function! C_Input ( promp, text )
+	echohl Search												" highlight prompt
+	call inputsave()										" preserve typeahead
+	let	retval=input( a:promp, a:text )	" read input
+	call inputrestore()									" restore typeahead
+	echohl None													" reset highlighting
+	return retval
+endfunction
 "
 "------------------------------------------------------------------------------
 "  Comments : multi line-end comments
@@ -852,8 +870,8 @@ endfunction
 function! C_Comment_C_SectionAll1 ()
 	call C_CommentSection("HEADER FILE INCLUDES")
   call C_CommentSection("MACROS  -  LOCAL TO THIS SOURCE FILE")
-  call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")
   call C_CommentSection("TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")
+  call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")
   call C_CommentSection("VARIABLES  -  LOCAL TO THIS SOURCE FILE")
   call C_CommentSection("PROTOTYPES  -  LOCAL TO THIS SOURCE FILE")
 	call C_CommentSection("FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS")
@@ -995,6 +1013,19 @@ function! C_CommentTemplates (arg)
 		let templatefile=s:C_Template_Directory.s:Cpp_ErrorClass
 	endif
 
+	if	a:arg=='CppClass'                 ||
+		\	a:arg=='CppClassUsingNew'         ||
+		\	a:arg=='CppTemplateClass'         ||
+		\	a:arg=='CppTemplateClassUsingNew' ||
+		\	a:arg=='CppErrorClass' 
+
+		let	name	= C_Input("class name : ", "" )
+		if name == ""
+			return
+		endif
+		let s:C_ClassName	= name
+	endif
+
 	if filereadable(templatefile)
 		let	length= line("$")
 		let	pos1  = line(".")+1
@@ -1029,19 +1060,7 @@ function! C_CommentTemplates (arg)
 		call  C_SubstituteTag( pos1, pos2, '|PROJECT|',         s:C_Project          )
 		call  C_SubstituteTag( pos1, pos2, '|COMPANY|',         s:C_Company          )
 		call  C_SubstituteTag( pos1, pos2, '|COPYRIGHTHOLDER|', s:C_CopyrightHolder  )
-		" 
-		if	a:arg=='CppClass'                 ||
-			\	a:arg=='CppClassUsingNew'         ||
-			\	a:arg=='CppTemplateClass'         ||
-			\	a:arg=='CppTemplateClassUsingNew' ||
-			\	a:arg=='CppErrorClass' 
-
-	  	let	s:C_ClassName=inputdialog("name of class", "Cls" )
-			if s:C_ClassName == ""
-				s:C_ClassName == "ClassName"
-			endif
-			call  C_SubstituteTag( pos1, pos2, '|CLASSNAME|',  s:C_ClassName )
-		endif
+		call  C_SubstituteTag( pos1, pos2, '|CLASSNAME|',       s:C_ClassName        )
 
 		"----------------------------------------------------------------------
 		"  Position the cursor
@@ -1175,14 +1194,14 @@ endfunction    " ----------  end of function  C_CommentCode  ----------
 function! C_Toggle_C_Cpp ()
 	
 	if s:C_Comments == 'yes'
-		exe "aunmenu <silent> ".s:C_Root.'&Comments.St&yle\ C\ ->\ C\+\+'
-		exe "amenu   <silent> ".s:C_Root.'&Comments.St&yle\ C\+\+\ ->\ C       <Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
+		exe "aunmenu <silent> ".s:C_Root.'&Comments.st&yle\ C\ ->\ C\+\+'
+		exe "amenu   <silent> ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C       <Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		let	s:C_Comments	= 'no'
 		let s:C_Com1      = '//'     " C++style : comment start 
 		let s:C_Com2      = ''       " C++style : comment end
 	else
-		exe "aunmenu <silent> ".s:C_Root.'&Comments.St&yle\ C\+\+\ ->\ C'
-		exe "amenu   <silent> ".s:C_Root.'&Comments.St&yle\ C\ ->\ C\+\+    		<Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
+		exe "aunmenu <silent> ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C'
+		exe "amenu   <silent> ".s:C_Root.'&Comments.st&yle\ C\ ->\ C\+\+    		<Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		let	s:C_Comments	= 'yes'
 		let s:C_Com1      = '/*'     " C-style : comment start 
 		let s:C_Com2      = '*/'     " C-style : comment end
@@ -1194,7 +1213,7 @@ endfunction    " ----------  end of function C_Toggle_C_Cpp  ----------
 "  C-Comments : vim modeline
 "------------------------------------------------------------------------------
 function! C_CommentVimModeline ()
-  	put = '/* vim: set tabstop='.&tabstop.': set shiftwidth='.&shiftwidth.': */'
+  	put = '/* vim: set tabstop='.&tabstop.' shiftwidth='.&shiftwidth.': */'
 endfunction    " ----------  end of function C_CommentVimModeline  ----------
 "
 "=====================================================================================
@@ -1276,7 +1295,7 @@ endfunction    " ----------  end of function C_PPDefine  ----------
 "------------------------------------------------------------------------------
 function! C_PPIfElse (keyword,mode)
 	let identifier = "CONDITION"
-	let	identifier = inputdialog("(uppercase) condition for #".a:keyword, identifier )
+	let	identifier = C_Input("(uppercase) condition for #".a:keyword." : ", identifier )
 	if identifier != ""
 		
 		if a:mode=='a'
@@ -1304,7 +1323,7 @@ endfunction
 function! C_PPIfDef (arg)
 	" use filename without path (:t) and extension (:r) :
 	let identifier = toupper(expand("%:t:r"))."_INC"
-	let	identifier = inputdialog("(uppercase) condition for #ifndef", identifier )
+	let	identifier = C_Input("(uppercase) condition for #ifndef : ", identifier )
 	if identifier != ""
 		
 		if a:arg=='a'
@@ -1330,15 +1349,15 @@ endfunction
 "  C-Idioms : function
 "------------------------------------------------------------------------------
 function! C_CodeFunction (arg1)
-	let	identifier=inputdialog("function name", "f" )
 
-	if a:arg1=="sa" || a:arg1=="sv"
-		let prfx	= "static "
-	else
-		let prfx	= ""
-	endif
+	let	identifier=C_Input("function name : ", "" )
 
 	if identifier != ""
+		if a:arg1=="sa" || a:arg1=="sv"
+			let prfx	= "static "
+		else
+			let prfx	= ""
+		endif
 		" ----- normal mode ----------------
 		if a:arg1=="a" || a:arg1=="sa"
 			let zz=    prfx."void\n".identifier." (  )\n{\n\treturn ;\n}"
@@ -1403,7 +1422,7 @@ function! C_CodeSnippet(arg1)
 			let	l:snippetfile=browse(0,"write a code snippet",s:C_CodeSnippets,"")
 			if l:snippetfile != ""
 				if filereadable(l:snippetfile)
-					if confirm("File exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
+					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
 						return
 					endif
 				endif
@@ -1417,7 +1436,7 @@ function! C_CodeSnippet(arg1)
 			let	l:snippetfile=browse(0,"write a code snippet",s:C_CodeSnippets,"")
 			if l:snippetfile != ""
 				if filereadable(l:snippetfile)
-					if confirm("File exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
+					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
 						return
 					endif
 				endif
@@ -1431,10 +1450,80 @@ function! C_CodeSnippet(arg1)
 endfunction    " ----------  end of function C_CodeSnippets  ----------
 "
 "------------------------------------------------------------------------------
+"  C : for (idiom)
+"------------------------------------------------------------------------------
+function! C_CodeFor( direction )
+	if a:direction=="up"
+		let	string	= C_Input( " loop var. [ start [ end [ incr. ]]] : ", "" )
+	else
+		let	string	= C_Input( " loop var. [ start [ end [ decr. ]]] : ", "" )
+	endif
+	let	pos		= 0
+	let	jmp		= 0
+	if string != ""
+		" loop variable
+		let loopvar		= matchstr( string, '\S\+\s*', pos )
+		let pos				= pos + strlen(loopvar)
+		let loopvar		= substitute( loopvar, '\s*$', "", "" )
+		" 
+		" start value
+		let startval	= matchstr( string, '\S\+\s*', pos )
+		let pos				= pos + strlen(startval)
+		let startval	= substitute( startval, '\s*$', "", "" )
+
+		" end value
+		let endval	= matchstr( string, '\S\+\s*', pos )
+		let pos				= pos + strlen(endval)
+		let endval	= substitute( endval, '\s*$', "", "" )
+
+		" increment
+		let incval	= matchstr( string, '\S\+\s*', pos )
+		let pos			= pos + strlen(incval)
+		let incval	= substitute( incval, '\s*$', "", "" )
+
+		if incval==""
+			let incval	= '1'
+			let	jmp		= 10
+		endif
+
+		if a:direction=="up"
+			if endval==""
+				let endval	= 'n'
+				let	jmp		= 7
+			endif
+			if startval==""
+				let startval	= '0'
+				let	jmp		= 4
+			endif
+			let zz= "for ( ".loopvar." = ".startval."; ".loopvar." < ".endval."; ".loopvar." += ".incval." )" 
+		else
+			if endval==""
+				let endval	= '0'
+				let	jmp		= 7
+			endif
+			if startval==""
+				let startval	= 'n-1'
+				let	jmp		= 4
+			endif
+			let zz= "for ( ".loopvar." = ".startval."; ".loopvar." >= ".endval."; ".loopvar." -= ".incval." )" 
+		endif
+
+		put =zz
+		normal ==
+		if jmp!=0
+			exe "normal ".jmp."Wh"
+		else
+			exe 'normal $'
+		endif
+	endif
+
+endfunction
+"
+"------------------------------------------------------------------------------
 "  C++ : method
 "------------------------------------------------------------------------------
 function! C_CodeMethod()
-	let	identifier=inputdialog("method name", s:C_ClassName."::" )
+	let	identifier=C_Input("method name : ", s:C_ClassName."::" )
 	if identifier != ""
 		let zz= "
 		\void\n".identifier."\t(  )\n{\n\treturn ;\n}
@@ -1448,7 +1537,7 @@ endfunction
 "  C++ : template function
 "------------------------------------------------------------------------------
 function! C_CodeTemplateFunct ()
-	let	identifier=inputdialog("template function name", "f" )
+	let	identifier=C_Input("template function name : ", "" )
 	if identifier != ""
 		let zz=    "template <class T> void\n".identifier."\t( T param )\n{\n\n\n\treturn ;\n}"
 		let zz= zz."\t\t".s:C_Com1." -----  end of template function ".identifier."  ----- ".s:C_Com2
@@ -1459,9 +1548,9 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : enum struct union
 "------------------------------------------------------------------------------
-functio! C_EST (su)
+function! C_EST (su)
 	let name= strpart( a:su, 0, 1 )												" first character of argument
-	let	name= inputdialog("(lowercase) ".a:su." name", name )
+	let	name= C_Input("(lowercase) ".a:su." name : ", name )
 	if name != ""
 		let	typename	= name
 		let zz=    a:su." ".name."\n{\n};"
@@ -1476,19 +1565,57 @@ endfunction
 "  C-Idioms : malloc
 "------------------------------------------------------------------------------
 function! C_CodeMalloc (type)
-	let	pointername= inputdialog("pointer name", "p")
-	if pointername != ""
+	let	pos		= 0
+	let	jmp		= 0
+	if a:type == "c"
+		let	string	= C_Input("pointer name { count [ size ]] : ", "")
+	else
+		let	string	= C_Input("pointer name [ count ] : ", "")
+	endif
+
+	if string != ""
+		" loop variable
+		let pointername		= matchstr( string, '\S\+\s*', pos )
+		let pos						= pos + strlen(pointername)
+		let pointername		= substitute( pointername, '\s*$', "", "" )
+
 		if a:type == "c"
-			let zz=    pointername."\t= calloc ( ,  );"
+			" count 
+			let cnt		= matchstr( string, '\S\+\s*', pos )
+			let pos		= pos + strlen(cnt)
+			let cnt		= substitute( cnt, '\s*$', "", "" )
+			" size 
+			let size	= matchstr( string, '\S\+\s*', pos )
+			let pos		= pos + strlen(size)
+			let size	= substitute( size, '\s*$', "", "" )
+			if size==""
+				let jmp	= 5
+			endif
+			if cnt==""
+				let jmp	= 4
+			endif
+			let zz=    pointername."\t= calloc ( ".cnt.", ".size." );"
 		else
-			let zz=    pointername."\t= malloc (  );"
+			let size	= matchstr( string, '\S\+\s*', pos )
+			let pos		= pos + strlen(size)
+			let size	= substitute( size, '\s*$', "", "" )
+			if size==""
+				let jmp	= 4
+			endif
+
+			let zz=    pointername."\t= malloc ( ".size." );"
 		endif
-		let zz= zz."\n\nif (".pointername."==NULL)\n{"
+		let zz= zz."\nif (".pointername."==NULL)\n{"
 		let zz= zz."\n\tfprintf (stderr, \"\\n ** dynamic memory allocation failed ** exit **\\n\" );"
 		let zz= zz."\n\texit(3);\n}"
 		let zz= zz."\n\nfree (".pointername.");\n\n"
 		put =zz
-		normal  =8+
+		normal  =7+
+		if jmp!=0
+			exe "normal ".jmp."Wh"
+		else
+			exe "normal 6j"
+		endif
 	endif
 endfunction
 "
@@ -1496,7 +1623,7 @@ endfunction
 "  C-Idioms : open file for reading
 "------------------------------------------------------------------------------
 function! C_CodeFopenRead ()
-	let	filepointer=inputdialog("input-file pointer", "infile")
+	let	filepointer=C_Input("input-file pointer : ", "infile")
 	if filepointer != ""
 		let filename=filepointer."_file_name"
 		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t".s:C_Com1." input-file pointer ".s:C_Com2."\n"
@@ -1517,7 +1644,7 @@ endfunction
 "  C-Idioms : open file for writing
 "------------------------------------------------------------------------------
 function! C_CodeFopenWrite ()
-	let	filepointer=inputdialog("output-file pointer", "outfile")
+	let	filepointer=C_Input("output-file pointer : ", "outfile")
 	if filepointer != ""
 		let filename=filepointer."_file_name"
 		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t".s:C_Com1." output-file pointer ".s:C_Com2."\n"
@@ -1541,7 +1668,7 @@ function! C_CodeIfstream ()
 	let	comment1	= " input file name        "
 	let	comment2	= " create ifstream object "
 	let	comment3	= " open ifstream          "
-	let	ifstreamobject=inputdialog("ifstream object", "ifs" )
+	let	ifstreamobject=C_Input("ifstream object : ", "ifs" )
 	if ifstreamobject != ""
 		let filename=ifstreamobject."_file_name"
 		let zz=    "char *".filename." = \"\";\t\t".s:C_Com1.comment1.s:C_Com2."\n"
@@ -1563,7 +1690,7 @@ function! C_CodeOfstream ()
 	let	comment1	= " output file name       "
 	let	comment2	= " create ofstream object "
 	let	comment3	= " open ofstream          "
-	let	ofstreamobject=inputdialog("ofstream object", "ofs" )
+	let	ofstreamobject=C_Input("ofstream object : ", "ofs" )
 	if ofstreamobject != ""
 		let filename=ofstreamobject."_file_name"
 		let zz=    "char *".filename." = \"\";\t\t".s:C_Com1.comment1.s:C_Com2."\n"
@@ -1590,7 +1717,7 @@ endfunction
 "  C++ : output operator
 "------------------------------------------------------------------------------
 function! C_CodeOutputOperator ()
-	let	identifier=inputdialog("class name", s:C_ClassName )
+	let	identifier=C_Input("class name : ", s:C_ClassName )
 	if identifier != ""
 		let zz=    "friend ostream &\noperator << (ostream & os, const ".identifier." & obj )\n"
 		let zz= zz."{\n\tos << obj. ;\n\treturn os;\n}"
@@ -1603,7 +1730,7 @@ endfunction
 "  C++ : input operator
 "------------------------------------------------------------------------------
 function! C_CodeInputOperator ()
-	let	identifier=inputdialog("class name", s:C_ClassName )
+	let	identifier=C_Input("class name : ", s:C_ClassName )
 	if identifier != ""
 		let zz=    "friend istream &\noperator >> (istream & is, ".identifier." & obj )"
 		let zz= zz."\n{\n\tis >> obj. ;\n\treturn is;\n}"
@@ -1636,81 +1763,55 @@ endfunction
 "------------------------------------------------------------------------------
 "
 let s:C_Prototype        = ''
-let s:C_PrototypeNum     = ''
+let s:C_PrototypeShow    = ''
 let s:C_PrototypeCounter = 0
-let s:C_PrototypeLines   = 0
 let s:C_CComment         = '\/\*.\{-}\*\/\s*'		" C comment with trailing whitespaces
-																								"  '.\{-}'  any character, nongreedy
+																								"  '.\{-}'  any character, non-greedy
 let s:C_CppComment       = '\/\/.*$'						" C++ comment
 "
 "------------------------------------------------------------------------------
-"  Prototypes : clear
+"  Prototypes : pick up (normal/visual)
 "------------------------------------------------------------------------------
-function! C_Proto0 ()
-	let s:C_Prototype        = ""
-	let s:C_PrototypeNum     = ""
-	let s:C_PrototypeCounter = 0
-	let s:C_PrototypeLines   = 0
-	echo 'prototypes deleted'
-endfunction    " ---------  end of function C_Proto0  ----------
-"
-"------------------------------------------------------------------------------
-"  Prototypes : pick up (normal)
-"------------------------------------------------------------------------------
-function! C_Proto1 ()
-	let prototyp	= getline(line("."))
-	let prototyp	= substitute( prototyp, '^\s\+', "", "" )					" remove leading whitespaces
-	let prototyp	= substitute( prototyp, s:C_CppComment, "", "" )	" remove C++ comment
-	let prototyp	= substitute( prototyp, s:C_CComment, "", "g" )		" remove C comments 
-	let prototyp  = substitute( prototyp, '\s\+', " ", "g" )				" squeeze whitespaces
-	let prototyp	= substitute( prototyp, '\s\+$', "", "" )					" remove trailing whitespaces
-	let prototyp	= substitute( prototyp, '\<\h\w*\s*::', "", "" )	" remove the scope res. operator
-	let prototyp	= prototyp.";\n"
-	let s:C_PrototypeCounter = s:C_PrototypeCounter + 1
-	let s:C_Prototype        = s:C_Prototype.prototyp
-	let identstring          = s:C_PrototypeNum."(".s:C_PrototypeCounter.") ".bufname("%")." #  "
-	let s:C_PrototypeNum     = identstring.prototyp
-	let s:C_PrototypeLines   = s:C_PrototypeLines   + 1
-	echo	s:C_PrototypeCounter.' prototype(s)'
-endfunction    " ---------  end of function C_Proto1  ----------¸
-
-"------------------------------------------------------------------------------
-"  Prototypes : pick up (visual)
-"------------------------------------------------------------------------------
-function! C_Proto2 ()
-	let	pos1       = line("'<")
-	let	pos2       = line("'>")
+function! C_ProtoPick (mode)
+	if a:mode=="n"
+		" --- normal mode -------------------
+		let	pos1	= line(".")
+		let	pos2	= line(".")
+	else
+		" --- visual mode -------------------
+		let	pos1	= line("'<")
+		let	pos2	= line("'>")
+	endif
 	let	linenumber = pos1
 	let prototyp   = getline(linenumber)
-	let prototyp   = substitute( prototyp, '^\s\+', "", "" )				" remove leading whitespaces
 	let prototyp   = substitute( prototyp, s:C_CppComment, "", "" ) " remove C++ comment
-	let prototyp   = substitute( prototyp, '\s\+$', "", "" )				" trailing whitespaces
 	let linenumber = linenumber+1
-	while linenumber<=pos2
-		let newline		=  getline(linenumber)
-		let newline   = substitute( newline, s:C_CppComment, "", "" ) " remove C++ comment
-		if newline!=""
-			let prototyp	= prototyp." ".newline
-		endif
-		let linenumber=linenumber+1
+	while linenumber <= pos2
+		let newline			= getline(linenumber)
+		let newline 	  = substitute( newline, s:C_CppComment, "", "" ) " remove C++ comment
+		let prototyp		= prototyp." ".newline
+		let linenumber	= linenumber+1
 	endwhile
+	let prototyp  = substitute( prototyp, '^\s\+', "", "" )					" remove leading whitespaces
 	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments 
 	let prototyp  = substitute( prototyp, '\s\+', " ", "g" )				" squeeze whitespaces
 	let prototyp  = substitute( prototyp, '\s\+$', "", "" )					" remove trailing whitespaces
 	let prototyp	= substitute( prototyp, '\<\h\w*\s*::', "", "" )	" remove the scope res. operator
+	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" )     	" remove trailing parts of the function body
 	let prototyp	= prototyp.";\n"
 	let s:C_PrototypeCounter = s:C_PrototypeCounter+1
 	let s:C_Prototype        = s:C_Prototype.prototyp
-	let identstring          = s:C_PrototypeNum."(".s:C_PrototypeCounter.") ".bufname("%")." #  "
-	let s:C_PrototypeNum     = identstring.prototyp
-	let s:C_PrototypeLines   = s:C_PrototypeLines + (pos2-pos1+1)
+	let identstring          = s:C_PrototypeShow."(".s:C_PrototypeCounter.") ".bufname("%")." #  "
+	let s:C_PrototypeShow    = identstring.prototyp
+	"
 	echo	s:C_PrototypeCounter.' prototype(s)'
-endfunction    " ---------  end of function C_Proto2  ----------
+	"
+endfunction    " ---------  end of function C_ProtoPick  ----------
 "
 "------------------------------------------------------------------------------
 "  Prototypes : insert
 "------------------------------------------------------------------------------
-function! C_Proto3 ()
+function! C_ProtoInsert ()
 	if s:C_PrototypeCounter==0
 		echo "currently no prototypes available"
 	else
@@ -1718,18 +1819,28 @@ function! C_Proto3 ()
 		put =output
 		silent exe "normal =".s:C_PrototypeCounter."+"
 	endif
-endfunction    " ---------  end of function C_Proto3  ----------
+endfunction    " ---------  end of function C_ProtoInsert  ----------
+"
+"------------------------------------------------------------------------------
+"  Prototypes : clear
+"------------------------------------------------------------------------------
+function! C_ProtoClear ()
+	let s:C_Prototype        = ""
+	let s:C_PrototypeShow    = ""
+	let s:C_PrototypeCounter = 0
+	echo 'prototypes deleted'
+endfunction    " ---------  end of function C_ProtoClear  ----------
 "
 "------------------------------------------------------------------------------
 "  Prototypes : show
 "------------------------------------------------------------------------------
-function! C_Proto4 ()
+function! C_ProtoShow ()
 	if s:C_PrototypeCounter==0
 		echo "currently no prototypes available"
 	else
-		echo s:C_PrototypeNum
+		echo s:C_PrototypeShow
 	endif
-endfunction    " ---------  end of function C_Proto4  ----------
+endfunction    " ---------  end of function C_ProtoShow  ----------
 "
 "------------------------------------------------------------------------------
 "  run : C_Compile
@@ -1743,6 +1854,7 @@ endfunction    " ---------  end of function C_Proto4  ----------
 "------------------------------------------------------------------------------
 function! C_Compile ()
 
+	exe	":cclose"
 	let	Sou		= expand("%")								" name of the file in the current buffer
 	let	Obj		= expand("%:r").".o"				" name of the object
 	let	Ext		= expand("%:e")							" file extension
@@ -1764,7 +1876,7 @@ function! C_Compile ()
 		exe		"set makeprg=make"
 		" 
 		" open error window if necessary 
-		exe	":cwindow"
+		exe	":botright cwindow"
 	endif
 	
 endfunction
@@ -1829,14 +1941,14 @@ function! C_Run (arg1)
 
 	let	Sou		= expand("%")										" name of the source file
 	let	Obj		= expand("%:r").".o"						" name of the object file
-	let	Exe		= expand("%:r").".e"						" name of the executable
+	let	Exe		= "./".expand("%:r").".e"				" name of the executable
 
 	call	C_Link()													" compile+link the file in the current buffer
 	
 	" exe exists and is newer then the object, the object is newer then the source
 	" this prevents an old executable from running in the case of compilation or link errors
 	
-	if filereadable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
+	if executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
 		if a:arg1==0
 			exe		"!./".Exe." ".s:C_ExeCmdLineArgs
 		else
@@ -1850,14 +1962,14 @@ endfunction
 "  run : Arguments for the executable
 "------------------------------------------------------------------------------
 function! C_Arguments ()
-	let	s:C_ExeCmdLineArgs= inputdialog("command line arguments",s:C_ExeCmdLineArgs)
+	let	s:C_ExeCmdLineArgs= C_Input("command line arguments : ",s:C_ExeCmdLineArgs)
 endfunction
 "
 "------------------------------------------------------------------------------
 "  run : Arguments for make
 "------------------------------------------------------------------------------
 function! C_MakeArguments ()
-	let	s:C_MakeCmdLineArgs= inputdialog("make command line arguments",s:C_MakeCmdLineArgs)
+	let	s:C_MakeCmdLineArgs= C_Input("make command line arguments : ",s:C_MakeCmdLineArgs)
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1875,28 +1987,29 @@ endfunction
 "  run : settings
 "------------------------------------------------------------------------------
 function! C_Settings ()
-	let	settings	=         "C/C++-Support settings\n\n"
-	let settings = settings."author  :  ".s:C_AuthorName." (".s:C_AuthorRef.") ".s:C_Email."\n"
-	let settings = settings."company :  ".s:C_Company."\n"
-	let settings = settings."project :  ".s:C_Project."\n"
-	let settings = settings."copyright holder :  ".s:C_CopyrightHolder."\n"
-	let settings = settings."\n"
-	let settings = settings."C / C++ compiler :  ".s:C_CCompiler." / ".s:C_CplusCompiler."\n"
-	let settings = settings."C file extension :  ".s:C_CExtension."  (everything else is C++)\n"
-	let settings = settings."compiler flags :  ".s:C_CFlags."\n"
-	let settings = settings."compiler+link flags :  ".s:C_LFlags."\n"
-	let settings = settings."libraries :  ".s:C_Libs."\n"
-	let settings = settings."pager :  ".s:C_Pager."\n"
-	let settings = settings."code snippet directory  :  ".s:C_CodeSnippets."\n"
-	let settings = settings."template directory  :  ".s:C_Template_Directory."\n"
-	if s:C_Dictionary_File != ""
-		let ausgabe= substitute( s:C_Dictionary_File, ",", ",\n\t", "g" )
-		let settings = settings."dictionary file(s)  :  ".ausgabe."\n"
+	let	txt =     " C/C++-Support settings\n\n"
+	let txt = txt."                 author :  ".s:C_AuthorName."\n"
+	let txt = txt."               initials :  ".s:C_AuthorRef."\n"
+	let txt = txt."                  email :  ".s:C_Email."\n"
+	let txt = txt."                company :  ".s:C_Company."\n"
+	let txt = txt."                project :  ".s:C_Project."\n"
+	let txt = txt."       copyright holder :  ".s:C_CopyrightHolder."\n"
+	let txt = txt."       C / C++ compiler :  ".s:C_CCompiler." / ".s:C_CplusCompiler."\n"
+	let txt = txt."       C file extension :  ".s:C_CExtension."  (everything else is C++)\n"
+	let txt = txt."         compiler flags :  ".s:C_CFlags."\n"
+	let txt = txt."    compiler+link flags :  ".s:C_LFlags."\n"
+	let txt = txt."              libraries :  ".s:C_Libs."\n"
+	let txt = txt."                  pager :  ".s:C_Pager."\n"
+	let txt = txt." code snippet directory :  ".s:C_CodeSnippets."\n"
+	let txt = txt."     template directory :  ".s:C_Template_Directory."\n"
+	if g:C_Dictionary_File != ""
+		let ausgabe= substitute( g:C_Dictionary_File, ",", ",\n                         + ", "g" )
+		let txt = txt."     dictionary file(s) :  ".ausgabe."\n"
 	endif
-	let settings = settings."\n"
-	let	settings = settings."----------------------------------------------------------------------------------------\n"
-	let	settings = settings."C/C++-Support, Version ".s:C_Version."  /  Dr.-Ing. Fritz Mehner  /  mehner@fh-swf.de\n"
-	let dummy=confirm( settings, "ok", 1, "Info" )
+	let txt = txt."\n"
+	let	txt = txt."__________________________________________________________________________\n"
+	let	txt = txt." C/C++-Support, Version ".s:C_Version." / Dr.-Ing. Fritz Mehner / mehner@fh-swf.de\n\n"
+	echo txt
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1911,6 +2024,16 @@ function! C_Hardcopy (arg1)
 	" -----visual mode ----------------
 	if a:arg1=="v"
 		exe	"*hardcopy > ".Sou.".part.ps"		
+	endif
+endfunction
+"
+"------------------------------------------------------------------------------
+"  Look for a new csupport help file
+"------------------------------------------------------------------------------
+function! C_CheckNewDoc ()
+	if	getftime( s:C_Doc_Directory.'csupport.txt' ) > 
+		\	getftime( s:C_Doc_Directory.'tags' )
+		silent exe 'helptags '.s:C_Doc_Directory
 	endif
 endfunction
 "
@@ -1982,6 +2105,20 @@ call C_CreateUnLoadMenuEntries()			" create the menu entry in the GVIM tool menu
 if s:C_LoadMenus == "yes"
 	call C_Handle()											" load the menus
 endif
-"=====================================================================================
 "
-" vim:set tabstop=2: 
+"------------------------------------------------------------------------------
+"  Automated header insertion
+"------------------------------------------------------------------------------
+"
+if has("autocmd")
+	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
+	autocmd BufNewFile  *.\(h\|hpp\)         call C_CommentTemplates('hheader')
+endif " has("autocmd")
+"
+"------------------------------------------------------------------------------
+"  Look for a new csupport help file
+"------------------------------------------------------------------------------
+call C_CheckNewDoc()
+"
+"=====================================================================================
+" vim: set tabstop=2 shiftwidth=2: 

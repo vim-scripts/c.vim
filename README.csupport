@@ -1,0 +1,222 @@
+README for c.vim (Version 3.6) / July 06 2004
+
+  *  INSTALLATION
+  *  RELEASE NOTES 
+  *  FILES
+  *  ADDITIONAL TIPS
+
+=======================================================================================
+  INSTALLATION
+=======================================================================================
+The subdirectories in the zip archive  cvim.zip  mirror the directory structure 
+which is needed below the local installation directory $HOME/.vim/ .
+
+(1) Copy the zip archive  cvim.zip to $HOME/.vim and run
+
+      unzip cvim.zip
+
+    If you have already an older version of cvim and you have modified the template
+    files you may want to save your templates first or copy the files from the 
+    archive by hand.
+
+(2) Set at least some personal details into .vimrc by overriding some defaults.
+    Here the minimal personalization (my settings as an example, of course):
+
+      let g:C_AuthorName      = 'Dr.-Ing. Fritz Mehner'     
+      let g:C_AuthorRef       = 'Mn'                         
+      let g:C_Email           = 'mehner@fh-swf.de'            
+      let g:C_Company         = 'FH Südwestfalen, Iserlohn'    
+
+There are a lot of features and options which can be used and influenced:
+
+  *  use of template files and tags
+  *  surround marked blocks with statements
+  *  generate/remove multiline comments 
+  *  picking up prototypes
+  *  using and managing personal code snippets
+  *  C/C++ dictionaries for keyword completion
+  *  removing the root menu
+
+Restart gVim/Vim and look at the csupport help with
+
+  :help csupport 
+
+>>>>>                             <<<<<
+>>>>>    or read  csupport.txt    <<<<<
+>>>>>                             <<<<<
+
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.6
+=======================================================================================
+
++ Installation simplified. 
++ for-loop-idiom asks for control variable, initial value, ...
++ malloc-idiom asks for pointer variable and size.
++ Toggling the comment style works correct again.
++ Empty error windows will be closed.
++ Prototype picker removes trailing parts of the function body if marked.
++ The dialog windows (GUI) have been replaced by more flexible command line inputs.
++ The undocumented and unnecessary hot key F12 has been removed.
++ Extension to ctags + taglist shows makefile targets and qmake targets.
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.5
+=======================================================================================
+
++ Aligned line end comments for consecutive lines.
++ Improved prototype picker removes comments.
++ Picked up prototypes can be shown.
++ Uncomment more than one block at once.
++ 3 new idioms.
++ Help file improved .
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.4
+=======================================================================================
+
++ Two new global variables: C_Dictionary_File, C_MenuHeader .
++ The preprocessor statements #if... and the function idiom include marked 
+  lines when invoked in visual mode.
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.3
+=======================================================================================
+
++ The C/C++ root menu can be disabled.
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.2
+=======================================================================================
+
++ Only one C/C++ entry in the gVim root menu.
++ All hotkeys are only defined for C/C++ files (file type plugin added).
++ The following constructs are now read as templates from files:
+   class, class using new, 
+   template class, template class using new,
+   error class
++ Install script added.
++ Customization improved. 
++ Documentation improved (help file added).
++ Bug fix (template file handling)
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.1
+=======================================================================================
+
++ When the comment style "C" is active the menu entry "Comments.code->comment"
+  turns a marked region in one multiline C-comment.
++ The menu entry "Comments.comment->code"  turns marked multiline C-comment 
+  back into code.
++ A marked region can be surrounded by a for-, if, if-else, while-, do-while-statement
+  (with indentation).
++ The menu entry "Snippets.make prototype" makes a C- or C++-prototype from 
+  the current line or marked region and puts it in an internal buffer.
++ The menu entry "Snippets.add prototype" also makes a C- or C++-prototype from 
+  the current line or a marked region and adds it to the internal buffer.
++ The menu entry "Snippets.put prototype" inserts all gathered prototypes 
+  below the current line. 
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.0
+=======================================================================================
+
++ C-style comments AND C++-style comments are supported now.
++ The menu entry 'Comments->Comment style ..' switches the styles (toggle).
++ Block comments are now read as templates or skeletons from files:
+    Frame Block,        Function Description,  Method Description,
+    Class Description,  H+file header,         C/C++-file header
++ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are replaced
+  after reading (KDevelop templates can be used without any change).
++ indentation: multiline inserts and code snippets will be indented after insertion.
++ Most menu entries are now also active in normal mode.
++ new menu items: 
+    includes for the C99 header, 
+    includes for the standard C++ header,
+    includes for the C++ version of the Standard C Library header,
+    multiline C comment
+    vim modeline
++ Reading the templates is done in one function which can be called in an autocmd.
++ Code cleanup: register z no longer used. Most function calls are silent now.
+
+
+=======================================================================================
+  FILES
+=======================================================================================
+
+README.csupport                 This file.
+
+doc/csupport.txt                The help file for the local online help. 
+                          
+ftplugin/c.vim                  A filetype plugin. Define hotkeys, creates a local 
+                                dictionary for each C/C++ file.
+
+plugin/c.vim                    The C/C++ plugin for GVIM.
+
+plugin/templates/c-class-description            -+- C-style and C++-style template files
+plugin/templates/c-file-header                   |  (see csupport.txt)
+plugin/templates/c-frame                         |   
+plugin/templates/c-function-description          |
+plugin/templates/c-method-description            |
+plugin/templates/cpp-class-description           | 
+plugin/templates/cpp-file-header                 |
+plugin/templates/cpp-frame                       |
+plugin/templates/cpp-function-description        |
+plugin/templates/cpp-method-description          |
+plugin/templates/h-file-header                   |
+plugin/templates/hpp-file-header                 |
+plugin/templates/c-class                         |
+plugin/templates/c-class-using-new               |
+plugin/templates/c-template-class                |
+plugin/templates/c-template-class-using-new      |
+plugin/templates/c-error-class                   |
+plugin/templates/cpp-class                       |
+plugin/templates/cpp-class-using-new             |
+plugin/templates/cpp-template-class              |
+plugin/templates/cpp-template-class-using-new    |
+plugin/templates/cpp-error-class                -+
+
+wordlists/c-c++-keywords.list   All C and C++ keywords (already in word.list).
+wordlists/german.list           German words for commenting sources.
+wordlists/k+r.list              K&R-Book: Words from the table of content. They appear
+                                frequently in comments.
+wordlists/stl_index.list        Standard Template Library (STL): method and type names
+wordlists/xforms.list           XFORMS library: macro and function names
+
+
+-----------------------   -------------------------------------------------------------
+                          The following files and extensions are for convenience only.
+                          c.vim will work without them.
+                          -------------------------------------------------------------
+
+rc/costumization.vimrc    Additional settings I use in .vimrc:  incremental search,
+                          tabstop, hot keys, font, use of dictionaries, ...
+                          The file is commented. Append it to your .vimrc if you like.
+
+rc/costumization.gvimrc   Additional settings I use in .gvimrc:
+                          hot keys, mouse settings, ...
+                          The file is commented. Append it to your .gvimrc if you like.
+
+rc/customization.ctags    Additional settings I use in  .ctags to enable navigation
+                          through makefiles ans qmake files with the plugin taglist.vim.
+
+
+=======================================================================================
+  ADDITIONAL TIPS
+=======================================================================================
+
+(1) gVim. Toggle 'insert mode' <--> 'normal mode' with the right mouse button
+    (see mapping in file costumization.gvimrc).
+
+(2) gVim. Use tear off menus.
+
+(3) Try 'Focus under mouse' as window behavior (No mouse click when the mouse pointer 
+    is back from the menu entry).
+
+(4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and right
+    button at the same time without moving your fingers is faster then moving a finger
+    to the middle button (often a wheel).
+
+=======================================================================================

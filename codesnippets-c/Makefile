@@ -22,13 +22,13 @@
 #=======================================================================================
 
 # ------------  C++ file name extensions  ----------------------------------------------
-CPP_EXTENSION  = cc 
+CPP_EXTENSION  = cc
 
 # ------------  compiler  --------------------------------------------------------------
 CC              = g++
 
 # ------------  compiler flags  --------------------------------------------------------
-CFLAGS          = -g -Wall
+CFLAGS          = -pipe -O2 -g -Wall
 
 # ------------  linker-Flags  ----------------------------------------------------------
 LFLAGS          = -g
@@ -42,13 +42,13 @@ C_SOURCES       = main.c
 CPP_SOURCES     = 
 
 # ------------  additional system include directories  ---------------------------------
-GLOBAL_INC_DIR  = /usr/X11/include
+GLOBAL_INC_DIR  = 
 
 # ------------  additional system library directories  ---------------------------------
-GLOBAL_LIB_DIR  = /usr/X11/lib
+GLOBAL_LIB_DIR  = 
 
 # ------------  system libraries  ------------------------------------------------------
-SYS_LIBS        = -lm  -lX11
+SYS_LIBS        = -lm  
 
 # ------------  private include directories  -------------------------------------------
 LOCAL_INC_DIR   = .
@@ -73,16 +73,16 @@ ALL_LFLAGS      = $(LFLAGS)  -L$(ALL_LIB_DIR) $(SYS_LIBS) $(LOCAL_LIBS)
 
 # ------------  generate the names of the object files  --------------------------------
 OBJECTS         = ${C_SOURCES:.c=.o} 
-OBJECTS        += $(CPP_SOURCES:.cc=.o)
+OBJECTS        += $(CPP_SOURCES:.$(CPP_EXTENSION)=.o)
 
 # ------------  generate the names of the hidden prerequisite files  -------------------
 PREREQUISITES   = $(addprefix .,${C_SOURCES:.c=.d} )
-PREREQUISITES  += $(addprefix .,${CPP_SOURCES:.cc=.d} )
+PREREQUISITES  += $(addprefix .,${CPP_SOURCES:.$(CPP_EXTENSION)=.d} )
 
 # ------------  make the executable  ---------------------------------------------------
 $(EXECUTABLE):	$(OBJECTS)
 								$(CC) $(ALL_LFLAGS) -o $(EXECUTABLE) $(OBJECTS)
-								./$(EXECUTABLE)
+#								./$(EXECUTABLE)
 
 # ------------  list of the automatically generated prerequisites  ---------------------
 include         $(PREREQUISITES)
@@ -91,7 +91,7 @@ include         $(PREREQUISITES)
 %.o:						%.c
 								$(CC) -c $(ALL_CFLAGS) $< 
 
-%.o:						%.cc
+%.o:						%.$(CPP_EXTENSION)
 								$(CC) -c $(ALL_CFLAGS) $< 
 
 # ------------  make the prerequisites  ------------------------------------------------
@@ -103,7 +103,7 @@ include         $(PREREQUISITES)
 								[ -s $@ ] || rm -f $@
 								@[ -f $@ ]&& echo "prerequisite file  $@  generated"
 
-.%.d:           %.cc
+.%.d:           %.$(CPP_EXTENSION)
 								@set -e; $(CC)  -MM $< \
 								| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
 								[ -s $@ ] || rm -f $@

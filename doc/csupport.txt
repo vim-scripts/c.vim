@@ -1,7 +1,7 @@
-*csupport.txt*             C/C++ Support             Last Change:  Apr 02 2004
+*csupport.txt*             C/C++ Support            Last Change:  July 06 2004
 
 C/C++ Support                                           *c-support* *csupport*
-                            Plugin version 3.5
+                            Plugin version 3.6
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -14,13 +14,13 @@ Write and run C/C++ programs using menus.
  1.1.3   Code to comment                               |csupport-comm-3|
  1.1.4   Comment to code                               |csupport-comm-4|
  1.1.5   Frame comments, file header, ...              |csupport-comm-5|
- 1.1.6   keyword + comment                             |csupport-comm-6|
+ 1.1.6   KEYWORD + comment                             |csupport-comm-6|
  1.1.7   Switch comment style                          |csupport-comm-7|
  1.2    Menu 'Statements'                              |csupport-stat|
  1.3    Menu 'Idioms'                                  |csupport-idioms|
  1.4    Menu 'Snippets'                                |csupport-snippets|
  1.4.1   Code snippets                                 |csupport-snippets|
- 1.4.2   Generating prototypes                         |csupport-proto|
+ 1.4.2   Picking up prototypes                         |csupport-proto|
  1.5    Menu 'Run'                                     |csupport-run|
  1.5.1   Minimal make functionality                    |csupport-run-1|
  1.5.2   Command line arguments                        |csupport-run-2|
@@ -35,7 +35,8 @@ Write and run C/C++ programs using menus.
  4.1    Template files                                 |csupport-tempfiles-1|    
  4.2    Tags                                           |csupport-tempfiles-2|
  5.    C/C++ Dictionaries                              |csupport-dictionary|        
- 6.    Release Notes                                   |csupport-release-notes|     
+ 6.    Extend taglist.vim for make and qmake           |csupport-taglist|     
+ 7.    Release Notes                                   |csupport-release-notes|     
 
        How to add this help file to Vim's help         |add-local-help|             
 
@@ -177,7 +178,7 @@ are read as templates from the appropriate files (see |csupport-tempfiles|).
 
 ------------------------------------------------------------------------------
 
-1.1.6 KEYWORD + COMMENT                                      *csupport-comm-6*
+1.1.6 KEYWORD+comment                                      *csupport-comm-6*
 
 Preliminary comments to document (and find again) places where works will be
 resumed shortly. Usually not meant for the final documentation.
@@ -357,8 +358,8 @@ After the insertion the Idioms-menu has the additional entry
 
 Code snippets are pieces of code which are kept in separate files in a special
 directory (e.g. a few lines of code or a complete template for a Makefile).
-File names are used to identify the snippets.  The snippet directory has to be
-created by the user ( $HOME/.vim/codesnippets-c is the default).
+File names are used to identify the snippets.  The snippet directory will be
+created during the installation  ( $HOME/.vim/codesnippets-c is the default).
 Snippets are managed with the 3 entries 
 
    C/C++ -> Snippets -> read  code snippet
@@ -379,13 +380,13 @@ EDIT A SNIPPET
 This is a normal edit.
 
 
-1.4.2  GENERATING PROTOTYPES                                 *csupport-proto*
+1.4.2   PICKING UP PROTOTYPES                                 *csupport-proto*
 
 PICK UP PROTOTYPES.  
-To make a prototype from a function head mark the function head and press
+To make a prototype from a function head mark the function head and choose
 'Snippets -> pick up prototype'. From the first six lines of
 
-  static void
+   void
   print_double_array (  double array[], /* array to print                */
                         int n,          /* number of elements to print   */
                         int columns,    /* number of elements per column */
@@ -397,13 +398,15 @@ To make a prototype from a function head mark the function head and press
 
 the prototype
 
-  static void print_double_array ( double array[], int n, int columns, char* arrayname );
+  void print_double_array ( double array[], int n, int columns, char* arrayname );
 
-is produced and put in an internal buffer. Leading and trailing whitespaces
-are removed. All other whitespaces are sqeezed. Comments will be discarded.
-This works also for method implementations (C++). In the generated prototypes
-the class name and the following '::' are removed.
-
+is produced and put in an internal buffer. 
+- Leading and trailing whitespaces are removed. 
+- All inner whitespaces are squeezed. 
+- All comments will be discarded.
+- Trailing parts of the function body (e.g a '{' ) will also be removed.
+- The class name and the scope resolution operator will be removed (C++ method
+  implementations).
 Further prototypes can be picked up and gathered in the buffer.
 
 
@@ -416,7 +419,7 @@ DISCARD PROTOTYPES
 The prototype buffer can be cleared with 'Snippets -> clear prototype(s)' .
 
 
-LIST PROTOTYPES  
+SHOW PROTOTYPES  
 The list of gathered prototypes can be shown with 
 'Snippets -> show prototype(s)'. The number and the filename are shown, e.g. 
 
@@ -700,111 +703,71 @@ The files
  german.list
 
 are a part of this plugin and can be used (together with your own lists) as
-dictionaries for automatic word completion.  In order to use this feature
+dictionaries for automatic word completion.  This feature is enabled by
+default. The default word lists are
 
-(1) copy this file to an appropriate location, e.g.
+	$HOME/.vim/wordlists/c-c++-keywords.list
+	$HOME/.vim/wordlists/k+r.list
+	$HOME/.vim/wordlists/stl_index.list
 
- $HOME/.vim/wordlists/
+If you want to use an additional list MyC.list put the following lines into
+ .vimrc :
 
-(2) and put the following lines into  .vimrc  to use them:
-
- let g:C_Dictionary_File=$HOME."/.vim/wordlists/c-c++-keywords.list"
- let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/k+r.list"
- let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/stl_index.list"
- let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/xforms.list"
- let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/german.list"
-
-(3) Copy the filetype plugin  ftplugin/sh.vim  to 
-
- $HOME/.vim/ftplugin/c.vim
+	let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
+				\                   $HOME."/.vim/wordlists/k+r.list,".
+	      \                   $HOME."/.vim/wordlists/stl_index.list,".
+	      \                   $HOME."/.vim/wordlists/MyC.list"
   
-This will create a local dictionary for each C/C++ file and enable keyword 
-completion for C/C++ using Vim's dictionary feature CTRL-X CTRL-K.
+The right side is a comma separated list of files. Note the point at the end
+of the first line (string concatenation) and the backslash in front of the 
+second line (continuation line). 
+You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
+
 
 ==============================================================================
-6.  RELEASE NOTES                                     *csupport-release-notes*
+6.  EXTEND taglist.vim FOR make AND qmake                   *csupport-taglist*     
 ==============================================================================
 
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.5
-------------------------------------------------------------------------------
+The use of the Vim plugin taglist.vim (Author: Yegappan Lakshmanan) is highly
+recommended. It uses the programm ctags which generates tag files for 3 dozen 
+languages (Exuberant Ctags, Darren Hiebert, http://ctags.sourceforge.net).
+With the following extensions the list of targets in a makefile can be shown 
+in the taglist window.
 
-+ Aligned line end comments for consecutive lines.
-+ Improved prototype picker removes comments.
-+ Picked up prototypes can be shown.
-+ Uncomment more than one block at once.
-+ 3 new idioms.
-+ Help file improved .
+1) Append the file customization.ctags to the file $HOME/.ctags .  
 
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.4
-------------------------------------------------------------------------------
+2) Add the following lines (from customization.vimrc) to $HOME/.vimrc :
 
-+ Two new global variables: C_Dictionary_File, C_MenuHeader .
-+ The preprocessor statements #if... and the function idiom include marked 
-  lines when invoked in visual mode.
+  "
+  "-------------------------------------------------------------------
+  " taglist.vim : toggle the taglist window
+  " taglist.vim : define the title texts for make
+  " taglist.vim : define the title texts for qmake
+  "-------------------------------------------------------------------
+   noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+  inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+  
+  let tlist_make_settings  = 'make;m:makros;t:targets'
+  let tlist_qmake_settings = 'qmake;t:SystemVariables'
+  
+  if has("autocmd")
+    " ----------  qmake : set filetype for *.pro  ----------
+    autocmd BufNewFile,BufRead *.pro  set filetype=qmake
+  endif " has("autocmd")
 
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.3
-------------------------------------------------------------------------------
+3) restart vim/gvim
 
-+ The C/C++ root menu can be disabled.
+The two maps will toggle the taglist window (hotkey F11) in all editing modes.
+The two assignments define the headings for the (q)make sections in the
+taglist window.  The autocmd set the filetype 'qmake' for the filename
+extension 'pro' (ctags needs this). 
 
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.2
-------------------------------------------------------------------------------
 
-+ Only one C/C++ entry in the gVim root menu.
-+ All hotkeys are only defined for C/C++ files (file type plugin added).
-+ The following constructs are now read as templates from files:
-   class, class using new, 
-   template class, template class using new,
-   error class
-+ Install script added.
-+ Customization improved. 
-+ Documentation improved (help file added).
-+ Bug fix (template file handling)
+==============================================================================
+7.  RELEASE NOTES                                     *csupport-release-notes*
+==============================================================================
 
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.1
-------------------------------------------------------------------------------
-
-+ When the comment style "C" is active the menu entry "Comments.code->comment"
-  turns a marked region in one multiline C-comment.
-+ The menu entry "Comments.comment->code"  turns marked multiline C-comment 
-  back into code.
-+ A marked region can be surrounded by a for-, if, if-else, while-, 
-  do-while-statement (with indentation).
-+ The menu entry "Snippets.make prototype" makes a C- or C++-prototype from 
-  the current line or marked region and puts it in an internal buffer.
-+ The menu entry "Snippets.add prototype" also makes a C- or C++-prototype from 
-  the current line or a marked region and adds it to the internal buffer.
-+ The menu entry "Snippets.put prototype" inserts all gathered prototypes 
-  below the current line. 
-+ Tag substitution rewritten (Some characters in a substitution text for a tag 
-  prevented the tag from being substituted).
-
-------------------------------------------------------------------------------
-  RELEASE NOTES FOR VERSION 3.0
-------------------------------------------------------------------------------
-
-+ C-style comments AND C++-style comments are supported now.
-+ The menu entry 'Comments->Comment style ..' switches the styles (toggle).
-+ Block comments are now read as templates or skeletons from files:
-    Frame Block,        Function Description,  Method Description,
-    Class Description,  H+file header,         C/C++-file header
-+ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are 
-  replaced after reading (KDevelop templates can be used without any change).
-+ indentation: multiline inserts and code snippets will be indented after insertion.
-+ Most menu entries are now also active in normal mode.
-+ new menu items: 
-    includes for the C99 header, 
-    includes for the standard C++ header,
-    includes for the C++ version of the Standard C Library header,
-    multiline C comment
-    vim modeline
-+ Reading the templates is done in one function which can be called in an autocmd.
-+ Code cleanup: register z no longer used. Most function calls are silent now.
+See file README.csupport .
 
 ==============================================================================
 vim:tw=78:noet:ts=2:ft=help:norl:

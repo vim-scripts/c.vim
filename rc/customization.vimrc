@@ -59,21 +59,21 @@ imap  <silent> <F8>    <Esc>:cn<CR>
 " The current buffer will be written before switching to the next one.
 "-------------------------------------------------------------------------------
 "
- map  <silent> <s-tab>       :if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
-imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
+ map  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
+imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <CR> :write<CR> :endif<CR>:bprevious<CR>
 "
 "
 "-------------------------------------------------------------------------------
 " Leave the editor with Ctrl-q : Write all changed buffers and exit Vim
 "-------------------------------------------------------------------------------
-nmap	<C-q> 		:wqa<CR>
+nmap  <C-q>    :wqa<CR>
 "
 "
 "-------------------------------------------------------------------------------
 " Change to the directory the file in your current buffer is in
 "-------------------------------------------------------------------------------
 if has("autocmd")
-	autocmd BufEnter * :lcd %:p:h
+  autocmd BufEnter * :lcd %:p:h
 endif " has("autocmd")
 "
 "-------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ set complete+=k
 "-------------------------------------------------------------------------------
 " filename completion
 " 
-"   wildmenu : command-line completion operates in an enhanced 	mode
+"   wildmenu : command-line completion operates in an enhanced mode
 " wildignore : A file that matches with one of these
 "              patterns is ignored when completing file or directory names.
 "-------------------------------------------------------------------------------
@@ -107,37 +107,21 @@ set wildignore=*.bak,*.o,*.e,*~
 set printoptions=left:8pc,right:3pc
 "
 highlight Cursor guibg=Blue guifg=NONE
-
-
+"
 "-------------------------------------------------------------------------------
-" c.vim
+" taglist.vim : toggle the taglist window
+" taglist.vim : define the title texts for make
+" taglist.vim : define the title texts for qmake
 "-------------------------------------------------------------------------------
+ noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
+inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
-let g:C_AuthorName      = "Dr.-Ing. Fritz Mehner"     
-let g:C_AuthorRef       = "Mn"                         
-let g:C_Email           = "mehner@fh-swf.de"            
-let g:C_Company         = "FH Südwestfalen, Iserlohn"    
-let g:C_Project         = ""
-let g:C_CopyrightHolder = ""
+let tlist_make_settings  = 'make;m:makros;t:targets'
 
-let g:C_CExtension      = "c"                    " C file extension; everything else is C++
-let g:C_CCompiler       = "gcc"                  " the C   compiler
-let g:C_CplusCompiler   = "g++"                  " the C++ compiler
-let g:C_CFlags          = "-Wall -g -O0 -c"      " compiler flags: compile, don't optimize
-let g:C_LFlags          = "-Wall -g -O0"         " compiler flags: link   , don't optimize
-let g:C_Libs            = "-lm"                  " libraries to use
+let tlist_qmake_settings = 'qmake;t:SystemVariables'
 
-
-let g:C_Dictionary_File =                         $HOME."/.vim/wordlists/c-c++-keywords.list"
-let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/k+r.list"
-let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/stl_index.list"
-let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/german.list"
-
-" ----------  Insert header into new C/C++-files  ----------
 if has("autocmd")
-	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
-	autocmd BufNewFile  *.\(h\|hpp\)         call C_CommentTemplates('hheader')
+  " ----------  qmake : set filetype for *.pro  ----------
+  autocmd BufNewFile,BufRead *.pro  set filetype=qmake
 endif " has("autocmd")
-
-
 

@@ -28,6 +28,6 @@ class |CLASSNAME|
 
 
 template < class T >
-|CLASSNAME| < T >:: |CLASSNAME| ()
+|CLASSNAME| <T>:: |CLASSNAME| ()
 {
 }       // ----------  end of constructor of template class |CLASSNAME|  ---------- 

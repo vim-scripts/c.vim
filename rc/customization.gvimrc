@@ -23,11 +23,3 @@ imap  <silent> <s-F3>  <Esc>:browse confirm e<CR>
 nmap	<RightMouse> <Insert>
 imap	<RightMouse> <ESC>
 "
-"
-"-------------------------------------------------------------------------------
-" use font with clearly distinguishable brackets : ()[]{}
-"-------------------------------------------------------------------------------
-" 
-set guifont=Monospace\ 14
-"
-"
