@@ -34,14 +34,32 @@
 "
 "                1. Recommended C Style and Coding Standards (Indian Hill Style Guide)
 "                    www.doc.ic.ac.uk/lab/secondyear/cstyle/cstyle.html
-"                2. Programming in C++, Ellemtel Telecommunication Systems Laboratories
+"                2. Pprintf ("\n");rogramming in C++, Ellemtel Telecommunication Systems Laboratories
 "                    www.it.bton.ac.uk/burks/burks/language/cpp/cppstyle/ellhome.htm
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:C_Version = "2.6"              " version number of this script; do not change
-"     Revision:  02.07.2002
+let s:C_Version = "2.8"              " version number of this script; do not change
+"
+"     Revision:  17.02.2003
 "      Created:  04.11.2000
+"      
+"    Copyright:  Copyright (C) 2000-2003 Dr.-Ing. Fritz Mehner
+"               
+"                This program is free software; you can redistribute it and/or modify
+"                it under the terms of the GNU General Public License as published by
+"                the Free Software Foundation; either version 2 of the License, or
+"                (at your option) any later version.
+"               
+"                This program is distributed in the hope that it will be useful,
+"                but WITHOUT ANY WARRANTY; without even the implied warranty of
+"                MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+"                GNU General Public License for more details.
+"               
+"                You should have received a copy of the GNU General Public License
+"                along with this program; if not, write to the Free Software
+"                Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+"    
 "###############################################################################################
 "
 "  Configuration  (Use my configuration as an example)
@@ -56,7 +74,6 @@ let s:C_AuthorRef       = "Mn"
 let s:C_Email           = "mehner@fh-swf.de"
 let s:C_Company         = "Fachhochschule Südwestfalen, Iserlohn"
 let s:C_Project         = ""
-let s:C_Compiler        = "GNU C/C++"
 "
 "  Copyright information
 "  ---------------------
@@ -72,16 +89,22 @@ let s:C_CopyrightYears  = ""
 "
 "  Global Variables : Compiler, Options, Libraries, ...
 "
-let s:C_CExtension    = "c"             " C file extension; everything else is C++
-let s:C_CCompiler     = "gcc"           " the C   compiler
-let s:C_CplusCompiler = "g++"           " the C++ compiler
-let s:C_CFlags        = "-Wall -g -c"   " compiler flags: compile
-let s:C_LFlags        = "-Wall -g"      " compiler flags: link
-let s:C_Libs          = "-lm"           " libraries to use
+let s:C_CExtension    = "c"                 " C file extension; everything else is C++
+let s:C_CCompiler     = "gcc"               " the C   compiler
+let s:C_CplusCompiler = "g++"               " the C++ compiler
+let s:C_CFlags        = "-Wall -g -O0 -c"   " compiler flags: compile, don't optimize
+let s:C_LFlags        = "-Wall -g -O0"      " compiler flags: link   , don't optimize
+let s:C_Libs          = "-lm"               " libraries to use
+"                                       
+" The menu entrie 'run with pager' will not appear if the following string is empty 
+let s:C_Pager         = "less"              " pager
+"                                       
+" The menu entries for code snippet support will not appear 
+" if the following string is empty 
 "
-let s:C_Pager         = "less"          " pager
+let s:C_CodeSnippets = $HOME."/.vim/codesnippets-c"
 "
-let s:C_ShowMenues    = "yes"           " show menues immediately after loading this file (yes/no)
+let s:C_ShowMenues    = "no"       " show menues immediately after loading this file (yes/no)
 "
 "
 "###############################################################################################
@@ -100,8 +123,9 @@ let s:C_ShowMenues    = "yes"           " show menues immediately after loading 
 "
 "----- some variables for internal use ----------------------------------------
 "
-let s:C_CmdLineArgs  = ""           " command line arguments for Run-run; initially empty
-let s:C_ClassName    = ""           " remember class name ; initially empty
+let s:C_ExeCmdLineArgs  = ""       " command line arguments for Run-run; initially empty
+let s:C_MakeCmdLineArgs = ""       " command line arguments for Run-make; initially empty
+let s:C_ClassName       = ""       " remember class name ; initially empty
 "
 "------------------------------------------------------------------------------
 "  C : C_InitC
@@ -116,15 +140,31 @@ function! C_InitC ()
 	"  The following key mappings are for convenience only. 
 	"  Comment out the mappings if you dislike them.
 	"  If enabled, there may be conflicts with predefined key bindings of your window manager.
-	"-------------------------------------------------------------------------------------
-	"  Alt-F9    write buffer and compile
-	"  F9        compile and link
+	"-----------------------------------------------------------------------------------------------
+	"   Alt-F9   write buffer and compile
+	"       F9   compile and link
 	"  Ctrl-F9   run executable
+	" Shift-F9   run make
 	"
-	map  <A-F9>  :w<CR><Esc>:call C_Compile()<CR><C-C>:cwin<CR>
-	map  <F9>    :call C_Link()<CR><C-C>:cwin<CR>
-	map  <C-F9>  :call C_Run(0)<CR><C-C>:cwin<CR>
-	map  <S-F9>  :make<CR>
+	map  <A-F9>  :call C_Compile()<CR><CR>
+	map  <F9>    :call C_Link()   <CR><CR>
+	map  <C-F9>  :call C_Run(0)   <CR><CR>
+	map  <S-F9>  :call C_Make()<CR>
+	"
+	imap  <A-F9>  <Esc>:call C_Compile()<CR><CR>
+	imap  <F9>    <Esc>:call C_Link()   <CR><CR>
+	imap  <C-F9>  <Esc>:call C_Run(0)   <CR><CR>
+	imap  <S-F9>  <Esc>:call C_Make()<CR>
+	"
+	"
+	if(s:C_CopyrightYears=="")
+		let s:C_CopyrightYears = strftime("%Y")			" the default
+	endif
+	"
+	"----- for developement only -------------------------------------------------------------------
+	"
+	"noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
+	"inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
 	"
 	"===============================================================================================
 	"----- Menu : C-Comments -----------------------------------------------------------------------
@@ -227,11 +267,12 @@ function! C_InitC ()
 	"----- Menu : C-Statements ---------------------------------------------------------------------
 	"===============================================================================================
 	"
-	imenu  C-St&atements.&if\ \{\ \}                 <Esc>:let @z="if (  )\n{\n\t\n}\n"                 <CR>"z]p<Esc>f(la
-	imenu  C-St&atements.if\ \{\ \}\ &else\ \{\ \}   <Esc>:let @z="if (  )\n{\n\t\n}\nelse\n{\n\t\n}\n" <CR>"z]p<Esc>f(la
-	imenu  C-St&atements.e&lse\ \{\ \}               <Esc>:let @z="else\n{\n\t\n}\n"                    <CR>"z]p<Esc>4<<2ja
-	imenu  C-St&atements.&for                        <Esc>:let @z="for ( ; ;  )\n"                      <CR>"z]p<Esc>f;i
-	imenu  C-St&atements.f&or\ \{\ \}                <Esc>:let @z="for ( ; ;  )\n{\n\t\n}\n"            <CR>"z]p<Esc>f;i
+	imenu  C-St&atements.&if                         <Esc>:let @z="if (  )\n\t\n"                       <CR>"z]p<Esc>f(la
+	imenu  C-St&atements.if\ &else                   <Esc>:let @z="if (  )\n\t\nelse\n\t\n"             <CR>"z]p<Esc>f(la
+	imenu  C-St&atements.i&f\ \{\ \}                 <Esc>:let @z="if (  )\n{\n\t\n}\n"                 <CR>"z]p<Esc>f(la
+	imenu  C-St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc>:let @z="if (  )\n{\n\t\n}\nelse\n{\n\t\n}\n" <CR>"z]p<Esc>f(la
+	imenu  C-St&atements.f&or                        <Esc>:let @z="for ( ; ;  )\n"                      <CR>"z]p<Esc>f;i
+	imenu  C-St&atements.fo&r\ \{\ \}                <Esc>:let @z="for ( ; ;  )\n{\n\t\n}\n"            <CR>"z]p<Esc>f;i
 	imenu  C-St&atements.&while\ \{\ \}              <Esc>:let @z="while (  )\n{\n\t\n}\n"              <CR>"z]p<Esc>f(la
 	imenu  C-St&atements.&do\ \{\ \}\ while          <Esc>:call C_DoWhile()           <CR>"z]p<Esc>:/while <CR>f(la
 	imenu  C-St&atements.&switch                     <Esc>:call C_CodeSwitch()        <CR>"z]p<Esc>f(la
@@ -283,10 +324,18 @@ function! C_InitC ()
 		imenu  C-&Idioms.&#include\ Std\.Lib\..\<st&ring\.h\>   <Esc>o#include	<string.h>
 		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&time\.h\>     <Esc>o#include	<time.h>
 		"
-	imenu  C-&Idioms.-SEP4-                     :
-	imenu  C-&Idioms.p=m&alloc\(\ \)            <Esc>:call C_CodeMalloc()<CR>f(la
-	imenu  C-&Idioms.open\ &input\ file         <Esc>:call C_CodeFopenRead()<CR>jf"a
-	imenu  C-&Idioms.open\ &output\ file        <Esc>:call C_CodeFopenWrite()<CR>jf"a
+	imenu  C-&Idioms.-SEP4-                      :
+	imenu  C-&Idioms.p=m&alloc\(\ \)             <Esc>:call C_CodeMalloc()<CR>f(la
+	imenu  C-&Idioms.open\ &input\ file          <Esc>:call C_CodeFopenRead()<CR>jf"a
+	imenu  C-&Idioms.open\ &output\ file         <Esc>:call C_CodeFopenWrite()<CR>jf"a
+	if s:C_CodeSnippets != ""
+		amenu  C-&Idioms.-SEP5-                      :
+		amenu  C-&Idioms.read\ code\ snippet        <C-C>:call C_CodeSnippet("r")<CR>
+		amenu  C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("w")<CR>
+		vmenu  C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("wv")<CR>
+		amenu  C-&Idioms.edit\ code\ snippet        <C-C>:call C_CodeSnippet("e")<CR>
+	endif
+	imenu  C-&Idioms.-SEP6-                      :
 
 	"===============================================================================================
 	"----- Menu : C++ ------------------------------------------------------------------------------
@@ -370,15 +419,20 @@ function! C_InitC ()
 	"----- Menu : run  -----------------------------------------------------------------------------
 	"===============================================================================================
 	"
-	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>  <C-C>:w<CR><Esc>:call C_Compile()<CR><C-C>:cwin<CR>
-	amenu  C-&Run.&link\ \ \<F9\>                       <C-C>:call C_Link()<CR><C-C>:cwin<CR>
-	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                <C-C>:call C_Run(0)<CR><C-C>:cwin<CR>
-	amenu  C-&Run.run\ with\ &pager                     <C-C>:call C_Run(1)<CR><C-C>:cwin<CR>
+	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>  <C-C>:call C_Compile()<CR><CR>
+	amenu  C-&Run.&link\ \ \<F9\>                       <C-C>:call C_Link()   <CR><CR>
+	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                <C-C>:call C_Run(0)   <CR><CR>
+	if s:C_Pager != ""
+		amenu  C-&Run.run\ with\ &pager                     <C-C>:call C_Run(1)<CR><CR>
+	endif
 	amenu  C-&Run.command\ line\ &arguments             <C-C>:call C_Arguments()<CR>
-	amenu  C-&Run.&make\ \ \<Shift\>\<F9\>              <C-C>:make<CR>
+	amenu  C-&Run.&make\ \ \<Shift\>\<F9\>              <C-C>:call C_Make()<CR>
+	amenu  C-&Run.command\ line\ ar&guments\ for\ make  <C-C>:call C_MakeArguments()<CR>
 	imenu  C-&Run.-SEP1-                                :
-	amenu  C-&Run.a&bout\ C/C++-Support                 <C-C>:call C_Version()<CR>
-	"
+	amenu  C-&Run.har&dcopy\ buffer\ to\ FILENAME\.ps         <C-C>:call C_Hardcopy("n")<CR>
+	vmenu  C-&Run.hardcop&y\ highlighted\ part\ to\ FILENAME\.part\.ps  <C-C>:call C_Hardcopy("v")<CR>
+	imenu  C-&Run.-SEP2-                                :
+	amenu  C-&Run.&settings                             <C-C>:call C_Settings()<CR>
 endfunction
 "
 "===============================================================================================
@@ -460,8 +514,8 @@ function! C_CommentFilePrologue ()
     let @z= @z."\n//#        Version:  1.0"
     let @z= @z."\n//#        Created:  ".strftime("%x")
     let @z= @z."\n//#       Revision:  none"
-  if(s:C_Compiler!="")
-    let @z= @z."\n//#       Compiler:  ".s:C_Compiler
+  if(s:C_CCompiler!="")
+    let @z= @z."\n//#       Compiler:  ".s:C_CCompiler." / ".s:C_CplusCompiler
   endif
     let @z= @z."\n//#"
     let @z= @z."\n//#         Author:  ".s:C_AuthorName
@@ -475,12 +529,7 @@ function! C_CommentFilePrologue ()
     let @z= @z."\n//#          Email:  ".s:C_Email
   endif
   if(s:C_CopyrightHolder!="")
-    let @z= @z.  "\n//#      Copyright:  ".s:C_CopyrightHolder
-    if(s:C_CopyrightYears=="")
-      let @z= @z. " , ". strftime("%Y")
-    else
-      let @z= @z. " , ". s:C_CopyrightYears
-    endif
+    let @z= @z.  "\n//#      Copyright:  Copyright (C)  ". s:C_CopyrightYears."  ".s:C_CopyrightHolder
   endif
   if(s:C_Project!="")
     let @z= @z."\n//#"
@@ -632,7 +681,7 @@ function! C_CodeFor (counter)
 function! C_CodeFunction ()
 	let	identifier=inputdialog("function name", "f" )
 	if identifier != ""
-		let @z=    "void\n".identifier."\t(  )\n{\n\treturn ;\n}"
+		let @z=    "void\n".identifier." (  )\n{\n\treturn ;\n}"
 		let @z= @z."\t\t\t\t// ----------  end of function ".identifier."  ----------"
 		put z
 	endif
@@ -642,11 +691,58 @@ endfunction
 "  C-Idioms : main
 "------------------------------------------------------------------------------
 function! C_CodeMain ()
-  let @z=    "int\nmain ( int argc, char *argv[] )\n{\n\t\n"
+	let @z=    "int\nmain ( int argc, char *argv[] )\n{\n\t\n"
 	let @z= @z."\treturn 0;\n}"
-  let @z= @z."\t\t\t\t// ----------  end of function main  ----------"
-  put z
-	endfunction
+	let @z= @z."\t\t\t\t// ----------  end of function main  ----------"
+	put z
+endfunction
+"
+"------------------------------------------------------------------------------
+"  C-Idioms : read / edit code snippet
+"------------------------------------------------------------------------------
+function! C_CodeSnippet(arg1)
+	if isdirectory(s:C_CodeSnippets)
+		"
+		" read snippet file, put content below current line
+		" 
+		if a:arg1 == "r"
+			let	l:snippetfile=browse(0,"read a code snippet",s:C_CodeSnippets,"")
+			if l:snippetfile != ""
+				:execute "read ".l:snippetfile
+			endif
+		endif
+		"
+		" update current buffer / split window / edit snippet file
+		" 
+		if a:arg1 == "e"
+			let	l:snippetfile=browse(0,"edit a code snippet",s:C_CodeSnippets,"")
+			if l:snippetfile != ""
+				:execute "update! | split | edit ".l:snippetfile
+			endif
+		endif
+		"
+		" write whole buffer into snippet file 
+		" 
+		if a:arg1 == "w"
+			let	l:snippetfile=browse(0,"write a code snippet",s:C_CodeSnippets,"")
+			if l:snippetfile != ""
+				:execute ":write! ".l:snippetfile
+			endif
+		endif
+		"
+		" write marked area into snippet file 
+		" 
+		if a:arg1 == "wv"
+			let	l:snippetfile=browse(0,"write a code snippet",s:C_CodeSnippets,"")
+			if l:snippetfile != ""
+				:execute ":*write! ".l:snippetfile
+			endif
+		endif
+
+	else
+		echo "code snippet directory ".s:C_CodeSnippets." does not exist (please create it)"
+	endif
+endfunction
 "
 "------------------------------------------------------------------------------
 "  C++ : class comment
@@ -915,6 +1011,7 @@ function! C_CodeFopenRead ()
 		let @z= @z."\texit (1);\n}\n\n\n"
 		let @z= @z."fclose ( ".filepointer." );\t\t\t\t\t\t\t// close input file\n"
 		put z
+		exe ":imenu C-&Idioms.fscanf(".filepointer.",\\ \"\",\\ );     fscanf( ".filepointer.", \"\", & );<ESC>F\"i"
 	endif
 endfunction
 "
@@ -933,6 +1030,7 @@ function! C_CodeFopenWrite ()
 		let @z= @z."\texit (2);\n}\n\n\n"
 		let @z= @z."fclose ( ".filepointer." );\t\t\t\t\t\t\t// close output file\n"
 		put z
+		exe ":imenu C-&Idioms.fprintf(".filepointer.",\\ \"\\\\n\",\\ );     fprintf( ".filepointer.", \"\\n\",  );<ESC>F\\i"
 	endif
 endfunction
 "
@@ -1024,7 +1122,8 @@ function! C_CodeCatch ()
   let @z=    "catch (const  &ExceptObj)\t\t// handle exception: \n{\n\t\n}\n"
 	put z
 endfunction
-""------------------------------------------------------------------------------
+"
+"------------------------------------------------------------------------------
 "  run : C_Compile
 "------------------------------------------------------------------------------
 "  The standard make program 'make' called by vim is set to the C or C++ compiler
@@ -1051,11 +1150,13 @@ function! C_Compile ()
 		else
 			exe		"set makeprg=".s:C_CplusCompiler
 		endif
-
+		" 
 		" COMPILATION
 		exe		"make ".s:C_CFlags." ".Sou." -o ".Obj		
-		
 		exe		"set makeprg=make"
+		" 
+		" open error window if necessary 
+		exe	":cwindow"
 	endif
 	
 endfunction
@@ -1129,27 +1230,73 @@ function! C_Run (arg1)
 	
 	if filereadable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
 		if a:arg1==0
-			exe		"!./".Exe." ".s:C_CmdLineArgs
+			exe		"!./".Exe." ".s:C_ExeCmdLineArgs
 		else
-			exe		"!./".Exe." ".s:C_CmdLineArgs." | ".s:C_Pager
+			exe		"!./".Exe." ".s:C_ExeCmdLineArgs." | ".s:C_Pager
 		endif
 	endif
-	
+
 endfunction
 "
 "------------------------------------------------------------------------------
-"  run : Arguments
+"  run : Arguments for the executable
 "------------------------------------------------------------------------------
 function! C_Arguments ()
-	let	s:C_CmdLineArgs= inputdialog("command line arguments",s:C_CmdLineArgs)
+	let	s:C_ExeCmdLineArgs= inputdialog("command line arguments",s:C_ExeCmdLineArgs)
+endfunction
+"
+"------------------------------------------------------------------------------
+"  run : Arguments for make
+"------------------------------------------------------------------------------
+function! C_MakeArguments ()
+	let	s:C_MakeCmdLineArgs= inputdialog("make command line arguments",s:C_MakeCmdLineArgs)
+endfunction
+"
+function! C_Make()
+			exe		":make ".s:C_MakeCmdLineArgs
 endfunction
 "
 "
 "------------------------------------------------------------------------------
-"  run : about
+"  run : settings
 "------------------------------------------------------------------------------
-function! C_Version ()
-	let dummy=confirm("C/C++-Support, Version ".s:C_Version."\nDr. Fritz Mehner\nmehner@fh-swf.de", "ok" )
+function! C_Settings ()
+	let	settings	=         "C/C++-Support settings\n\n"
+	let settings = settings."author  :  ".s:C_AuthorName." (".s:C_AuthorRef.") ".s:C_Email."\n"
+	let settings = settings."company :  ".s:C_Company."\n"
+	let settings = settings."project :  ".s:C_Project."\n"
+	let settings = settings."copyright holder :  ".s:C_CopyrightHolder."\n"
+	if(s:C_CopyrightHolder!="")
+		let settings = settings."copyright year(s) :  ".s:C_CopyrightYears."\n"
+	endif
+	let settings = settings."\n"
+	let settings = settings."C / C++ compiler :  ".s:C_CCompiler." / ".s:C_CplusCompiler."\n"
+	let settings = settings."C file extension :  ".s:C_CExtension."  (everything else is C++)\n"
+	let settings = settings."compiler flags :  ".s:C_CFlags."\n"
+	let settings = settings."compiler+link flags :  ".s:C_LFlags."\n"
+	let settings = settings."libraries :  ".s:C_Libs."\n"
+	let settings = settings."pager :  ".s:C_Pager."\n"
+	let settings = settings."code snippet directory  :  ".s:C_CodeSnippets."\n"
+	let settings = settings."\n"
+	let settings = settings."\nMake changes in file c.vim\n"
+	let	settings = settings."----------------------------------------------------------------------------------------\n"
+	let	settings = settings."C/C++-Support, Version ".s:C_Version."  /  Dr.-Ing. Fritz Mehner  /  mehner@fh-swf.de\n"
+	let dummy=confirm( settings, "ok", 1, "Info" )
+endfunction
+"
+"------------------------------------------------------------------------------
+"  run : hardcopy
+"------------------------------------------------------------------------------
+function! C_Hardcopy (arg1)
+	let	Sou		= expand("%")								" name of the file in the current buffer
+	" ----- normal mode ----------------
+	if a:arg1=="n"
+		exe	"hardcopy > ".Sou.".ps"		
+	endif
+	" ----- visual mode ----------------
+	if a:arg1=="v"
+		exe	"*hardcopy > ".Sou.".part.ps"		
+	endif
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -1162,17 +1309,19 @@ endfunction
 let s:C_Active = -1									" state variable controlling the C-menus
 "
 function! C_CreateUnLoadMenuEntries ()
-"
+	"
 	" C is now active and was former inactive -> 
 	" Insert Tools.Unload and remove Tools.Load Menu
+	" protect the following submenu names against interpolation by using single qoutes (Mn)
+	"
 	if  s:C_Active == 1
-		aunmenu Tools.Load\ C\ Support
-		amenu   &Tools.Unload\ C\ Support  	<C-C>:call C_Handle()<CR>
+		:aunmenu &Tools.Load\ C\ Support
+		exe 'amenu   &Tools.Unload\ C\ Support  	<C-C>:call C_Handle()<CR>'
 	else
 		" C is now inactive and was former active or in initial state -1 
 		if s:C_Active == 0
 			" Remove Tools.Unload if C was former inactive
-			aunmenu Tools.Unload\ C\ Support
+			:aunmenu &Tools.Unload\ C\ Support
 		else
 			" Set initial state C_Active=-1 to inactive state C_Active=0
 			" This protects from removing Tools.Unload during initialization after
@@ -1180,10 +1329,9 @@ function! C_CreateUnLoadMenuEntries ()
 			let s:C_Active = 0
 			" Insert Tools.Load
 		endif
-		amenu &Tools.Load\ C\ Support <C-C>:call C_Handle()<CR>
+		exe 'amenu &Tools.Load\ C\ Support <C-C>:call C_Handle()<CR>'
 	endif
 	"
-"
 endfunction
 "
 "------------------------------------------------------------------------------
