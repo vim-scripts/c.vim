@@ -1,0 +1,99 @@
+README for c.vim (Version 2.8.1) / 03-06-2003
+
+===========================================================================================
+FILES
+===========================================================================================
+
+README                this file
+
+c.vim                 The C/C++ plugin for GVIM. 
+                      Copy this file to your local plugin directory: ~/.vim/plugin/c.vim 
+
+
+-------------------   ---------------------------------------------------------------------
+                      The following files and extensions are for convenience only.         
+                      c.vim will work without them.                                        
+                      ---------------------------------------------------------------------
+                                                                                           
+
+costumization.vimrc   Additional settings I use in .vimrc: 
+                        incremental search, tabstop, hot keys, font, use of dictionaries, ...
+                      The file is commented. Append it to your .vimrc if you like.
+
+costumization.gvimrc  Additional settings I use in .gvimrc: 
+                        hot keys, mouse settings, ...
+                      The file is commented. Append it to your .gvimrc if you like.
+
+word.list             A file with words used as dictionary for automatic word completion. 
+                      This file contains the all C and C++ keywords.
+                      Copy this file to the directory  ~/.vim/ if you want to use it.
+                      This file is referenced in the extension costumization.vimrc .
+                      
+                      
+                      Additional word lists (can be appended to file word.list):
+                      
+c-c++-keywords.list   All C and C++ keywords (already in word.list).
+                      
+german.list           German words for commenting sources.
+                      
+k+r.list              K&R-Book: Words from the table of content. They appear frequently in comments.
+                      
+stl_index.list        Standard Template Library (STL):  method names and type names 
+                      
+xforms.list           XFORMS library: macro and function names
+
+===========================================================================================
+CONFIGURATION
+===========================================================================================
+
+The file c.vim contains the following configuration section. 
+Use my configuration as an example and change what has to be changed in the file  c.vim .
+
+"###############################################################################################
+"
+"  Configuration  (Use my configuration as an example)
+"
+"-------------------------------------------------------------------------------------
+"
+let s:C_AuthorName      = "Dr.-Ing. Fritz Mehner"
+let s:C_AuthorRef       = "Mn"
+"
+"  The following entries do not appear if the strings are empty.
+"
+let s:C_Email           = "mehner@fh-swf.de"
+let s:C_Company         = "Fachhochschule Südwestfalen, Iserlohn"
+let s:C_Project         = ""
+"
+"  Copyright information
+"  ---------------------
+"  If the code has been developed over a period of years, each year must be stated.
+"  If C_CopyrightHolder is empty the copyright notice will not appear.
+"  If C_CopyrightHolder is not empty and C_CopyrightYears is empty, 
+"  the current year will be inserted.
+"
+let s:C_CopyrightHolder = ""
+let s:C_CopyrightYears  = ""
+"
+"###############################################################################################
+"
+"  Global Variables : Compiler, Options, Libraries, ...
+"
+let s:C_CExtension    = "c"                 " C file extension; everything else is C++
+let s:C_CCompiler     = "gcc"               " the C   compiler
+let s:C_CplusCompiler = "g++"               " the C++ compiler
+let s:C_CFlags        = "-Wno-deprecated -Wall -g -O0 -c"   " compiler flags: compile, don't optimize
+let s:C_LFlags        = "-Wno-deprecated -Wall -g -O0"      " compiler flags: link   , don't optimize
+let s:C_Libs          = "-lm"               " libraries to use
+"                                       
+" The menu entrie 'run with pager' will not appear if the following string is empty 
+let s:C_Pager         = "less"              " pager
+"                                       
+" The menu entries for code snippet support will not appear 
+" if the following string is empty 
+"
+let s:C_CodeSnippets = $HOME."/.vim/codesnippets-c"
+"
+let s:C_ShowMenues    = "yes"       " show menues immediately after loading this file (yes/no)
+"
+"
+"###############################################################################################

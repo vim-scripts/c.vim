@@ -39,9 +39,9 @@
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:C_Version = "2.8"              " version number of this script; do not change
+let s:C_Version = "2.8.1"              " version number of this script; do not change
 "
-"     Revision:  17.02.2003
+"     Revision:  06.03.2003
 "      Created:  04.11.2000
 "      
 "    Copyright:  Copyright (C) 2000-2003 Dr.-Ing. Fritz Mehner
@@ -92,8 +92,8 @@ let s:C_CopyrightYears  = ""
 let s:C_CExtension    = "c"                 " C file extension; everything else is C++
 let s:C_CCompiler     = "gcc"               " the C   compiler
 let s:C_CplusCompiler = "g++"               " the C++ compiler
-let s:C_CFlags        = "-Wall -g -O0 -c"   " compiler flags: compile, don't optimize
-let s:C_LFlags        = "-Wall -g -O0"      " compiler flags: link   , don't optimize
+let s:C_CFlags        = "-Wno-deprecated -Wall -g -O0 -c"   " compiler flags: compile, don't optimize
+let s:C_LFlags        = "-Wno-deprecated -Wall -g -O0"      " compiler flags: link   , don't optimize
 let s:C_Libs          = "-lm"               " libraries to use
 "                                       
 " The menu entrie 'run with pager' will not appear if the following string is empty 
@@ -104,7 +104,7 @@ let s:C_Pager         = "less"              " pager
 "
 let s:C_CodeSnippets = $HOME."/.vim/codesnippets-c"
 "
-let s:C_ShowMenues    = "no"       " show menues immediately after loading this file (yes/no)
+let s:C_ShowMenues    = "yes"       " show menues immediately after loading this file (yes/no)
 "
 "
 "###############################################################################################
@@ -163,8 +163,8 @@ function! C_InitC ()
 	"
 	"----- for developement only -------------------------------------------------------------------
 	"
-	"noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
-	"inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
+"	noremap   <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
+"	inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
 	"
 	"===============================================================================================
 	"----- Menu : C-Comments -----------------------------------------------------------------------
@@ -330,10 +330,10 @@ function! C_InitC ()
 	imenu  C-&Idioms.open\ &output\ file         <Esc>:call C_CodeFopenWrite()<CR>jf"a
 	if s:C_CodeSnippets != ""
 		amenu  C-&Idioms.-SEP5-                      :
-		amenu  C-&Idioms.read\ code\ snippet        <C-C>:call C_CodeSnippet("r")<CR>
-		amenu  C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("w")<CR>
-		vmenu  C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("wv")<CR>
-		amenu  C-&Idioms.edit\ code\ snippet        <C-C>:call C_CodeSnippet("e")<CR>
+		amenu  <silent> C-&Idioms.read\ code\ snippet        <C-C>:call C_CodeSnippet("r")<CR>
+		amenu  <silent> C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("w")<CR>
+		vmenu  <silent> C-&Idioms.write\ code\ snippet       <C-C>:call C_CodeSnippet("wv")<CR>
+		amenu  <silent> C-&Idioms.edit\ code\ snippet        <C-C>:call C_CodeSnippet("e")<CR>
 	endif
 	imenu  C-&Idioms.-SEP6-                      :
 
@@ -380,31 +380,31 @@ function! C_InitC ()
 		imenu  C&++.ios\ fla&gbits.ios::floa&tfield     ios::floatfield<Esc>a
 		imenu  C&++.ios\ fla&gbits.ios::u&nitbuf        ios::unitbuf<Esc>a
 		"
-	imenu  C&++.c&err\ string                 cerr<Tab><< "\n";<Esc>F\i
-	imenu  C&++.&#include\ \<iostream\.h\>    <Esc>:let @z="#include\t<iostream.h>" <CR>"z]p<Esc>a
-	imenu  C&++.-SEP2-                        :
-	imenu  C&++.&method\ implementaton        <Esc>:call C_CodeMethod()<CR>
-	imenu  C&++.&class                        <Esc>:call C_CodeClass()<CR>
-	imenu  C&++.class\ using\ &new            <Esc>:call C_CodeClassNew()<CR>
-	imenu  C&++.err&or\ class                 <Esc>:call C_CodeErrorClass()<CR>3jf"a
-	imenu  C&++.-SEP3-                        :
-	imenu  C&++.&template\ class              <Esc>:call C_CodeTemplateClass()<CR>
-	imenu  C&++.template\ class\ using\ ne&w  <Esc>:call C_CodeTemplateClassNew()<CR>
-	imenu  C&++.template\ &function           <Esc>:call C_CodeTemplateFunct()<CR>
-	imenu  C&++.-SEP4-                        :
-	imenu  C&++.friend\ operator\ <<          <Esc>:call C_CodeOutputOperator()<CR>3jf.a
-	imenu  C&++.friend\ operator\ >>          <Esc>:call C_CodeInputOperator()<CR>3jf.a
-	imenu  C&++.-SEP5-                        :
-	imenu  C&++.tr&y\ \.\.\ catch             <Esc>:call C_CodeTryCatch()<CR>4j2f a
-	imenu  C&++.c&atch                        <Esc>:call C_CodeCatch()<CR>2f a
-	imenu  C&++.catch\(\.\.\.\)               <Esc>:let @z="catch (...)\n{\n\t\n}"<CR>"z]p<Esc>2ja
-	imenu  C&++.-SEP6-                        :
-	imenu  C&++.open\ input\ file             <Esc>:call C_CodeIfstream()<CR>f"a
-	imenu  C&++.open\ output\ file            <Esc>:call C_CodeOfstream()<CR>f"a
-	imenu  C&++.-SEP7-                        :
-	imenu  C&++.&using\ namespace             using namespace ;<Esc>$i
-	imenu  C&++.namespace                     <Esc>:let @z="namespace \n{\n\n}" <CR>"z]p<Esc>A
-	imenu  C&++.-SEP8-                        :
+	imenu  <silent> C&++.c&err\ string                 cerr<Tab><< "\n";<Esc>F\i
+	imenu  <silent> C&++.&#include\ \<iostream\.h\>    <Esc>:let @z="#include\t<iostream.h>" <CR>"z]p<Esc>a
+	imenu  <silent> C&++.-SEP2-                        :
+	imenu  <silent> C&++.&method\ implementaton        <Esc>:call C_CodeMethod()<CR>
+	imenu  <silent> C&++.&class                        <Esc>:call C_CodeClass()<CR>
+	imenu  <silent> C&++.class\ using\ &new            <Esc>:call C_CodeClassNew()<CR>
+	imenu  <silent> C&++.err&or\ class                 <Esc>:call C_CodeErrorClass()<CR>3jf"a
+	imenu  <silent> C&++.-SEP3-                        :
+	imenu  <silent> C&++.&template\ class              <Esc>:call C_CodeTemplateClass()<CR>
+	imenu  <silent> C&++.template\ class\ using\ ne&w  <Esc>:call C_CodeTemplateClassNew()<CR>
+	imenu  <silent> C&++.template\ &function           <Esc>:call C_CodeTemplateFunct()<CR>
+	imenu  <silent> C&++.-SEP4-                        :
+	imenu  <silent> C&++.friend\ operator\ <<          <Esc>:call C_CodeOutputOperator()<CR>3jf.a
+	imenu  <silent> C&++.friend\ operator\ >>          <Esc>:call C_CodeInputOperator()<CR>3jf.a
+	imenu  <silent> C&++.-SEP5-                        :
+	imenu  <silent> C&++.tr&y\ \.\.\ catch             <Esc>:call C_CodeTryCatch()<CR>4j2f a
+	imenu  <silent> C&++.c&atch                        <Esc>:call C_CodeCatch()<CR>2f a
+	imenu  <silent> C&++.catch\(\.\.\.\)               <Esc>:let @z="catch (...)\n{\n\t\n}"<CR>"z]p<Esc>2ja
+	imenu  <silent> C&++.-SEP6-                        :
+	imenu  <silent> C&++.open\ input\ file             <Esc>:call C_CodeIfstream()<CR>f"a
+	imenu  <silent> C&++.open\ output\ file            <Esc>:call C_CodeOfstream()<CR>f"a
+	imenu  <silent> C&++.-SEP7-                        :
+	imenu  <silent> C&++.&using\ namespace             using namespace ;<Esc>$i
+	imenu  <silent> C&++.namespace                     <Esc>:let @z="namespace \n{\n\n}" <CR>"z]p<Esc>A
+	imenu  <silent> C&++.-SEP8-                        :
 		"
 		"----- Submenu : RTTI  ----------------------------------------------------------------------------
 		"
@@ -419,20 +419,20 @@ function! C_InitC ()
 	"----- Menu : run  -----------------------------------------------------------------------------
 	"===============================================================================================
 	"
-	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>  <C-C>:call C_Compile()<CR><CR>
-	amenu  C-&Run.&link\ \ \<F9\>                       <C-C>:call C_Link()   <CR><CR>
-	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                <C-C>:call C_Run(0)   <CR><CR>
+	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>            <C-C>:call C_Compile()<CR><CR>
+	amenu  C-&Run.&link\ \ \<F9\>                                 <C-C>:call C_Link()   <CR><CR>
+	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                          <C-C>:call C_Run(0)   <CR><CR>
 	if s:C_Pager != ""
-		amenu  C-&Run.run\ with\ &pager                     <C-C>:call C_Run(1)<CR><CR>
+		amenu  C-&Run.run\ with\ &pager                             <C-C>:call C_Run(1)<CR><CR>
 	endif
-	amenu  C-&Run.command\ line\ &arguments             <C-C>:call C_Arguments()<CR>
-	amenu  C-&Run.&make\ \ \<Shift\>\<F9\>              <C-C>:call C_Make()<CR>
-	amenu  C-&Run.command\ line\ ar&guments\ for\ make  <C-C>:call C_MakeArguments()<CR>
-	imenu  C-&Run.-SEP1-                                :
-	amenu  C-&Run.har&dcopy\ buffer\ to\ FILENAME\.ps         <C-C>:call C_Hardcopy("n")<CR>
-	vmenu  C-&Run.hardcop&y\ highlighted\ part\ to\ FILENAME\.part\.ps  <C-C>:call C_Hardcopy("v")<CR>
-	imenu  C-&Run.-SEP2-                                :
-	amenu  C-&Run.&settings                             <C-C>:call C_Settings()<CR>
+	amenu  <silent>  C-&Run.command\ line\ &arguments             <C-C>:call C_Arguments()<CR>
+	amenu  <silent>  C-&Run.&make\ \ \<Shift\>\<F9\>              <C-C>:call C_Make()<CR>
+	amenu  <silent>  C-&Run.command\ line\ ar&guments\ for\ make  <C-C>:call C_MakeArguments()<CR>
+	imenu  <silent>  C-&Run.-SEP1-                                :
+	amenu  <silent>  C-&Run.har&dcopy\ buffer\ to\ FILENAME\.ps   <C-C>:call C_Hardcopy("n")<CR>
+	vmenu  <silent>  C-&Run.hardcop&y\ highlighted\ part\ to\ FILENAME\.part\.ps  <C-C>:call C_Hardcopy("v")<CR>
+	imenu  <silent>  C-&Run.-SEP2-                                :
+	amenu  <silent>  C-&Run.&settings                             <C-C>:call C_Settings()<CR>
 endfunction
 "
 "===============================================================================================
@@ -1316,7 +1316,7 @@ function! C_CreateUnLoadMenuEntries ()
 	"
 	if  s:C_Active == 1
 		:aunmenu &Tools.Load\ C\ Support
-		exe 'amenu   &Tools.Unload\ C\ Support  	<C-C>:call C_Handle()<CR>'
+		exe 'amenu <silent>  &Tools.Unload\ C\ Support  	<C-C>:call C_Handle()<CR>'
 	else
 		" C is now inactive and was former active or in initial state -1 
 		if s:C_Active == 0
@@ -1329,7 +1329,7 @@ function! C_CreateUnLoadMenuEntries ()
 			let s:C_Active = 0
 			" Insert Tools.Load
 		endif
-		exe 'amenu &Tools.Load\ C\ Support <C-C>:call C_Handle()<CR>'
+		exe 'amenu <silent> &Tools.Load\ C\ Support <C-C>:call C_Handle()<CR>'
 	endif
 	"
 endfunction
