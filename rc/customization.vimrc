@@ -3,15 +3,15 @@
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
 "
-set tabstop=2
-set shiftwidth=2
-set autowrite
 set autoread
-set incsearch
-set visualbell
-set nowrap
-set browsedir=current                    " Which directory to use for the file browser
+set autowrite
 set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory!
+set browsedir=current                    " Which directory to use for the file browser
+set incsearch
+set nowrap
+set shiftwidth=2
+set tabstop=2
+set visualbell
 "
 "
 "-------------------------------------------------------------------------------
@@ -72,7 +72,6 @@ if has("autocmd")
 	autocmd BufEnter * :lcd %:p:h
 endif " has("autocmd")
 "
-"
 "-------------------------------------------------------------------------------
 " use of dictionaries
 " 
@@ -81,7 +80,7 @@ endif " has("autocmd")
 "   complete : search the files defined by the 'dictionary' option
 "-------------------------------------------------------------------------------
 "
-set dictionary=$HOME/.vim/word.list
+set dictionary=$HOME/.vim/wordlists/german.list
 set complete+=k
 "
 "
@@ -105,13 +104,37 @@ set printoptions=left:8pc,right:3pc
 "
 
 highlight Cursor guibg=Blue guifg=NONE
-"
+
+
 "-------------------------------------------------------------------------------
-" Insert header into new C/C++-files
+" c.vim
 "-------------------------------------------------------------------------------
+
+let g:C_AuthorName      = "Dr.-Ing. Fritz Mehner"     
+let g:C_AuthorRef       = "Mn"                         
+let g:C_Email           = "mehner@fh-swf.de"            
+let g:C_Company         = "FH Südwestfalen, Iserlohn"    
+let g:C_Project         = ""
+let g:C_CopyrightHolder = ""
+
+let g:C_CExtension      = "c"                    " C file extension; everything else is C++
+let g:C_CCompiler       = "gcc"                  " the C   compiler
+let g:C_CplusCompiler   = "g++"                  " the C++ compiler
+let g:C_CFlags          = "-Wall -g -O0 -c"      " compiler flags: compile, don't optimize
+let g:C_LFlags          = "-Wall -g -O0"         " compiler flags: link   , don't optimize
+let g:C_Libs            = "-lm"                  " libraries to use
+
+
+let g:C_Dictionary_File =                         $HOME."/.vim/wordlists/c-c++-keywords.list"
+let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/k+r.list"
+let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/stl_index.list"
+let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/german.list"
+
+" ----------  Insert header into new C/C++-files  ----------
 if has("autocmd")
 	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
 	autocmd BufNewFile  *.\(h\|hpp\)         call C_CommentTemplates('hheader')
 endif " has("autocmd")
-"
-"
+
+
+

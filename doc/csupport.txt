@@ -1,0 +1,616 @@
+*csupport.txt*             C/C++ Support             Last Change: Dec  26  2003
+
+C/C++ Support                                           *c-support* *csupport*
+                            Plugin version 3.4
+                      for Vim version 6.0 and above
+                     Fritz Mehner  <mehner@fh-swf.de>
+
+Write and run C/C++ programs using menus.
+
+|csupport-usage-gvim|        Usage 
+|csupport-hotkeys|           Hotkeys
+|csupport-customization|     Customization and configuration
+|csupport-template-files|    Template files and tags
+|csupport-code-snippets|     Code Snippets
+|csupport-dictionary|        C/C++ Dictionaries
+|csupport-release-notes|     Release Notes
+|add-local-help|             How to add this help file to Vim's help
+
+
+==============================================================================
+USAGE with GUI  (gVim)                                   *csupport-usage-gvim*
+==============================================================================
+
+If the root menu 'C/C++' is not visible call it with the entry "Load C Support" 
+from the standard Tools-menu.
+
+--------------------
+Menu 'Comments'
+--------------------
+
+(1) Frame comments, file header comments and function, methods, class descriptions 
+are read as templates from the appropriate files (see |csupport-customization|).
+
+'code-comment' and 'comment->code' are for commenting/uncommenting 
+visually selected blocks.
+
+(2) When 'comment style C' is active a marked block
+
+xxxxxxxx
+xxxxxxxx
+xxxxxxxx
+
+will be changed into a multiline comment (all (partially) marked lines):
+
+/* xxxxxxxx
+ * xxxxxxxx
+ * xxxxxxxx
+ */
+
+If a complete comment (i.e. all lines belonging to the comment) is marked 
+the entry 'comment->code' will uncomment it.
+
+When 'comment style C++' is active the marked block will be changed into
+
+// xxxxxxxx
+// xxxxxxxx
+// xxxxxxxx
+
+(3) The entry 'Comment style C -> C++' changes the comment style to C++ style.
+The entry 'Comment style C++ -> C' changes the comment style back to C style.
+
+Inserted do-while with C-style end comment:
+
+  do
+  {
+  }
+  while (  );       /* -----  end do-while  ----- */
+
+
+Inserted do-while with C++-style end comment:
+
+  do
+  {
+  }
+  while (  );       // -----  end do-while  ----- 
+
+
+
+--------------------
+Menu 'Statements'
+--------------------
+
+(1) Normal mode, insert mode. 
+An empty statement will be inserted and properly indented. The entry 'if{}'
+will insert an if-statement:
+
+if (  )
+{
+}
+
+(2) Visual mode.
+(2.1) Statements with blocks and case label.  The highlighted area 
+
+xxxxx
+xxxxx
+
+will be surrounded by one of the following statements:
+
+  +----------------------------+-----------------------------+
+  |     if (  )                |     if (  )                 |
+  |     {                      |     {                       |
+  |       xxxxx                |       xxxxx                 |
+  |       xxxxx                |       xxxxx                 |
+  |     }                      |     }                       |
+  |                            |     else                    |
+  |                            |     {                       |
+  |                            |     }                       |
+  +----------------------------+-----------------------------+
+  |     for ( ; ;  )           |     while (  )              |
+  |     {                      |     {                       |
+  |       xxxxx                |       xxxxx                 |
+  |       xxxxx                |       xxxxx                 |
+  |     }                      |     }                       |
+  +----------------------------+-----------------------------+
+  |     do                     |                             |
+  |     {                      |     {                       |
+  |       xxxxx                |       xxxxx                 |
+  |       xxxxx                |       xxxxx                 |
+  |     }                      |     }                       |
+  |     while (  );            |                             |
+  +----------------------------+-----------------------------+
+  |     case :                 |                             |
+  |       xxxxx                |                             |
+  |       xxxxx                |                             |
+  |       break;               |                             |
+  +----------------------------+-----------------------------+
+  |    #if  CONDITION                                        |
+  |    xxxxx                                                 |
+  |    xxxxx                                                 |
+  |    #else      /* ----- #if CONDITION  ----- */           |
+  |                                                          |
+  |    #endif     /* ----- #if CONDITION  ----- */           |
+  +----------------------------------------------------------+
+  |    #ifdef  CONDITION                                     |
+  |    xxxxx                                                 |
+  |    xxxxx                                                 |
+  |    #else      /* ----- #ifdef CONDITION  ----- */        |
+  |                                                          |
+  |    #endif     /* ----- #ifdef CONDITION  ----- */        |
+  +----------------------------------------------------------+
+  |    #ifndef  CONDITION                                    |
+  |    xxxxx                                                 |
+  |    xxxxx                                                 |
+  |    #else      /* ----- #ifndef CONDITION  ----- */       |
+  |                                                          |
+  |    #endif     /* ----- #ifndef CONDITION  ----- */       |
+  +----------------------------------------------------------+
+  |    #ifndef  TEST_INC                                     |
+  |    #define  TEST_INC                                     |
+  |    xxxxx                                                 |
+  |    xxxxx                                                 |
+  |    #endif   /* ----- #ifndef TEST_INC  ----- */          |
+  +----------------------------------------------------------+
+
+The whole statement will be indented after insertion.
+
+(2.2) Statements without blocks.  Above the highlighted lines 
+
+xxxxx
+xxxxx
+
+one of the following statements will be put:
+
+  +-------------------------------+--------------------------+
+  |    if (  )                    |    for ( ; ;  )          |
+  |      xxxxx                    |      xxxxx               |
+  |    xxxxxxx                    |    xxxxx                 |
+  +-------------------------------+--------------------------+
+  |    if (  )                    |    while (  )            |
+  |      xxxxx                    |      xxxxx               |
+  |    xxxxx                      |    xxxxx                 |
+  |    else                       |                          |
+  +-------------------------------+--------------------------+
+
+The lines will be indented after insertion.
+
+
+
+--------------------
+Menu 'Idioms'
+--------------------
+
+(1) Entry 'function'
+Normal mode, insert mode: The name of the function is asked for and the
+following lines (for function name "f") will be inserted:
+
+  void
+  f (  )
+  {
+    return ;
+  }        /* ----------  end of function f  ---------- */
+
+Visual mode: Like normal mode; the highlighted lines will go inside the
+function.
+
+(2) Entry 'open input file'
+The entry 'open input file' will create the statements to open and close an
+input file (e.g. with the file pointer 'infile'). 
+After the insertion the Idioms-menu has the additional entry 
+'fscanf(infile,"",);'  which generates the following line:
+
+ fscanf( infile, "", & );
+
+(3) Entry 'open output file'
+The entry 'open output file' will create the statements to open and close an
+output file (e.g. with the file pointer 'outfile'). 
+After the insertion the Idioms-menu has the additional entry 
+'fprintf(outfile,"\n",);'   which generates the following line
+
+ fprintf( outfile, "\n",  );
+
+--------------------
+Menu 'Snippets'
+--------------------
+
+(1) Code snippets see |csupport-code-snippets|.
+
+(2) Generate Prototypes
+
+To make a prototype from a function head mark the function head and press
+'Idioms' -> 'make prototype'. The first two lines from 
+
+  void
+  foo (  )
+  {
+    return ;
+  }       // ----------  end of function foo  ---------- 
+
+will be put in an internal buffer.
+
+With 'Idioms' -> 'put prototype(s)' the following two lines will be inserted
+( semicolon will be appended):
+
+  void
+  foo (  );
+
+
+This works also for method implementations (C++). In the generated
+prototypes the class name and the following '::' is removed.
+
+The entry 'Idioms' -> 'add prototype'  adds additional prototypes
+to the internal buffer.
+All gathered prototypes are inserted with 'Idioms' -> 'put prototype(s)' .
+
+Generating prototypes this way is nice in a small project. You may want to
+use an extractor like cextract or something else. 
+
+
+--------------------
+Menu 'Run'
+--------------------
+
+(1) The 'Run' menu provides a minimal make functionality for single file
+projects (e.g. in education).
+
+(1.1) 'save and compile' saves the buffer and run the compiler 
+with the given options. 
+
+(1.2) 'link' makes an executable from the current buffer. If the buffer
+is not saved, or no object is available or the object is older then the 
+source step (1.1) is executed first.
+
+(1.3) 'run' runs the executable with the same name (extension .e) as the
+current buffer. If the buffer is not saved, or no executable is available 
+or the executable is older then the source steps (1.1) and (1.2) are 
+executed first.
+
+(2) The entry 'command line arguments' calls an input dialog which asks
+for command line arguments. These arguments are forwarded to the executable 
+which is run by the 'run' entry. The arguments are kept until you change them.
+
+(3) The entry 'make' runs the external make program.
+
+(4) The entry 'command line arguments for make' calls an input dialog which 
+asks for command line arguments for make. These arguments are forwarded to 
+make when called by the entry 'make' .
+
+The behavior of the compiler / linker is determined by the options 
+assigned to the variables described in |csupport-customization| (4.group).
+
+
+==============================================================================
+HOTKEYS                                                     *csupport-hotkeys*
+==============================================================================
+
+The following hotkeys are defined in normal, visual and insert mode: 
+
+   Alt-F9   write buffer and compile
+       F9   compile and link
+  Ctrl-F9   run executable
+ Shift-F9   run make
+
+The hotkeys are defined in the filetype plugin c.vim .
+
+
+==============================================================================
+CUSTOMIZATION                                         *csupport-customization*
+==============================================================================
+
+Several global variables are checked by the script to customize it:
+
+  ----------------------------------------------------------------------------
+  GLOBAL VARIABLE           DEFAULT VALUE                    TAG (see below)
+  ----------------------------------------------------------------------------
+  g:C_AuthorName            ""                               |AUTHOR|
+  g:C_AuthorRef             ""                               |AUTHORREF|
+  g:C_Email                 ""                               |EMAIL|
+  g:C_Company               ""                               |COMPANY|   
+  g:C_Project               ""                               |PROJECT|
+  g:C_CopyrightHolder       ""                               |COPYRIGHTHOLDER|
+
+  g:C_Template_Directory    $HOME."/.vim/plugin/templates/"
+  g:C_Template_C_File       "c-file-header"
+  g:C_Template_Class        "c-class-description"
+  g:C_Template_Frame        "c-frame"
+  g:C_Template_Function     "c-function-description"
+  g:C_Template_H_File       "h-file-header"
+  g:C_Template_Method       "c-method-description"
+  g:Cpp_Template_C_File     "cpp-file-header"
+  g:Cpp_Template_Class      "cpp-class-description"
+  g:Cpp_Template_Frame      "cpp-frame"
+  g:Cpp_Template_Function   "cpp-function-description"
+  g:Cpp_Template_H_File     "hpp-file-header"
+  g:Cpp_Template_Method     "cpp-method-description"
+
+  g:C_Comments              "yes"
+  g:C_CodeSnippets          $HOME."/.vim/codesnippets-c/"
+  g:C_Pager                 "less"
+  g:C_Dictionary_File       ""
+  g:C_LoadMenus             "yes"
+  g:C_MenuHeader            "yes"
+
+  g:C_CExtension            "c"              
+  g:C_CCompiler             "gcc"            
+  g:C_CplusCompiler         "g++"            
+  g:C_CFlags                "-Wall -g -O0 -c"
+  g:C_LFlags                "-Wall -g -O0"   
+  g:C_Libs                  "-lm"            
+
+  ----------------------------------------------------------------------------
+
+1. group: Defines the text which will be inserted for the tags when a template  
+          is read in (see also |csupport-template-files| below).
+
+          g:C_AuthorName         : author name
+          g:C_AuthorRef          : author reference (e.g. acronym)
+          g:C_Email              : email address
+          g:C_Company            : name of the company / institution
+          g:C_Project            : project
+          g:C_CopyrightHolder    : the copyright holder
+
+2. group: g:C_Template_Directory : Sets the template directory and the names of the 
+           ...                     template files (see |csupport-template-files|).
+
+3. group: g:C_Comments           : The initial comment style (C = yes, C++ = no).
+          g:C_CodeSnippets       : The name of the code snippet directory 
+                                   (see |csupport-code-snippets|).
+          g:C_Pager              : The name of the filter used when the output of a 
+                                   C program is run through a filter for paging 
+                                   through text.
+          g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
+                                   word completion (see also |csupport-dictionary|)
+          g:C_Root               : the name of the root menu of this plugin
+          g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
+          g:C_MenuHeader         : Switch the submenu header on/off.
+
+4. group: g:C_CExtension         : The extension of C files. Everything else is C++ .
+          g:C_CCompiler          : The name of the C compiler.
+          g:C_CplusCompiler      : The name of the C++ compiler.
+          g:C_CFlags             : Compiler flags used for a compilation.
+          g:C_LFlags             : Compiler flags used for linkage.
+          g:C_Libs               : Libraries to link with.
+
+To override the default add appropriate assignments to .vimrc .
+Here are my settings as an example:
+
+  let g:C_AuthorName      = "Dr.-Ing. Fritz Mehner"    
+  let g:C_AuthorRef       = "Mn"                       
+  let g:C_Email           = "mehner@fh-swf.de"         
+  let g:C_Company         = "FH Südwestfalen, Iserlohn"
+
+The root menu
+-------------
+The variable g:C_Root, if set (in .vimrc or in .gvimrc), give the name of the
+single Vim root menu entry in which the C/C++ submenus will be put. 
+The default is 
+                  '&C\/C\+\+.'
+Note the termination dot. A single root menu can be used if the screen is
+limited or several plugins are used in parallel.
+
+If set to "", this single root menu entry will not appear.  Now all submenus
+are put into the Vim root menu. This is nice for beginners in a lab
+installation or for C-only programmers.
+
+
+==============================================================================
+TEMPLATE FILES AND TAGS                              *csupport-template-files*
+==============================================================================
+
+Many menu entries generate comments or commented code. The style of these 
+comments can be toggled between C-style ( /*...*/ ) and C++-style ( //... ). 
+Two menu entries have a fixed style ( C-/C++ line end comment)
+
+Six menu entries generate block comments:
+
+    C/C++-file header
+    Class Description
+    Frame Block
+    Function Description
+    H-file header
+    Method Description
+
+The comments which will be inserted by these menus entries are read from files:
+
++--------------------------+--------------------------------------------------------+
+| menu entry               | global variable           | file (distribution set)    |
++--------------------------+---------------------------+----------------------------+
+| C/C++-file header        | g:C_Template_C_File       | c-file-header              |
+| Class Description        | g:C_Template_Class        | c-class-description        |
+| Frame Block              | g:C_Template_Frame        | c-frame                    |
+| Function Description     | g:C_Template_Function     | c-function-description     |
+| H-file header            | g:C_Template_H_File       | h-file-header              |
+| Method Description       | g:C_Template_Method       | c-method-description       |
+| class                    | g:C_Class                 | c-class                    |
+| class using new          | g:C_ClassUsingNew         | c-class-using-new          |
+| template class           | g:C_TemplateClass         | c-template-class           |
+| template class using new | g:C_TemplateClassUsingNew | c-template-class-using-new |
+| error class              | g:C_ErrorClass            | c-error-class              |
++--------------------------+--------------------------------------------------------+
+
+There may be a second set of files pointed to by the global variables whose 
+names start with  s:Cpp_Temp... .
+The second set of variables can point to the same files as the first set or to
+another set (but both in the template directory).
+If the second set is empty (i.e. all file names are empty strings: "") 
+the style toggle entry does not appear in the Comments-menu.
+If the second set is not empty it is assumed that these files contain C++-style 
+blocks and the style toggle entry in the Comments-menu is present.
+
+The template files can be written or changed by the user to fulfill special
+requirements (layout for a project or workgroup already exists, 
+file headers / blocks have to be prepared for a documentation tool, ... ).
+They can hold not only comments but a complete file skeleton if this is 
+necessary. So you may want to lay out your own templates.
+
+The comments in these files do not have to be personalized but they can be.
+The text can contain the following tags which are replaced by the appropriate
+information when the file is read in:
+
+    |AUTHOR|
+    |DATE|
+    |EMAIL|
+    |FILENAME|
+    |YEAR|
+
+    |AUTHORREF|
+    |COMPANY|
+    |COPYRIGHTHOLDER|
+    |PROJECT|
+    |TIME|
+
+    |CLASSNAME|
+
+    |CURSOR|
+
+The first five tags are also found in KDevelop templates. A KDevelop template
+file can therefore be used without any change.
+Each tag can occur more than once. The tag |CURSOR| may appear only once.
+
+The tag |CLASSNAME| will be replaced by the class name given in a dialog box
+when calling "C++ -> class" etc.
+
+The tag |CURSOR| will be the cursor position after the block is read in.
+
+There is no need to use any of these tags, some or all can be missing.
+
+The template files can actually be links pointing to existing templates.
+
+
+==============================================================================
+CODE SNIPPETS                                         *csupport-code-snippets*
+==============================================================================
+
+Code snippets are pieces of code which are kept in separate files in a special
+directory (e.g. a few lines of code or a complete template for a Makefile).
+File names are used to identify the snippets.  The snippet directory has to be
+created by the user ( $HOME/.vim/codesnippets-c is the default).
+Snippets are managed with the 3 entries 
+
+   C/C++ -> Snippets -> read  code snippet
+   C/C++ -> Snippets -> write code snippet
+   C/C++ -> Snippets -> edit  code snippet
+
+from the Snippets submenu.
+
+Creating a new snippet:  
+-----------------------
+When nothing is marked, "write code snippet" will write the whole buffer 
+to a snippet file, otherwise the marked area will be written to a file.
+
+Insert a snippet:
+-----------------
+Select the appropriate file from the snippet directory ("read  code snippet").
+The inserted lines will be indented.
+
+
+==============================================================================
+C/C++ DICTIONARY                                         *csupport-dictionary*
+==============================================================================
+
+The files  
+
+ c-c++-keywords.list 
+ k+r.list  
+ stl_index.list  
+ xforms.list
+ german.list
+
+are a part of this plugin and can be used (together with your own lists) as
+dictionaries for automatic word completion.  In order to use this feature
+
+(1) copy this file to an appropriate location, e.g.
+
+ $HOME/.vim/wordlists/
+
+(2) and put the following lines into  .vimrc  to use them:
+
+ let g:C_Dictionary_File=$HOME."/.vim/wordlists/c-c++-keywords.list"
+ let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/k+r.list"
+ let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/stl_index.list"
+ let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/xforms.list"
+ let g:C_Dictionary_File=g:C_Dictionary_File.",".$HOME."/.vim/wordlists/german.list"
+
+(3) Copy the filetype plugin  ftplugin/sh.vim  to 
+
+ $HOME/.vim/ftplugin/c.vim
+  
+This will create a local dictionary for each C/C++ file and enable keyword 
+completion for C/C++ using Vim's dictionary feature CTRL-X CTRL-K.
+
+==============================================================================
+Release Notes                                         *csupport-release-notes*
+==============================================================================
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.4
+------------------------------------------------------------------------------
+
++ Two new global variables: C_Dictionary_File, C_MenuHeader .
++ The preprocessor statements #if... and the function idiom include marked 
+  lines when invoked in visual mode.
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.3
+------------------------------------------------------------------------------
+
++ The C/C++ root menu can be disabled.
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.2
+------------------------------------------------------------------------------
+
++ Only one C/C++ entry in the gVim root menu.
++ All hotkeys are only defined for C/C++ files (file type plugin added).
++ The following constructs are now read as templates from files:
+   class, class using new, 
+   template class, template class using new,
+   error class
++ Install script added.
++ Customization improved. 
++ Documentation improved (help file added).
++ Bug fix (template file handling)
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.1
+------------------------------------------------------------------------------
+
++ When the comment style "C" is active the menu entry "Comments.code->comment"
+  turns a marked region in one multiline C-comment.
++ The menu entry "Comments.comment->code"  turns marked multiline C-comment 
+  back into code.
++ A marked region can be surrounded by a for-, if, if-else, while-, 
+  do-while-statement (with indentation).
++ The menu entry "Snippets.make prototype" makes a C- or C++-prototype from 
+  the current line or marked region and puts it in an internal buffer.
++ The menu entry "Snippets.add prototype" also makes a C- or C++-prototype from 
+  the current line or a marked region and adds it to the internal buffer.
++ The menu entry "Snippets.put prototype" inserts all gathered prototypes 
+  below the current line. 
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.0
+------------------------------------------------------------------------------
+
++ C-style comments AND C++-style comments are supported now.
++ The menu entry 'Comments->Comment style ..' switches the styles (toggle).
++ Block comments are now read as templates or skeletons from files:
+    Frame Block,        Function Description,  Method Description,
+    Class Description,  H+file header,         C/C++-file header
++ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are 
+  replaced after reading (KDevelop templates can be used without any change).
++ indentation: multiline inserts and code snippets will be indented after insertion.
++ Most menu entries are now also active in normal mode.
++ new menu items: 
+    includes for the C99 header, 
+    includes for the standard C++ header,
+    includes for the C++ version of the Standard C Library header,
+    multiline C comment
+    vim modeline
++ Reading the templates is done in one function which can be called in an autocmd.
++ Code cleanup: register z no longer used. Most function calls are silent now.
+
+==============================================================================
+vim:tw=78:noet:ts=2:ft=help:norl:

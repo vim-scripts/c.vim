@@ -1,0 +1,56 @@
+class |CLASSNAME|
+{
+
+  public:
+
+    /* ====================  LIFECYCLE   ========================================= */
+
+    |CLASSNAME| ();                        /* constructor */
+    |CLASSNAME| (const |CLASSNAME| &obj);  /* copy constructor */
+    ~|CLASSNAME| ();                       /* destructor */
+
+    /* ====================  OPERATORS   ========================================= */
+
+    const |CLASSNAME|& operator = (const |CLASSNAME| &obj);    /* assignemnt operator */
+
+    /* ====================  OPERATIONS  ========================================= */
+
+    /* ====================  ACCESS      ========================================= */
+
+    /* ====================  INQUIRY     ========================================= */
+
+    /* ====================  NESTED ERROR CLASSES  =============================== */
+
+
+  protected:
+
+  private:
+
+
+};      /* ----------  end of class  |CLASSNAME|  ---------- */
+
+
+|CLASSNAME|::|CLASSNAME| ()
+{
+}        /* ----------  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ---------- */
+
+
+|CLASSNAME|::|CLASSNAME| (const |CLASSNAME| &obj)
+{
+}        /* ----------  end of method |CLASSNAME|::|CLASSNAME|  (copy constructor)  ---------- */
+
+
+|CLASSNAME|::~|CLASSNAME| ()
+{
+}        /* ----------  end of method |CLASSNAME|::~|CLASSNAME|  (destructor)  ---------- */
+
+
+const |CLASSNAME|&
+|CLASSNAME|::operator = (const |CLASSNAME| &obj)
+{
+  if(this!=&obj)
+  {
+
+  }
+  return *this;
+}        /* ----------  end of method |CLASSNAME|::operator =  (assignment operator)  ---------- */

@@ -1,0 +1,60 @@
+template < class T >
+class |CLASSNAME|
+{
+
+  public:
+
+    /* ====================  LIFECYCLE   ========================================= */
+
+    |CLASSNAME| ();                        /* constructor */
+    |CLASSNAME| (const |CLASSNAME| &obj);  /* copy constructor */
+    ~|CLASSNAME| ();                       /* destructor */
+
+    /* ====================  OPERATORS   ========================================= */
+
+    const |CLASSNAME|& operator = (const |CLASSNAME| &obj);    /* assignment operator */
+
+    /* ====================  OPERATIONS  ========================================= */
+
+    /* ====================  ACCESS      ========================================= */
+
+    /* ====================  INQUIRY     ========================================= */
+
+    /* ====================  NESTED ERROR CLASSES  =============================== */
+
+
+  protected:
+
+  private:
+
+
+};      /* ----------  end of template class  |CLASSNAME|  ---------- */
+
+
+template < class T >
+|CLASSNAME|< T >::|CLASSNAME| ()
+{
+}       /* ----------  end of constructor of template class |CLASSNAME|  ---------- */
+
+
+template < class T >
+|CLASSNAME|< T >::|CLASSNAME| (const |CLASSNAME| &obj)
+{
+}       /* ----------  end of copy constructor of template class |CLASSNAME|  ---------- */
+
+
+template < class T >
+|CLASSNAME|< T >::~|CLASSNAME| ()
+{
+}       /* ----------  end of destructor of template class |CLASSNAME|  ---------- */
+
+
+template < class T >
+const |CLASSNAME|< T >& |CLASSNAME|< T >::operator = (const |CLASSNAME| &obj)
+{
+  if(this!=&obj)
+  {
+
+  }
+  return *this;
+}       /* ----------  end of assignment operator of template class |CLASSNAME|  ---------- */
