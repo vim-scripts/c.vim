@@ -6,6 +6,7 @@
 set tabstop=2
 set shiftwidth=2
 set autowrite
+set autoread
 set incsearch
 set visualbell
 set nowrap
@@ -17,7 +18,7 @@ set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory
 "  some additional hot keys
 "-------------------------------------------------------------------------------
 "
-"     F2  -  update file without confirmation
+"     F2  -  write file without confirmation
 "     F3  -  call file explorer Ex
 "     F4  -  show tag under curser in the preview window
 "     F6  -  list all errors           
@@ -28,26 +29,27 @@ set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory
 "    C-q  -  Leave the editor with Ctrl-q (see below)
 "-------------------------------------------------------------------------------
 "
-map  <F2>    :update<CR>
-map  <F3>    :Explore<CR>
-nmap <F4>    :exe ":ptag ".expand("<cword>")<CR>
-map  <F6>    :copen<CR>
-map  <F7>    :cp<CR>
-map  <F8>    :cn<CR>
+map   <silent> <F2>    :write<CR>
+map   <silent> <F3>    :Explore<CR>
+nmap  <silent> <F4>    :exe ":ptag ".expand("<cword>")<CR>
+map   <silent> <F6>    :copen<CR>
+map   <silent> <F7>    :cp<CR>
+map   <silent> <F8>    :cn<CR>
 "
-imap  <F2>    <Esc>:update<CR>
-imap  <F3>    <Esc>:Explore<CR>
-imap  <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
-imap  <F6>    <Esc>:copen<CR>
-imap  <F7>    <Esc>:cp<CR>
-imap  <F8>    <Esc>:cn<CR>
+imap  <silent> <F2>    <Esc>:write<CR>
+imap  <silent> <F3>    <Esc>:Explore<CR>
+imap  <silent> <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
+imap  <silent> <F6>    <Esc>:copen<CR>
+imap  <silent> <F7>    <Esc>:cp<CR>
+imap  <silent> <F8>    <Esc>:cn<CR>
 "
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
 " The current buffer will be written before switching to the next one.
 "-------------------------------------------------------------------------------
 "
-nmap  <s-tab>  :if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
+ map  <silent> <s-tab>       :if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
+imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && &modified <cr> :w<cr> :endif<cr> :bp<cr> 
 "
 "
 "-------------------------------------------------------------------------------
@@ -100,4 +102,18 @@ set wildignore=*.bak,*.o,*.e,*~
 "-------------------------------------------------------------------------------
 " 
 set printoptions=left:8pc,right:3pc
+"
+
+highlight Cursor guibg=Blue guifg=NONE
+"
+"-------------------------------------------------------------------------------
+" Insert header into new C/C++-files
+" Insert header into new PERL files
+" Insert header into new Bash files
+"-------------------------------------------------------------------------------
+if has("autocmd")
+	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
+	autocmd BufNewFile  *.\(h\|hpp\)         call C_CommentTemplates('hheader')
+endif " has("autocmd")
+"
 "

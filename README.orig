@@ -1,99 +1,286 @@
-README for c.vim (Version 2.8.1) / 03-06-2003
+README for c.vim (Version 3.0) / April 26 2003
 
-===========================================================================================
-FILES
-===========================================================================================
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.0
+=======================================================================================
 
-README                this file
++ C-style comments AND C++-style comments are supported now.
 
-c.vim                 The C/C++ plugin for GVIM. 
-                      Copy this file to your local plugin directory: ~/.vim/plugin/c.vim 
++ The menu entry 'Comments->Comment style ..' switches the styles (toggle).
+
++ Block comments are now read as templates or skeletons from files:
+    Frame Block,        Function Description,  Method Description,
+    Class Description,  H+file header,         C/C++-file header
+
++ These templates can contain tags like |FILENAME|, |AUTHOR| etc. which are replaced
+  after reading (KDevelop templates can be used without any change).
+
++ indentation: multiline inserts and code snippets will be indented after insertion.
+
++ Most menu entries are now also active in normal mode.
+
++ new menu items: 
+    includes for the C99 header, 
+    includes for the standard C++ header,
+    includes for the C++ version of the Standard C Library header,
+    multiline C comment
+		vim modeline
+
++ Reading the templates is done in one function which can be called in an autocmd.
+
++ Code cleanup: register z no longer used. Most function calls are silent now.
 
 
--------------------   ---------------------------------------------------------------------
-                      The following files and extensions are for convenience only.         
-                      c.vim will work without them.                                        
-                      ---------------------------------------------------------------------
-                                                                                           
+=======================================================================================
+  FILES
+=======================================================================================
 
-costumization.vimrc   Additional settings I use in .vimrc: 
-                        incremental search, tabstop, hot keys, font, use of dictionaries, ...
-                      The file is commented. Append it to your .vimrc if you like.
+README                                  this file
 
-costumization.gvimrc  Additional settings I use in .gvimrc: 
-                        hot keys, mouse settings, ...
-                      The file is commented. Append it to your .gvimrc if you like.
+c.vim                                   The C/C++ plugin for GVIM.
+                                        Copy this file to your local plugin directory:
+                                           $HOME/.vim/plugin/c.vim
+                                        Some configuration is needed (your name,
+                                        Email, ... ; see section CONFIGURATION below).
 
-word.list             A file with words used as dictionary for automatic word completion. 
-                      This file contains the all C and C++ keywords.
-                      Copy this file to the directory  ~/.vim/ if you want to use it.
-                      This file is referenced in the extension costumization.vimrc .
-                      
-                      
-                      Additional word lists (can be appended to file word.list):
-                      
-c-c++-keywords.list   All C and C++ keywords (already in word.list).
-                      
-german.list           German words for commenting sources.
-                      
-k+r.list              K&R-Book: Words from the table of content. They appear frequently in comments.
-                      
-stl_index.list        Standard Template Library (STL):  method names and type names 
-                      
-xforms.list           XFORMS library: macro and function names
 
-===========================================================================================
-CONFIGURATION
-===========================================================================================
+templates/c-class-description      -+-  C-style and C++-style template files for
+templates/c-file-header             |   file headers and block comments (see section
+templates/c-frame                   |   TEMPLATE FILES below).
+templates/c-function-description    |
+templates/c-method-description      |
+templates/cpp-class-description     |   Copy this template directory
+templates/cpp-file-header           |   into the plugin directory.
+templates/cpp-frame                 |
+templates/cpp-function-description  |
+templates/cpp-method-description    |
+templates/h-file-header             |
+templates/hpp-file-header          _+
 
-The file c.vim contains the following configuration section. 
-Use my configuration as an example and change what has to be changed in the file  c.vim .
 
-"###############################################################################################
-"
-"  Configuration  (Use my configuration as an example)
-"
-"-------------------------------------------------------------------------------------
-"
-let s:C_AuthorName      = "Dr.-Ing. Fritz Mehner"
-let s:C_AuthorRef       = "Mn"
-"
-"  The following entries do not appear if the strings are empty.
-"
-let s:C_Email           = "mehner@fh-swf.de"
-let s:C_Company         = "Fachhochschule Südwestfalen, Iserlohn"
-let s:C_Project         = ""
-"
-"  Copyright information
-"  ---------------------
-"  If the code has been developed over a period of years, each year must be stated.
-"  If C_CopyrightHolder is empty the copyright notice will not appear.
-"  If C_CopyrightHolder is not empty and C_CopyrightYears is empty, 
-"  the current year will be inserted.
-"
-let s:C_CopyrightHolder = ""
-let s:C_CopyrightYears  = ""
-"
-"###############################################################################################
-"
-"  Global Variables : Compiler, Options, Libraries, ...
-"
-let s:C_CExtension    = "c"                 " C file extension; everything else is C++
-let s:C_CCompiler     = "gcc"               " the C   compiler
-let s:C_CplusCompiler = "g++"               " the C++ compiler
-let s:C_CFlags        = "-Wno-deprecated -Wall -g -O0 -c"   " compiler flags: compile, don't optimize
-let s:C_LFlags        = "-Wno-deprecated -Wall -g -O0"      " compiler flags: link   , don't optimize
-let s:C_Libs          = "-lm"               " libraries to use
-"                                       
-" The menu entrie 'run with pager' will not appear if the following string is empty 
-let s:C_Pager         = "less"              " pager
-"                                       
-" The menu entries for code snippet support will not appear 
-" if the following string is empty 
-"
-let s:C_CodeSnippets = $HOME."/.vim/codesnippets-c"
-"
-let s:C_ShowMenues    = "yes"       " show menues immediately after loading this file (yes/no)
-"
-"
-"###############################################################################################
+
+
+-----------------------   -------------------------------------------------------------
+                          The following files and extensions are for convenience only.
+                          c.vim will work without them.
+                          -------------------------------------------------------------
+
+
+costumization.vimrc       Additional settings I use in .vimrc:  incremental search,
+                          tabstop, hot keys, font, use of dictionaries, ...
+                          The file is commented. Append it to your .vimrc if you like.
+
+costumization.gvimrc      Additional settings I use in .gvimrc:
+                            hot keys, mouse settings, ...
+                          The file is commented. Append it to your .gvimrc if you like.
+
+word.list                 A file with words used as dictionary for automatic word
+                          completion. This file contains all C and C++ keywords. Copy
+                          this file to the directory  $HOME/.vim/ if you want to use it.
+                          This file is referenced in the file costumization.vimrc .
+
+
+wordlists.tar.gz          This archive contains additional wordlists
+                          (can be appended to file word.list):
+
+    c-c++-keywords.list   All C and C++ keywords (already in word.list).
+
+    german.list           German words for commenting sources.
+
+    k+r.list              K&R-Book: Words from the table of content. They appear
+                          frequently in comments.
+
+    stl_index.list        Standard Template Library (STL):  method names and type names
+
+    xforms.list           XFORMS library: macro and function names
+
+
+=======================================================================================
+  CONFIGURATION
+=======================================================================================
+
+The file c.vim contains the following configuration section. Use my configuration as
+an example and change what has to be changed in the file  c.vim . The template files
+are described in the next section.
+
+
+  "##########################################################################################
+  "
+  "  Configuration  (Use my configuration as an example)
+  "
+  "------------------------------------------------------------------------------------------
+  "   c.vim-variable         value                                           tag
+  "------------------------------------------------------------------------------------------
+  "
+  let s:C_AuthorName      = "Dr.-Ing. Fritz Mehner"                       " |AUTHOR|
+  let s:C_AuthorRef       = "Mn"                                          " |AUTHORREF|
+  let s:C_Email           = "mehner@fh-swf.de"                            " |EMAIL|
+  let s:C_Company         = "Fachhochschule Südwestfalen, Iserlohn"       " |COMPANY|   
+  let s:C_Project         = ""                                            " |PROJECT|
+  let s:C_CopyrightHolder = ""                                            " |COPYRIGHTHOLDER|
+  "
+  "  Copyright information. If the code has been developed over a period of years, 
+  "  each year must be stated. In a template file use a fixed year in the first position :
+  "  
+  "    '//    Copyright (C) 1998-|YEAR|  |COPYRIGHTHOLDER|'
+  "
+  "
+  "##########################################################################################
+  "
+  "  Global Variables : Compiler, Options, Libraries, ...
+  "
+  let s:C_CExtension    = "c"                    " C file extension; everything else is C++
+  let s:C_CCompiler     = "gcc"                  " the C   compiler
+  let s:C_CplusCompiler = "g++"                  " the C++ compiler
+  let s:C_CFlags        = "-Wall -g -O0 -c"      " compiler flags: compile, don't optimize
+  let s:C_LFlags        = "-Wall -g -O0"         " compiler flags: link   , don't optimize
+  let s:C_Libs          = "-lm"                  " libraries to use
+  "
+  "
+  " The menu entry 'C-Run -> run with pager' will not appear if the following string is empty 
+  "
+  let s:C_Pager         = "less"
+  "
+  "                                       
+  " The menu entries for code snippet support will not appear if the following string is empty 
+  " (don't forget to create the directory if you want to use it)
+  "
+  let s:C_CodeSnippets = $HOME."/.vim/codesnippets-c/"
+  "
+  "
+  " Show C-menues immediately after loading this plugin (yes/no)
+  " 
+  let s:C_ShowMenues    = "yes"
+  "
+  "
+  " ---------- C/C++  template files --------------------------------------------------------
+  "
+  " Style of the one-line comments when this plugin is loaded:
+  "
+  let s:C_Comments  = "yes"
+  " 
+  "   yes  :  C-style comments:       /* ... */  
+  "   
+  "   no   :  C++-style comments:     //...
+  "   
+  " The style can be toggled with menu entry 'Comments -> Comments style ...'.
+  " The style of the multi-line comments has to be changed in the template files:
+  "
+  "  
+  let s:C_Template_Directory    = $HOME."/.vim/plugin/templates/"
+  "                           
+  "                             ----- C template files ---- ( 1. set of templates ) ----
+  "                             
+  let s:C_Template_C_File       = "c-file-header"
+  let s:C_Template_Class        = "c-class-description"
+  let s:C_Template_Frame        = "c-frame"
+  let s:C_Template_Function     = "c-function-description"
+  let s:C_Template_H_File       = "h-file-header"
+  let s:C_Template_Method       = "c-method-description"
+  "
+  "                             ----- C++ template files -- ( 2. set of templates ) ----
+  "                             ----- If this set is empty the toggle will not appear. -
+  "  
+  let s:Cpp_Template_C_File     = "cpp-file-header"
+  let s:Cpp_Template_Class      = "cpp-class-description"
+  let s:Cpp_Template_Frame      = "cpp-frame"
+  let s:Cpp_Template_Function   = "cpp-function-description"
+  let s:Cpp_Template_H_File     = "hpp-file-header"
+  let s:Cpp_Template_Method     = "cpp-method-description"
+  "
+  " -----------------------------------------------------------------------------------------
+  "  End of the configuration section  ------------------------------------------------------
+  " -----------------------------------------------------------------------------------------
+
+=======================================================================================
+  TEMPLATE FILES
+=======================================================================================
+
+Many menu entries generate comments or commented code. The style of these comments
+can be toggled between C-style ( /*...*/ ) and C++-style ( //... ).  2 menu entries
+have a fixed style ( C-/C++ line end comment)
+
+6 menu entries generate block comments:
+
+    C/C++-file header
+    Class Description
+    Frame Block
+    Function Description
+    H-file header
+    Method Description
+
+The comments which will be inserted by these menus entries are read from files:
+
+    +------------------------+----------------------------------------------------+
+    |  menu entry            |  global variable        |  file (distribution set) |
+    +------------------------+-------------------------+--------------------------+
+    |  C/C++-file header     |  s:C_Template_C_File    |  c-file-header           |
+    |  Class Description     |  s:C_Template_Class     |  c-class-description     |
+    |  Frame Block           |  s:C_Template_Frame     |  c-frame                 |
+    |  Function Description  |  s:C_Template_Function  |  c-function-description  |
+    |  H-file header         |  s:C_Template_H_File    |  h-file-header           |
+    |  Method Description    |  s:C_Template_Method    |  c-method-description    |
+    +------------------------+----------------------------------------------------+
+
+There may be a second set of files pointed to by the global variables whose names
+start with  s:Cpp_Temp... .
+The second set of variables can point to the same files as the first set or to
+another set (but both in the template directory).
+If the second set is empty (i.e. all file names are empty strings: "") the style toggle
+entry does not appear in the Comments-menu.
+If the second set is not empty it is assumed that these files contain C++-style blocks
+and the style toggle entry in the Comments-menu is present.
+
+The template files can be written or changed by the user to fulfill special
+requirements (layout for a project or workgroup already exists, file headers / blocks
+have to be prepared for a documentation tool, ... ).
+They can hold not only comments but a complete file skeleton if this is necessary.
+So you may want to lay out your own templates.
+
+The comments in these files do not have to be personalized but they can be.
+The text can contain the following tags which are replaced by the appropriate
+information when the file is read in:
+
+    |AUTHOR|
+    |DATE|
+    |EMAIL|
+    |FILENAME|
+    |YEAR|
+
+    |AUTHORREF|
+    |COMPANY|
+    |COPYRIGHTHOLDER|
+    |PROJECT|
+    |TIME|
+
+    |CURSOR|
+
+The first 5 tags are found in KDevelop templates. A KDevelop template file
+can therefore be used without any change.
+Each tag can occur more than once. The tag |CURSOR| may appear only once.
+
+The tag |CURSOR| will be the cursor position after the block is read in.
+There is no need to use any of these tags, some or all can be missing.
+
+The template files can actually be links pointing to existing templates.
+
+
+
+=======================================================================================
+  SPEED UP TYPING / SAVE KEYSTROKES
+=======================================================================================
+
+(1) gvim. Toggle 'insert mode' <--> 'normal mode' with the right mouse button
+    (see mapping in file costumization.gvimrc).
+
+(2) gvim. Use tear off menus and
+
+(3) try 'Focus under mouse' as window behavior (No mouse click when the mouse pointer 
+    is back from the menu entry).
+
+(4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and right
+    button at the same time without moving your fingers is faster then moving a finger
+    to the middle button (often a wheel).
+
+=======================================================================================
+
