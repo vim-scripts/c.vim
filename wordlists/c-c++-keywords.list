@@ -30,6 +30,8 @@ unsigned
 void
 volatile
 while
+EXIT_FAILURE
+EXIT_SUCCESS
 
 and
 and_eq

@@ -1,42 +1,95 @@
-*csupport.txt*             C/C++ Support             Last Change: Dec  26  2003
+*csupport.txt*             C/C++ Support             Last Change:  Apr 02 2004
 
 C/C++ Support                                           *c-support* *csupport*
-                            Plugin version 3.4
+                            Plugin version 3.5
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
 Write and run C/C++ programs using menus.
 
-|csupport-usage-gvim|        Usage 
-|csupport-hotkeys|           Hotkeys
-|csupport-customization|     Customization and configuration
-|csupport-template-files|    Template files and tags
-|csupport-code-snippets|     Code Snippets
-|csupport-dictionary|        C/C++ Dictionaries
-|csupport-release-notes|     Release Notes
-|add-local-help|             How to add this help file to Vim's help
+ 1.    Usage                                           |csupport-usage-gvim|        
+ 1.1    Menu 'Comments'                                |csupport-comm|
+ 1.1.1   Append aligned comments to consecutive lines  |csupport-comm-1|
+ 1.1.2   Multiline comment                             |csupport-comm-2|
+ 1.1.3   Code to comment                               |csupport-comm-3|
+ 1.1.4   Comment to code                               |csupport-comm-4|
+ 1.1.5   Frame comments, file header, ...              |csupport-comm-5|
+ 1.1.6   keyword + comment                             |csupport-comm-6|
+ 1.1.7   Switch comment style                          |csupport-comm-7|
+ 1.2    Menu 'Statements'                              |csupport-stat|
+ 1.3    Menu 'Idioms'                                  |csupport-idioms|
+ 1.4    Menu 'Snippets'                                |csupport-snippets|
+ 1.4.1   Code snippets                                 |csupport-snippets|
+ 1.4.2   Generating prototypes                         |csupport-proto|
+ 1.5    Menu 'Run'                                     |csupport-run|
+ 1.5.1   Minimal make functionality                    |csupport-run-1|
+ 1.5.2   Command line arguments                        |csupport-run-2|
+ 1.5.3   Run make                                      |csupport-run-3|
+ 1.5.4   Command line arguments for make               |csupport-run-4|
+
+ 2.    Hotkeys                                         |csupport-hotkeys|           
+ 3.    Customization and configuration                 |csupport-custom|     
+ 3.1    Global variables                               |csupport-custom-1|
+ 3.2    The root menu                                  |csupport-custom-2|
+ 4.    Template files and tags                         |csupport-tempfiles|    
+ 4.1    Template files                                 |csupport-tempfiles-1|    
+ 4.2    Tags                                           |csupport-tempfiles-2|
+ 5.    C/C++ Dictionaries                              |csupport-dictionary|        
+ 6.    Release Notes                                   |csupport-release-notes|     
+
+       How to add this help file to Vim's help         |add-local-help|             
 
 
 ==============================================================================
-USAGE with GUI  (gVim)                                   *csupport-usage-gvim*
+1.  USAGE WITH GUI  (gVim)                               *csupport-usage-gvim*
 ==============================================================================
 
 If the root menu 'C/C++' is not visible call it with the entry "Load C Support" 
 from the standard Tools-menu.
+The entry "Load C Support" can also be used to unload the C/C++-root menu.
 
---------------------
-Menu 'Comments'
---------------------
+------------------------------------------------------------------------------
+1.1 MENU 'Comments'                                            *csupport-comm*
+------------------------------------------------------------------------------
 
-(1) Frame comments, file header comments and function, methods, class descriptions 
-are read as templates from the appropriate files (see |csupport-customization|).
+1.1.1 APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES           *csupport-comm-1*
 
-'code-comment' and 'comment->code' are for commenting/uncommenting 
-visually selected blocks.
+In NORMAL MODE the menu entries
+ 'Line End Comm. //' 
+ 'Line End Comm. /**/' 
+will append the indicated comment to the current line.
 
-(2) When 'comment style C' is active a marked block
+In VISUAL MODE these entries will append aligned comments to all marked lines.
+Marking the first 4 lines
 
-xxxxxxxx
+  print_double_array ( double array[],
+                       int n,
+                       int columns,
+                       char* arrayname
+                       )
+
+and choosing 'Line End Comm. /**/' will yield.
+
+  print_double_array ( double array[],  /*  */
+                       int n,           /*  */
+                       int columns,     /*  */
+                       char* arrayname  /*  */
+                       )
+
+The cursor will be positioned inside the first comment.
+
+------------------------------------------------------------------------------
+
+1.1.2 MULTILINE COMMENT                                      *csupport-comm-2*
+
+NORMAL MODE, INSERT MODE. The comment shown below will be inserted.
+
+  /*
+   * 
+   */
+
+VISUAL MODE. A marked block
+
 xxxxxxxx
 xxxxxxxx
 
@@ -44,11 +97,26 @@ will be changed into a multiline comment (all (partially) marked lines):
 
 /* xxxxxxxx
  * xxxxxxxx
- * xxxxxxxx
  */
 
-If a complete comment (i.e. all lines belonging to the comment) is marked 
-the entry 'comment->code' will uncomment it.
+
+------------------------------------------------------------------------------
+
+1.1.3 CODE TO COMMENT                                        *csupport-comm-3*
+
+When 'comment style C' is active a marked block
+
+xxxxxxxx
+xxxxxxxx
+xxxxxxxx
+
+will be changed by the menu entry 'code->comment' into a multiline comment
+(all (partially) marked lines):
+
+/* xxxxxxxx
+ * xxxxxxxx
+ * xxxxxxxx
+ */
 
 When 'comment style C++' is active the marked block will be changed into
 
@@ -56,10 +124,72 @@ When 'comment style C++' is active the marked block will be changed into
 // xxxxxxxx
 // xxxxxxxx
 
-(3) The entry 'Comment style C -> C++' changes the comment style to C++ style.
+The menu entry works also for a single line. A single line needs not to be
+marked. 
+
+------------------------------------------------------------------------------
+
+1.1.4 COMMENT TO CODE                                        *csupport-comm-4*
+
+If one (or more) complete comment (i.e. all lines belonging to the comment) is
+marked the entry 'comment->code' will uncomment it.  If the following lines
+are marked
+
+   * printf ("\n");
+   */
+
+  printf ("\n");
+
+  //  printf ("\n");
+  //
+
+  /* 
+   *  printf ("\n");
+   */
+
+uncommenting will yield
+
+   * printf ("\n");
+   */
+
+  printf ("\n");
+
+  printf ("\n");
+
+
+
+  printf ("\n");
+
+The first 2 lines are only a part of a C-comment and remain unchanged.
+A C-comment can start with /* , /** or /*! .
+The menu entry 'comment->code' does not depend on the currently set comment
+style (C/C++).
+
+The menu entry works also for a single line with a leading // . A single line
+needs not to be marked. 
+
+------------------------------------------------------------------------------
+
+1.1.5 FRAME COMMENTS, FILE HEADER, ...                       *csupport-comm-5*
+
+Frame comments, file header comments and function, methods, class descriptions 
+are read as templates from the appropriate files (see |csupport-tempfiles|).
+
+------------------------------------------------------------------------------
+
+1.1.6 KEYWORD + COMMENT                                      *csupport-comm-6*
+
+Preliminary comments to document (and find again) places where works will be
+resumed shortly. Usually not meant for the final documentation.
+
+------------------------------------------------------------------------------
+
+1.1.7  SWITCH COMMENT STYLE                                  *csupport-comm-7*
+
+The entry 'Comment style C -> C++' changes the comment style to C++ style.
 The entry 'Comment style C++ -> C' changes the comment style back to C style.
 
-Inserted do-while with C-style end comment:
+Inserted do-while with C-style comment:
 
   do
   {
@@ -67,7 +197,7 @@ Inserted do-while with C-style end comment:
   while (  );       /* -----  end do-while  ----- */
 
 
-Inserted do-while with C++-style end comment:
+Inserted do-while with C++-style comment:
 
   do
   {
@@ -75,12 +205,12 @@ Inserted do-while with C++-style end comment:
   while (  );       // -----  end do-while  ----- 
 
 
+------------------------------------------------------------------------------
+1.2  MENU 'Statements'                                         *csupport-stat*
+------------------------------------------------------------------------------
 
---------------------
-Menu 'Statements'
---------------------
+1.2.1  NORMAL MODE, INSERT MODE. 
 
-(1) Normal mode, insert mode. 
 An empty statement will be inserted and properly indented. The entry 'if{}'
 will insert an if-statement:
 
@@ -88,13 +218,17 @@ if (  )
 {
 }
 
-(2) Visual mode.
-(2.1) Statements with blocks and case label.  The highlighted area 
+
+1.2.2  VISUAL MODE.
+
+STATEMENTS WITH BLOCKS AND CASE LABEL.  
+--------------------------------------
+The highlighted area 
 
 xxxxx
 xxxxx
 
-will be surrounded by one of the following statements:
+can be surrounded by one of the following statements:
 
   +----------------------------+-----------------------------+
   |     if (  )                |     if (  )                 |
@@ -154,12 +288,15 @@ will be surrounded by one of the following statements:
 
 The whole statement will be indented after insertion.
 
-(2.2) Statements without blocks.  Above the highlighted lines 
+
+STATEMENTS WITHOUT BLOCKS.  
+--------------------------
+Above the highlighted lines 
 
 xxxxx
 xxxxx
 
-one of the following statements will be put:
+one of the following statements can be inserted:
 
   +-------------------------------+--------------------------+
   |    if (  )                    |    for ( ; ;  )          |
@@ -175,14 +312,15 @@ one of the following statements will be put:
 The lines will be indented after insertion.
 
 
+------------------------------------------------------------------------------
+1.3  MENU 'Idioms'                                           *csupport-idioms*
+------------------------------------------------------------------------------
 
---------------------
-Menu 'Idioms'
---------------------
+1.3.1  ENTRY 'function'
 
-(1) Entry 'function'
-Normal mode, insert mode: The name of the function is asked for and the
-following lines (for function name "f") will be inserted:
+NORMAL MODE, INSERT MODE: 
+The name of the function is asked for and the following lines (for function
+name "f") will be inserted:
 
   void
   f (  )
@@ -190,10 +328,11 @@ following lines (for function name "f") will be inserted:
     return ;
   }        /* ----------  end of function f  ---------- */
 
-Visual mode: Like normal mode; the highlighted lines will go inside the
-function.
+VISUAL MODE: 
+Like normal mode; the highlighted lines will go inside the function.
 
-(2) Entry 'open input file'
+1.3.2  ENTRY 'open input file'
+
 The entry 'open input file' will create the statements to open and close an
 input file (e.g. with the file pointer 'infile'). 
 After the insertion the Idioms-menu has the additional entry 
@@ -201,7 +340,8 @@ After the insertion the Idioms-menu has the additional entry
 
  fscanf( infile, "", & );
 
-(3) Entry 'open output file'
+1.3.3  ENTRY 'open output file'
+
 The entry 'open output file' will create the statements to open and close an
 output file (e.g. with the file pointer 'outfile'). 
 After the insertion the Idioms-menu has the additional entry 
@@ -209,78 +349,132 @@ After the insertion the Idioms-menu has the additional entry
 
  fprintf( outfile, "\n",  );
 
---------------------
-Menu 'Snippets'
---------------------
+------------------------------------------------------------------------------
+1.4  MENU 'Snippets'                                       *csupport-snippets*
+------------------------------------------------------------------------------
 
-(1) Code snippets see |csupport-code-snippets|.
+1.4.1  CODE SNIPPETS                                    
 
-(2) Generate Prototypes
+Code snippets are pieces of code which are kept in separate files in a special
+directory (e.g. a few lines of code or a complete template for a Makefile).
+File names are used to identify the snippets.  The snippet directory has to be
+created by the user ( $HOME/.vim/codesnippets-c is the default).
+Snippets are managed with the 3 entries 
 
+   C/C++ -> Snippets -> read  code snippet
+   C/C++ -> Snippets -> write code snippet
+   C/C++ -> Snippets -> edit  code snippet
+
+from the Snippets submenu.
+
+CREATING A NEW SNIPPET  
+When nothing is marked, "write code snippet" will write the whole buffer 
+to a snippet file, otherwise the marked area will be written to a file.
+
+INSERT A SNIPPET
+Select the appropriate file from the snippet directory ("read  code snippet").
+The inserted lines will be indented.
+
+EDIT A SNIPPET
+This is a normal edit.
+
+
+1.4.2  GENERATING PROTOTYPES                                 *csupport-proto*
+
+PICK UP PROTOTYPES.  
 To make a prototype from a function head mark the function head and press
-'Idioms' -> 'make prototype'. The first two lines from 
+'Snippets -> pick up prototype'. From the first six lines of
 
-  void
-  foo (  )
+  static void
+  print_double_array (  double array[], /* array to print                */
+                        int n,          /* number of elements to print   */
+                        int columns,    /* number of elements per column */
+                        char* arrayname /* array name                    */
+                        )
   {
-    return ;
-  }       // ----------  end of function foo  ---------- 
+    ...
+  }       /* ----------  end of function print_double_array  ---------- */
 
-will be put in an internal buffer.
+the prototype
 
-With 'Idioms' -> 'put prototype(s)' the following two lines will be inserted
-( semicolon will be appended):
+  static void print_double_array ( double array[], int n, int columns, char* arrayname );
 
-  void
-  foo (  );
+is produced and put in an internal buffer. Leading and trailing whitespaces
+are removed. All other whitespaces are sqeezed. Comments will be discarded.
+This works also for method implementations (C++). In the generated prototypes
+the class name and the following '::' are removed.
 
-
-This works also for method implementations (C++). In the generated
-prototypes the class name and the following '::' is removed.
-
-The entry 'Idioms' -> 'add prototype'  adds additional prototypes
-to the internal buffer.
-All gathered prototypes are inserted with 'Idioms' -> 'put prototype(s)' .
-
-Generating prototypes this way is nice in a small project. You may want to
-use an extractor like cextract or something else. 
+Further prototypes can be picked up and gathered in the buffer.
 
 
---------------------
-Menu 'Run'
---------------------
+INSERT PROTOTYPES  
+With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
+the buffer will be inserted below the cursur.
 
-(1) The 'Run' menu provides a minimal make functionality for single file
-projects (e.g. in education).
 
-(1.1) 'save and compile' saves the buffer and run the compiler 
-with the given options. 
+DISCARD PROTOTYPES  
+The prototype buffer can be cleared with 'Snippets -> clear prototype(s)' .
 
-(1.2) 'link' makes an executable from the current buffer. If the buffer
-is not saved, or no object is available or the object is older then the 
-source step (1.1) is executed first.
 
-(1.3) 'run' runs the executable with the same name (extension .e) as the
-current buffer. If the buffer is not saved, or no executable is available 
-or the executable is older then the source steps (1.1) and (1.2) are 
+LIST PROTOTYPES  
+The list of gathered prototypes can be shown with 
+'Snippets -> show prototype(s)'. The number and the filename are shown, e.g. 
+
+  (1) matrix.c #  double** calloc_double_matrix ( int rows, int columns );
+  (2) matrix.c #  void free_double_matrix ( double **m );
+  (3) foomain.c #  void foo ( );
+
+
+REMARK. Generating prototypes this way is nice in a small project. You may
+want to use an extractor like cextract or something else. 
+
+
+------------------------------------------------------------------------------
+1.5  MENU 'Run'                                                 *csupport-run*
+------------------------------------------------------------------------------
+
+1.5.1  MINIMAL MAKE FUNCTIONALITY                             *csupport-run-1*
+
+The 'Run' menu provides a minimal make functionality for single file projects
+(e.g. in education) :
+
+SAVE AND COMPILE
+'save and compile' saves the buffer and run the compiler with the given
+options (see |csupport-custom-1|).
+
+LINK
+'link' makes an executable from the current buffer. If the buffer is not
+saved, or no object is available or the object is older then the source step
+'save and compile' is executed first.
+
+The behavior of the compiler / linker is determined by the options assigned to
+the variables described in |csupport-custom-1| (4.group).
+
+RUN
+'run' runs the executable with the same name (extension .e) as the current
+buffer. If the buffer is not saved, or no executable is available or the
+executable is older then the source steps 'save and compile' and 'link' are
 executed first.
 
-(2) The entry 'command line arguments' calls an input dialog which asks
-for command line arguments. These arguments are forwarded to the executable 
-which is run by the 'run' entry. The arguments are kept until you change them.
+1.5.2  COMMAND LINE ARGUMENTS                                 *csupport-run-2*
 
-(3) The entry 'make' runs the external make program.
+The entry 'command line arguments' calls an input dialog which asks for
+command line arguments. These arguments are forwarded to the executable which
+is run by the 'run' entry. The arguments are kept until you change them.
 
-(4) The entry 'command line arguments for make' calls an input dialog which 
-asks for command line arguments for make. These arguments are forwarded to 
-make when called by the entry 'make' .
+1.5.3  RUN make                                               *csupport-run-3*
 
-The behavior of the compiler / linker is determined by the options 
-assigned to the variables described in |csupport-customization| (4.group).
+The entry 'make' runs the external make program.
+
+1.5.4  COMMAND LINE ARGUMENTS FOR make                        *csupport-run-4*
+
+The entry 'command line arguments for make' calls an input dialog which asks
+for command line arguments for make. These arguments are forwarded to make
+when called by the entry 'make' .
 
 
 ==============================================================================
-HOTKEYS                                                     *csupport-hotkeys*
+2.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
 
 The following hotkeys are defined in normal, visual and insert mode: 
@@ -290,12 +484,16 @@ The following hotkeys are defined in normal, visual and insert mode:
   Ctrl-F9   run executable
  Shift-F9   run make
 
-The hotkeys are defined in the filetype plugin c.vim .
+The hotkeys are defined in the filetype plugin  c.vim .
 
 
 ==============================================================================
-CUSTOMIZATION                                         *csupport-customization*
+3.  CUSTOMIZATION                                            *csupport-custom*
 ==============================================================================
+
+------------------------------------------------------------------------------
+3.1  GLOBAL VARIABLES                                      *csupport-custom-1*
+------------------------------------------------------------------------------
 
 Several global variables are checked by the script to customize it:
 
@@ -340,7 +538,7 @@ Several global variables are checked by the script to customize it:
   ----------------------------------------------------------------------------
 
 1. group: Defines the text which will be inserted for the tags when a template  
-          is read in (see also |csupport-template-files| below).
+          is read in (see also |csupport-tempfiles| below).
 
           g:C_AuthorName         : author name
           g:C_AuthorRef          : author reference (e.g. acronym)
@@ -350,7 +548,7 @@ Several global variables are checked by the script to customize it:
           g:C_CopyrightHolder    : the copyright holder
 
 2. group: g:C_Template_Directory : Sets the template directory and the names of the 
-           ...                     template files (see |csupport-template-files|).
+           ...                     template files (see |csupport-tempfiles|).
 
 3. group: g:C_Comments           : The initial comment style (C = yes, C++ = no).
           g:C_CodeSnippets       : The name of the code snippet directory 
@@ -379,13 +577,16 @@ Here are my settings as an example:
   let g:C_Email           = "mehner@fh-swf.de"         
   let g:C_Company         = "FH Südwestfalen, Iserlohn"
 
-The root menu
--------------
+
+------------------------------------------------------------------------------
+3.2  THE ROOT MENU                                        *csupport-custom-2*
+------------------------------------------------------------------------------
+
 The variable g:C_Root, if set (in .vimrc or in .gvimrc), give the name of the
 single Vim root menu entry in which the C/C++ submenus will be put. 
 The default is 
                   '&C\/C\+\+.'
-Note the termination dot. A single root menu can be used if the screen is
+Note the terminating dot. A single root menu can be used if the screen is
 limited or several plugins are used in parallel.
 
 If set to "", this single root menu entry will not appear.  Now all submenus
@@ -394,8 +595,12 @@ installation or for C-only programmers.
 
 
 ==============================================================================
-TEMPLATE FILES AND TAGS                              *csupport-template-files*
+4.  TEMPLATE FILES AND TAGS                               *csupport-tempfiles*
 ==============================================================================
+
+------------------------------------------------------------------------------
+4.1  TEMPLATE FILES                                     *csupport-tempfiles-1*
+------------------------------------------------------------------------------
 
 Many menu entries generate comments or commented code. The style of these 
 comments can be toggled between C-style ( /*...*/ ) and C++-style ( //... ). 
@@ -443,6 +648,11 @@ file headers / blocks have to be prepared for a documentation tool, ... ).
 They can hold not only comments but a complete file skeleton if this is 
 necessary. So you may want to lay out your own templates.
 
+
+------------------------------------------------------------------------------
+4.2  TAGS                                                *csupport-tempfiles-2*
+------------------------------------------------------------------------------
+
 The comments in these files do not have to be personalized but they can be.
 The text can contain the following tags which are replaced by the appropriate
 information when the file is read in:
@@ -478,34 +688,7 @@ The template files can actually be links pointing to existing templates.
 
 
 ==============================================================================
-CODE SNIPPETS                                         *csupport-code-snippets*
-==============================================================================
-
-Code snippets are pieces of code which are kept in separate files in a special
-directory (e.g. a few lines of code or a complete template for a Makefile).
-File names are used to identify the snippets.  The snippet directory has to be
-created by the user ( $HOME/.vim/codesnippets-c is the default).
-Snippets are managed with the 3 entries 
-
-   C/C++ -> Snippets -> read  code snippet
-   C/C++ -> Snippets -> write code snippet
-   C/C++ -> Snippets -> edit  code snippet
-
-from the Snippets submenu.
-
-Creating a new snippet:  
------------------------
-When nothing is marked, "write code snippet" will write the whole buffer 
-to a snippet file, otherwise the marked area will be written to a file.
-
-Insert a snippet:
------------------
-Select the appropriate file from the snippet directory ("read  code snippet").
-The inserted lines will be indented.
-
-
-==============================================================================
-C/C++ DICTIONARY                                         *csupport-dictionary*
+5.  C/C++ DICTIONARY                                     *csupport-dictionary*
 ==============================================================================
 
 The files  
@@ -539,8 +722,19 @@ This will create a local dictionary for each C/C++ file and enable keyword
 completion for C/C++ using Vim's dictionary feature CTRL-X CTRL-K.
 
 ==============================================================================
-Release Notes                                         *csupport-release-notes*
+6.  RELEASE NOTES                                     *csupport-release-notes*
 ==============================================================================
+
+------------------------------------------------------------------------------
+  RELEASE NOTES FOR VERSION 3.5
+------------------------------------------------------------------------------
+
++ Aligned line end comments for consecutive lines.
++ Improved prototype picker removes comments.
++ Picked up prototypes can be shown.
++ Uncomment more than one block at once.
++ 3 new idioms.
++ Help file improved .
 
 ------------------------------------------------------------------------------
   RELEASE NOTES FOR VERSION 3.4

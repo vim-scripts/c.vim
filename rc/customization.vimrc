@@ -3,14 +3,25 @@
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
 "
-set autoread
-set autowrite
-set backupdir=$HOME/.vim.backupdir       " Don't forget to create this directory!
-set browsedir=current                    " Which directory to use for the file browser
-set incsearch
+"shift down   : change window focus to lower one
+"shift up     : change window focus to upper one
+"shift left   : change window focus to one on left
+"shift right  : change window focus to one on right
+"
+nmap <s-down>   <c-w>j
+nmap <s-up>     <c-w>k
+nmap <s-left>   <c-w>h
+nmap <s-right>  <c-w>l
+
+"
+set autoread                          " read open files again when changed outside Vim
+set autowrite                         " write a modified buffer on each :next , ...
+set backupdir  =$HOME/.vim.backupdir  " directory for the backup files (Don't forget to create it!)
+set browsedir  =current               " which directory to use for the file browser
+set incsearch                         " use incremental search
 set nowrap
-set shiftwidth=2
-set tabstop=2
+set shiftwidth =2
+set tabstop    =2
 set visualbell
 "
 "
@@ -59,13 +70,6 @@ nmap	<C-q> 		:wqa<CR>
 "
 "
 "-------------------------------------------------------------------------------
-" use font with clearly distinguishable brackets : ()[]{}
-"-------------------------------------------------------------------------------
-" 
-set guifont=-b&h-lucidatypewriter-medium-r-normal-*-*-140-*-*-m-*-iso10646-1
-"
-"
-"-------------------------------------------------------------------------------
 " Change to the directory the file in your current buffer is in
 "-------------------------------------------------------------------------------
 if has("autocmd")
@@ -102,7 +106,6 @@ set wildignore=*.bak,*.o,*.e,*~
 " 
 set printoptions=left:8pc,right:3pc
 "
-
 highlight Cursor guibg=Blue guifg=NONE
 
 

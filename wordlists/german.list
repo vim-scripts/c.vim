@@ -1,4 +1,3 @@
-
 Adresse
 Anfangswertzuweisung
 Anweisung
@@ -39,6 +38,7 @@ Initialisierung
 Inkrement
 Instanz
 Kommando
+Kommanentar
 Konsonant
 Konstante
 Konstruktor
@@ -62,8 +62,8 @@ Paket
 Parameter
 Position
 Priorität
-Präprozessor
 Programm
+Präprozessor
 Referenz
 Rekursion
 Rückgabewert
@@ -76,6 +76,8 @@ Schnittstelle
 Skalar
 Skript
 Sonderzeichen
+Spalte
+Spaltenindex
 Sprung
 Sprungmarke
 Steuerzeichen
@@ -101,6 +103,8 @@ Zeichenkette
 Zeiger
 Zeigervariable
 Zeigerwert
+Zeile
+Zeilenindex
 Zeilenumbruch
 Zeilenvorschub
 Ziffer

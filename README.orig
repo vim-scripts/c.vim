@@ -1,4 +1,4 @@
-README for c.vim (Version 3.4) / Dec 23 2003
+README for c.vim (Version 3.5) / Apr 02 2004
 
 
   *  RELEASE NOTES 
@@ -9,6 +9,18 @@ README for c.vim (Version 3.4) / Dec 23 2003
   *  CODE SNIPPETS
   *  C DICTIONARIES
   *  SPEED UP TYPING
+
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.5
+=======================================================================================
+
++ Aligned line end comments for consecutive lines.
++ Improved prototype picker removes comments.
++ Picked up prototypes can be shown.
++ Uncomment more than one block at once.
++ 3 new idioms.
++ Help file improved .
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.4

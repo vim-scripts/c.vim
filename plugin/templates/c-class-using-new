@@ -5,9 +5,9 @@ class |CLASSNAME|
 
     /* ====================  LIFECYCLE   ========================================= */
 
-    |CLASSNAME| ();                        /* constructor */
+    |CLASSNAME| ();                        /* constructor      */
     |CLASSNAME| (const |CLASSNAME| &obj);  /* copy constructor */
-    ~|CLASSNAME| ();                       /* destructor */
+    ~|CLASSNAME| ();                       /* destructor       */
 
     /* ====================  OPERATORS   ========================================= */
 
@@ -18,8 +18,6 @@ class |CLASSNAME|
     /* ====================  ACCESS      ========================================= */
 
     /* ====================  INQUIRY     ========================================= */
-
-    /* ====================  NESTED ERROR CLASSES  =============================== */
 
 
   protected:

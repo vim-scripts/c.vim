@@ -21,7 +21,6 @@ let g:C_Libs            = "-lm"                  " libraries to use
 let g:C_Dictionary_File =                         $HOME."/.vim/wordlists/c-c++-keywords.list"
 let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/k+r.list"
 let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/stl_index.list"
-let g:C_Dictionary_File = g:C_Dictionary_File.",".$HOME."/.vim/wordlists/german.list"
 
 " ----------  Insert header into new C/C++-files  ----------
 if has("autocmd")
