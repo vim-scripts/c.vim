@@ -4,7 +4,7 @@
 "
 "  Description:  Statements oriented editing of C/C++ programs        (VIM Version 6.0+)
 "
-"                - insertion of comments, statements and idioms
+"                - insertion of comments, statements, idioms and keywords
 "                - compile/link/run support for one-file projects (without a makefile)
 "
 "                Code and comments should have a professional appearance and should be
@@ -12,6 +12,8 @@
 "                A consistent layout improves portability and reduces errors.
 "                The standardization of comments makes it possible to automate the search
 "                for information and the generation of documents from source code.
+"                Typing is considerably reduced.
+"                The overall programming style will be improved.
 "
 "       Author:  Dr.-Ing. Fritz Mehner - FH Südwestfalen, Iserlohn
 "        Email:  mehner@fh-swf.de
@@ -35,9 +37,9 @@
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:CVIM_Version = "2.0"              " version number of this script; do not change
-"     Revision:  13.02.2002
-"      Created:  04.11.2000
+let s:CVIM_Version = "2.0.3"              " version number of this script; do not change
+"     Revision:  25.02.2002
+"      Created:  26.02.2002
 "###############################################################################################
 "
 "               Configuration     (Use my configuration as an example)
@@ -155,19 +157,25 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 		"
 		"----- Submenu : C++ : keyword comments  ----------------------------------------------------------
 		"
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&BUG          <Esc><Esc>$<Esc>:call CVIM_CommentClassified("BUG")     <CR>kJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&COMPILER     <Esc><Esc>$<Esc>:call CVIM_CommentClassified("COMPILER")<CR>kJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&TODO         <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TODO")    <CR>kJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.T&RICKY       <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TRICKY")  <CR>kJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&WARNING      <Esc><Esc>$<Esc>:call CVIM_CommentClassified("WARNING") <CR>kJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&new\ keyword <Esc><Esc>$<Esc>:call CVIM_CommentClassified("")        <CR>kJf:a
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&BUG          <Esc><Esc>$<Esc>:call CVIM_CommentClassified("BUG")     <CR>kgJA
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&COMPILER     <Esc><Esc>$<Esc>:call CVIM_CommentClassified("COMPILER")<CR>kgJA
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&TODO         <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TODO")    <CR>kgJA
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.T&RICKY       <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TRICKY")  <CR>kgJA
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&WARNING      <Esc><Esc>$<Esc>:call CVIM_CommentClassified("WARNING") <CR>kgJA
+		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&new\ keyword <Esc><Esc>$<Esc>:call CVIM_CommentClassified("")        <CR>kgJf:a
 		"
 	amenu  C-&Comments.-SEP2-                           :
-	vmenu  C-&Comments.&code->comment                   <Esc><Esc>:'<,'>s/^/\/\//<CR>
+	vmenu  C-&Comments.&code->comment                   <Esc><Esc>:'<,'>s/^/\/\//<CR><Esc>:nohlsearch<CR>
 	vmenu  C-&Comments.c&omment->code                   <Esc><Esc>:'<,'>s/^\/\///<CR>
 	amenu  C-&Comments.-SEP3-                           :
 	amenu  C-&Comments.&Date                            <Esc><Esc>:let @z=strftime("%x")<CR>"zpa
 	amenu  C-&Comments.Date\ &Time                      <Esc><Esc>:let @z=strftime("%x - %X")<CR>"zpa
+	"                                                 
+	amenu  C-&Comments.-SEP5-                           :
+	amenu  C-&Comments.\/\/\ &EMPTY                      <Esc><Esc>A<Tab>// EMPTY
+	amenu  C-&Comments.\/\/\ FALL\ TH&ROUGH              <Esc><Esc>A<Tab>// FALL THROUGH
+	amenu  C-&Comments.\/\/\ &IMPLICIT\ TYPE\ CONV       <Esc><Esc>A<Tab>// IMPLICIT TYPE CONVERSION
+	amenu  C-&Comments.\/\/\ &NOT\ REACHED               <Esc><Esc>A<Tab>// NOT REACHED
 	"                                                 
 	"===============================================================================================
 	"----- Menu : C-Statements ---------------------------------------------------------------------
@@ -483,7 +491,7 @@ endfunction
 "  C-Comments : classified comments
 "------------------------------------------------------------------------------
 function! CVIM_CommentClassified (class)
-  	put = '// :'.a:class.':'.strftime(\"%x\").':'.s:CVIM_AuthorRef.': '
+  	put = '			// :'.a:class.':'.strftime(\"%x\").':'.s:CVIM_AuthorRef.': '
 endfunction
 "
 "------------------------------------------------------------------------------
