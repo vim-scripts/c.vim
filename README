@@ -1,0 +1,54 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=213
+
+**   Statement oriented editing of  C / C++ programs
+**   Speed up writing new code considerably.
+**   Write code und comments with a professional appearance from the beginning.
+**   Use code snippets
+
+ - insertion of various types of comments   (file prologue, function descriptions, file section headers
+    keyword comments, date, time, ...  ) 
+- insertion of empty control statements   (if-else, while, do-while, switch, ... )
+- insertion of various preprocessor directives
+- insertion of C-idioms   (enum+typedef, loops, complete main, empty function, file open dialogs, ... )
+- insertion of C++ -idioms   ( frames for simple classes and template classes, try-catch blocks, 
+    file open dialogs, output manipulators, ios flags, ... )
+- use and organize your own collection of code snippets
+- compile / link / run support for one-file projects   (without a makefile)
+- run buffer through splint
+- personalization of comments   (name, email, ... )
+- menus can be switched on and off   (Tools menu)
+
+Here are some screen shots : http://lug.fh-swf.de/vim/vim-c/screenshots-en.html
+
+The help file online :   http://lug.fh-swf.de/vim/vim-doc/csupport.html
+
+The key mappings of this plugin (PDF) : http://lug.fh-swf.de/vim/vim-c/c-hotkeys.pdf
+
+See also the http://www.thegeekstuff.com tutorial 
+"Make Vim as Your C/C++ IDE Using c.vim Plugin"
+(http://www.thegeekstuff.com/2009/01/tutorial-make-vim-as-your-cc-ide-using-cvim-plugin/)
+
+DOCUMENTATION
+--------------------------------------------------------
+This plugin comes with a help file (csupport.txt). Read it with  
+
+:h csupport 
+
+ ** PLEASE READ THE DOCUMENTATION **
+
+Editing actions differ for different modes!  
+There are  a lot of  features which can be configured or customized
+to match your needs.
+
+
+MAILING LIST
+--------------------------------------------------------
+You can subscribe to the vim-plugins-list mailing list to post your questions or
+suggestions for improvement or to report bugs.  The list will also be used to
+announce new releases ( c.vim / bash-support / perl-support / doxygen-support ).
+Visit the following page for subscribing to the mailing list:
+     
+  http://lug.fh-swf.de/cgi-bin/mailman/listinfo/vim-plugins-list
+
+The vim-plugins-list list is very low on traffic.
+
