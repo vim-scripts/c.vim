@@ -1,4 +1,28 @@
-README for c.vim (Version 3.0) / April 26 2003
+README for c.vim (Version 3.1) / May 31 2003
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.1
+=======================================================================================
+
++ When the comment style "C" is active the menu entry "Comments.code->comment"
+  turns a marked region in one multiline C-comment.
++ The menu entry "Comments.comment->code"  turns marked multiline C-comment 
+  back into code.
+
++ A marked region can be surrounded by a for-, if, if-else, while-, do-while-statement
+  (with indentation).
+
++ The menu entry "Snippets.make prototype" makes a C- or C++-prototype from 
+  the current line or marked region and puts it in an internal buffer.
++ The menu entry "Snippets.add prototype" also makes a C- or C++-prototype from 
+  the current line or a marked region and adds it to the internal buffer.
++ The menu entry "Snippets.put prototype" inserts all gathered prototypes 
+  below the current line. 
+
++ Tag substitution rewritten (Some characters in a substitution text for a tag 
+  prevented the tag from being substituted).
+
+
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.0
@@ -55,7 +79,7 @@ templates/cpp-frame                 |
 templates/cpp-function-description  |
 templates/cpp-method-description    |
 templates/h-file-header             |
-templates/hpp-file-header          _+
+templates/hpp-file-header          -+
 
 
 

@@ -15,7 +15,7 @@
 "
 "        Usage:  (1) Configure  c.vim  (Your name, Email, ... / see section Configuration below).
 "        
-"                (2) Move this file to the directory  $HOME/.vim/plugin/
+"                (2) Move this file to the directory  $HOMEvim/plugin/
 "                
 "                c.vim inserts an additional menu entry into the Tools-menu for
 "                loading/unloading the menus of this plugin.
@@ -29,12 +29,12 @@
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:C_Version = "3.0"              " version number of this script; do not change
+let s:C_Version = "3.1"              " version number of this script; do not change
 "
 "       Author:  Dr.-Ing. Fritz Mehner, FH Südwestfalen, 58644 Iserlohn, Germany
 "        Email:  mehner@fh-swf.de
 "
-"     Revision:  26.04.2003
+"     Revision:  31.05.2003
 "      Created:  04.11.2000
 "      
 "    Copyright:  Copyright (C) 2000-2003 Dr.-Ing. Fritz Mehner
@@ -49,7 +49,7 @@ let s:C_Version = "3.0"              " version number of this script; do not cha
 "  Configuration  (Use my configuration as an example)
 "
 "------------------------------------------------------------------------------------------
-"   c.vim-variable         value                                           tag
+"   c.vim-variable        value                                           tag
 "------------------------------------------------------------------------------------------
 let s:C_AuthorName      = ""                                            " |AUTHOR|
 let s:C_AuthorRef       = ""                                            " |AUTHORREF|
@@ -160,6 +160,7 @@ else
 	let s:C_Com2            = ''       " C++style : comment end
 endif
 "
+"
 "------------------------------------------------------------------------------
 "  C : C_InitC
 "  Initialization of C support menus
@@ -192,8 +193,8 @@ function! C_InitC ()
 	"
 	"----- The following two maps are only used for the developement of this plugin ----------------
 	"
-"	  noremap  <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
-"  inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
+"	 noremap  <F12>       :write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
+" inoremap  <F12>  <Esc>:write<CR><Esc>:so %<CR><Esc>:call C_Handle()<CR><Esc>:call C_Handle()<CR>
 	"
 	"===============================================================================================
 	"----- Menu : C-Comments -----------------------------------------------------------------------
@@ -302,8 +303,8 @@ function! C_InitC ()
 	  imenu  &Comments.Date\ &Time                 <C-R>=strftime("%x %X %Z")<CR>
 		
 		amenu  &Comments.-SEP10-                    :
-		vmenu  <silent>  &Comments.code&->comment             <Esc><Esc>:'<,'>s/^/\/\//<CR><Esc>:nohlsearch<CR>
-		vmenu  <silent>  &Comments.c&omment->code             <Esc><Esc>:'<,'>s/^\/\///<CR><Esc>:nohlsearch<CR>
+		vmenu  <silent>  &Comments.code&->comment             <Esc><Esc>:call C_CodeComment()<CR><Esc>:nohlsearch<CR>
+		vmenu  <silent>  &Comments.c&omment->code             <Esc><Esc>:call C_CommentCode()<CR><Esc>:nohlsearch<CR>
 		"
 	  if			s:Cpp_Template_C_File     != "" || 
 					\	s:Cpp_Template_Class      != "" || 
@@ -328,16 +329,31 @@ function! C_InitC ()
 	"
 	amenu  C-St&atements.&if                         <Esc><Esc>oif (  )<Esc>F(la
 	amenu  C-St&atements.if\ &else                   <Esc><Esc>oif (  )<CR>else<Esc>1kf)hi
+	"
 	amenu  C-St&atements.i&f\ \{\ \}                 <Esc><Esc>oif (  )<CR>{<CR>}<Esc>2kf(la
+	vmenu  C-St&atements.i&f\ \{\ \}                 DOif (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	"
 	amenu  C-St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>oif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la
+	vmenu  C-St&atements.if\ \{\ \}\ e&lse\ \{\ \}   DOif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kP2k<Esc>:exe "normal =".(line("'>")-line(".")+2)."+"<CR>f(la
+	"
 	amenu  C-St&atements.f&or                        <Esc><Esc>ofor ( ; ;  )<Esc>2F;i
+	"
 	amenu  C-St&atements.fo&r\ \{\ \}                <Esc><Esc>ofor ( ; ;  )<CR>{<CR>}<Esc>2kf;i
-	amenu  C-St&atements.&while\ \{\ \}              <Esc><Esc>owhile (  )<CR>{<CR>}<Esc>2kf(la
+	vmenu  C-St&atements.fo&r\ \{\ \}                DOfor ( ; ;  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f;i
+	"
 	amenu  C-St&atements.w&hile                      <Esc><Esc>owhile (  )<Esc>F(la
-	amenu  C-St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile()<CR><Esc>3jf(la
+	"
+	amenu  C-St&atements.&while\ \{\ \}              <Esc><Esc>owhile (  )<CR>{<CR>}<Esc>2kf(la
+	vmenu  C-St&atements.&while\ \{\ \}              DOwhile (  )<CR>{<CR>}<Esc>P2k<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f(la
+	"
+	amenu  C-St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile('a')<CR><Esc>3jf(la
+	vmenu  C-St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile('v')<CR><Esc>f(la
+	"
 	amenu  C-St&atements.&switch                     <Esc><Esc>:call C_CodeSwitch()<Esc>f(la
 	amenu  C-St&atements.&case                       <Esc><Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s
+	"
 	amenu  C-St&atements.&\{\ \}                     <Esc><Esc>o{<CR>}<Esc>O
+	vmenu  C-St&atements.&\{\ \}                     DO{<CR>}<Esc>Pk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>
 	"
 	amenu  C-St&atements.-SEP1-                      :
 		"
@@ -395,25 +411,36 @@ function! C_InitC ()
 	amenu <silent> C-&Idioms.&struct\+typedef                     <Esc><Esc>:call C_EST("struct")<CR>3jo
 	amenu <silent> C-&Idioms.&union\+typedef                      <Esc><Esc>:call C_EST("union")<CR>3jo
 	amenu          C-&Idioms.-SEP3-                               :
-	
+	"
 	 menu          C-&Idioms.&printf                              <Esc><Esc>oprintf ("\n");<Esc>F\i
 	 menu          C-&Idioms.s&canf                               <Esc><Esc>oscanf ("", & );<Esc>F"i
   imenu          C-&Idioms.&printf                              printf ("\n");<Esc>F\i
   imenu          C-&Idioms.s&canf                               scanf ("", & );<Esc>F"i
-		"
-	amenu           C-&Idioms.-SEP4-                                   :
-	amenu <silent>  C-&Idioms.p=m&alloc\(\ \)                     <Esc><Esc>:call C_CodeMalloc()<CR>f(la
-	amenu <silent>  C-&Idioms.open\ &input\ file                  <Esc><Esc>:call C_CodeFopenRead()<CR>jf"a
-	amenu <silent>  C-&Idioms.open\ &output\ file                 <Esc><Esc>:call C_CodeFopenWrite()<CR>jf"a
+	"
+	amenu          C-&Idioms.-SEP4-                                   :
+	amenu <silent> C-&Idioms.p=m&alloc\(\ \)                     <Esc><Esc>:call C_CodeMalloc()<CR>f(la
+	amenu <silent> C-&Idioms.open\ &input\ file                  <Esc><Esc>:call C_CodeFopenRead()<CR>jf"a
+	amenu <silent> C-&Idioms.open\ &output\ file                 <Esc><Esc>:call C_CodeFopenWrite()<CR>jf"a
+  imenu          C-&Idioms.-SEP6-                      :
+	"
+	"===============================================================================================
+	"----- Menu : Snippets -------------------------------------------------------------------------
+	"===============================================================================================
+	"
+	 menu  <silent> S&nippets.&make\ prototype  	<C-C>:call C_Proto1('make')<CR>
+	 menu  <silent> S&nippets.&add\ prototype   	<C-C>:call C_Proto1('add')<CR>
+	vmenu  <silent> S&nippets.&make\ prototype  	<C-C>:call C_Proto2('make')<CR>
+	vmenu  <silent> S&nippets.&add\ prototype  		<C-C>:call C_Proto2('add')<CR>
+	 menu  <silent> S&nippets.&put\ prototype(s)	<C-C>:call C_Proto3()<CR>
+	
   if s:C_CodeSnippets != ""
-		amenu  C-&Idioms.-SEP5-                                 :
-		amenu  <silent> C-&Idioms.read\ code\ snippet\ \(&2\)    <C-C>:call C_CodeSnippet("r")<CR>
-		amenu  <silent> C-&Idioms.write\ code\ snippet\ \(&3\)   <C-C>:call C_CodeSnippet("w")<CR>
-		vmenu  <silent> C-&Idioms.write\ code\ snippet\ \(&3\)   <C-C>:call C_CodeSnippet("wv")<CR>
-		amenu  <silent> C-&Idioms.edit\ code\ snippet\ \(&4\)    <C-C>:call C_CodeSnippet("e")<CR>
+	   menu  <silent> S&nippets.-SEP1-									:
+		amenu  <silent> S&nippets.&read\ code\ snippet     <C-C>:call C_CodeSnippet("r")<CR>
+		amenu  <silent> S&nippets.&write\ code\ snippet    <C-C>:call C_CodeSnippet("w")<CR>
+		vmenu  <silent> S&nippets.&write\ code\ snippet    <C-C>:call C_CodeSnippet("wv")<CR>
+		amenu  <silent> S&nippets.&edit\ code\ snippet     <C-C>:call C_CodeSnippet("e")<CR>
 	endif
-  imenu  C-&Idioms.-SEP6-                      :
-
+	"
 	"===============================================================================================
 	"----- Menu : C++ ------------------------------------------------------------------------------
 	"===============================================================================================
@@ -620,7 +647,6 @@ endfunction
 "----- Menu Functions --------------------------------------------------------------------------
 "===============================================================================================
 "
-"
 "------------------------------------------------------------------------------
 "  C-Comments : classified comments
 "------------------------------------------------------------------------------
@@ -691,7 +717,42 @@ function! C_Comment_H_SectionAll2 ()
 endfunction
 "
 "------------------------------------------------------------------------------
-"  C-Comments : Insert Template Files
+"  Substitute tags
+"------------------------------------------------------------------------------
+function! C_SubstituteTag( pos1, pos2, tag, replacement )
+	" 
+	" loop over marked block
+	" 
+	let	linenumber=a:pos1
+	while linenumber <= a:pos2
+		let line=getline(linenumber)
+		" 
+		" loop for multiple tags in one line
+		" 
+		let	start=0
+		while match(line,a:tag,start)>=0				" do we have a tag ?
+			let frst=match(line,a:tag,start)
+			let last=matchend(line,a:tag,start)
+			if frst!=-1
+				let part1=strpart(line,0,frst)
+				let part2=strpart(line,last)
+				let line=part1.a:replacement.part2
+				"
+				" next search starts after the replacement to suppress recursion
+				" 
+				let start=strlen(part1)+strlen(a:replacement)
+			endif
+			exe linenumber
+			exe "d"
+			put! =line
+		endwhile
+		let	linenumber=linenumber+1
+	endwhile
+
+endfunction    " ----------  end of function  C_SubstituteTag  ----------
+"
+"------------------------------------------------------------------------------
+"  C-Comments : Insert a template files
 "------------------------------------------------------------------------------
 function! C_CommentTemplates (arg)
 
@@ -775,18 +836,18 @@ function! C_CommentTemplates (arg)
 		"----------------------------------------------------------------------
 		"  substitute keywords
 		"----------------------------------------------------------------------
-		silent! exe pos1.','.pos2.' s/|FILENAME|/'.expand("%:t").'/g'
-		" the seperator (#) for the following substitute (s) may not appear 
-		" in the date representation
-		silent! exe pos1.','.pos2.' s#|DATE|#'.strftime("%x %X %Z").'#g'
-		silent! exe pos1.','.pos2.' s/|TIME|/'.strftime("%X").'/g'
-		silent! exe pos1.','.pos2.' s/|YEAR|/'.strftime("%Y").'/g'
-		silent! exe pos1.','.pos2.' s/|AUTHOR|/'.s:C_AuthorName.'/g'
-		silent! exe pos1.','.pos2.' s/|EMAIL|/'.s:C_Email.'/g'
-		silent! exe pos1.','.pos2.' s/|AUTHORREF|/'.s:C_AuthorRef.'/g'
-		silent! exe pos1.','.pos2.' s/|PROJECT|/'.s:C_Project.'/g'
-		silent! exe pos1.','.pos2.' s/|COMPANY|/'.s:C_Company.'/g'
-		silent! exe pos1.','.pos2.' s/|COPYRIGHTHOLDER|/'.s:C_CopyrightHolder.'/g'
+
+		call  C_SubstituteTag( pos1, pos2, '|FILENAME|',        expand("%:t")        )
+		call  C_SubstituteTag( pos1, pos2, '|DATE|',            strftime("%x %X %Z") )
+		call  C_SubstituteTag( pos1, pos2, '|TIME|',            strftime("%X")       )
+		call  C_SubstituteTag( pos1, pos2, '|YEAR|',            strftime("%Y")       )
+		call  C_SubstituteTag( pos1, pos2, '|AUTHOR|',          s:C_AuthorName       )
+		call  C_SubstituteTag( pos1, pos2, '|EMAIL|',           s:C_Email            )
+		call  C_SubstituteTag( pos1, pos2, '|AUTHORREF|',       s:C_AuthorRef        )
+		call  C_SubstituteTag( pos1, pos2, '|PROJECT|',         s:C_Project          )
+		call  C_SubstituteTag( pos1, pos2, '|COMPANY|',         s:C_Company          )
+		call  C_SubstituteTag( pos1, pos2, '|COPYRIGHTHOLDER|', s:C_CopyrightHolder  )
+		"
 		"----------------------------------------------------------------------
 		"  Position the cursor
 		"----------------------------------------------------------------------
@@ -812,6 +873,59 @@ function! C_CommentTemplates (arg)
 	endif
 	return
 endfunction    " ----------  end of function  C_CommentTemplates  ----------
+"
+"----------------------------------------------------------------------
+"  Code -> Comment
+"----------------------------------------------------------------------
+function! C_CodeComment()
+	if s:C_Comments == 'yes' 
+		silent exe ":'<,'>s/^/ \* /"
+		silent exe ":'< s'^ '\/'"
+		silent exe ":'>"
+		silent put = ' */'
+	else
+		silent exe ":'<,'>s#^#// #"
+	endif
+	return
+endfunction    " ----------  end of function  C_CodeComment  ----------
+"
+"----------------------------------------------------------------------
+"  Comment -> Code
+"----------------------------------------------------------------------
+function! C_CommentCode()
+
+	if s:C_Comments == 'yes' 
+		" 
+		"  C  - comments
+		" 
+		let	pos1				= line("'<")
+		let	pos2				= line("'>")
+
+		let check = getline(	pos1 ) =~ '^\s*\/\*[ ]\='
+		let	linenumber=pos1+1
+		while linenumber < pos2
+			let check = check && getline(	linenumber ) =~ '^\s*\*[ ]\='
+			let linenumber=linenumber+1
+		endwhile
+		let check = check && getline(	linenumber ) =~ '^\s*\*\/'
+
+		if check
+			silent :'<        s/^\s*\/\*[ ]\=//
+			silent :'<+1,'>-1 s/^\s*\*[ ]\=//
+			silent :'>        s/^\s*\*\///
+		else
+			echohl WarningMsg 
+			echo 'marked block was not a complete multiline C comment'
+			echohl None
+		endif
+	else
+		" 
+		" C++ - comments
+		" 
+		silent exe ":'<,'>s#^[ \t]*// ##"
+	endif
+	return
+endfunction    " ----------  end of function  C_CommentCode  ----------
 "
 "----------------------------------------------------------------------
 "  Toggle comment style
@@ -848,12 +962,26 @@ endfunction    " ----------  end of function C_CommentVimModeline  ----------
 "------------------------------------------------------------------------------
 "  Statements : do-while
 "------------------------------------------------------------------------------
-function! C_DoWhile ()
-	let zz=    "do\n{\n}\nwhile (  );"
-  let zz= zz."\t\t\t\t".s:C_Com1." -----  end do-while  ----- ".s:C_Com2."\n"
-	put =zz
-	normal  =3+
-endfunction
+function! C_DoWhile (arg)
+
+	if a:arg=='a'
+		let zz=    "do\n{\n}\nwhile (  );"
+		let zz= zz."\t\t\t\t".s:C_Com1." -----  end do-while  ----- ".s:C_Com2."\n"
+		put =zz
+		normal  =3+
+	endif
+	
+	if a:arg=='v'
+		let zz=    "do\n{"
+		:'<put! =zz
+		let zz=    "}\nwhile (  );\t\t\t\t".s:C_Com1." -----  end do-while  ----- ".s:C_Com2."\n"
+		:'>put =zz
+		:'<-2
+		:exe "normal =".(line("'>")-line(".")+3)."+"
+		:'>+2
+	endif
+	
+endfunction    " ----------  end of function C_DoWhile  ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : switch
@@ -873,7 +1001,7 @@ function! C_CodeSwitch ()
 	" delete case labels
 	exe ":.,+12s/0//"
 	-11
-endfunction
+endfunction    " ----------  end of function C_CodeSwitch  ----------
 "
 "----------------------------------------------------------------------
 "  Statements : #define
@@ -1002,8 +1130,11 @@ function! C_CodeSnippet(arg1)
 	else
 		echo "code snippet directory ".s:C_CodeSnippets." does not exist (please create it)"
 	endif
-endfunction
+endfunction    " ----------  end of function C_CodeSnippets  ----------
 "
+"------------------------------------------------------------------------------
+"  C++ : C_CommentClearClassName
+"------------------------------------------------------------------------------
 function! C_CommentClearClassName ()
 	let	s:C_ClassName=""
 endfunction
@@ -1014,8 +1145,9 @@ endfunction
 function! C_CodeMethod()
 	let	identifier=inputdialog("method name", s:C_ClassName."::" )
 	if identifier != ""
-		let zz=    "void\n".identifier."\t(  )\n{\n\treturn ;\n}"
-		let zz= zz."\t\t\t\t".s:C_Com1." ----------  end of method ".identifier."  ---------- ".s:C_Com2
+		let zz= "
+		\void\n".identifier."\t(  )\n{\n\treturn ;\n}
+		\\t\t\t\t".s:C_Com1." ----------  end of method ".identifier."  ---------- ".s:C_Com2
 		put =zz
 	endif
 endfunction
@@ -1043,7 +1175,8 @@ function! C_CodeClass()
 		let zz= zz."\t\t\t\t".s:C_Com1." ----------  end of method ".s:C_ClassName."::".s:C_ClassName."  (constructor)  ---------- ".s:C_Com2."\n"
 		put =zz
 	endif
-endfunction
+
+endfunction    " ----------  end of function C_CodeClass  ----------
 "
 "------------------------------------------------------------------------------
 "  C++ : class using the new operator
@@ -1364,6 +1497,63 @@ function! C_CodeCatch ()
 endfunction
 "
 "------------------------------------------------------------------------------
+"  Handle prototypes
+"------------------------------------------------------------------------------
+"
+let s:C_Prototype = ""
+let s:C_PrototypeCounter = 0
+let s:C_PrototypeLines = 0
+
+function! C_Proto1 (arg)
+
+	let prototyp	= getline(line("."))
+	" remove the scope resolution operator (C++)
+	let prototyp	= substitute( prototyp, '\<\h\w*\s*::', "", "" )
+	let prototyp	= prototyp.";\n"
+	if a:arg=="make"
+		let s:C_Prototype	= prototyp
+		let s:C_PrototypeCounter	= 1
+		let s:C_PrototypeLines		= 1
+	else
+		let s:C_Prototype	= s:C_Prototype.prototyp
+		let s:C_PrototypeCounter	= s:C_PrototypeCounter + 1
+		let s:C_PrototypeLines		= s:C_PrototypeLines   + 1
+	endif
+	echo	s:C_PrototypeCounter.' prototype(s)'
+endfunction    " ---------  end of function C_Proto1  ----------¸
+
+function! C_Proto2 (arg)
+
+	let	pos1				= line("'<")
+	let	pos2				= line("'>")
+	let	linenumber	= pos1
+	let prototyp	= getline(linenumber)
+	let linenumber=linenumber+1
+	while linenumber<=pos2
+		let prototyp	= prototyp."\n".getline(linenumber)
+		let linenumber=linenumber+1
+	endwhile
+	" remove the scope resolution operator (C++)
+	let prototyp	= substitute( prototyp, '\<\h\w*\s*::', "", "" )
+	let prototyp	= prototyp.";\n"
+	if a:arg=="make"
+		let s:C_Prototype	= prototyp
+		let s:C_PrototypeCounter	= 1
+		let s:C_PrototypeLines		= pos2-pos1
+	else
+		let s:C_Prototype	= s:C_Prototype.prototyp
+		let s:C_PrototypeCounter	= s:C_PrototypeCounter+1
+		let s:C_PrototypeLines		= s:C_PrototypeLines + (pos2-pos1+1)
+	endif
+	echo	s:C_PrototypeCounter.' prototype(s)'
+endfunction    " ---------  end of function C_Proto2  ----------
+"
+function! C_Proto3 ()
+	put =s:C_Prototype
+	exe	"normal =".s:C_PrototypeLines."+"
+endfunction    " ---------  end of function C_Proto3  ----------
+"
+"------------------------------------------------------------------------------
 "  run : C_Compile
 "------------------------------------------------------------------------------
 "  The standard make program 'make' called by vim is set to the C or C++ compiler
@@ -1587,6 +1777,7 @@ function! C_Handle ()
 		aunmenu C-Statements
 		aunmenu C-Idioms
 		aunmenu C++
+		aunmenu Snippets
 		aunmenu C-Run
 		let s:C_Active = 0
 	endif

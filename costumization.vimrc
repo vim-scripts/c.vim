@@ -108,8 +108,6 @@ highlight Cursor guibg=Blue guifg=NONE
 "
 "-------------------------------------------------------------------------------
 " Insert header into new C/C++-files
-" Insert header into new PERL files
-" Insert header into new Bash files
 "-------------------------------------------------------------------------------
 if has("autocmd")
 	autocmd BufNewFile  *.\(c\|cc\|cpp\|C\)  call C_CommentTemplates('cheader')
