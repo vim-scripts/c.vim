@@ -2,19 +2,19 @@
 "
 "     Filename:  c.vim
 "
-"  Description:  Statement oriented editing of C/C++ programs        (VIM Version 6.0+)
-"
-"                - insertion of comments, statements and idioms
-"                - compile/link/run support for one-file projects (without a makefile)
-"
+"  Description:  Write C/C++ programs by inserting complete statements, idioms and comments. 
+"                Compile, link and run one-file-programs without a makefile.
+"                
 "                Code and comments should have a professional appearance and should be
 "                easy to write and maintain. 
 "                Programs with a consistent style are easier to read and understand.
 "                The standardization of comments makes it possible to automate the search
 "                for information and the generation of documents from the source code.
 "
+" GVIM Version:  6.0+
+"
 "       Author:  Dr.-Ing. Fritz Mehner 
-"                Fachhochschule Südwestfalen, Iserlohn, Germany
+"                Fachhochschule Südwestfalen, 58644 Iserlohn, Germany
 "
 "        Email:  mehner@fh-swf.de
 "
@@ -24,8 +24,9 @@
 "                      or better
 "                (2.2) Load c.vim on startup (VIM version 6.0 and higher) :
 "                      move this file to the directory ~/.vim/plugin/
+"                
 "                c.vim inserts an additional menu entry into the Tools-menu for
-"                loading/unloading the C support.
+"                loading/unloading this C support.
 "
 "         Note:  The register z is used in many places.
 "
@@ -38,52 +39,51 @@
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:CVIM_Version = "2.1"              " version number of this script; do not change
-"     Revision:  04.04.2002
-"      Created:  11.03.2002
+let s:C_Version = "2.6"              " version number of this script; do not change
+"     Revision:  02.07.2002
+"      Created:  04.11.2000
 "###############################################################################################
 "
 "  Configuration  (Use my configuration as an example)
 "
 "-------------------------------------------------------------------------------------
 "
-let s:CVIM_AuthorName      = "Dr.-Ing. Fritz Mehner"
-let s:CVIM_AuthorRef       = "Mn"
+let s:C_AuthorName      = "Dr.-Ing. Fritz Mehner"
+let s:C_AuthorRef       = "Mn"
 "
 "  The following entries do not appear if the strings are empty.
 "
-let s:CVIM_Email           = "mehner@fh-swf.de"
-let s:CVIM_Company         = "Fachhochschule Südwestfalen, Iserlohn"
-let s:CVIM_Project         = ""
-let s:CVIM_Compiler        = "GNU C/C++"
+let s:C_Email           = "mehner@fh-swf.de"
+let s:C_Company         = "Fachhochschule Südwestfalen, Iserlohn"
+let s:C_Project         = ""
+let s:C_Compiler        = "GNU C/C++"
 "
 "  Copyright information
 "  ---------------------
 "  If the code has been developed over a period of years, each year must be stated.
-"  If CVIM_CopyrightHolder is empty the copyright notice will not appear.
-"  If CVIM_CopyrightHolder is not empty and CVIM_CopyrightYears is empty, 
+"  If C_CopyrightHolder is empty the copyright notice will not appear.
+"  If C_CopyrightHolder is not empty and C_CopyrightYears is empty, 
 "  the current year will be inserted.
 "
-let s:CVIM_CopyrightHolder = ""
-let s:CVIM_CopyrightYears  = ""
+let s:C_CopyrightHolder = ""
+let s:C_CopyrightYears  = ""
 "
 "###############################################################################################
 "
-"               Global Variables : Compiler, Options, Libraries, ...
+"  Global Variables : Compiler, Options, Libraries, ...
 "
-"-------------------------------------------------------------------------------------
+let s:C_CExtension    = "c"             " C file extension; everything else is C++
+let s:C_CCompiler     = "gcc"           " the C   compiler
+let s:C_CplusCompiler = "g++"           " the C++ compiler
+let s:C_CFlags        = "-Wall -g -c"   " compiler flags: compile
+let s:C_LFlags        = "-Wall -g"      " compiler flags: link
+let s:C_Libs          = "-lm"           " libraries to use
 "
-let s:CVIM_CExtension      = "c"                    " C file extension; everything else is C++
-let s:CVIM_CCompiler       = "gcc"                  " the C   compiler
-let s:CVIM_CplusCompiler   = "g++"                  " the C++ compiler
-let s:CVIM_CFlags          = "-Wall -g -c"          " compiler flags: compile
-let s:CVIM_LFlags          = "-Wall -g"             " compiler flags: link
-let s:CVIM_Libs            = "-lm"                  " libraries to use
+let s:C_Pager         = "less"          " pager
 "
-let s:CVIM_Pager           = "less"                 " pager
+let s:C_ShowMenues    = "yes"           " show menues immediately after loading this file (yes/no)
 "
-let s:CVIM_CmdLineArgs     = ""                     " command line arguments for Run-run;
-"                                                   " initially empty
+"
 "###############################################################################################
 "
 "  ... finally
@@ -93,114 +93,138 @@ let s:CVIM_CmdLineArgs     = ""                     " command line arguments for
 "
 "  "Ein Mann, der recht zu wirken denkt,        "Who on efficient work is bent, 
 "   Muß auf das beste Werkzeug halten."          Must choose the fittest instrument." 
-"                                             
+"
 "  Faust, Teil 1, Vorspiel auf dem Theater      Faust, Part 1, Prologue for the Theatre 
 "
 "###############################################################################################
+"
+"----- some variables for internal use ----------------------------------------
+"
+let s:C_CmdLineArgs  = ""           " command line arguments for Run-run; initially empty
+let s:C_ClassName    = ""           " remember class name ; initially empty
+"
 "------------------------------------------------------------------------------
-"  C : CVIM_InitC
-"  Initialization of C support menus 
+"  C : C_InitC
+"  Initialization of C support menus
 "------------------------------------------------------------------------------
 "
-function! CVIM_InitC ()
-"
-"===============================================================================================
-"----- Menu : Key Mappings ---------------------------------------------------------------------
-"===============================================================================================
-"  The following key mappings are for convenience only. 
-"  Comment out the mappings if you dislike them.
-"  If enabled, there may be conflicts with predefined key bindings of your window manager.
-"-------------------------------------------------------------------------------------
-"  Alt-F9    write buffer and compile
-"  F9        compile and link
-"  Ctrl-F9   run executable
-"
-map  <A-F9>  :w<CR><Esc>:call CVIM_Compile()<CR><C-C>:cwin<CR>
-map  <F9>    :call CVIM_Link()<CR><C-C>:cwin<CR>
-map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
-"
-"===============================================================================================
-"----- Menu : C-Comments -----------------------------------------------------------------------
-"===============================================================================================
-"  MENU ENTRY
-" -----------------
-"  Line End Comment
-"  Frame Comment
-"  Function Description                       (grep searchable with "^//#" )
-"  Main Description                           (grep searchable with "^//#" )
-"  File Prologue                              (grep searchable with "^//#" )
-"  File Section Headers
-"  Keyword  Comments  			                  (grep searchable with "// :" )
-"  Comment out a highlighted block of code
-"  Uncomment   a highlighted block of code
-"  Date+Time
-"  Date
-"  Special Comments (reminders)
-"===============================================================================================
-"
-	amenu  C-&Comments.&Line\ End\ Comment              <Esc><Esc>A<Tab><Tab><Tab>// 
-	amenu  C-&Comments.&Frame\ Comment                  <Esc><Esc>:call CVIM_CommentFrame()       <CR>jA
-	amenu  C-&Comments.F&unction\ Description           <Esc><Esc>:call CVIM_CommentFunction()    <CR>:/Name<CR>A
-	amenu  C-&Comments.&Main\ Description               <Esc><Esc>:call CVIM_CommentMain()        <CR>:/Description<CR>A
-	amenu  C-&Comments.File\ &Prologue                  <Esc><Esc>:call CVIM_CommentFilePrologue()<CR>:/Description<CR>A
-	amenu  C-&Comments.-SEP1-                           :
+function! C_InitC ()
+	"
+	"===============================================================================================
+	"----- Menu : Key Mappings ---------------------------------------------------------------------
+	"===============================================================================================
+	"  The following key mappings are for convenience only. 
+	"  Comment out the mappings if you dislike them.
+	"  If enabled, there may be conflicts with predefined key bindings of your window manager.
+	"-------------------------------------------------------------------------------------
+	"  Alt-F9    write buffer and compile
+	"  F9        compile and link
+	"  Ctrl-F9   run executable
+	"
+	map  <A-F9>  :w<CR><Esc>:call C_Compile()<CR><C-C>:cwin<CR>
+	map  <F9>    :call C_Link()<CR><C-C>:cwin<CR>
+	map  <C-F9>  :call C_Run(0)<CR><C-C>:cwin<CR>
+	map  <S-F9>  :make<CR>
+	"
+	"===============================================================================================
+	"----- Menu : C-Comments -----------------------------------------------------------------------
+	"===============================================================================================
+	"
+	amenu  &Comments.&Line\ End\ Comment        <Esc><Esc>A<Tab><Tab><Tab>// 
+	amenu  &Comments.&Frame\ Comment            <Esc><Esc>:call C_CommentFrame()       <CR>jA
+	amenu  &Comments.F&unction\ Description     <Esc><Esc>:call C_CommentFunction()    <CR>:/Name<CR>A
+	amenu  &Comments.&Main\ Description         <Esc><Esc>:call C_CommentMain()        <CR>:/Description<CR>A
+	amenu  &Comments.-SEP1-                     :
+	amenu  &Comments.M&ethod\ Comment           <Esc><Esc>:call C_CommentMethod()<CR>:/Method<CR>A
+	amenu  &Comments.Cl&ass\ Comment            <Esc><Esc>:call C_CommentClass()<CR>:/Description<CR>A
+	amenu  &Comments.Clea&r\ Class\ Name        <Esc><Esc>:call C_CommentClearClassNmae()<CR>i
+	amenu  &Comments.-SEP2-                     :
+	amenu  &Comments.File\ &Prologue            <Esc><Esc>:call C_CommentFilePrologue()<CR>:/Description<CR>A
+	amenu  &Comments.-SEP3-                     :
 		"
-		"----- Submenu : C++ : file sections  -------------------------------------------------------------
+		"----- Submenu : H-Comments : file sections  -------------------------------------------------------------
 		"
-		amenu  C-&Comments.C-File\ &Sections.&Header\ File\ Includes    <Esc><Esc>:call CVIM_CommentSection("HEADER FILE INCLUDES")  <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Macros                    <Esc><Esc>:call CVIM_CommentSection("MACROS")                <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.M&acros\ with\ Arguments   <Esc><Esc>:call CVIM_CommentSection("MACROS WITH ARGUMENTS") <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Type\ Definitions         <Esc><Esc>:call CVIM_CommentSection("TYPE DEFINITIONS")      <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Enumerations              <Esc><Esc>:call CVIM_CommentSection("ENUMERATIONS")          <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.E&xtern\ Data              <Esc><Esc>:call CVIM_CommentSection("EXTERN DATA")           <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Non-static\ Global\ Data  <Esc><Esc>:call CVIM_CommentSection("NON-STATIC GLOBAL DATA")<CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Static\ Global\ Data      <Esc><Esc>:call CVIM_CommentSection("STATIC GLOBAL DATA")    <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Local\ Prototypes         <Esc><Esc>:call CVIM_CommentSection("LOCAL PROTOTYPES")      <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.&Functions                 <Esc><Esc>:call CVIM_CommentSection("FUNCTIONS")             <CR>0i
-		amenu  C-&Comments.C-File\ &Sections.-\ All\ Se&ctions          <Esc><Esc>:call CVIM_CommentSectionAll()                     <CR>0i
+		amenu  &Comments.&H-File\ Sections.&Header\ File\ Includes    
+					\<Esc><Esc>:call C_CommentSection("HEADER FILE INCLUDES")<CR>0i
+		amenu  &Comments.&H-File\ Sections.Exported\ &Macros          
+					\<Esc><Esc>:call C_CommentSection("EXPORTED MACROS")<CR>0i
+		amenu  &Comments.&H-File\ Sections.Exported\ &Data\ Types     
+					\<Esc><Esc>:call C_CommentSection("EXPORTED DATA TYPES")<CR>0i
+		amenu  &Comments.&H-File\ Sections.Exported\ &Type\ Def\.     
+					\<Esc><Esc>:call C_CommentSection("EXPORTED TYPE DEFINITIONS")<CR>0i
+		amenu  &Comments.&H-File\ Sections.Exported\ &Variables       
+					\<Esc><Esc>:call C_CommentSection("EXPORTED VARIABLES")<CR>0i
+		amenu  &Comments.&H-File\ Sections.Exported\ &Funct\.\ Decl\. 
+					\<Esc><Esc>:call C_CommentSection("EXPORTED FUNCTION DECLARATIONS")<CR>0i
+		amenu  &Comments.&H-File\ Sections.-SEP4-                     :
+		amenu  &Comments.&H-File\ Sections.Exported\ &Class\ Def\.    
+					\<Esc><Esc>:call C_CommentSection("EXPORTED CLASS DEFINITIONS")<CR>0i
+		amenu  &Comments.&H-File\ Sections.-SEP5-                     :
+		amenu  &Comments.&H-File\ Sections.&All\ Sections,\ C         
+					\<Esc><Esc>:call C_Comment_H_SectionAll1()<CR>0i
+		amenu  &Comments.&H-File\ Sections.All\ &Sections,\ C++       
+					\<Esc><Esc>:call C_Comment_H_SectionAll2()<CR>0i
 		"
-		"----- Submenu : C++ : keyword comments  ----------------------------------------------------------
+		"----- Submenu : C-Comments : file sections  -------------------------------------------------------------
 		"
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&BUG          <Esc><Esc>$<Esc>:call CVIM_CommentClassified("BUG")     <CR>kgJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&COMPILER     <Esc><Esc>$<Esc>:call CVIM_CommentClassified("COMPILER")<CR>kgJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&TODO         <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TODO")    <CR>kgJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.T&RICKY       <Esc><Esc>$<Esc>:call CVIM_CommentClassified("TRICKY")  <CR>kgJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&WARNING      <Esc><Esc>$<Esc>:call CVIM_CommentClassified("WARNING") <CR>kgJA
-		amenu  C-&Comments.\/\/\ \:&KEYWORD\:.&new\ keyword <Esc><Esc>$<Esc>:call CVIM_CommentClassified("")        <CR>kgJf:a
+		amenu  &Comments.&C-File\ Sections.&Header\ File\ Includes  
+					\<Esc><Esc>:call C_CommentSection("HEADER FILE INCLUDES")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ &Macros           
+					\<Esc><Esc>:call C_CommentSection("MACROS  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ &Data\ Types      
+					\<Esc><Esc>:call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ &Type\ Def\.      
+					\<Esc><Esc>:call C_CommentSection("TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ &Variables        
+					\<Esc><Esc>:call C_CommentSection("VARIABLES  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ P&rototypes       
+					\<Esc><Esc>:call C_CommentSection("PROTOTYPES  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.&Exp\.\ Function\ Def\.  
+					\<Esc><Esc>:call C_CommentSection("FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS")<CR>0i
+		amenu  &Comments.&C-File\ Sections.&Local\ Function\ Def\.  
+					\<Esc><Esc>:call C_CommentSection("FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.-SEP6-                   :
+		amenu  &Comments.&C-File\ Sections.Local\ &Class\ Def\.     
+					\<Esc><Esc>:call C_CommentSection("CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")<CR>0i
+		amenu  &Comments.&C-File\ Sections.E&xp\.\ Class\ Impl\.    
+					\<Esc><Esc>:call C_CommentSection("CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES")<CR>0i
+		amenu  &Comments.&C-File\ Sections.Local\ Class\ Im&pl\.    
+					\<Esc><Esc>:call C_CommentSection("CLASS IMPLEMENTATIONS  -  LOCAL CLASSES")<CR>0i
+		amenu  &Comments.&C-File\ Sections.-SEP7-                   :
+		amenu  &Comments.&C-File\ Sections.&All\ Sections,\ C       
+					\<Esc><Esc>:call C_Comment_C_SectionAll1()<CR>0i
+		amenu  &Comments.&C-File\ Sections.All\ &Sections,\ C++     
+					\<Esc><Esc>:call C_Comment_C_SectionAll2()<CR>0i
 		"
-	amenu  C-&Comments.-SEP2-                           :
-	vmenu  C-&Comments.&code->comment                   <Esc><Esc>:'<,'>s/^/\/\//<CR><Esc>:nohlsearch<CR>
-	vmenu  C-&Comments.c&omment->code                   <Esc><Esc>:'<,'>s/^\/\///<CR>
-	amenu  C-&Comments.-SEP3-                           :
-	amenu  C-&Comments.&Date                            <Esc><Esc>:let @z=strftime("%x")<CR>"zpa
-	amenu  C-&Comments.Date\ &Time                      <Esc><Esc>:let @z=strftime("%x - %X")<CR>"zpa
-	"                                                 
-	amenu  C-&Comments.-SEP5-                           :
-	amenu  C-&Comments.\/\/\ &EMPTY                      <Esc><Esc>A<Tab>// EMPTY
-	amenu  C-&Comments.\/\/\ FALL\ TH&ROUGH              <Esc><Esc>A<Tab>// FALL THROUGH
-	amenu  C-&Comments.\/\/\ &IMPLICIT\ TYPE\ CONV       <Esc><Esc>A<Tab>// IMPLICIT TYPE CONVERSION
-	amenu  C-&Comments.\/\/\ &NOT\ REACHED               <Esc><Esc>A<Tab>// NOT REACHED
-	"                                                 
+		amenu  &Comments.-SEP8-                        :
+		"
+		"----- Submenu : C-Comments : keyword comments  ----------------------------------------------------------
+		"
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:&BUG\:          <Esc><Esc>$<Esc>:call C_CommentClassified("BUG")     <CR>kgJA
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:&COMPILER\:     <Esc><Esc>$<Esc>:call C_CommentClassified("COMPILER")<CR>kgJA
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:&TODO\:         <Esc><Esc>$<Esc>:call C_CommentClassified("TODO")    <CR>kgJA
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:T&RICKY\:       <Esc><Esc>$<Esc>:call C_CommentClassified("TRICKY")  <CR>kgJA
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:&WARNING\:      <Esc><Esc>$<Esc>:call C_CommentClassified("WARNING") <CR>kgJA
+		amenu  &Comments.&KEYWORD+Comm\..\/\/\ \:&new\ keyword\: <Esc><Esc>$<Esc>:call C_CommentClassified("")        <CR>kgJf:a
+		"
+		"----- Submenu : C-Comments : keyword comments  ----------------------------------------------------------
+		"
+		amenu  &Comments.spec&ial\ Comm\..\/\/\ &EMPTY                  <Esc><Esc>A<Tab>// EMPTY
+		amenu  &Comments.spec&ial\ Comm\..\/\/\ FALL\ TH&ROUGH          <Esc><Esc>A<Tab>// FALL THROUGH
+		amenu  &Comments.spec&ial\ Comm\..\/\/\ &IMPL\.\ TYPE\ CONV     <Esc><Esc>A<Tab>// IMPLICIT TYPE CONVERSION
+		amenu  &Comments.spec&ial\ Comm\..\/\/\ &NOT\ REACHED           <Esc><Esc>A<Tab>// NOT REACHED
+		amenu  &Comments.spec&ial\ Comm\..\/\/\ TO\ &BE\ IMPL\.         <Esc><Esc>A<Tab>// REMAINS TO BE IMPLEMENTED
+		"
+	amenu  &Comments.-SEP9-                     :
+	amenu  &Comments.&Date                      <Esc><Esc>:let @z=strftime("%x")     <CR>"zpa
+	amenu  &Comments.Date\ &Time                <Esc><Esc>:let @z=strftime("%x - %X")<CR>"zpa
+	amenu  &Comments.-SEP10-                    :
+	vmenu  &Comments.code&->comment             <Esc><Esc>:'<,'>s/^/\/\//<CR><Esc>:nohlsearch<CR>
+	vmenu  &Comments.c&omment->code             <Esc><Esc>:'<,'>s/^\/\///<CR><Esc>:nohlsearch<CR>
+	"
+	"
 	"===============================================================================================
 	"----- Menu : C-Statements ---------------------------------------------------------------------
-	"===============================================================================================
-	"  MENU ENTRY
-	" -----------------
-	"  if { }
-	"  if { } else { }
-	"  else { }
-	"  for
-	"  for { }
-	"  while { }
-	"  do { } while
-	"  switch
-	"  case
-	"  { }
-	"  #include <...>
-	"  #include "..."
-	"  #define
-	"  #ifndef..#def..#endif
-	"  #ifdef..#endif
 	"===============================================================================================
 	"
 	imenu  C-St&atements.&if\ \{\ \}                 <Esc>:let @z="if (  )\n{\n\t\n}\n"                 <CR>"z]p<Esc>f(la
@@ -209,54 +233,36 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 	imenu  C-St&atements.&for                        <Esc>:let @z="for ( ; ;  )\n"                      <CR>"z]p<Esc>f;i
 	imenu  C-St&atements.f&or\ \{\ \}                <Esc>:let @z="for ( ; ;  )\n{\n\t\n}\n"            <CR>"z]p<Esc>f;i
 	imenu  C-St&atements.&while\ \{\ \}              <Esc>:let @z="while (  )\n{\n\t\n}\n"              <CR>"z]p<Esc>f(la
-	imenu  C-St&atements.&do\ \{\ \}\ while          <Esc>:call CVIM_DoWhile()                          <CR>"z]p<Esc>:/while <CR>f(la
-	imenu  C-St&atements.&switch                     <Esc>:call CVIM_CodeSwitch()                       <CR>"z]p<Esc>f(la
-	imenu  C-St&atements.&case                       <Esc>:call CVIM_CodeCase()                         <CR>"z]p<Esc>f:i
-	imenu  C-St&atements.&\{\ \}                     <Esc>:let @z="{\n\t\n}\n"                          <CR>"z]p<Esc>jA
+	imenu  C-St&atements.&do\ \{\ \}\ while          <Esc>:call C_DoWhile()           <CR>"z]p<Esc>:/while <CR>f(la
+	imenu  C-St&atements.&switch                     <Esc>:call C_CodeSwitch()        <CR>"z]p<Esc>f(la
+	imenu  C-St&atements.&case                       <Esc>:call C_CodeCase()          <CR>"z]p<Esc>f:i
+	imenu  C-St&atements.&\{\ \}                     <Esc>:let @z="{\n\t\n}\n"        <CR>"z]p<Esc>jA
 	imenu  C-St&atements.-SEP1-                      :
-	imenu  C-St&atements.#include\ &\<\.\.\.\>       <Esc>:let @z="#include\t<.h>"       <CR>"zp<Esc>F.i
-	imenu  C-St&atements.#include\ \"\.\.\.\"        <Esc>:let @z="#include\t\".h\""     <CR>"zp<Esc>F.i
-	imenu  C-St&atements.&#define                    <Esc>:let @z="#define\t\t\t\t// "   <CR>"zp<Esc>4F<Tab>a
-	imenu  C-St&atements.#if\.\.#else\.\.#endif      <Esc>:call CVIM_PPIfElse('if')      <CR>ji
-	imenu  C-St&atements.#ifdef\.\.#else\.\.#endif   <Esc>:call CVIM_PPIfElse('ifdef')   <CR>ji
-	imenu  C-St&atements.#ifndef\.\.#else\.\.#endif  <Esc>:call CVIM_PPIfElse('ifndef')  <CR>ji
-	imenu  C-St&atements.#ifndef\.\.#def\.\.#endif   <Esc>:call CVIM_PPIfDef()           <CR>2ji
+	imenu  C-St&atements.#include\ &\<\.\.\.\>       <Esc>:let @z="#include\t<.h>"    <CR>"zp<Esc>F.i
+	imenu  C-St&atements.#include\ \"\.\.\.\"        <Esc>:let @z="#include\t\".h\""  <CR>"zp<Esc>F.i
+	imenu  C-St&atements.&#define                    <Esc>:let @z="#define\t\t\t\t// "<CR>"zp<Esc>4F<Tab>a
+	imenu  C-St&atements.#if\.\.#else\.\.#endif      <Esc>:call C_PPIfElse('if')      <CR>ji
+	imenu  C-St&atements.#ifdef\.\.#else\.\.#endif   <Esc>:call C_PPIfElse('ifdef')   <CR>ji
+	imenu  C-St&atements.#ifndef\.\.#else\.\.#endif  <Esc>:call C_PPIfElse('ifndef')  <CR>ji
+	imenu  C-St&atements.#ifndef\.\.#def\.\.#endif   <Esc>:call C_PPIfDef()           <CR>2ji
 	"
 	"===============================================================================================
 	"----- Menu : C-Idioms -------------------------------------------------------------------------
 	"===============================================================================================
-	"  MENU ENTRY
-	" -----------------
-	"  function
-	"  main
-	"  for( i=0;   i<n;  i+=1 )
-	"  for( i=n-1; i>=0; i-=1 )
-	"  for( i=1;   i<=n; i+=1 )
-	"  for( i=n;   i>=1; i-=1 )
-	"  enum   + typedef
-	"  struct + typedef
-	"  union  + typedef
-	"  printf
-	"  scanf
-	"  #include <stdio.h>
-	"  p=malloc( )
-	"  open input  file
-	"  open output file
-	"===============================================================================================
 	"
-	imenu  C-&Idioms.&function                            <Esc>:call CVIM_CodeFunction()<CR>
-	imenu  C-&Idioms.&main                                <Esc>:call CVIM_CodeMain()    <CR>3jA
+	imenu  C-&Idioms.&function                            <Esc>:call C_CodeFunction()<CR>
+	imenu  C-&Idioms.&main                                <Esc>:call C_CodeMain()<CR>3jA
 	imenu  C-&Idioms.-SEP1-                               :
 	imenu  C-&Idioms.for\ (\ i=&0;\ \ \ i<n;\ \ i\+=1\ )  for ( i=0; i<n; i+=1 )<Esc>0fni
 	imenu  C-&Idioms.for\ (\ i=n&-1;\ i>=0;\ i\-=1\ )     for ( i=n-1; i>=0; i-=1 )<Esc>0fni
 	imenu  C-&Idioms.for\ (\ i=&1;\ \ \ i<=n;\ i\+=1\ )   for ( i=1; i<=n; i+=1 )<Esc>0fni
 	imenu  C-&Idioms.for\ (\ i=&n;\ \ \ i>=1;\ i\-=1\ )   for ( i=n; i>=1; i-=1 )<Esc>0fni
 	imenu  C-&Idioms.-SEP2-                           :
-	imenu  C-&Idioms.&enum\+typedef                       <Esc>:call CVIM_EST("enum")   <CR>2jA
-	imenu  C-&Idioms.&struct\+typedef                     <Esc>:call CVIM_EST("struct") <CR>2jA
-	imenu  C-&Idioms.&union\+typedef                      <Esc>:call CVIM_EST("union")  <CR>2jA
+	imenu  C-&Idioms.&enum\+typedef                       <Esc>:call C_EST("enum")<CR>2jA
+	imenu  C-&Idioms.&struct\+typedef                     <Esc>:call C_EST("struct")<CR>2jA
+	imenu  C-&Idioms.&union\+typedef                      <Esc>:call C_EST("union")<CR>2jA
 	imenu  C-&Idioms.-SEP3-                               :
-	imenu  C-&Idioms.&printf                              printf ("\n");<Esc>2F"a
+	imenu  C-&Idioms.&printf                              printf ("\n");<Esc>F\i
 	imenu  C-&Idioms.s&canf                               scanf ("", & );<Esc>F"i
 		"
 		"----- Submenu : C-Idioms: standard library -------------------------------------------------------
@@ -277,39 +283,18 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 		imenu  C-&Idioms.&#include\ Std\.Lib\..\<st&ring\.h\>   <Esc>o#include	<string.h>
 		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&time\.h\>     <Esc>o#include	<time.h>
 		"
-	imenu  C-&Idioms.-SEP4-                           :
-	imenu  C-&Idioms.p=m&alloc\(\ \)                  <Esc>:call CVIM_CodeMalloc()  <CR>f(la
-	imenu  C-&Idioms.open\ &input\ file               <Esc>:call CVIM_CodeFopenRead()  <CR>jf"a
-	imenu  C-&Idioms.open\ &output\ file              <Esc>:call CVIM_CodeFopenWrite() <CR>jf"a
+	imenu  C-&Idioms.-SEP4-                     :
+	imenu  C-&Idioms.p=m&alloc\(\ \)            <Esc>:call C_CodeMalloc()<CR>f(la
+	imenu  C-&Idioms.open\ &input\ file         <Esc>:call C_CodeFopenRead()<CR>jf"a
+	imenu  C-&Idioms.open\ &output\ file        <Esc>:call C_CodeFopenWrite()<CR>jf"a
 
 	"===============================================================================================
 	"----- Menu : C++ ------------------------------------------------------------------------------
 	"===============================================================================================
-	"  MENU ENTRY
-	" -----------------
-	"  cout variable
-	"  cout string
-	"  cin
-	"  cerr
-	"  #include <iostream.h>
-	"  class
-	"  class using new
-	"  template function
-	"  template class
-	"  friend operator <<
-	"  friend operator >>
-	"  try .. catch
-	"  catch(   )
-	"  catch(...)
-	"  open input file
-	"  open output file
-	"  using namespace
-	"  namespace
-	"===============================================================================================
 	"
-	imenu  C&++.cout\ &variable               cout<Tab><< "\n" << ;<Esc>i
-	imenu  C&++.cout\ &string                 cout<Tab><< "\n";<Esc>hi
-	imenu  C&++.c&in                          cin<Tab>>> ;<Esc>i
+	imenu  C&++.c&in                            cin<Tab>>> ;<Esc>i
+	imenu  C&++.cout\ &variable                 cout<Tab><<  << endl;<Esc>2F<hi
+	imenu  C&++.cout\ &string                   cout<Tab><< "\n";<Esc>F\i
 		"
 		"----- Submenu : C++ : output manipulators  -------------------------------------------------------
 		"
@@ -320,56 +305,57 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 		imenu  C&++.output\ mani&pulators.\<\<\ &oct                 << oct <Esc>a
 		imenu  C&++.output\ mani&pulators.\<\<\ set&base\(\ \)       << setbase() <ESC>F)i
 		imenu  C&++.output\ mani&pulators.\<\<\ setfi&ll\(\ \)       << setfill() <ESC>F)i
-		imenu  C&++.output\ mani&pulators.\<\<\ set&iosflag\(\ \)    << setiosflag() <ESC>F)i
-		imenu  C&++.output\ mani&pulators.\<\<\ &resetiosflag\(\ \)  << resetiosflag() <ESC>F)i
+		imenu  C&++.output\ mani&pulators.\<\<\ set&iosflag\(\ \)    << setiosflags() <ESC>F)i
+		imenu  C&++.output\ mani&pulators.\<\<\ &resetiosflag\(\ \)  << resetiosflags() <ESC>F)i
 		imenu  C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision() <ESC>F)i
 		imenu  C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw() <ESC>F)i
 		imenu  C&++.output\ mani&pulators.&#include\ \<iomanip\.h\>  <Esc>:let @z="#include\t<iomanip.h>" <CR>"z]p<Esc>a
 		"
 		"----- Submenu : C++ : ios flag bits  -------------------------------------------------------------
 		"
-		imenu  C&++.ios\ fla&gbits.ios::&skipws              ios::skipws<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&left                ios::left<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&right               ios::right<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&internal            ios::internal<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&boolalpha           ios::boolalpha<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&dec                 ios::dec<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&hex                 ios::hex<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&oct                 ios::oct<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::s&cientific          ios::scientific<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&fixed               ios::fixed<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::sho&wbase            ios::showbase<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::show&pos             ios::showpos<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&uppercase           ios::uppercase<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::&adjustfield         ios::adjustfield<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::bas&efield           ios::basefield<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::floa&tfield          ios::floatfield<Esc>a
-		imenu  C&++.ios\ fla&gbits.ios::u&nitbuf             ios::unitbuf<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&skipws         ios::skipws<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&left           ios::left<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&right          ios::right<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&internal       ios::internal<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&boolalpha      ios::boolalpha<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&dec            ios::dec<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&hex            ios::hex<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&oct            ios::oct<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::s&cientific     ios::scientific<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&fixed          ios::fixed<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::sho&wbase       ios::showbase<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::show&pos        ios::showpos<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&uppercase      ios::uppercase<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::&adjustfield    ios::adjustfield<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::bas&efield      ios::basefield<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::floa&tfield     ios::floatfield<Esc>a
+		imenu  C&++.ios\ fla&gbits.ios::u&nitbuf        ios::unitbuf<Esc>a
 		"
-	imenu  C&++.c&err                         cerr<Tab><< "\n";<Esc>hi
+	imenu  C&++.c&err\ string                 cerr<Tab><< "\n";<Esc>F\i
 	imenu  C&++.&#include\ \<iostream\.h\>    <Esc>:let @z="#include\t<iostream.h>" <CR>"z]p<Esc>a
-	imenu  C&++.-SEP1-                        :
-	imenu  C&++.&class                        <Esc>:call CVIM_CodeClass()           <CR>
-	imenu  C&++.class\ using\ &new            <Esc>:call CVIM_CodeClassNew()        <CR>
-	imenu  C&++.err&or\ class                 <Esc>:call CVIM_CodeErrorClass()      <CR>3jf"a
 	imenu  C&++.-SEP2-                        :
-	imenu  C&++.&template\ class              <Esc>:call CVIM_CodeTemplateClass()   <CR>
-	imenu  C&++.template\ class\ using\ ne&w  <Esc>:call CVIM_CodeTemplateClassNew()<CR>
-	imenu  C&++.template\ &function           <Esc>:call CVIM_CodeTemplateFunct()   <CR>
+	imenu  C&++.&method\ implementaton        <Esc>:call C_CodeMethod()<CR>
+	imenu  C&++.&class                        <Esc>:call C_CodeClass()<CR>
+	imenu  C&++.class\ using\ &new            <Esc>:call C_CodeClassNew()<CR>
+	imenu  C&++.err&or\ class                 <Esc>:call C_CodeErrorClass()<CR>3jf"a
 	imenu  C&++.-SEP3-                        :
-	imenu  C&++.friend\ operator\ <<          <Esc>:call CVIM_CodeOutputOperator()  <CR>3jf.a
-	imenu  C&++.friend\ operator\ >>          <Esc>:call CVIM_CodeInputOperator()   <CR>3jf.a
+	imenu  C&++.&template\ class              <Esc>:call C_CodeTemplateClass()<CR>
+	imenu  C&++.template\ class\ using\ ne&w  <Esc>:call C_CodeTemplateClassNew()<CR>
+	imenu  C&++.template\ &function           <Esc>:call C_CodeTemplateFunct()<CR>
 	imenu  C&++.-SEP4-                        :
-	imenu  C&++.tr&y\ \.\.\ catch             <Esc>:call CVIM_CodeTryCatch()        <CR>4j2f a
-	imenu  C&++.c&atch                        <Esc>:call CVIM_CodeCatch()           <CR>2f a
-	imenu  C&++.catch\(\.\.\.\)               <Esc>:let @z="catch (...)\n{\n\t\n}"  <CR>"z]p<Esc>2ja
+	imenu  C&++.friend\ operator\ <<          <Esc>:call C_CodeOutputOperator()<CR>3jf.a
+	imenu  C&++.friend\ operator\ >>          <Esc>:call C_CodeInputOperator()<CR>3jf.a
 	imenu  C&++.-SEP5-                        :
-	imenu  C&++.open\ input\ file             <Esc>:call CVIM_CodeIfstream()        <CR>f"a
-	imenu  C&++.open\ output\ file            <Esc>:call CVIM_CodeOfstream()        <CR>f"a
+	imenu  C&++.tr&y\ \.\.\ catch             <Esc>:call C_CodeTryCatch()<CR>4j2f a
+	imenu  C&++.c&atch                        <Esc>:call C_CodeCatch()<CR>2f a
+	imenu  C&++.catch\(\.\.\.\)               <Esc>:let @z="catch (...)\n{\n\t\n}"<CR>"z]p<Esc>2ja
 	imenu  C&++.-SEP6-                        :
-	imenu  C&++.&using\ namespace             using namespace ;<Esc>$i
-	imenu  C&++.na&mespace                    <Esc>:let @z="namespace \n{\n\n}"     <CR>"z]p<Esc>A
+	imenu  C&++.open\ input\ file             <Esc>:call C_CodeIfstream()<CR>f"a
+	imenu  C&++.open\ output\ file            <Esc>:call C_CodeOfstream()<CR>f"a
 	imenu  C&++.-SEP7-                        :
+	imenu  C&++.&using\ namespace             using namespace ;<Esc>$i
+	imenu  C&++.namespace                     <Esc>:let @z="namespace \n{\n\n}" <CR>"z]p<Esc>A
+	imenu  C&++.-SEP8-                        :
 		"
 		"----- Submenu : RTTI  ----------------------------------------------------------------------------
 		"
@@ -378,32 +364,20 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 		imenu  C&++.&RTTI.&const_cast           const_cast<>()<Esc>F<a
 		imenu  C&++.&RTTI.&reinterpret_cast     reinterpret_cast<>()<Esc>F<a
 		imenu  C&++.&RTTI.&dynamic_cast         dynamic_cast<>()<Esc>F<a
-	imenu  C&++.e&xtern\ \"C\"\ \{\ \}        <Esc>:call CVIM_CodeExternC()         <CR>2jf.i
+	imenu  C&++.e&xtern\ \"C\"\ \{\ \}        <Esc>:call C_CodeExternC()<CR>2jf.i
 	"
 	"===============================================================================================
 	"----- Menu : run  -----------------------------------------------------------------------------
 	"===============================================================================================
 	"
-	"  MENU ENTRY
-	" -----------------
-	"  save buffer to file and compile the file
-	"  link the object file; compile if the object does not exist or is older then the source
-	"  run the executable; compile and link if the executable does not exist
-	"    or is older then the object source
-	"  run with pager
-	"  read command line arguments for the run command
-	"
-	"===============================================================================================
-	"
-	" compile and open the error window in case of errors
-	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>  <C-C>:w<CR><Esc>:call CVIM_Compile()<CR><C-C>:cwin<CR>
-	"
-	amenu  C-&Run.&link\ \ \<F9\>                       <C-C>:call CVIM_Link()<CR><C-C>:cwin<CR>
-	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                <C-C>:call CVIM_Run(0)<CR><C-C>:cwin<CR>
-	amenu  C-&Run.run\ with\ &pager                     <C-C>:call CVIM_Run(1)<CR><C-C>:cwin<CR>
-	amenu  C-&Run.command\ line\ &arguments             <C-C>:call CVIM_Arguments()<CR>
+	amenu  C-&Run.save\ and\ &compile\ \ \<Alt\>\<F9\>  <C-C>:w<CR><Esc>:call C_Compile()<CR><C-C>:cwin<CR>
+	amenu  C-&Run.&link\ \ \<F9\>                       <C-C>:call C_Link()<CR><C-C>:cwin<CR>
+	amenu  C-&Run.&run\ \ \<Ctrl\>\<F9\>                <C-C>:call C_Run(0)<CR><C-C>:cwin<CR>
+	amenu  C-&Run.run\ with\ &pager                     <C-C>:call C_Run(1)<CR><C-C>:cwin<CR>
+	amenu  C-&Run.command\ line\ &arguments             <C-C>:call C_Arguments()<CR>
+	amenu  C-&Run.&make\ \ \<Shift\>\<F9\>              <C-C>:make<CR>
 	imenu  C-&Run.-SEP1-                                :
-	amenu  C-&Run.a&bout\ C/C++-Support                 <C-C>:call CVIM_Version()<CR>
+	amenu  C-&Run.a&bout\ C/C++-Support                 <C-C>:call C_Version()<CR>
 	"
 endfunction
 "
@@ -414,7 +388,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Comments : frame comment
 "------------------------------------------------------------------------------
-function! CVIM_CommentFrame ()
+function! C_CommentFrame ()
   let @z=   "//----------------------------------------------------------------------\n"
   let @z=@z."//  \n"
   let @z=@z."//----------------------------------------------------------------------\n"
@@ -424,7 +398,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Comments : function
 "------------------------------------------------------------------------------
-function! CVIM_CommentFunction ()
+function! C_CommentFunction ()
   let @z=    "//#===  FUNCTION  ======================================================================\n"
   let @z= @z."//#\n"
   let @z= @z."//#        Name:  \n"
@@ -439,9 +413,9 @@ function! CVIM_CommentFunction ()
   let @z= @z."//#      out:  \n"
   let @z= @z."//#   return:  \n"
   let @z= @z."//#-------------------------------------------------------------------------------------\n"
-  let @z= @z."//#   Author:  ".s:CVIM_AuthorName."\n"
-  let @z= @z."//#  Created:  ".strftime("%x - %X")."\n"
-  let @z= @z."//# Revision:  ---\n"
+  let @z= @z."//#   Author:  ".s:C_AuthorName."\n"
+  let @z= @z."//#  Created:  ".strftime("%x")."\n"
+  let @z= @z."//# Revision:  none\n"
   let @z= @z."//#=====================================================================================\n"
   put z
 endfunction
@@ -449,7 +423,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Comments : main
 "------------------------------------------------------------------------------
-function! CVIM_CommentMain ()
+function! C_CommentMain ()
   let @z=    "//#===  FUNCTION  MAIN =================================================================\n"
   let @z= @z."//#\n"
   let @z= @z."//# Description:  \n"
@@ -463,9 +437,9 @@ function! CVIM_CommentMain ()
   let @z= @z."//#       in:  char*           argv[0]         name of the command\n"
   let @z= @z."//#   return:  int             ---             return code\n"
   let @z= @z."//#-------------------------------------------------------------------------------------\n"
-  let @z= @z."//#   Author:  ".s:CVIM_AuthorName."\n"
-  let @z= @z."//#  Created:  ".strftime("%d.%m.%Y - %X")."\n"
-  let @z= @z."//# Revision:  ---\n"
+  let @z= @z."//#   Author:  ".s:C_AuthorName."\n"
+  let @z= @z."//#  Created:  ".strftime("%x")."\n"
+  let @z= @z."//# Revision:  none\n"
   let @z= @z."//#=====================================================================================\n"
   put z
 endfunction
@@ -473,7 +447,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Comments : file prologue
 "------------------------------------------------------------------------------
-function! CVIM_CommentFilePrologue ()
+function! C_CommentFilePrologue ()
 
     let @z=      "//#====================================================================================="
     let @z= @z."\n//#"
@@ -481,36 +455,36 @@ function! CVIM_CommentFilePrologue ()
     let @z= @z."\n//#"
     let @z= @z."\n//#    Description:  "
     let @z= @z."\n//#"
-    let @z= @z."\n//#          Usage:  ./".expand("%:t:r").".e "
-    let @z= @z."\n//#"
+"    let @z= @z."\n//#          Usage:  ./".expand("%:t:r").".e "
+"    let @z= @z."\n//#"
     let @z= @z."\n//#        Version:  1.0"
     let @z= @z."\n//#        Created:  ".strftime("%x")
-    let @z= @z."\n//#       Revision:  ---"
-  if(s:CVIM_Compiler!="")
-    let @z= @z."\n//#       Compiler:  ".s:CVIM_Compiler
+    let @z= @z."\n//#       Revision:  none"
+  if(s:C_Compiler!="")
+    let @z= @z."\n//#       Compiler:  ".s:C_Compiler
   endif
     let @z= @z."\n//#"
-    let @z= @z."\n//#         Author:  ".s:CVIM_AuthorName
-  if(s:CVIM_AuthorRef!="")
-    let @z= @z."  (".s:CVIM_AuthorRef.")"
+    let @z= @z."\n//#         Author:  ".s:C_AuthorName
+  if(s:C_AuthorRef!="")
+    let @z= @z."  (".s:C_AuthorRef.")"
   endif
-  if(s:CVIM_Company!="")
-    let @z= @z."\n//#        Company:  ".s:CVIM_Company
+  if(s:C_Company!="")
+    let @z= @z."\n//#        Company:  ".s:C_Company
   endif
-  if(s:CVIM_Email!="")
-    let @z= @z."\n//#          Email:  ".s:CVIM_Email
+  if(s:C_Email!="")
+    let @z= @z."\n//#          Email:  ".s:C_Email
   endif
-  if(s:CVIM_CopyrightHolder!="")
-    let @z= @z.  "\n//#      Copyright:  ".s:CVIM_CopyrightHolder
-    if(s:CVIM_CopyrightYears=="")
+  if(s:C_CopyrightHolder!="")
+    let @z= @z.  "\n//#      Copyright:  ".s:C_CopyrightHolder
+    if(s:C_CopyrightYears=="")
       let @z= @z. " , ". strftime("%Y")
     else
-      let @z= @z. " , ". s:CVIM_CopyrightYears
+      let @z= @z. " , ". s:C_CopyrightYears
     endif
   endif
-  if(s:CVIM_Project!="")
+  if(s:C_Project!="")
     let @z= @z."\n//#"
-    let @z= @z."\n//#        Project:  ".s:CVIM_Project
+    let @z= @z."\n//#        Project:  ".s:C_Project
   endif
     let @z= @z."\n//#"
     let @z= @z."\n//#=====================================================================================\n\n"
@@ -521,15 +495,15 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Comments : classified comments
 "------------------------------------------------------------------------------
-function! CVIM_CommentClassified (class)
-  	put = '			// :'.a:class.':'.strftime(\"%x\").':'.s:CVIM_AuthorRef.': '
+function! C_CommentClassified (class)
+  	put = '	// :'.a:class.':'.strftime(\"%x\").':'.s:C_AuthorRef.': '
 endfunction
 "
 "------------------------------------------------------------------------------
 "  C-Comments : Section Comments
 "------------------------------------------------------------------------------
 "
-function! CVIM_CommentSection (keyword)
+function! C_CommentSection (keyword)
   let @z=   "// #####   ".a:keyword."   "
 	let	n = 74-strlen(a:keyword)
 	while n>0
@@ -544,17 +518,36 @@ endfunction
 "  C-Comments : Section Comments
 "------------------------------------------------------------------------------
 "
-function! CVIM_CommentSectionAll ()
-	call CVIM_CommentSection("HEADER FILE INCLUDES") 
-  call CVIM_CommentSection("MACROS")                 
-  call CVIM_CommentSection("MACROS WITH ARGUMENTS")  
-  call CVIM_CommentSection("TYPE DEFINITIONS")       
-  call CVIM_CommentSection("ENUMERATIONS")           
-  call CVIM_CommentSection("EXTERN DATA")            
-  call CVIM_CommentSection("NON-STATIC GLOBAL DATA") 
-  call CVIM_CommentSection("STATIC GLOBAL DATA")     
-  call CVIM_CommentSection("LOCAL PROTOTYPES")       
-  call CVIM_CommentSection("FUNCTIONS")              
+function! C_Comment_C_SectionAll1 ()
+	call C_CommentSection("HEADER FILE INCLUDES")
+  call C_CommentSection("MACROS  -  LOCAL TO THIS SOURCE FILE")
+  call C_CommentSection("DATA TYPES  -  LOCAL TO THIS SOURCE FILE")
+  call C_CommentSection("TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")
+  call C_CommentSection("VARIABLES  -  LOCAL TO THIS SOURCE FILE")
+  call C_CommentSection("PROTOTYPES  -  LOCAL TO THIS SOURCE FILE")
+	call C_CommentSection("FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS")
+	call C_CommentSection("FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")
+endfunction
+"
+function! C_Comment_C_SectionAll2 ()
+	call C_Comment_C_SectionAll1()
+	call C_CommentSection("CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE")
+	call C_CommentSection("CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES")
+	call C_CommentSection("CLASS IMPLEMENTATIONS  -  LOCAL CLASSES")
+endfunction
+"
+function! C_Comment_H_SectionAll1 ()
+	call C_CommentSection("HEADER FILE INCLUDES")
+  call C_CommentSection("EXPORTED MACROS")
+  call C_CommentSection("EXPORTED DATA TYPES")
+  call C_CommentSection("EXPORTED TYPE DEFINITIONS")
+  call C_CommentSection("EXPORTED VARIABLES") 
+  call C_CommentSection("EXPORTED FUNCTION DECLARATIONS")
+endfunction
+"
+function! C_Comment_H_SectionAll2 ()
+	call C_Comment_H_SectionAll1()
+	call C_CommentSection("EXPORTED CLASS DEFINITIONS")
 endfunction
 "
 "=====================================================================================
@@ -565,7 +558,7 @@ endfunction
 "  Statements : do-while
 "------------------------------------------------------------------------------
 "
-function! CVIM_DoWhile ()
+function! C_DoWhile ()
 	let @z=    "do\n{\n\t\n}\nwhile (  );"
   let @z= @z."\t\t\t\t// -----  end do-while  -----\n"
 endfunction
@@ -575,14 +568,14 @@ endfunction
 "  Statements : case
 "------------------------------------------------------------------------------
 "
-let s:CVIM_CaseStatement = "\tcase :\t\n\t\tbreak;\n\n"
+let s:C_CaseStatement = "\tcase :\t\n\t\tbreak;\n\n"
 "
-function! CVIM_CodeSwitch ()
+function! C_CodeSwitch ()
   let @z= "switch (  )\n{\n\n"
 	
 	let loopcount=4                   " default number of cases
 	while loopcount>0
-    let @z= @z.s:CVIM_CaseStatement
+    let @z= @z.s:C_CaseStatement
 	  let loopcount=loopcount-1
 	endwhile
 	
@@ -590,8 +583,8 @@ function! CVIM_CodeSwitch ()
   let @z= @z."\t\t\t\t// -----  end switch  -----\n"
 endfunction
 "
-function! CVIM_CodeCase ()
-    let @z= s:CVIM_CaseStatement
+function! C_CodeCase ()
+    let @z= s:C_CaseStatement
 endfunction
 "
 "------------------------------------------------------------------------------
@@ -599,7 +592,7 @@ endfunction
 "  Statements : #ifdef .. #else .. #endif 
 "  Statements : #ifndef .. #else .. #endif 
 "------------------------------------------------------------------------------
-function! CVIM_PPIfElse (keyword)
+function! C_PPIfElse (keyword)
 	let defaultcond	= "CONDITION"
 	let	identifier=inputdialog("(uppercase) condition for #".a:keyword, defaultcond )
 	if identifier != ""
@@ -613,7 +606,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  Statements : #ifndef .. #define .. #endif 
 "------------------------------------------------------------------------------
-function! CVIM_PPIfDef ()
+function! C_PPIfDef ()
 	" use filename without path (:t) and extension (:r) :
 	let defaultcond	= toupper(expand("%:t:r"))."_INC"
 	let	identifier=inputdialog("(uppercase) condition for #ifndef", defaultcond )
@@ -628,7 +621,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : for( i=0; i<n; i++ )
 "------------------------------------------------------------------------------
-function! CVIM_CodeFor (counter)
+function! C_CodeFor (counter)
   let @z=    "for ( ".a:counter."=0; ".a:counter."<n; ".a:counter."++ )\n"
   put z
 	endfunction
@@ -636,10 +629,10 @@ function! CVIM_CodeFor (counter)
 "------------------------------------------------------------------------------
 "  C-Idioms : function
 "------------------------------------------------------------------------------
-function! CVIM_CodeFunction ()
+function! C_CodeFunction ()
 	let	identifier=inputdialog("function name", "f" )
 	if identifier != ""
-		let @z=    "void\n".identifier."\t(  )\n{\n\n\n\treturn ;\n}"
+		let @z=    "void\n".identifier."\t(  )\n{\n\treturn ;\n}"
 		let @z= @z."\t\t\t\t// ----------  end of function ".identifier."  ----------"
 		put z
 	endif
@@ -648,25 +641,67 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : main
 "------------------------------------------------------------------------------
-function! CVIM_CodeMain ()
+function! C_CodeMain ()
   let @z=    "int\nmain ( int argc, char *argv[] )\n{\n\t\n"
-"	let @z= @z."\n//\tprintf(\"\\n\\tprogram %s\\n\", argv[0] );"
-"	let @z= @z."\n//\tcout << \"\\n\\tprogram \" << argv[0] << endl;"
-	let @z= @z."\n\n\treturn 0;\n}"
+	let @z= @z."\treturn 0;\n}"
   let @z= @z."\t\t\t\t// ----------  end of function main  ----------"
   put z
 	endfunction
 "
 "------------------------------------------------------------------------------
+"  C++ : class comment
+"------------------------------------------------------------------------------
+function! C_CommentClass ()
+  let @z=   "//#=====================================================================================\n"
+  let @z=@z."//#       Class:  ".s:C_ClassName."\n"
+  let @z=@z."//#\n"
+  let @z=@z."//# Description:  \n"
+  let @z=@z."//#\n"
+  let @z=@z."//#      Author:  ".s:C_AuthorName."\n"
+  let @z=@z."//#     Created:  ".strftime("%x")."\n"
+  let @z=@z."//#    Revision:  none\n"
+  let @z=@z."//#=====================================================================================\n"
+  put z
+endfunction
+"
+"------------------------------------------------------------------------------
+"  C++ : method comment
+"------------------------------------------------------------------------------
+function! C_CommentMethod ()
+  let @z=   "//--------------------------------------------------------------------------------------\n"
+  let @z=@z."//       Class:  ".s:C_ClassName."\n"
+  let @z=@z."//      Method:  \n"
+  let @z=@z."// Description:  \n"
+  let @z=@z."//--------------------------------------------------------------------------------------\n"
+  put z
+endfunction
+"
+function! C_CommentClearClassNmae ()
+	let	s:C_ClassName=""
+endfunction
+"
+"------------------------------------------------------------------------------
+"  C++ : method
+"------------------------------------------------------------------------------
+function! C_CodeMethod()
+	let	identifier=inputdialog("method name", s:C_ClassName."::" )
+	if identifier != ""
+		let @z=    "void\n".identifier."\t(  )\n{\n\n\n\treturn ;\n}"
+		let @z= @z."\t\t\t\t// ----------  end of method ".identifier."  ----------"
+		put z
+	endif
+endfunction
+"
+"------------------------------------------------------------------------------
 "  C++ : class
 "------------------------------------------------------------------------------
-function! CVIM_CodeClass()
-	let	classname=inputdialog("name of class", "Cls" )
-	if classname != ""
-		let @z=    "class ".classname
+function! C_CodeClass()
+	let	s:C_ClassName=inputdialog("name of class", "Cls" )
+	if s:C_ClassName != ""
+		let @z=    "class ".s:C_ClassName
 		let @z= @z."\n{\n\n\tpublic:\n\n"
 		let @z= @z."\t\t// ====================  LIFECYCLE   =========================================\n\n"
-		let @z= @z."\t\t".classname." ();\t// constructor\n\n"	
+		let @z= @z."\t\t".s:C_ClassName." ();\t// constructor\n\n"	
 		let @z= @z."\t\t// Use compiler-generated copy constructor, assignment operator and destructor\n\n"	
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
@@ -675,9 +710,9 @@ function! CVIM_CodeClass()
 		let @z= @z."\t\t// ====================  NESTED ERROR CLASSES  ===============================\n\n\n"
 		let @z= @z."\tprotected:\n\n"
 		let @z= @z."\tprivate:\n\n"
-		let @z= @z."\n};\t\t\t// ----------  end of class  ".classname."  ----------\n"
-		let @z= @z."\n\n".classname."::".classname." ()\n{\n}"
-		let @z= @z."\t\t\t\t// ----------  end of constructor of class ".classname."  ----------\n"
+		let @z= @z."\n};\t\t\t// ----------  end of class  ".s:C_ClassName."  ----------\n"
+		let @z= @z."\n\n".s:C_ClassName."::".s:C_ClassName." ()\n{\n}"
+		let @z= @z."\t\t\t\t// ----------  end of method ".s:C_ClassName."::".s:C_ClassName."  (constructor)  ----------\n"
 		put z
 	endif
 endfunction
@@ -685,23 +720,23 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : class using the new operator
 "------------------------------------------------------------------------------
-function! CVIM_CodeClassNew ()
-	let	classname=inputdialog("name of class using new", "ClsN" )
-	if classname != ""
+function! C_CodeClassNew ()
+	let	s:C_ClassName=inputdialog("name of class using new", "ClsN" )
+	if s:C_ClassName != ""
 		let	tabs = ""
-		let	n = (strlen(classname)-1)/2				" number of extra tabs 
+		let	n = (strlen(s:C_ClassName)-1)/2				" number of extra tabs 
 		while n>0
 			let tabs = tabs."\t"
 			let	n = n-1
 		endwhile
-		let @z=    "class ".classname
+		let @z=    "class ".s:C_ClassName
 		let @z= @z."\n{\n\n\tpublic:\n\n"
 		let @z= @z."\t\t// ====================  LIFECYCLE   =========================================\n\n"
-		let @z= @z."\t\t".classname." ();\t\t\t\t\t\t\t".tabs."// constructor\n"	
-		let @z= @z."\t\t".classname." (const ".classname." &obj);\t// copy constructor\n"	
-		let @z= @z."\t\t~".classname." (); \t\t\t\t\t\t".tabs."// destructor\n\n"
+		let @z= @z."\t\t".s:C_ClassName." ();\t\t\t\t\t\t\t".tabs."// constructor\n"	
+		let @z= @z."\t\t".s:C_ClassName." (const ".s:C_ClassName." &obj);\t// copy constructor\n"	
+		let @z= @z."\t\t~".s:C_ClassName." (); \t\t\t\t\t\t".tabs."// destructor\n\n"
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
-		let @z= @z."\t\tconst ".classname."& operator = (const ".classname." &obj);"
+		let @z= @z."\t\tconst ".s:C_ClassName."& operator = (const ".s:C_ClassName." &obj);"
 		let @z= @z."\t\t// assignemnt operator\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
 		let @z= @z."\t\t// ====================  ACCESS      =========================================\n\n"
@@ -709,21 +744,21 @@ function! CVIM_CodeClassNew ()
 		let @z= @z."\t\t// ====================  NESTED ERROR CLASSES  ===============================\n\n\n"
 		let @z= @z."\tprotected:\n\n"
 		let @z= @z."\tprivate:\n\n"
-		let @z= @z."\n};\t\t\t// ----------  end of class  ".classname."  ----------\n"
+		let @z= @z."\n};\t\t\t// ----------  end of class  ".s:C_ClassName."  ----------\n"
 
 
-		let @z= @z."\n\n".classname."::".classname." ()\n{\n}"
-		let @z= @z."\t\t\t\t// ----------  end of constructor of class ".classname."  ----------\n"
+		let @z= @z."\n\n".s:C_ClassName."::".s:C_ClassName." ()\n{\n}"
+		let @z= @z."\t\t\t\t// ----------  end of method ".s:C_ClassName."::".s:C_ClassName."  (constructor)  ----------\n"
 
-		let @z= @z."\n\n".classname."::".classname." (const ".classname." &obj)\n{\n}"
-		let @z= @z."\t\t\t\t// ----------  end of copy constructor of class ".classname."  ----------\n"
+		let @z= @z."\n\n".s:C_ClassName."::".s:C_ClassName." (const ".s:C_ClassName." &obj)\n{\n}"
+		let @z= @z."\t\t\t\t// ----------  end of method ".s:C_ClassName."::".s:C_ClassName."  (copy constructor)  ----------\n"
 	
-		let @z= @z."\n\n".classname."::~".classname." ()\n{\n}"
-		let @z= @z."\t\t\t\t// ----------  end of destructor of class ".classname."  ----------\n"
+		let @z= @z."\n\n".s:C_ClassName."::~".s:C_ClassName." ()\n{\n}"
+		let @z= @z."\t\t\t\t// ----------  end of method ".s:C_ClassName."::~".s:C_ClassName."  (destructor)  ----------\n"
 		
-		let @z= @z."\n\nconst ".classname."&\n".classname."::operator = (const ".classname." &obj)"
+		let @z= @z."\n\nconst ".s:C_ClassName."&\n".s:C_ClassName."::operator = (const ".s:C_ClassName." &obj)"
 		let @z= @z."\n{\n\tif(this!=&obj)\n\t{\n\n\t}\n\treturn *this;\n}"	
-		let @z= @z."\t\t\t\t// ----------  end of assignment operator of class ".classname."  ----------\n"
+		let @z= @z."\t\t\t\t// ----------  end of method ".s:C_ClassName."::operator =  (assignment operator)  ----------\n"
 		put z
 	endif
 endfunction
@@ -731,7 +766,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : simple error class
 "------------------------------------------------------------------------------
-function! CVIM_CodeErrorClass()
+function! C_CodeErrorClass()
 	let	classname=inputdialog("name of error class", "Error" )
 	if classname != ""
 		let @z=    "class ".classname
@@ -747,7 +782,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : template class
 "------------------------------------------------------------------------------
-function! CVIM_CodeTemplateClass ()
+function! C_CodeTemplateClass ()
 	let	classname=inputdialog("name of template class", "TCls" )
 	if classname != ""
 		let @z=    "template < class T >\nclass ".classname
@@ -775,7 +810,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : template class using the new operator
 "------------------------------------------------------------------------------
-function! CVIM_CodeTemplateClassNew ()
+function! C_CodeTemplateClassNew ()
 	let	classname=inputdialog("name of template class using new", "TClsN" )
 	if classname != ""
 		let	tabs = ""
@@ -825,7 +860,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : template function
 "------------------------------------------------------------------------------
-function! CVIM_CodeTemplateFunct ()
+function! C_CodeTemplateFunct ()
 	let	identifier=inputdialog("template function name", "f" )
 	if identifier != ""
 		let @z=    "template <class T> void\n".identifier."\t( T param )\n{\n\n\n\treturn ;\n}"
@@ -837,7 +872,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : enum struct union
 "------------------------------------------------------------------------------
-function! CVIM_EST (su)
+function! C_EST (su)
 	let name= strpart( a:su, 0, 1 )												" first character of argument
 	let	name= inputdialog("(lowercase) ".a:su." name", name )
 	if name != ""
@@ -853,7 +888,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : malloc
 "------------------------------------------------------------------------------
-function! CVIM_CodeMalloc ()
+function! C_CodeMalloc ()
 	let	pointername= inputdialog("pointer name", "p")
 	if pointername != ""
 		let @z=    pointername."\t= malloc (  );"
@@ -868,7 +903,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : open file for reading
 "------------------------------------------------------------------------------
-function! CVIM_CodeFopenRead ()
+function! C_CodeFopenRead ()
 	let	filepointer=inputdialog("input-file pointer", "infile")
 	if filepointer != ""
 		let filename=filepointer."_file_name"
@@ -886,7 +921,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C-Idioms : open file for writing
 "------------------------------------------------------------------------------
-function! CVIM_CodeFopenWrite ()
+function! C_CodeFopenWrite ()
 	let	filepointer=inputdialog("output-file pointer", "outfile")
 	if filepointer != ""
 		let filename=filepointer."_file_name"
@@ -904,7 +939,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : open file for reading
 "------------------------------------------------------------------------------
-function! CVIM_CodeIfstream ()
+function! C_CodeIfstream ()
 	let	ifstreamobject=inputdialog("ifstream object", "ifs" )
 	if ifstreamobject != ""
 		let filename=ifstreamobject."_file_name"
@@ -922,7 +957,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : open file for writing
 "------------------------------------------------------------------------------
-function! CVIM_CodeOfstream ()
+function! C_CodeOfstream ()
 	let	ofstreamobject=inputdialog("ofstream object", "ofs" )
 	if ofstreamobject != ""
 		let filename=ofstreamobject."_file_name"
@@ -940,7 +975,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : extern "C"
 "------------------------------------------------------------------------------
-function! CVIM_CodeExternC()
+function! C_CodeExternC()
 	let @z=    "extern \"C\"\n{\n\t#include\t\".h\"\n}"
 	put z
 endfunction
@@ -948,8 +983,8 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : output operator
 "------------------------------------------------------------------------------
-function! CVIM_CodeOutputOperator ()
-	let	identifier=inputdialog("class name", "" )
+function! C_CodeOutputOperator ()
+	let	identifier=inputdialog("class name", s:C_ClassName )
 	if identifier != ""
 		let @z=    "friend ostream &\noperator << (ostream & os, const ".identifier." & obj )\n"
 		let @z= @z."{\n\tos << obj. ;\n\treturn os;\n}"
@@ -961,8 +996,8 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : input operator
 "------------------------------------------------------------------------------
-function! CVIM_CodeInputOperator ()
-	let	identifier=inputdialog("class name", "" )
+function! C_CodeInputOperator ()
+	let	identifier=inputdialog("class name", s:C_ClassName )
 	if identifier != ""
 		let @z=    "friend istream &\noperator >> (istream & is, ".identifier." & obj )"
 		let @z= @z."\n{\n\tis >> obj. ;\n\treturn is;\n}"
@@ -975,7 +1010,7 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : try catch
 "------------------------------------------------------------------------------
-function! CVIM_CodeTryCatch ()
+function! C_CodeTryCatch ()
   let @z=    "try\n{\n\t\n}\n"
   let @z= @z."catch (const  &ExceptObj)\t\t// handle exception: \n{\n\t\n}\n"
   let @z= @z."catch (...)\t\t\t// handle exception: unspezified\n{\n\t\n}"
@@ -985,12 +1020,12 @@ endfunction
 "------------------------------------------------------------------------------
 "  C++ : catch
 "------------------------------------------------------------------------------
-function! CVIM_CodeCatch ()
+function! C_CodeCatch ()
   let @z=    "catch (const  &ExceptObj)\t\t// handle exception: \n{\n\t\n}\n"
 	put z
 endfunction
 ""------------------------------------------------------------------------------
-"  run : CVIM_Compile
+"  run : C_Compile
 "------------------------------------------------------------------------------
 "  The standard make program 'make' called by vim is set to the C or C++ compiler
 "  and reset after the compilation  (set makeprg=... ).
@@ -999,7 +1034,7 @@ endfunction
 "
 "
 "------------------------------------------------------------------------------
-function! CVIM_Compile ()
+function! C_Compile ()
 
 	let	Sou		= expand("%")								" name of the file in the current buffer
 	let	Obj		= expand("%:r").".o"				" name of the object
@@ -1011,14 +1046,14 @@ function! CVIM_Compile ()
 	" compilation if object does not exist or object exists and is older then the source	
 	if !filereadable(Obj) || (filereadable(Obj) && (getftime(Obj) < getftime(Sou)))
 		
-		if Ext == s:CVIM_CExtension
-			exe		"set makeprg=".s:CVIM_CCompiler
+		if Ext == s:C_CExtension
+			exe		"set makeprg=".s:C_CCompiler
 		else
-			exe		"set makeprg=".s:CVIM_CplusCompiler
+			exe		"set makeprg=".s:C_CplusCompiler
 		endif
 
 		" COMPILATION
-		exe		"make ".s:CVIM_CFlags." ".Sou." -o ".Obj		
+		exe		"make ".s:C_CFlags." ".Sou." -o ".Obj		
 		
 		exe		"set makeprg=make"
 	endif
@@ -1026,14 +1061,16 @@ function! CVIM_Compile ()
 endfunction
 "
 "------------------------------------------------------------------------------
-"  run : CVIM_Link
+"  run : C_Link
 "------------------------------------------------------------------------------
 "  The standard make program which is used by gvim is set to the compiler
 "  (for linking) and reset after linking.
+"
+"  calls: C_Compile
 "------------------------------------------------------------------------------
-function! CVIM_Link ()
+function! C_Link ()
 
-	call	CVIM_Compile()
+	call	C_Compile()
 
 	let	Sou		= expand("%")								" name of the file in the current buffer
 	let	Obj		= expand("%:r").".o"				" name of the object file
@@ -1062,12 +1099,12 @@ function! CVIM_Link ()
 	
 	if filereadable(Obj) && (getftime(Obj) >= getftime(Sou))
 	
-		if Ext == s:CVIM_CExtension
-			exe		"set makeprg=".s:CVIM_CCompiler
+		if Ext == s:C_CExtension
+			exe		"set makeprg=".s:C_CCompiler
 		else
-			exe		"set makeprg=".s:CVIM_CplusCompiler
+			exe		"set makeprg=".s:C_CplusCompiler
 		endif
-		exe		"make ".s:CVIM_LFlags." ".s:CVIM_Libs." -o ".Exe." ".Obj
+		exe		"make ".s:C_LFlags." ".s:C_Libs." -o ".Exe." ".Obj
 		exe		"set makeprg=make"
 
 	endif
@@ -1075,24 +1112,26 @@ function! CVIM_Link ()
 endfunction
 "
 "------------------------------------------------------------------------------
-"  run : CVIM_Run
+"  run : 	C_Run
+"
+"  calls: C_Link
 "------------------------------------------------------------------------------
-function! CVIM_Run (arg1)
+function! C_Run (arg1)
 
 	let	Sou		= expand("%")										" name of the source file
 	let	Obj		= expand("%:r").".o"						" name of the object file
 	let	Exe		= expand("%:r").".e"						" name of the executable
 
-	call	CVIM_Link()													" compile+link the file in the current buffer
+	call	C_Link()													" compile+link the file in the current buffer
 	
 	" exe exists and is newer then the object, the object is newer then the source
 	" this prevents an old executable from running in the case of compilation or link errors
 	
 	if filereadable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
 		if a:arg1==0
-			exe		"!./".Exe." ".s:CVIM_CmdLineArgs
+			exe		"!./".Exe." ".s:C_CmdLineArgs
 		else
-			exe		"!./".Exe." ".s:CVIM_CmdLineArgs." | ".s:CVIM_Pager
+			exe		"!./".Exe." ".s:C_CmdLineArgs." | ".s:C_Pager
 		endif
 	endif
 	
@@ -1101,76 +1140,78 @@ endfunction
 "------------------------------------------------------------------------------
 "  run : Arguments
 "------------------------------------------------------------------------------
-function! CVIM_Arguments ()
-	let	s:CVIM_CmdLineArgs= inputdialog("command line arguments",s:CVIM_CmdLineArgs)
+function! C_Arguments ()
+	let	s:C_CmdLineArgs= inputdialog("command line arguments",s:C_CmdLineArgs)
 endfunction
 "
 "
 "------------------------------------------------------------------------------
 "  run : about
 "------------------------------------------------------------------------------
-function! CVIM_Version ()
-	let dummy=confirm("C/C++-Support, Version ".s:CVIM_Version."\nDr. Fritz Mehner\nmehner@fh-swf.de", "ok" )
+function! C_Version ()
+	let dummy=confirm("C/C++-Support, Version ".s:C_Version."\nDr. Fritz Mehner\nmehner@fh-swf.de", "ok" )
 endfunction
 "
 "------------------------------------------------------------------------------
-"  c : CVIM_CreateUnLoadMenuEntries
+"  c : C_CreateUnLoadMenuEntries
 "	 Create the load/unload entry in the GVIM tool menu, depending on 
 "	 which script is already loaded.
 "  Author: M.Faulstich
 "------------------------------------------------------------------------------
 "
-let s:CVIM_Active = -1									" state variable controlling the C-menus
+let s:C_Active = -1									" state variable controlling the C-menus
 "
-function! CVIM_CreateUnLoadMenuEntries ()
+function! C_CreateUnLoadMenuEntries ()
 "
 	" C is now active and was former inactive -> 
 	" Insert Tools.Unload and remove Tools.Load Menu
-	if  s:CVIM_Active == 1
+	if  s:C_Active == 1
 		aunmenu Tools.Load\ C\ Support
-		amenu   &Tools.Unload\ C\ Support  	<C-C>:call CVIM_HandleC()<CR>
+		amenu   &Tools.Unload\ C\ Support  	<C-C>:call C_Handle()<CR>
 	else
 		" C is now inactive and was former active or in initial state -1 
-		if s:CVIM_Active == 0
+		if s:C_Active == 0
 			" Remove Tools.Unload if C was former inactive
 			aunmenu Tools.Unload\ C\ Support
 		else
-			" Set initial state CVIM_Active=-1 to inactive state CVIM_Active=0
+			" Set initial state C_Active=-1 to inactive state C_Active=0
 			" This protects from removing Tools.Unload during initialization after
 			" loading this script
-			let s:CVIM_Active = 0
+			let s:C_Active = 0
 			" Insert Tools.Load
 		endif
-		amenu &Tools.Load\ C\ Support <C-C>:call CVIM_HandleC()<CR>
+		amenu &Tools.Load\ C\ Support <C-C>:call C_Handle()<CR>
 	endif
 	"
 "
 endfunction
 "
 "------------------------------------------------------------------------------
-"  C : CVIM_HandleC
+"  C : C_Handle
 "  Loads or unloads C support menus.
 "  Author: M.Faulstich
 "------------------------------------------------------------------------------
-function! CVIM_HandleC ()
-	if s:CVIM_Active == 0
-		:call CVIM_InitC()
-		let s:CVIM_Active = 1
+function! C_Handle ()
+	if s:C_Active == 0
+		:call C_InitC()
+		let s:C_Active = 1
 	else
-		aunmenu C-Comments
+		aunmenu Comments
 		aunmenu C-Statements
 		aunmenu C-Idioms
 		aunmenu C++
 		aunmenu C-Run
-		let s:CVIM_Active = 0
+		let s:C_Active = 0
 	endif
 	
-	call CVIM_CreateUnLoadMenuEntries ()
+	call C_CreateUnLoadMenuEntries ()
 endfunction
 "
 "------------------------------------------------------------------------------
 " 
-call CVIM_CreateUnLoadMenuEntries()			" create the menu entry in the GVIM tool menu
-call CVIM_HandleC()											" load the menus
+call C_CreateUnLoadMenuEntries()			" create the menu entry in the GVIM tool menu
+if s:C_ShowMenues == "yes"
+	call C_Handle()											" load the menus
+endif
 "=====================================================================================
 
