@@ -2,20 +2,20 @@
 "
 "     Filename:  c.vim
 "
-"  Description:  Statements oriented editing of C/C++ programs        (VIM Version 6.0+)
+"  Description:  Statement oriented editing of C/C++ programs        (VIM Version 6.0+)
 "
-"                - insertion of comments, statements, idioms and keywords
+"                - insertion of comments, statements and idioms
 "                - compile/link/run support for one-file projects (without a makefile)
 "
 "                Code and comments should have a professional appearance and should be
 "                easy to write and maintain. 
-"                A consistent layout improves portability and reduces errors.
+"                Programs with a consistent style are easier to read and understand.
 "                The standardization of comments makes it possible to automate the search
-"                for information and the generation of documents from source code.
-"                Typing is considerably reduced.
-"                The overall programming style will be improved.
+"                for information and the generation of documents from the source code.
 "
-"       Author:  Dr.-Ing. Fritz Mehner - FH Südwestfalen, Iserlohn
+"       Author:  Dr.-Ing. Fritz Mehner 
+"                Fachhochschule Südwestfalen, Iserlohn, Germany
+"
 "        Email:  mehner@fh-swf.de
 "
 "        Usage:  (1.0) Configure  c.vim  (section Configuration below).
@@ -27,9 +27,10 @@
 "                c.vim inserts an additional menu entry into the Tools-menu for
 "                loading/unloading the C support.
 "
-"         Hint:  The register z is used in many places.
+"         Note:  The register z is used in many places.
 "
 " Style Guides:  Some ideas are taken from the following documents (recommended!):
+"
 "                1. Recommended C Style and Coding Standards (Indian Hill Style Guide)
 "                    www.doc.ic.ac.uk/lab/secondyear/cstyle/cstyle.html
 "                2. Programming in C++, Ellemtel Telecommunication Systems Laboratories
@@ -37,28 +38,31 @@
 "                3. C++ Coding Standard, Todd Hoff
 "                    www.possibility.com/Cpp/CppCodingStandard.html
 "
-let s:CVIM_Version = "2.0.3"              " version number of this script; do not change
-"     Revision:  25.02.2002
-"      Created:  26.02.2002
+let s:CVIM_Version = "2.1"              " version number of this script; do not change
+"     Revision:  04.04.2002
+"      Created:  11.03.2002
 "###############################################################################################
 "
-"               Configuration     (Use my configuration as an example)
+"  Configuration  (Use my configuration as an example)
 "
 "-------------------------------------------------------------------------------------
 "
 let s:CVIM_AuthorName      = "Dr.-Ing. Fritz Mehner"
 let s:CVIM_AuthorRef       = "Mn"
 "
-" The following entries do not appear if the strings are empty.
+"  The following entries do not appear if the strings are empty.
 "
 let s:CVIM_Email           = "mehner@fh-swf.de"
-let s:CVIM_Company         = "FH Südwestfalen, Iserlohn"
+let s:CVIM_Company         = "Fachhochschule Südwestfalen, Iserlohn"
 let s:CVIM_Project         = ""
 let s:CVIM_Compiler        = "GNU C/C++"
 "
-" Copyright: If the code has been developed over a period of years, each year must be stated.
-"            If CVIM_CopyrightYears is empty, the current year will be inserted.
-"            The year(s) do not appear if CVIM_CopyrightHolder is empty.
+"  Copyright information
+"  ---------------------
+"  If the code has been developed over a period of years, each year must be stated.
+"  If CVIM_CopyrightHolder is empty the copyright notice will not appear.
+"  If CVIM_CopyrightHolder is not empty and CVIM_CopyrightYears is empty, 
+"  the current year will be inserted.
 "
 let s:CVIM_CopyrightHolder = ""
 let s:CVIM_CopyrightYears  = ""
@@ -103,7 +107,8 @@ function! CVIM_InitC ()
 "===============================================================================================
 "----- Menu : Key Mappings ---------------------------------------------------------------------
 "===============================================================================================
-"  This is for convenience only. Comment out the following maps if you dislike them.
+"  The following key mappings are for convenience only. 
+"  Comment out the mappings if you dislike them.
 "  If enabled, there may be conflicts with predefined key bindings of your window manager.
 "-------------------------------------------------------------------------------------
 "  Alt-F9    write buffer and compile
@@ -124,15 +129,13 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 "  Function Description                       (grep searchable with "^//#" )
 "  Main Description                           (grep searchable with "^//#" )
 "  File Prologue                              (grep searchable with "^//#" )
-"  Section Macros
-"  Section Global Declarations
-"  Section Type Definitions / Enumarations
-"  Section Functions
-"  Comments with keywords                     (grep searchable with "// :" )
-"  comment out a highlighted block of code
-"  uncomment   a highlighted block of code
+"  File Section Headers
+"  Keyword  Comments  			                  (grep searchable with "// :" )
+"  Comment out a highlighted block of code
+"  Uncomment   a highlighted block of code
 "  Date+Time
 "  Date
+"  Special Comments (reminders)
 "===============================================================================================
 "
 	amenu  C-&Comments.&Line\ End\ Comment              <Esc><Esc>A<Tab><Tab><Tab>// 
@@ -144,16 +147,17 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 		"
 		"----- Submenu : C++ : file sections  -------------------------------------------------------------
 		"
-		amenu  C-&Comments.C-File\ &Sections.\ &Header\ File\ Includes    <Esc><Esc>:call CVIM_CommentSection("HEADER FILE INCLUDES")  <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Macros                    <Esc><Esc>:call CVIM_CommentSection("MACROS")                <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ M&acros\ with\ Arguments   <Esc><Esc>:call CVIM_CommentSection("MACROS WITH ARGUMENTS") <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Type\ Definitions         <Esc><Esc>:call CVIM_CommentSection("TYPE DEFINITIONS")      <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Enumerations              <Esc><Esc>:call CVIM_CommentSection("ENUMERATIONS")          <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ E&xtern\ Data              <Esc><Esc>:call CVIM_CommentSection("EXTERN DATA")           <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Non-static\ Global\ Data  <Esc><Esc>:call CVIM_CommentSection("NON-STATIC GLOBAL DATA")<CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Static\ Global\ Data      <Esc><Esc>:call CVIM_CommentSection("STATIC GLOBAL DATA")    <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Local\ Prototypes         <Esc><Esc>:call CVIM_CommentSection("LOCAL PROTOTYPES")      <CR>2ji
-		amenu  C-&Comments.C-File\ &Sections.\ &Functions                 <Esc><Esc>:call CVIM_CommentSection("FUNCTIONS")             <CR>2ji
+		amenu  C-&Comments.C-File\ &Sections.&Header\ File\ Includes    <Esc><Esc>:call CVIM_CommentSection("HEADER FILE INCLUDES")  <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Macros                    <Esc><Esc>:call CVIM_CommentSection("MACROS")                <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.M&acros\ with\ Arguments   <Esc><Esc>:call CVIM_CommentSection("MACROS WITH ARGUMENTS") <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Type\ Definitions         <Esc><Esc>:call CVIM_CommentSection("TYPE DEFINITIONS")      <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Enumerations              <Esc><Esc>:call CVIM_CommentSection("ENUMERATIONS")          <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.E&xtern\ Data              <Esc><Esc>:call CVIM_CommentSection("EXTERN DATA")           <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Non-static\ Global\ Data  <Esc><Esc>:call CVIM_CommentSection("NON-STATIC GLOBAL DATA")<CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Static\ Global\ Data      <Esc><Esc>:call CVIM_CommentSection("STATIC GLOBAL DATA")    <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Local\ Prototypes         <Esc><Esc>:call CVIM_CommentSection("LOCAL PROTOTYPES")      <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.&Functions                 <Esc><Esc>:call CVIM_CommentSection("FUNCTIONS")             <CR>0i
+		amenu  C-&Comments.C-File\ &Sections.-\ All\ Se&ctions          <Esc><Esc>:call CVIM_CommentSectionAll()                     <CR>0i
 		"
 		"----- Submenu : C++ : keyword comments  ----------------------------------------------------------
 		"
@@ -182,15 +186,16 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 	"===============================================================================================
 	"  MENU ENTRY
 	" -----------------
-	"  if{}
-	"  if{}else{}
-	"  else{}
+	"  if { }
+	"  if { } else { }
+	"  else { }
 	"  for
-	"  for{}
-	"  while{}
-	"  do{}while
+	"  for { }
+	"  while { }
+	"  do { } while
 	"  switch
 	"  case
+	"  { }
 	"  #include <...>
 	"  #include "..."
 	"  #define
@@ -207,6 +212,7 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 	imenu  C-St&atements.&do\ \{\ \}\ while          <Esc>:call CVIM_DoWhile()                          <CR>"z]p<Esc>:/while <CR>f(la
 	imenu  C-St&atements.&switch                     <Esc>:call CVIM_CodeSwitch()                       <CR>"z]p<Esc>f(la
 	imenu  C-St&atements.&case                       <Esc>:call CVIM_CodeCase()                         <CR>"z]p<Esc>f:i
+	imenu  C-St&atements.&\{\ \}                     <Esc>:let @z="{\n\t\n}\n"                          <CR>"z]p<Esc>jA
 	imenu  C-St&atements.-SEP1-                      :
 	imenu  C-St&atements.#include\ &\<\.\.\.\>       <Esc>:let @z="#include\t<.h>"       <CR>"zp<Esc>F.i
 	imenu  C-St&atements.#include\ \"\.\.\.\"        <Esc>:let @z="#include\t\".h\""     <CR>"zp<Esc>F.i
@@ -223,32 +229,56 @@ map  <C-F9>  :call CVIM_Run(0)<CR><C-C>:cwin<CR>
 	" -----------------
 	"  function
 	"  main
-	"  enum+typedef
-	"  struct+typedef
-	"  union+typedef
-	"  for( i=0; i<n; i++ )
-	"  for( i=n-1; i>0; i-- )
-	"  p=malloc( )
+	"  for( i=0;   i<n;  i+=1 )
+	"  for( i=n-1; i>=0; i-=1 )
+	"  for( i=1;   i<=n; i+=1 )
+	"  for( i=n;   i>=1; i-=1 )
+	"  enum   + typedef
+	"  struct + typedef
+	"  union  + typedef
 	"  printf
 	"  scanf
 	"  #include <stdio.h>
-	"  open input file
+	"  p=malloc( )
+	"  open input  file
 	"  open output file
 	"===============================================================================================
 	"
-	imenu  C-&Idioms.&function                        <Esc>:call CVIM_CodeFunction()<CR>
-	imenu  C-&Idioms.&main                            <Esc>:call CVIM_CodeMain()    <CR>3jA
-	imenu  C-&Idioms.&enum\+typedef                   <Esc>:call CVIM_EST("enum")   <CR>2jA
-	imenu  C-&Idioms.&struct\+typedef                 <Esc>:call CVIM_EST("struct") <CR>2jA
-	imenu  C-&Idioms.&union\+typedef                  <Esc>:call CVIM_EST("union")  <CR>2jA
-	imenu  C-&Idioms.for\(i=&0\;i<n\;i\+\+\)          for ( i=0; i<n; i++ )<Esc>0fni
-	imenu  C-&Idioms.for\(i=&n-1\;i>=0\;i\-\-\)       for ( i=n-1; i>=0; i-- )<Esc>0fni
-	imenu  C-&Idioms.p=m&alloc\(\ \)                  <Esc>:call CVIM_CodeMalloc()  <CR>f(la
-	imenu  C-&Idioms.-SEP1-                           :
-	imenu  C-&Idioms.&printf                          printf ("\n");<Esc>F"i
-	imenu  C-&Idioms.s&canf                           scanf ("", & );<Esc>F"i
-	imenu  C-&Idioms.&#include\ \<stdio\.h\>          <Esc>:let @z="#include\t<stdio.h>"  <CR>"zp<Esc>$a
+	imenu  C-&Idioms.&function                            <Esc>:call CVIM_CodeFunction()<CR>
+	imenu  C-&Idioms.&main                                <Esc>:call CVIM_CodeMain()    <CR>3jA
+	imenu  C-&Idioms.-SEP1-                               :
+	imenu  C-&Idioms.for\ (\ i=&0;\ \ \ i<n;\ \ i\+=1\ )  for ( i=0; i<n; i+=1 )<Esc>0fni
+	imenu  C-&Idioms.for\ (\ i=n&-1;\ i>=0;\ i\-=1\ )     for ( i=n-1; i>=0; i-=1 )<Esc>0fni
+	imenu  C-&Idioms.for\ (\ i=&1;\ \ \ i<=n;\ i\+=1\ )   for ( i=1; i<=n; i+=1 )<Esc>0fni
+	imenu  C-&Idioms.for\ (\ i=&n;\ \ \ i>=1;\ i\-=1\ )   for ( i=n; i>=1; i-=1 )<Esc>0fni
 	imenu  C-&Idioms.-SEP2-                           :
+	imenu  C-&Idioms.&enum\+typedef                       <Esc>:call CVIM_EST("enum")   <CR>2jA
+	imenu  C-&Idioms.&struct\+typedef                     <Esc>:call CVIM_EST("struct") <CR>2jA
+	imenu  C-&Idioms.&union\+typedef                      <Esc>:call CVIM_EST("union")  <CR>2jA
+	imenu  C-&Idioms.-SEP3-                               :
+	imenu  C-&Idioms.&printf                              printf ("\n");<Esc>2F"a
+	imenu  C-&Idioms.s&canf                               scanf ("", & );<Esc>F"i
+		"
+		"----- Submenu : C-Idioms: standard library -------------------------------------------------------
+		"
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&assert\.h\>   <Esc>o#include	<assert.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&ctype\.h\>    <Esc>o#include	<ctype.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&errno\.h\>    <Esc>o#include	<errno.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&float\.h\>    <Esc>o#include	<float.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&limits\.h\>   <Esc>o#include	<limits.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<l&ocale\.h\>   <Esc>o#include	<locale.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&math\.h\>     <Esc>o#include	<math.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<set&jmp\.h\>   <Esc>o#include	<setjmp.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<s&ignal\.h\>   <Esc>o#include	<signal.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<stdar&g\.h\>   <Esc>o#include	<stdarg.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<st&ddef\.h\>   <Esc>o#include	<stddef.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&stdio\.h\>    <Esc>o#include	<stdio.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<stdli&b\.h\>   <Esc>o#include	<stdlib.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<st&ring\.h\>   <Esc>o#include	<string.h>
+		imenu  C-&Idioms.&#include\ Std\.Lib\..\<&time\.h\>     <Esc>o#include	<time.h>
+		"
+	imenu  C-&Idioms.-SEP4-                           :
+	imenu  C-&Idioms.p=m&alloc\(\ \)                  <Esc>:call CVIM_CodeMalloc()  <CR>f(la
 	imenu  C-&Idioms.open\ &input\ file               <Esc>:call CVIM_CodeFopenRead()  <CR>jf"a
 	imenu  C-&Idioms.open\ &output\ file              <Esc>:call CVIM_CodeFopenWrite() <CR>jf"a
 
@@ -410,8 +440,8 @@ function! CVIM_CommentFunction ()
   let @z= @z."//#   return:  \n"
   let @z= @z."//#-------------------------------------------------------------------------------------\n"
   let @z= @z."//#   Author:  ".s:CVIM_AuthorName."\n"
-  let @z= @z."//#     Date:  ".strftime("%x - %X")."\n"
-  let @z= @z."//# Revision:  \n"
+  let @z= @z."//#  Created:  ".strftime("%x - %X")."\n"
+  let @z= @z."//# Revision:  ---\n"
   let @z= @z."//#=====================================================================================\n"
   put z
 endfunction
@@ -434,8 +464,8 @@ function! CVIM_CommentMain ()
   let @z= @z."//#   return:  int             ---             return code\n"
   let @z= @z."//#-------------------------------------------------------------------------------------\n"
   let @z= @z."//#   Author:  ".s:CVIM_AuthorName."\n"
-  let @z= @z."//#     Date:  ".strftime("%d.%m.%Y - %X")."\n"
-  let @z= @z."//# Revision:  \n"
+  let @z= @z."//#  Created:  ".strftime("%d.%m.%Y - %X")."\n"
+  let @z= @z."//# Revision:  ---\n"
   let @z= @z."//#=====================================================================================\n"
   put z
 endfunction
@@ -447,30 +477,31 @@ function! CVIM_CommentFilePrologue ()
 
     let @z=      "//#====================================================================================="
     let @z= @z."\n//#"
-    let @z= @z."\n//#       Filename:\t".expand("%:t")
-    let @z= @z."\n//#    Description:\t"
+    let @z= @z."\n//#       Filename:  ".expand("%:t")
     let @z= @z."\n//#"
-    let @z= @z."\n//#          Usage:\t./".expand("%:t:r").".e "
+    let @z= @z."\n//#    Description:  "
     let @z= @z."\n//#"
-    let @z= @z."\n//#        Version:\t1.0"
-    let @z= @z."\n//#        Created:\t".strftime("%x")
-    let @z= @z."\n//#       Revision:\t"
+    let @z= @z."\n//#          Usage:  ./".expand("%:t:r").".e "
+    let @z= @z."\n//#"
+    let @z= @z."\n//#        Version:  1.0"
+    let @z= @z."\n//#        Created:  ".strftime("%x")
+    let @z= @z."\n//#       Revision:  ---"
   if(s:CVIM_Compiler!="")
-    let @z= @z."\n//#       Compiler:\t".s:CVIM_Compiler
+    let @z= @z."\n//#       Compiler:  ".s:CVIM_Compiler
   endif
     let @z= @z."\n//#"
-    let @z= @z."\n//#         Author:\t".s:CVIM_AuthorName
+    let @z= @z."\n//#         Author:  ".s:CVIM_AuthorName
   if(s:CVIM_AuthorRef!="")
     let @z= @z."  (".s:CVIM_AuthorRef.")"
   endif
   if(s:CVIM_Company!="")
-    let @z= @z."\n//#        Company:\t".s:CVIM_Company
+    let @z= @z."\n//#        Company:  ".s:CVIM_Company
   endif
   if(s:CVIM_Email!="")
-    let @z= @z."\n//#          Email:\t".s:CVIM_Email
+    let @z= @z."\n//#          Email:  ".s:CVIM_Email
   endif
   if(s:CVIM_CopyrightHolder!="")
-    let @z= @z.  "\n//#      Copyright:\t".s:CVIM_CopyrightHolder
+    let @z= @z.  "\n//#      Copyright:  ".s:CVIM_CopyrightHolder
     if(s:CVIM_CopyrightYears=="")
       let @z= @z. " , ". strftime("%Y")
     else
@@ -479,7 +510,7 @@ function! CVIM_CommentFilePrologue ()
   endif
   if(s:CVIM_Project!="")
     let @z= @z."\n//#"
-    let @z= @z."\n//#        Project:\t".s:CVIM_Project
+    let @z= @z."\n//#        Project:  ".s:CVIM_Project
   endif
     let @z= @z."\n//#"
     let @z= @z."\n//#=====================================================================================\n\n"
@@ -505,10 +536,26 @@ function! CVIM_CommentSection (keyword)
 		let @z = @z."#"
 		let	n = n-1
 	endwhile
-  let @z= @z."\n\n\n"
-  put z
+  let @z= @z."\n\n"
+  put z | +1
 endfunction
 "
+"------------------------------------------------------------------------------
+"  C-Comments : Section Comments
+"------------------------------------------------------------------------------
+"
+function! CVIM_CommentSectionAll ()
+	call CVIM_CommentSection("HEADER FILE INCLUDES") 
+  call CVIM_CommentSection("MACROS")                 
+  call CVIM_CommentSection("MACROS WITH ARGUMENTS")  
+  call CVIM_CommentSection("TYPE DEFINITIONS")       
+  call CVIM_CommentSection("ENUMERATIONS")           
+  call CVIM_CommentSection("EXTERN DATA")            
+  call CVIM_CommentSection("NON-STATIC GLOBAL DATA") 
+  call CVIM_CommentSection("STATIC GLOBAL DATA")     
+  call CVIM_CommentSection("LOCAL PROTOTYPES")       
+  call CVIM_CommentSection("FUNCTIONS")              
+endfunction
 "
 "=====================================================================================
 "----- Menu : Statements -----------------------------------------------------------
@@ -620,7 +667,7 @@ function! CVIM_CodeClass()
 		let @z= @z."\n{\n\n\tpublic:\n\n"
 		let @z= @z."\t\t// ====================  LIFECYCLE   =========================================\n\n"
 		let @z= @z."\t\t".classname." ();\t// constructor\n\n"	
-		let @z= @z."\t\t// Use compiler-generated copy constructor, assignement operator and destructor\n\n"	
+		let @z= @z."\t\t// Use compiler-generated copy constructor, assignment operator and destructor\n\n"	
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
 		let @z= @z."\t\t// ====================  ACCESS      =========================================\n\n"
@@ -655,7 +702,7 @@ function! CVIM_CodeClassNew ()
 		let @z= @z."\t\t~".classname." (); \t\t\t\t\t\t".tabs."// destructor\n\n"
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
 		let @z= @z."\t\tconst ".classname."& operator = (const ".classname." &obj);"
-		let @z= @z."\t\t// assignement operator\n\n"
+		let @z= @z."\t\t// assignemnt operator\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
 		let @z= @z."\t\t// ====================  ACCESS      =========================================\n\n"
 		let @z= @z."\t\t// ====================  INQUIRY     =========================================\n\n"
@@ -676,7 +723,7 @@ function! CVIM_CodeClassNew ()
 		
 		let @z= @z."\n\nconst ".classname."&\n".classname."::operator = (const ".classname." &obj)"
 		let @z= @z."\n{\n\tif(this!=&obj)\n\t{\n\n\t}\n\treturn *this;\n}"	
-		let @z= @z."\t\t\t\t// ----------  end of assignement operator of class ".classname."  ----------\n"
+		let @z= @z."\t\t\t\t// ----------  end of assignment operator of class ".classname."  ----------\n"
 		put z
 	endif
 endfunction
@@ -707,7 +754,7 @@ function! CVIM_CodeTemplateClass ()
 		let @z= @z."\n{\n\n\tpublic:\n\n"
 		let @z= @z."\t\t// ====================  LIFECYCLE   =========================================\n\n"
 		let @z= @z."\t\t".classname." (); \t// constructor\n\n"	
-		let @z= @z."\t\t// Use compiler-generated copy constructor, assignement operator and destructor\n\n"	
+		let @z= @z."\t\t// Use compiler-generated copy constructor, assignment operator and destructor\n\n"	
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
 		let @z= @z."\t\t// ====================  ACCESS      =========================================\n\n"
@@ -745,7 +792,7 @@ function! CVIM_CodeTemplateClassNew ()
 		let @z= @z."\t\t~".classname." (); \t\t\t\t\t\t".tabs."// destructor\n\n"
 		let @z= @z."\t\t// ====================  OPERATORS   =========================================\n\n"
 		let @z= @z."\t\tconst ".classname."& operator = (const ".classname." &obj);"
-		let @z= @z."\t\t// assignement operator\n\n"
+		let @z= @z."\t\t// assignment operator\n\n"
 		let @z= @z."\t\t// ====================  OPERATIONS  =========================================\n\n"
 		let @z= @z."\t\t// ====================  ACCESS      =========================================\n\n"
 		let @z= @z."\t\t// ====================  INQUIRY     =========================================\n\n"
@@ -770,7 +817,7 @@ function! CVIM_CodeTemplateClassNew ()
 		let @z= @z."\n\ntemplate < class T >"
 		let @z= @z."\nconst ".classname."< T >& ".classname."< T >::operator = (const ".classname." &obj)"
 		let @z= @z."\n{\n\tif(this!=&obj)\n\t{\n\n\t}\n\treturn *this;\n}"	
-		let @z= @z."\t\t\t\t// ----------  end of assignement operator of template class ".classname."  ----------\n"
+		let @z= @z."\t\t\t\t// ----------  end of assignment operator of template class ".classname."  ----------\n"
 		put z
 	endif
 endfunction
