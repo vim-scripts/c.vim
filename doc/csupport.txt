@@ -1,7 +1,7 @@
-*csupport.txt*             C/C++ Support            Last Change:   Dec 20 2004
+*csupport.txt*             C/C++ Support            Last Change:   May 04 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                           Plugin version 3.7.1
+                           Plugin version 3.7.2
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -26,9 +26,10 @@ Write and run C/C++ programs using menus.
  1.5.2   Command line arguments                        |csupport-run-2|
  1.5.3   Run make                                      |csupport-run-3|
  1.5.4   Command line arguments for make               |csupport-run-4|
- 1.5.5   Hardcopy                                      |csupport-run-5|
- 1.5.6   Xterm size                                    |csupport-run-6|
- 1.5.7   Output redirection                            |csupport-run-7|
+ 1.5.5   Splint                                        |csupport-run-5|
+ 1.5.6   Hardcopy                                      |csupport-run-6|
+ 1.5.7   Xterm size                                    |csupport-run-7|
+ 1.5.8   Output redirection                            |csupport-run-8|
 
  2.    Hotkeys                                         |csupport-hotkeys|           
  3.    Customization and configuration                 |csupport-custom|     
@@ -61,7 +62,7 @@ The entry "Load C Support" can also be used to unload the C/C++-root menu.
 In NORMAL MODE the menu entries
  'Line End Comm. //' 
  'Line End Comm. /**/' 
-will append the indicated comment to the current line.
+will append the indicated comment to the current line. 
 
 In VISUAL MODE these entries will append aligned comments to all marked lines.
 Marking the first 4 lines
@@ -74,13 +75,24 @@ Marking the first 4 lines
 
 and choosing 'Line End Comm. /**/' will yield.
 
-  print_double_array ( double array[],  /*  */
-                       int n,           /*  */
-                       int columns,     /*  */
-                       char* arrayname  /*  */
-                       )
+  print_double_array ( double array[],           /*  */
+                       int n,                    /*  */
+                       int columns,              /*  */
+                       char* arrayname           /*  */
+                       )                         /*  */
 
-The cursor will be positioned inside the first comment.
+If one ore more lines go beyond the starting column (s.below) the comments
+will start at the 2. column after the longest line.  The cursor will be
+positioned inside the first comment.
+
+The default starting column is 49 ( = (8*6 or 4*12 or 2*24) + 1 ).  This can
+be changed by setting a global variable in the file .vimrc , e.g. :
+
+  let g:C_LineEndCommColDefault    = 45
+
+The starting column can also be set by the menu entry 'Comments->Set End Comm.
+Col.' . Just position the cursor in an arbitrary column (column number is
+shown in the Vim status line) and choose this menu entry.
 
 ------------------------------------------------------------------------------
 
@@ -421,7 +433,7 @@ Further prototypes can be picked up and gathered in the buffer.
 
 INSERT PROTOTYPES  
 With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
-the buffer will be inserted below the cursur.
+the buffer will be inserted below the cursor.
 The prototype buffer will be cleared after insertion.
 
 
@@ -486,7 +498,7 @@ The command line arguments can be followed by pipes and redirections:
   11 22 | sort -rn | head -10 > out
 
 Caveat: If you look for the current arguments by calling this menu entry again
-be shure to leave it with a CR (not Esc !). Due to a limitation of an internal
+be sure to leave it with a CR (not Esc !). Due to a limitation of an internal
 Vim function CR will keep the arguments, Esc with discard them.
 
 
@@ -499,21 +511,35 @@ The entry 'make' runs the external make program.
 
 The entry 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
-when called by the entry 'make' .
+when called by the entry 'make'.
 
 
-1.5.5  HARDCOPY                                               *csupport-run-5*
+1.5.5  SPLINT                                                 *csupport-run-5*
+
+Splint is a tool for statically checking C programs (see http://www.splint.org).
+Of course it has to be installed in order to be used within Vim.  The menu entry
+'Run->splint' will run the current buffer through splint.
+
+An error window will be opened if splint has something to complain about.
+Quickfix commands can now be used to jump to an error location.
+
+Splint has many options. Presumably the best way is to keep the options in an
+option file (~/.splintrc). For a quick try you can use the menu entry
+'Run->cmd. line arg. for splint' and specify some buffer related options.  
+
+
+1.5.6  HARDCOPY                                               *csupport-run-6*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 
 
-1.5.6  XTERM SIZE                                             *csupport-run-6*
+1.5.7  XTERM SIZE                                             *csupport-run-7*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu entry. The default is 80 columns with 24 lines.  
 
 
-1.5.7  OUTPUT REDIRECTION                                     *csupport-run-7*
+1.5.8  OUTPUT REDIRECTION                                     *csupport-run-8*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -521,7 +547,7 @@ Running a program can be done in one of three ways:
 (2) Run the program and direct the output into a window with name "C-Output".
     The buffer and its content will disappear when the window is closed and 
     reused otherwise.
-    This is for noninteractive programs with little to very much output.
+    This is for non-interactive programs with little to very much output.
     You have unlimited line length, regex search, navigation, ...
 (3) Run the program in an xterm.
 
@@ -555,7 +581,7 @@ The following hotkeys are defined in normal, visual and insert mode:
   Ctrl-F9   run executable
  Shift-F9   set command line arguments
 
-The hotkeys are defined in the filetype plugin  c.vim .
+The hotkeys are defined in the file type plugin  c.vim .
 
 
 ==============================================================================
@@ -607,6 +633,7 @@ Several global variables are checked by the script to customize it:
   g:C_LFlags                "-Wall -g -O0"   
   g:C_Libs                  "-lm"            
   g:C_ExeExtension          ""
+  g:C_LineEndCommColDefault 49
 
   ----------------------------------------------------------------------------
 
@@ -636,14 +663,15 @@ Several global variables are checked by the script to customize it:
                                    an xterm ("xterm").
           g:C_XtermDefaults      : the xterm defaults
 
-4. group: g:C_CExtension         : The extension of C files. Everything else is C++ .
-          g:C_CCompiler          : The name of the C compiler.
-          g:C_CplusCompiler      : The name of the C++ compiler.
-          g:C_CFlags             : Compiler flags used for a compilation.
-          g:C_LFlags             : Compiler flags used for linkage.
-          g:C_Libs               : Libraries to link with.
-          g:C_ExeExtension       : C/C+ file extension for executables 
-                                   (leading point required if not empty)
+4. group: g:C_CExtension             : Extension of C files. Everything else is C++.
+          g:C_CCompiler              : The name of the C compiler.
+          g:C_CplusCompiler          : The name of the C++ compiler.
+          g:C_CFlags                 : Compiler flags used for a compilation.
+          g:C_LFlags                 : Compiler flags used for linkage.
+          g:C_Libs                   : Libraries to link with.
+          g:C_ExeExtension           : C/C+ file extension for executables 
+                                       (leading point required if not empty)
+          g:C_LineEndCommColDefault  : Default starting column line end for comments.
 
 To override the default add appropriate assignments to .vimrc .
 Here are my settings as an example:
@@ -772,7 +800,6 @@ The files
  c-c++-keywords.list 
  k+r.list  
  stl_index.list  
- xforms.list
  german.list
 
 are a part of this plugin and can be used (together with your own lists) as
@@ -824,7 +851,7 @@ in the taglist window.
   let tlist_qmake_settings = 'qmake;t:SystemVariables'
   
   if has("autocmd")
-    " ----------  qmake : set filetype for *.pro  ----------
+    " ----------  qmake : set file type for *.pro  ----------
     autocmd BufNewFile,BufRead *.pro  set filetype=qmake
   endif " has("autocmd")
 
@@ -832,7 +859,7 @@ in the taglist window.
 
 The two maps will toggle the taglist window (hotkey F11) in all editing modes.
 The two assignments define the headings for the (q)make sections in the
-taglist window.  The autocmd set the filetype 'qmake' for the filename
+taglist window.  The autocmd set the file type 'qmake' for the filename
 extension 'pro' (ctags needs this). 
 
 

@@ -1,3 +1,9 @@
+/*
+ * =====================================================================================
+ *        Class:  |CLASSNAME|
+ *  Description:  |CURSOR|
+ * =====================================================================================
+ */
 template < class T >
 class |CLASSNAME|
 {
@@ -18,16 +24,20 @@ class |CLASSNAME|
 
     /* ====================  INQUIRY     ========================================= */
 
-
   protected:
 
   private:
 
-
 };      /* ----------  end of template class  |CLASSNAME|  ---------- */
 
-
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  |CLASSNAME|
+ * Description:  
+ *--------------------------------------------------------------------------------------
+ */
 template < class T >
-|CLASSNAME| < T >:: |CLASSNAME| ()
+|CLASSNAME| < T >::|CLASSNAME| ()
 {
 }       /* ----------  end of constructor of template class |CLASSNAME|  ---------- */

@@ -1,11 +1,12 @@
-#=======================================================================================
+#===============================================================================
 #
 #     Filename: Makefile
 #  Description: 
 #
-#        Usage: make
-#               make clean
-#               make tarball
+#        Usage: make              (generate executable                       )
+#               make clean        (remove objects, executables, prerequisits )
+#               make tarball      (generate compressed archive               )
+#               make zip          (generate compressed archive               )
 #
 #      Version: 1.0
 #      Created: 
@@ -15,11 +16,11 @@
 #      Company: 
 #        Email: 
 #
-#        Notes: Prerequisites are generated automatically; makedepend is not needed
-#               (see documentation for GNU make Version 3.79, April 2000, section 4.12).
-#               The utility sed and BASH file tests are used.
+#        Notes: Prerequisites are generated automatically; makedepend is not 
+#               needed (see documentation for GNU make Version 3.79, April 2000,
+#               section 4.12). The utility sed and BASH file tests are used.
 #               
-#=======================================================================================
+#===============================================================================
 
 # ------------  C++ file name extensions  ----------------------------------------------
 CPP_EXTENSION  = cc
@@ -28,13 +29,14 @@ CPP_EXTENSION  = cc
 CC              = g++
 
 # ------------  compiler flags  --------------------------------------------------------
-CFLAGS          = -pipe -O2 -g -Wall
+#CFLAGS          = -Wall -O2         # Do optimize. Produce no debugging information.
+CFLAGS          = -Wall -O0 -g      # Do not optimize. Produce debugging information.
 
 # ------------  linker-Flags  ----------------------------------------------------------
 LFLAGS          = -g
 
 # ------------  name of the executable  ------------------------------------------------
-EXECUTABLE      = main.e
+EXECUTABLE      = main
 
 # ------------  list of all source files  ----------------------------------------------
 C_SOURCES       = main.c
@@ -59,8 +61,9 @@ LOCAL_LIB_DIR   = .
 # ------------  private libraries  -----------------------------------------------------
 LOCAL_LIBS      = 
 
-# ------------  tarball generation -----------------------------------------------------
-tarball_exclude = 
+# ------------  archive generation -----------------------------------------------------
+TARBALL_EXCLUDE = *.{o,gz,zip}
+ZIP_EXCLUDE     = *.o *.gz *.zip
 
 #=======================================================================================
 # The following statements usually need not to be changed
@@ -119,11 +122,16 @@ clean:
 tarball:
 					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
 					rm --force $$lokaldir.tar.gz;              \
-					tar --exclude=$(tarball_exclude)           \
+					tar --exclude=$(TARBALL_EXCLUDE)           \
 					    --create                               \
 					    --gzip                                 \
 					    --verbose                              \
 					    --file  $$lokaldir.tar.gz *
+
+# ------------ zip ---------------------------------------------------------------------
+zip:
+					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
+					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE)
 
 # ======================================================================================
 # vim: set tabstop=2: set shiftwidth=2: 

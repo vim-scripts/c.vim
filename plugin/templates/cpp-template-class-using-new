@@ -1,3 +1,8 @@
+// =====================================================================================
+//        Class:  |CLASSNAME|
+//  Description:  |CURSOR|
+// =====================================================================================
+
 template < class T >
 class |CLASSNAME|
 {
@@ -6,13 +11,13 @@ class |CLASSNAME|
 
     // ====================  LIFECYCLE   ========================================= 
 
-    |CLASSNAME| ();                           // constructor 
-    |CLASSNAME| (const |CLASSNAME|<T> &obj);  // copy constructor 
-    ~|CLASSNAME| ();                          // destructor 
+    |CLASSNAME| ();                       // constructor 
+    |CLASSNAME| ( const |CLASSNAME|<T> &other );  // copy constructor 
+    ~|CLASSNAME| ();                      // destructor 
 
     // ====================  OPERATORS   ========================================= 
 
-    const |CLASSNAME|& operator = (const |CLASSNAME|<T> &obj); // assignment operator 
+    const |CLASSNAME|& operator = ( const |CLASSNAME|<T> &other ); // assignment operator 
 
     // ====================  OPERATIONS  ========================================= 
 
@@ -20,39 +25,52 @@ class |CLASSNAME|
 
     // ====================  INQUIRY     ========================================= 
 
-
   protected:
 
   private:
 
+};  // -----  end of template class  |CLASSNAME|  ----- 
 
-};      // ----------  end of template class  |CLASSNAME|  ---------- 
-
-
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  |CLASSNAME|
+// Description:  constructor
+//--------------------------------------------------------------------------------------
 template < class T >
 |CLASSNAME|<T>::|CLASSNAME| ()
 {
-}       // ----------  end of constructor of template class |CLASSNAME|  ---------- 
+}  // -----  end of constructor of template class |CLASSNAME|  ----- 
 
-
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  |CLASSNAME|
+// Description:  copy constructor
+//--------------------------------------------------------------------------------------
 template < class T >
-|CLASSNAME|<T>::|CLASSNAME| (const |CLASSNAME|<T> &obj)
+|CLASSNAME|<T>::|CLASSNAME| ( const |CLASSNAME|<T> &other )
 {
-}       // ----------  end of copy constructor of template class |CLASSNAME|  ---------- 
+}  // -----  end of copy constructor of template class |CLASSNAME|  ----- 
 
-
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  ~|CLASSNAME|
+// Description:  destructor
+//--------------------------------------------------------------------------------------
 template < class T >
 |CLASSNAME|<T>::~|CLASSNAME| ()
 {
-}       // ----------  end of destructor of template class |CLASSNAME|  ---------- 
+}  // -----  end of destructor of template class |CLASSNAME|  ----- 
 
-
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  operator =
+// Description:  assignment operator
+//--------------------------------------------------------------------------------------
 template < class T >
-const |CLASSNAME|<T>& |CLASSNAME|<T>::operator = (const |CLASSNAME|<T> &obj)
+const |CLASSNAME|<T>& |CLASSNAME|<T>::operator = ( const |CLASSNAME|<T> &other )
 {
-  if(this!=&obj)
+  if(this!=&other)
   {
-
   }
   return *this;
-}       // ----------  end of assignment operator of template class |CLASSNAME|  ---------- 
+}  // -----  end of assignment operator of template class |CLASSNAME|  ----- 

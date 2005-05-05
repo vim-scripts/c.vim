@@ -1,3 +1,9 @@
+/*
+ * =====================================================================================
+ *        Class:  |CLASSNAME|
+ *  Description:  |CURSOR|
+ * =====================================================================================
+ */
 class |CLASSNAME|
 {
 
@@ -17,15 +23,19 @@ class |CLASSNAME|
 
     /* ====================  INQUIRY     ========================================= */
 
-
   protected:
 
   private:
 
+};  /* -----  end of class  |CLASSNAME|  ----- */
 
-};      /* ----------  end of class  |CLASSNAME|  ---------- */
-
-
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  |CLASSNAME|
+ * Description:  constructor
+ *--------------------------------------------------------------------------------------
+ */
 |CLASSNAME|::|CLASSNAME| ()
 {
-}       /* ----------  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ---------- */
+}  /* -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ----- */

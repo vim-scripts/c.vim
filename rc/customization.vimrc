@@ -3,7 +3,7 @@
 "==========  load example vimrc from the distribution  =========================
 "===============================================================================
 "
-" runtime vimrc_example.vim
+runtime vimrc_example.vim
 "
 "===============================================================================
 "==========  CUSTOMIZATION (vimrc)  ============================================
@@ -31,12 +31,13 @@ set visualbell                        " visual bell instead of beeping
 "-------------------------------------------------------------------------------
 "  some additional hot keys
 "-------------------------------------------------------------------------------
-"     F2  -  write file without confirmation
-"     F3  -  call file explorer Ex
-"     F4  -  show tag under curser in the preview window
-"     F6  -  list all errors           
-"     F7  -  display previous error
-"     F8  -  display next error   
+"    F2   -  write file without confirmation
+"    F3   -  call file explorer Ex
+"    F4   -  show tag under curser in the preview window (tagfile must exist!)
+"    F6   -  list all errors           
+"    F7   -  display previous error
+"    F8   -  display next error   
+"    F12  -  toggle line numbers
 "  S-Tab  -  Fast switching between buffers (see below)
 "    C-q  -  Leave the editor with Ctrl-q (see below)
 "-------------------------------------------------------------------------------
@@ -47,6 +48,7 @@ nmap  <silent> <F4>    :exe ":ptag ".expand("<cword>")<CR>
 map   <silent> <F6>    :copen<CR>
 map   <silent> <F7>    :cp<CR>
 map   <silent> <F8>    :cn<CR>
+map   <silent> <F12>   :let &number=1-&number<CR>
 "
 imap  <silent> <F2>    <Esc>:write<CR>
 imap  <silent> <F3>    <Esc>:Explore<CR>
@@ -54,6 +56,7 @@ imap  <silent> <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
 imap  <silent> <F6>    <Esc>:copen<CR>
 imap  <silent> <F7>    <Esc>:cp<CR>
 imap  <silent> <F8>    <Esc>:cn<CR>
+imap  <silent> <F12>   :let &number=1-&number<CR>
 "
 "-------------------------------------------------------------------------------
 " Fast switching between buffers

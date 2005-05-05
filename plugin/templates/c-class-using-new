@@ -1,3 +1,9 @@
+/*
+ * =====================================================================================
+ *        Class:  |CLASSNAME|
+ *  Description:  |CURSOR|
+ * =====================================================================================
+ */
 class |CLASSNAME|
 {
 
@@ -5,13 +11,13 @@ class |CLASSNAME|
 
     /* ====================  LIFECYCLE   ========================================= */
 
-    |CLASSNAME| ();                        /* constructor      */
-    |CLASSNAME| (const |CLASSNAME| &obj);  /* copy constructor */
-    ~|CLASSNAME| ();                       /* destructor       */
+    |CLASSNAME| ();                  /* constructor      */
+    |CLASSNAME| ( const |CLASSNAME| &other );  /* copy constructor */
+    ~|CLASSNAME| ();                 /* destructor       */
 
     /* ====================  OPERATORS   ========================================= */
 
-    const |CLASSNAME|& operator = (const |CLASSNAME| &obj);    /* assignemnt operator */
+    const |CLASSNAME|& operator = ( const |CLASSNAME| &other );  /* assignemnt operator */
 
     /* ====================  OPERATIONS  ========================================= */
 
@@ -19,36 +25,57 @@ class |CLASSNAME|
 
     /* ====================  INQUIRY     ========================================= */
 
-
   protected:
 
   private:
 
+};  /* -----  end of class  |CLASSNAME|  ----- */
 
-};      /* ----------  end of class  |CLASSNAME|  ---------- */
-
-
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  |CLASSNAME|
+ * Description:  constructor
+ *--------------------------------------------------------------------------------------
+ */
 |CLASSNAME|::|CLASSNAME| ()
 {
-}        /* ----------  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ---------- */
+}  /* -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ----- */
 
-
-|CLASSNAME|::|CLASSNAME| (const |CLASSNAME| &obj)
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  |CLASSNAME|
+ * Description:  copy constructor
+ *--------------------------------------------------------------------------------------
+ */
+|CLASSNAME|::|CLASSNAME| ( const |CLASSNAME| &other )
 {
-}        /* ----------  end of method |CLASSNAME|::|CLASSNAME|  (copy constructor)  ---------- */
+}  /* -----  end of method |CLASSNAME|::|CLASSNAME|  (copy constructor)  ----- */
 
-
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  ~|CLASSNAME|
+ * Description:  destructor
+ *--------------------------------------------------------------------------------------
+ */
 |CLASSNAME|::~|CLASSNAME| ()
 {
-}        /* ----------  end of method |CLASSNAME|::~|CLASSNAME|  (destructor)  ---------- */
+}  /* -----  end of method |CLASSNAME|::~|CLASSNAME|  (destructor)  ----- */
 
-
+/*
+ *--------------------------------------------------------------------------------------
+ *       Class:  |CLASSNAME|
+ *      Method:  operator =
+ * Description:  assignment operator
+ *--------------------------------------------------------------------------------------
+ */
 const |CLASSNAME|&
-|CLASSNAME|::operator = (const |CLASSNAME| &obj)
+|CLASSNAME|::operator = ( const |CLASSNAME| &other )
 {
-  if(this!=&obj)
+  if(this!=&other)
   {
-
   }
   return *this;
-}        /* ----------  end of method |CLASSNAME|::operator =  (assignment operator)  ---------- */
+}  /* -----  end of method |CLASSNAME|::operator =  (assignment operator)  ----- */

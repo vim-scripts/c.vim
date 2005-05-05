@@ -8,17 +8,21 @@
 #                 bash-support.vim, c.vim and perl-support.vim
 #       AUTHOR:  Dr.-Ing. Fritz Mehner (Mn), mehner@fh-swf.de
 #      COMPANY:  FH Südwestfalen, Iserlohn
-#      VERSION:  1.0
+#      VERSION:  1.1
 #      CREATED:  23.11.2004 18:04:01 CET
-#     REVISION:  18.12.2004
+#     REVISION:  17.03.2005 - executable quoted
 #===============================================================================
 
-if [ ${#} -ge 1 ] && [ -x "${1}" ]
+command=${@}                             # the complete command line
+executable=${1}                          # name of the executable; may be quoted
+
+if [ ${#} -ge 1 ] && [ -x "$executable" ]
 then
-  ${@}             # run and pass parameter without interpretation or expansion
-  echo -e "\n\n\"${@}\" returned ${?}"
+	shift
+	"$executable" ${@}
+  echo -e "\n\n\"${command}\" returned ${?}"
 else
-  echo -e "\n  !!!  file \"${1}\" does not exist or is not executable  !!!"
+  echo -e "\n  !! file \"${executable}\" does not exist or is not executable !!"
 fi
 echo -e "  ... press return key ... "
 read dummy
