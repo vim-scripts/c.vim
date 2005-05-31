@@ -1,7 +1,7 @@
-*csupport.txt*             C/C++ Support            Last Change:   May 04 2005
+*csupport.txt*             C/C++ Support            Last Change:   May 31 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                           Plugin version 3.7.2
+                            Plugin version 3.8
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
@@ -40,7 +40,8 @@ Write and run C/C++ programs using menus.
  4.2    Tags                                           |csupport-tempfiles-2|
  5.    C/C++ Dictionaries                              |csupport-dictionary|        
  6.    Extend taglist.vim for make and qmake           |csupport-taglist|     
- 7.    Release Notes                                   |csupport-release-notes|     
+ 7.    Windows particularities                         |csupport-windows|
+ 8.    Release Notes                                   |csupport-release-notes|     
 
        How to add this help file to Vim's help         |add-local-help|             
 
@@ -537,6 +538,7 @@ Generates a PostScript file from the whole buffer or from a marked region.
 
 The size of the xterm used for  running a program (below) can be set by this
 menu entry. The default is 80 columns with 24 lines.  
+This feature is not available under Windows.
 
 
 1.5.8  OUTPUT REDIRECTION                                     *csupport-run-8*
@@ -567,7 +569,7 @@ The default is "-fa courier -fs 12 -geometry 80x24" :
   font name     : -fa courier
   font size     : -fs 12
   terminal size : -geometry 80x24
-See 'xterm -help' for more options.
+See 'xterm -help' for more options. Xterms are not available under Windows.
 
 
 ==============================================================================
@@ -604,7 +606,7 @@ Several global variables are checked by the script to customize it:
   g:C_Project               ""                               |PROJECT|
   g:C_CopyrightHolder       ""                               |COPYRIGHTHOLDER|
 
-  g:C_Template_Directory    $HOME."/.vim/plugin/templates/"
+  g:C_Template_Directory    root_dir."/.vim/plugin/templates/"
   g:C_Template_C_File       "c-file-header"
   g:C_Template_Class        "c-class-description"
   g:C_Template_Frame        "c-frame"
@@ -619,21 +621,32 @@ Several global variables are checked by the script to customize it:
   g:Cpp_Template_Method     "cpp-method-description"
 
   g:C_Comments              "yes"
-  g:C_CodeSnippets          $HOME."/.vim/codesnippets-c/"
+  g:C_CodeSnippets          root_dir."/.vim/codesnippets-c/"
   g:C_Dictionary_File       ""
   g:C_LoadMenus             "yes"
   g:C_MenuHeader            "yes"
   g:C_OutputGvim            "vim"
   g:C_XtermDefaults         "-fa courier -fs 12 -geometry 80x24"
 
-  g:C_CExtension            "c"              
-  g:C_CCompiler             "gcc"            
-  g:C_CplusCompiler         "g++"            
+  Linux/UNIX: 
+   g:C_ObjExtension         ".o"
+   g:C_ExeExtension         ""
+   g:C_CCompiler            "gcc"            
+   g:C_CplusCompiler        "g++"            
+  Windows:
+   g:C_ObjExtension         ".obj"
+   g:C_ExeExtension         ".exe"
+   g:C_CCompiler            "gcc.exe"            
+   g:C_CplusCompiler        "g++.exe"            
   g:C_CFlags                "-Wall -g -O0 -c"
   g:C_LFlags                "-Wall -g -O0"   
   g:C_Libs                  "-lm"            
-  g:C_ExeExtension          ""
   g:C_LineEndCommColDefault 49
+  g:C_CExtension            "c"              
+
+The variable root_dir will automatically be set to one of the following values:
+  $HOME.'/.vim/'        for Linux/Unix
+  $VIM.'/vimfiles/'     for Windows
 
   ----------------------------------------------------------------------------
 
@@ -669,6 +682,8 @@ Several global variables are checked by the script to customize it:
           g:C_CFlags                 : Compiler flags used for a compilation.
           g:C_LFlags                 : Compiler flags used for linkage.
           g:C_Libs                   : Libraries to link with.
+          g:C_ObjExtension           : C/C+ file extension for objects
+                                       (leading point required if not empty)
           g:C_ExeExtension           : C/C+ file extension for executables 
                                        (leading point required if not empty)
           g:C_LineEndCommColDefault  : Default starting column line end for comments.
@@ -777,8 +792,6 @@ information when the file is read in:
 
     |CURSOR|
 
-The first five tags are also found in KDevelop templates. A KDevelop template
-file can therefore be used without any change.
 Each tag can occur more than once. The tag |CURSOR| may appear only once.
 
 The tag |CLASSNAME| will be replaced by the class name given in a dialog box
@@ -806,17 +819,20 @@ are a part of this plugin and can be used (together with your own lists) as
 dictionaries for automatic word completion.  This feature is enabled by
 default. The default word lists are
 
-  $HOME/.vim/wordlists/c-c++-keywords.list
-  $HOME/.vim/wordlists/k+r.list
-  $HOME/.vim/wordlists/stl_index.list
+  root_dir/.vim/wordlists/c-c++-keywords.list
+  root_dir/.vim/wordlists/k+r.list
+  root_dir/.vim/wordlists/stl_index.list
 
+The variable root_dir will automatically be set to one of the following values:
+  $HOME.'/.vim/'        for Linux/Unix
+  $VIM.'/vimfiles/'     for Windows
 If you want to use an additional list MyC.list put the following lines into
  .vimrc :
 
-  let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
-        \                   $HOME."/.vim/wordlists/k+r.list,".
-        \                   $HOME."/.vim/wordlists/stl_index.list,".
-        \                   $HOME."/.vim/wordlists/MyC.list"
+  let g:C_Dictionary_File = root_dir.'/.vim/wordlists/c-c++-keywords.list,'.
+        \                   root_dir.'/.vim/wordlists/k+r.list,'.
+        \                   root_dir.'/.vim/wordlists/stl_index.list,'.
+        \                   root_dir.'/.vim/wordlists/MyC.list'
   
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 
@@ -864,7 +880,34 @@ extension 'pro' (ctags needs this).
 
 
 ==============================================================================
-7.  RELEASE NOTES                                     *csupport-release-notes*
+7.  WINDOWS PARTICULARITIES                                 *csupport-windows*
+==============================================================================
+
+The plugins should go into the directory structure below the local
+installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
+Windows.
+The values of the two variables can be found from inside Vim:
+   :echo $VIM 
+or
+   :echo $HOME
+
+Configuration files:
+
+  LINUX/UNIX :   $HOME/.vimrc  and  $HOME/.gvimrc 
+  Windows    :   $VIM/_vimrc   and  $VIM/_gvimrc
+
+Compiler settings:
+
+It could be necessary to add further settings for your compiler.  To compile
+C++-programs using a Dev-C++ installation (http://www.bloodshed.net) the
+following entry in $VIM/_vimrc is needed (depends on the Dev-C++ install
+directory):
+
+  let g:C_CFlags  = '-Wall -g -o0 -c -I c:\programs\dev-c++\include\g++'
+
+
+==============================================================================
+8.  RELEASE NOTES                                     *csupport-release-notes*
 ==============================================================================
 
 See file README.csupport .

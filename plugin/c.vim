@@ -20,7 +20,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  05.05.2005
+"       Revision:  31.05.2005
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -31,19 +31,39 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.7.2"  							" version number of this script; do not change
+let g:C_Version= "3.8"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
 "  Global variables (with default values) which can be overridden.
+"          
+" Platform specific items:
+" - root directory
+" - characters that must be escaped for filenames
+" 
+let	s:MSWIN =		has("win16") || has("win32")     || has("win32") || 
+							\ has("win64") || has("win32unix") || has("win95")
+" 
+if	s:MSWIN
+	"
+	let s:root_dir	  = $VIM.'\vimfiles\'
+  let s:escfilename = ' %#'
+  let s:escfilename = ''
+	"
+else
+	"
+	let s:root_dir	  = $HOME.'/.vim/'
+  let s:escfilename = ' \%#[]'
+	"
+endif
 "
 "  Key word completion is enabled by the filetype plugin 'c.vim'
 "  g:C_Dictionary_File  must be global
 "          
 if !exists("g:C_Dictionary_File")
-  let g:C_Dictionary_File = $HOME."/.vim/wordlists/c-c++-keywords.list,".
-        \                   $HOME."/.vim/wordlists/k+r.list,".
-        \                   $HOME."/.vim/wordlists/stl_index.list"
+  let g:C_Dictionary_File = s:root_dir.'wordlists/c-c++-keywords.list,'.
+        \                   s:root_dir.'wordlists/k+r.list,'.
+        \                   s:root_dir.'wordlists/stl_index.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden.
@@ -59,22 +79,28 @@ let  s:C_Root          = '&C\/C\+\+.'           " the name of the root menu of t
 "
 let s:C_LoadMenus      = "yes"
 " 
-let s:C_CodeSnippets   = $HOME."/.vim/codesnippets-c/"
-let s:C_Doc_Directory  = $HOME.'/.vim/doc/'
+let s:C_CodeSnippets   = s:root_dir.'codesnippets-c/'
 "                     
 let s:C_CExtension     = "c"                    " C file extension; everything else is C++
-let s:C_CCompiler      = "gcc"                  " the C   compiler
-let s:C_CplusCompiler  = "g++"                  " the C++ compiler
+if	s:MSWIN
+	let s:C_CCompiler      = "gcc.exe"            " the C   compiler
+	let s:C_CplusCompiler  = "g++.exe"            " the C++ compiler
+	let s:C_ObjExtension   = ".obj"               " file extension for objects (leading point required)
+	let s:C_ExeExtension   = ".exe"               " file extension for executables (leading point required)
+else
+	let s:C_CCompiler      = "gcc"                " the C   compiler
+	let s:C_CplusCompiler  = "g++"                " the C++ compiler
+	let s:C_ObjExtension   = ".o"                 " file extension for objects (leading point required)
+	let s:C_ExeExtension   = ""                   " file extension for executables (leading point required)
+endif
 let s:C_CFlags         = "-Wall -g -O0 -c"      " compiler flags: compile, don't optimize
 let s:C_LFlags         = "-Wall -g -O0"         " compiler flags: link   , don't optimize
 let s:C_Libs           = "-lm"                  " libraries to use
-let s:C_ExeExtension   = ""                     " C/C+ file extension for executables 
-"                                                  (leading point required)
 let s:C_Comments       = "yes"
 let s:C_MenuHeader     = "yes"
 "  
 "   ----- template files ---- ( 1. set of templates ) ----------------
-let s:C_Template_Directory       = $HOME."/.vim/plugin/templates/"
+let s:C_Template_Directory       = s:root_dir."plugin/templates/"
 "
 "   ----- C template files ---- ( 1. set of templates ) --------------
 let s:C_Template_C_File          = "c-file-header"
@@ -127,8 +153,9 @@ call C_CheckGlobal("C_CopyrightHolder    ")
 call C_CheckGlobal("C_Root               ")
 call C_CheckGlobal("C_LoadMenus          ")
 call C_CheckGlobal("C_CodeSnippets       ")
-call C_CheckGlobal("C_Doc_Directory      ")
 call C_CheckGlobal("C_CExtension         ")
+call C_CheckGlobal("C_ObjExtension       ")
+call C_CheckGlobal("C_ExeExtension       ")
 call C_CheckGlobal("C_CCompiler          ")
 call C_CheckGlobal("C_CplusCompiler      ")
 call C_CheckGlobal("C_CFlags             ")
@@ -161,7 +188,6 @@ call C_CheckGlobal("Cpp_TemplateClassUsingNew")
 call C_CheckGlobal("Cpp_ErrorClass           ")
 call C_CheckGlobal("C_OutputGvim             ")
 call C_CheckGlobal("C_XtermDefaults          ")
-call C_CheckGlobal("C_ExeExtension           ")
 "
 call C_CheckGlobal("C_MenuHeader             ")
 call C_CheckGlobal("C_LineEndCommColDefault  ")
@@ -185,11 +211,6 @@ if match( s:C_XtermDefaults, "-geometry\\s\\+\\d\\+x\\d\\+" ) < 0
 endif
 "
 " characters that must be escaped for filenames
-if has("dos16") || has("dos32") || has("win16") || has("win32") || has("os2")
-  let s:escfilename = ' %#'
-else
-  let s:escfilename = ' \%#[]'
-endif
 "
 "------------------------------------------------------------------------------
 "  C : C_InitC
@@ -771,7 +792,9 @@ function! C_InitC ()
 	exe "amenu  <silent>  ".s:C_Root.'&Run.&settings                             <C-C>:call C_Settings()<CR>'
 	exe "imenu  <silent>  ".s:C_Root.'&Run.-SEP4-                                :'
 
-	exe "amenu  <silent>  ".s:C_Root.'&Run.x&term\ size                             <C-C>:call C_XtermSize()<CR>'
+	if	!s:MSWIN
+		exe "amenu  <silent>  ".s:C_Root.'&Run.x&term\ size                             <C-C>:call C_XtermSize()<CR>'
+	endif
 	if s:C_OutputGvim == "vim" 
 		exe "amenu  <silent>  ".s:C_Root.'&Run.output:\ VIM->&buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 	else
@@ -1890,8 +1913,8 @@ endfunction    " ---------  end of function C_EscapeBlanks  ----------
 function! C_Compile ()
 
 	exe	":cclose"
-	let	Sou		= expand("%")								" name of the file in the current buffer
-	let	Obj		= expand("%:r").".o"				" name of the object
+	let	Sou		= expand("%")											" name of the file in the current buffer
+	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object
 	let SouEsc= escape( Sou, s:escfilename )
 	let ObjEsc= escape( Obj, s:escfilename )
 
@@ -1908,7 +1931,12 @@ function! C_Compile ()
 		endif
 		" 
 		" COMPILATION
-		exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
+		"
+		if s:MSWIN
+			exe		"make ".s:C_CFlags." \"".SouEsc."\" -o \"".ObjEsc."\""
+		else
+			exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
+		endif
 		exe		"set makeprg=make"
 		" 
 		" open error window if necessary 
@@ -1932,7 +1960,7 @@ function! C_Link ()
 	call	C_Compile()
 
 	let	Sou		= expand("%")						       		" name of the file in the current buffer
-	let	Obj		= expand("%:r").".o"							" name of the object file
+	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object file
 	let	Exe		= expand("%:r").s:C_ExeExtension	" name of the executable
 	let ObjEsc= escape( Obj, s:escfilename )
 	let ExeEsc= escape( Exe, s:escfilename )
@@ -1965,7 +1993,11 @@ function! C_Link ()
 			exe		"set makeprg=".s:C_CplusCompiler
 		endif
 		let v:statusmsg="" 
+		if s:MSWIN
+			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o \"".ExeEsc."\" \"".ObjEsc."\""
+		else
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o ".ExeEsc." ".ObjEsc
+		endif
 		if v:statusmsg != ""
 			echoerr v:statusmsg 
 		endif
@@ -1983,12 +2015,14 @@ let s:C_OutputBufferNumber = -1
 "
 function! C_Run ()
 "
-	let Sou   = expand("%")              			   		" name of the source file
-	let Obj   = expand("%:r").".o"    					    " name of the object file
-	let Exe   = './'.expand("%:r").s:C_ExeExtension	" name of the executable
-	let ExeEsc= escape( Exe, s:escfilename )				" name of the executable, escaped
+	let Cwd	 		= getcwd()
+	let Sou  		= expand("%")															" name of the source file
+	let Obj  		= expand("%:r").s:C_ObjExtension					" name of the object file
+	let Exe  		= Cwd."/".expand("%:r").s:C_ExeExtension	" name of the executable
+	let ExeEsc  = escape( Exe, s:escfilename )						" name of the executable, escaped
 	"
-	let l:arguments     = exists("b:C_CmdLineArgs") ? " ".b:C_CmdLineArgs : ""
+	let l:arguments     = exists("b:C_CmdLineArgs") ? b:C_CmdLineArgs : ''
+	"
 	let	l:currentbuffer	= bufname("%")
 	"
 	"==============================================================================
@@ -1999,7 +2033,11 @@ function! C_Run ()
 		silent call C_Link()
 		"
 		if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-			exe		"!".ExeEsc." ".l:arguments
+			if s:MSWIN
+				exe		"!\"".ExeEsc."\" ".l:arguments
+			else
+				exe		"!".ExeEsc." ".l:arguments
+			endif
 		else
 			echomsg "file ".Exe." does not exist / is not executable"
 		endif
@@ -2037,18 +2075,22 @@ function! C_Run ()
 			"
 			setlocal	modifiable
 			if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-				exe		"%!".ExeEsc." ".l:arguments
+				if s:MSWIN
+					exe		"%!\"".ExeEsc."\" ".l:arguments
+				else
+					exe		"%!".ExeEsc." ".l:arguments
+				endif
 			endif
 			setlocal	nomodifiable
 			"
 			" stdout is empty / not empty
 			"
-			normal G
 			if line("$")==1 && col("$")==1
 				silent	exe ":bdelete"
 			else
 				if winheight(winnr()) >= line("$")
-					exe bufwinnr(l:currentbuffernr) . "wincmd w"
+					exe bufwinnr(l:currentbuffernr) . "wincmd w" 
+					normal gg
 				endif
 			endif
 			"
@@ -2056,14 +2098,18 @@ function! C_Run ()
 	endif
 	"
 	"==============================================================================
-	"  run : run in a detached xterm
+	"  run : run in a detached xterm  (not available for MS Windows)
 	"==============================================================================
 	if s:C_OutputGvim == "xterm"
 		"
 		silent call C_Link()
 		"
 		if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-			silent exe '!xterm -title '.ExeEsc.' '.s:C_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ".ExeEsc.' '.l:arguments.' &'
+			if s:MSWIN
+				exe		"!\"".ExeEsc."\" ".l:arguments
+			else
+				silent exe '!xterm -title '.ExeEsc.' '.s:C_XtermDefaults." -e $HOME/.vim/plugin/wrapper.sh ".ExeEsc.' '.l:arguments.' &'
+			endif
 		endif
 	endif
 
@@ -2239,10 +2285,11 @@ function! C_Settings ()
 	let txt = txt.'         copyright holder :  "'.s:C_CopyrightHolder."\"\n"
 	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
 	let txt = txt.'         C file extension :  '.s:C_CExtension.'  (everything else is C++)'."\n"
+	let txt = txt.'    extension for objects :  "'.s:C_ObjExtension."\"\n"
 	let txt = txt.'extension for executables :  "'.s:C_ExeExtension."\"\n"
-	let txt = txt.'           compiler flags :  '.s:C_CFlags."\n"
-	let txt = txt.'      compiler+link flags :  '.s:C_LFlags."\n"
-	let txt = txt.'                libraries :  '.s:C_Libs."\n"
+	let txt = txt.'           compiler flags :  "'.s:C_CFlags."\"\n"
+	let txt = txt.'             linker flags :  "'.s:C_LFlags."\"\n"
+	let txt = txt.'                libraries :  "'.s:C_Libs."\"\n"
 	let txt = txt.'   code snippet directory :  '.s:C_CodeSnippets."\n"
 	let txt = txt.'       template directory :  '.s:C_Template_Directory."\n"
 	let txt = txt.'           xterm defaults :  '.s:C_XtermDefaults."\n"
@@ -2278,16 +2325,6 @@ function! C_Hardcopy (arg1)
 		echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
 	endif
 endfunction    " ----------  end of function C_Hardcopy ----------
-"
-"------------------------------------------------------------------------------
-"  Look for a new csupport help file
-"------------------------------------------------------------------------------
-function! C_CheckNewDoc ()
-	if	getftime( s:C_Doc_Directory.'csupport.txt' ) > 
-		\	getftime( s:C_Doc_Directory.'tags' )
-		silent exe 'helptags '.s:C_Doc_Directory
-	endif
-endfunction    " ----------  end of function C_CheckNewDoc ----------
 "
 "------------------------------------------------------------------------------
 "  c : C_CreateUnLoadMenuEntries

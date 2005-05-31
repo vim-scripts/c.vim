@@ -27,7 +27,7 @@ class |CLASSNAME|
 
   private:
 
-};  // -----  end of template class  |CLASSNAME|  ----- 
+}; // -----  end of template class  |CLASSNAME|  ----- 
 
 //--------------------------------------------------------------------------------------
 //       Class:  |CLASSNAME|
@@ -38,3 +38,4 @@ template < class T >
 |CLASSNAME| <T>:: |CLASSNAME| ()
 {
 }  // -----  end of constructor of template class |CLASSNAME|  ----- 
+

@@ -28,7 +28,7 @@ class |CLASSNAME|
 
   private:
 
-};  // -----  end of class  |CLASSNAME|  ----- 
+}; // -----  end of class  |CLASSNAME|  ----- 
 
 //--------------------------------------------------------------------------------------
 //       Class:  |CLASSNAME|
@@ -70,3 +70,4 @@ const |CLASSNAME|&
   }
   return *this;
 }  // -----  end of method |CLASSNAME|::operator =  (assignment operator)  ----- 
+

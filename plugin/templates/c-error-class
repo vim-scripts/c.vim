@@ -3,4 +3,5 @@ class |CLASSNAME|
   protected:  char  *message;
   public:     |CLASSNAME| ( char *msg )  { message=msg; }
               virtual const char* what () const throw ()   { return message; }
-};  /* -----  end of class  |CLASSNAME|  ----- */
+}; /* -----  end of class  |CLASSNAME|  ----- */
+

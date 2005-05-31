@@ -29,7 +29,7 @@ class |CLASSNAME|
 
   private:
 
-};  // -----  end of template class  |CLASSNAME|  ----- 
+}; // -----  end of template class  |CLASSNAME|  ----- 
 
 //--------------------------------------------------------------------------------------
 //       Class:  |CLASSNAME|
@@ -74,3 +74,4 @@ const |CLASSNAME|<T>& |CLASSNAME|<T>::operator = ( const |CLASSNAME|<T> &other )
   }
   return *this;
 }  // -----  end of assignment operator of template class |CLASSNAME|  ----- 
+

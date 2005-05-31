@@ -8,25 +8,55 @@ runtime vimrc_example.vim
 "===============================================================================
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
-" shift down   : change window focus to lower one
-" shift up     : change window focus to upper one
+"
+" Platform specific items:
+" - central backup directory (has to be created)
+" - default dictionary
+" Uncomment your choice.  
+if  has("win16") || has("win32")     || has("win32") || 
+  \ has("win64") || has("win32unix") || has("win95")
+    "
+    runtime mswin.vim
+"    set backupdir =$VIM\vimfiles\backupdir
+"    set dictionary=$VIM\vimfiles\wordlists/german.list
+else
+"    set backupdir =$HOME/.vim.backupdir
+"    set dictionary=$HOME/.vim/wordlists/german.list
+endif
+"
+"-------------------------------------------------------------------------------
+" Use of dictionaries
+" 
+" dictionary : List of file names that are used to lookup words
+"              for keyword completion commands
+"   complete : search the files defined by the 'dictionary' option
+"-------------------------------------------------------------------------------
+"
+set complete+=k
+"
+"-------------------------------------------------------------------------------
+" Moving cursor to other windows
+" 
+" shift down   : change window focus to lower one (cyclic)
+" shift up     : change window focus to upper one (cyclic)
 " shift left   : change window focus to one on left
 " shift right  : change window focus to one on right
+"-------------------------------------------------------------------------------
 "
-nmap <s-down>   <c-w>j
-nmap <s-up>     <c-w>k
+nmap <s-down>   <c-w>w
+nmap <s-up>     <c-w>W
 nmap <s-left>   <c-w>h
 nmap <s-right>  <c-w>l
 "
-set autoread                          " read open files again when changed outside Vim
-set autowrite                         " write a modified buffer on each :next , ...
-set backupdir  =$HOME/.vim.backupdir  " directory for the backup files
-set browsedir  =current               " which directory to use for the file browser
-set incsearch                         " use incremental search
-set nowrap                            " do not wrap lines
-set shiftwidth =2                     " number of spaces to use for each step of indent
-set tabstop    =2                     " number of spaces that a <Tab> in the file counts for
-set visualbell                        " visual bell instead of beeping
+set autoread              " read open files again when changed outside Vim
+set autowrite             " write a modified buffer on each :next , ...
+set browsedir  =current   " which directory to use for the file browser
+set incsearch             " use incremental search
+set nowrap                " do not wrap lines
+set shiftwidth =2         " number of spaces to use for each step of indent
+set tabstop    =2         " number of spaces that a <Tab> in the file counts for
+set visualbell            " visual bell instead of beeping
+"
 "
 "-------------------------------------------------------------------------------
 "  some additional hot keys
@@ -79,17 +109,6 @@ nmap  <C-q>    :wqa<CR>
 if has("autocmd")
   autocmd BufEnter * :lcd %:p:h
 endif " has("autocmd")
-"
-"-------------------------------------------------------------------------------
-" Use of dictionaries
-" 
-" dictionary : List of file names that are used to lookup words
-"              for keyword completion commands
-"   complete : search the files defined by the 'dictionary' option
-"-------------------------------------------------------------------------------
-"
-set dictionary=$HOME/.vim/wordlists/german.list
-set complete+=k
 "
 "-------------------------------------------------------------------------------
 " Filename completion

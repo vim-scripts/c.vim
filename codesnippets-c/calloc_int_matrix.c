@@ -15,7 +15,7 @@ calloc_int_matrix ( int rows, int columns )
   for ( i=1; i<rows; i+=1 )                       /* set pointers               */
     m[i]  = m[i-1] + columns;
   return m;
-}       /* ----------  end of function calloc_int_matrix  ---------- */
+}  /* ----------  end of function calloc_int_matrix  ---------- */
 
 /*-----------------------------------------------------------------------------
  *  free_int_matrix
@@ -27,5 +27,5 @@ free_int_matrix ( int **m )
   free(*m); /* free data array    */
   free( m); /* free pointer array */
   return ;
-}       /* ----------  end of function free_int_matrix  ---------- */
+}  /* ----------  end of function free_int_matrix  ---------- */
 

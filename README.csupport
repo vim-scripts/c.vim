@@ -1,4 +1,4 @@
-README for c.vim (Version 3.7.2) / May 05 2005
+README for c.vim (Version 3.8) / May 26 2005
 
   *  INSTALLATION
   *  RELEASE NOTES 
@@ -10,7 +10,8 @@ README for c.vim (Version 3.7.2) / May 05 2005
   INSTALLATION
 =======================================================================================
 The subdirectories in the zip archive  cvim.zip  mirror the directory structure 
-which is needed below the local installation directory $HOME/.vim/ .
+which is needed below the local installation directory $HOME/.vim/ for LINUX/UNIX
+($VIM/vimfiles/ for Windows; find the value of $VIM with ":echo $VIM" from inside Vim).
 
 (1) Copy the zip archive  cvim.zip to $HOME/.vim and run
 
@@ -20,13 +21,14 @@ which is needed below the local installation directory $HOME/.vim/ .
     files you may want to save your templates first or copy the files from the 
     archive by hand.
 
-(2) Set at least some personal details into .vimrc by overriding some defaults.
-    Here the minimal personalization (my settings as an example, of course):
+(2) Set at least some personal details into the file $HOME/.vimrc (file $VIM\_vimrc 
+    under Windows).  Here the minimal personalization (my settings as an example, 
+    of course):
 
       let g:C_AuthorName      = 'Dr.-Ing. Fritz Mehner'     
       let g:C_AuthorRef       = 'Mn'                         
       let g:C_Email           = 'mehner@fh-swf.de'            
-      let g:C_Company         = 'FH Südwestfalen, Iserlohn'    
+      let g:C_Company         = 'FH SÃ¼dwestfalen, Iserlohn'    
 
 There are a lot of features and options which can be used and influenced:
 
@@ -53,6 +55,12 @@ and look at csupport help with
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.8
+=======================================================================================
+
++ Windows support. Most features are now available under Windows.
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.7.2
@@ -293,7 +301,7 @@ c-templates+comm.zip      The C/C++ templates with method comments.
   about LINUX, Vim/gVim and other great tools (Ok, almost.) :
 
     Ein Mann, der recht zu wirken denkt,         Who on efficient work is bent, 
-    Muß auf das beste Werkzeug halten.           Must choose the fittest instrument.  
+    MuÃŸ auf das beste Werkzeug halten.           Must choose the fittest instrument.  
 
   Faust, Teil 1, Vorspiel auf dem Theater      Faust, Part 1, Prologue for the Theatre 
 

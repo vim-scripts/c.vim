@@ -27,7 +27,7 @@ class |CLASSNAME|
 
   private:
 
-};  /* -----  end of class  |CLASSNAME|  ----- */
+}; /* -----  end of class  |CLASSNAME|  ----- */
 
 /*
  *--------------------------------------------------------------------------------------
@@ -39,3 +39,4 @@ class |CLASSNAME|
 |CLASSNAME|::|CLASSNAME| ()
 {
 }  /* -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  ----- */
+
