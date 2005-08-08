@@ -2,14 +2,10 @@
 "  
 "       Filename:  c.vim
 "  
-"    Description:  Write C/C++ programs by inserting complete statements, idioms and comments. 
-"                  Compile, link and run one-file-programs without a makefile (simple IDE).
-"                  
-"                  Code and comments should have a professional appearance and should be
-"                  easy to write and maintain. 
-"                  Programs with a consistent style are easier to read and understand.
-"                  The standardization of comments makes it possible to automate the search
-"                  for information and to generate documentation from the source code.
+"    Description:  C/C++-IDE. Write programs by inserting complete statements, comments, idioms 
+"                  code snippets, templates and comments.
+"                  Compile, link and run one-file-programs without a makefile.
+"                  See also help file csupport.txt .
 "  
 "   GVIM Version:  6.0+
 "  
@@ -20,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  31.05.2005
+"       Revision:  07.08.2005
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -31,7 +27,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.8"  							" version number of this script; do not change
+let g:C_Version= "3.8.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -648,52 +644,70 @@ function! C_InitC ()
 	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.<Tab>C\/C\+\+              <Esc>'
 	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.-Sep0-                     :'
 	"
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                a<< endl<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &flush               a<< flush<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &dec                 a<< dec<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &hex                 a<< hex<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &oct                 a<< oct<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&base\(\ \)       a<< setbase() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setfi&ll\(\ \)       a<< setfill() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&iosflag\(\ \)    a<< setiosflags() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &resetiosflag\(\ \)  a<< resetiosflags() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  a<< setprecision() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          a<< setw() <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &boolalpha           i<< boolalpha<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &dec                 i<< dec<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                i<< endl<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &fixed               i<< fixed<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ fl&ush               i<< flush<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &hex                 i<< hex<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &internal            i<< internal<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &left                i<< left<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &oct                 i<< oct<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               i<< right<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          i<< scientific<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       i<< setbase(10) <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       i<< setfill() <ESC>hi'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags() <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  i<< setprecision(6) <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          i<< setw(0) <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            i<< showbase<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           i<< showpoint<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      i<< showpos<Space>'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ uppercase\ \(&2\)    i<< uppercase<Space>'
 	"
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                << endl<Space>'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &flush               << flush<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &boolalpha           << boolalpha<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &dec                 << dec<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                << endl<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &fixed               << fixed<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ fl&ush               << flush<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &hex                 << hex<Space>'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &oct                 << oct<Space>'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&base\(\ \)       << setbase() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setfi&ll\(\ \)       << setfill() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&iosflag\(\ \)    << setiosflags() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &resetiosflag\(\ \)  << resetiosflags() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw() <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &internal            << internal<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &left                << left<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ o&ct                 << oct<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               << right<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          << scientific<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       << setbase(10) <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       << setfill() <ESC>hi'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    << setiosflags() <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision(6) <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw(0) <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            << showbase<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           << showpoint<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      << showpos<Space>'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ uppercase\ \(&2\)    << uppercase<Space>'
 	"
 	"----- Submenu : C++ : ios flag bits  -------------------------------------------------------------
 	"
 	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.<Tab>C\/C\+\+        <Esc>'
 	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.-Sep0-               :'
 	"
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&skipws         aios::skipws'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&left           aios::left'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&right          aios::right'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&internal       aios::internal'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&boolalpha      aios::boolalpha'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&dec            aios::dec'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&hex            aios::hex'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&oct            aios::oct'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::s&cientific     aios::scientific'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&fixed          aios::fixed'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::sho&wbase       aios::showbase'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::show&pos        aios::showpos'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&uppercase      aios::uppercase'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&adjustfield    aios::adjustfield'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::bas&efield      aios::basefield'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::floa&tfield     aios::floatfield'
-	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::u&nitbuf        aios::unitbuf'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&skipws         iios::skipws'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&left           iios::left'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&right          iios::right'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&internal       iios::internal'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&boolalpha      iios::boolalpha'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&dec            iios::dec'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&hex            iios::hex'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&oct            iios::oct'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::s&cientific     iios::scientific'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&fixed          iios::fixed'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::sho&wbase       iios::showbase'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::show&pos        iios::showpos'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&uppercase      iios::uppercase'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&adjustfield    iios::adjustfield'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::bas&efield      iios::basefield'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::floa&tfield     iios::floatfield'
+	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::u&nitbuf        iios::unitbuf'
 	"
 	exe "imenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&skipws         ios::skipws'
 	exe "imenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&left           ios::left'
@@ -741,10 +755,11 @@ function! C_InitC ()
 
 	exe " menu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       <Esc><Esc>ousing namespace std;<CR>'
 	exe " menu <silent> ".s:C_Root.'C&++.usin&g\ namespace\ ;          <Esc><Esc>ousing namespace ;<Esc>$i'
-	exe " menu <silent> ".s:C_Root.'C&++.namespace\ \{\ \}             <Esc><Esc>onamespace <CR>{<CR>}<CR><Esc>3kA'
+	exe "amenu <silent> ".s:C_Root.'C&++.namespace\ &\{\ \}            <Esc><Esc>:call C_Namespace("a")<CR>jo'
+
 	exe "imenu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       using namespace std;<CR>'
 	exe "imenu <silent> ".s:C_Root.'C&++.usin&g\ namespace\ ;          using namespace ;<Esc>$i'
-	exe "imenu <silent> ".s:C_Root.'C&++.namespace\ \{\ \}             namespace <CR>{<CR>}<CR><Esc>3kA'
+	exe "vmenu <silent> ".s:C_Root.'C&++.namespace\ &\{\ \}            <Esc><Esc>:call C_Namespace("v")<CR>'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP8-              :'
 	"
@@ -764,7 +779,8 @@ function! C_InitC ()
 	exe "imenu ".s:C_Root.'C&++.&RTTI.&const_cast            const_cast<>()<Esc>F<a'
 	exe "imenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      reinterpret_cast<>()<Esc>F<a'
 	exe "imenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          dynamic_cast<>()<Esc>F<a'
-	exe "amenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>:call C_CodeExternC()<CR>2jf.i'
+	exe "amenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>oextern "C"<CR>{<CR>#include<Tab><CR>}<Esc>kA'
+	exe "vmenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       DOextern "C"<CR>{<CR>}<Esc>P'
 	"
 	"===============================================================================================
 	"----- Menu : run  -----------------------------------------------------------------------------
@@ -1752,12 +1768,29 @@ function! C_CodeOfstream ()
 endfunction    " ----------  end of function C_CodeOfstream ----------
 "
 "------------------------------------------------------------------------------
-"  C++ : extern "C"
+"  C-Idioms : namespace
 "------------------------------------------------------------------------------
-function! C_CodeExternC()
-	let zz=    "extern \"C\"\n{\n\t#include\t\".h\"\n}"
-	put =zz
-endfunction    " ----------  end of function C_CodeExternC ----------
+function! C_Namespace (arg1)
+
+	let	identifier=C_Input("namespace name : ", "" )
+
+	if identifier != ""
+		" ----- normal mode ----------------
+		if a:arg1=="a"
+			let zz=    "namespace ".identifier."\n{\n}"
+			let zz= zz."\t\t".s:C_Com1." -----  end of namespace  ".identifier."  ----- ".s:C_Com2
+			put =zz
+		endif
+		" ----- visual mode ----------------
+		if a:arg1=="v"
+			let zz=    "namespace ".identifier."\n{\n\n"
+			:'<put! =zz
+			let zz=    "\n}\t\t".s:C_Com1." -----  end of namespace  ".identifier."  ----- ".s:C_Com2
+			:'>put  =zz
+			:'<,'>>
+		endif
+	endif
+endfunction    " ----------  end of function C_Namespace ----------
 "
 "------------------------------------------------------------------------------
 "  C++ : output operator
@@ -2090,7 +2123,6 @@ function! C_Run ()
 			else
 				if winheight(winnr()) >= line("$")
 					exe bufwinnr(l:currentbuffernr) . "wincmd w" 
-					normal gg
 				endif
 			endif
 			"

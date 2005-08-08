@@ -1,10 +1,18 @@
-README for c.vim (Version 3.8) / May 26 2005
+README for c.vim (Version 3.8.1) / August 07 2005
 
+  *  DESCRIPTION
   *  INSTALLATION
   *  RELEASE NOTES 
   *  FILES
   *  ADDITIONAL TIPS
   *  CREDITS
+
+=======================================================================================
+  DESCRIPTION
+=======================================================================================
+C/C++-IDE. Write programs by inserting complete statements, comments, idioms
+code snippets, templates and comments.  Compile, link and run one-file-programs
+without a makefile. See file csupport.txt for more.
 
 =======================================================================================
   INSTALLATION
@@ -55,6 +63,15 @@ and look at csupport help with
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.8.1
+=======================================================================================
+
++ More C++ output manipulators, manipulator insertion more intuitive.
++ Output into buffer: cursor goes to top of file.
++ Makefile template improved (code snippet).
++ Some internal improvements. 
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.8

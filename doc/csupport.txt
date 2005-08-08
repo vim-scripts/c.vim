@@ -1,11 +1,13 @@
-*csupport.txt*             C/C++ Support            Last Change:   May 31 2005
+*csupport.txt*             C/C++ Support            Last Change:   Aug 07 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                            Plugin version 3.8
+                           Plugin version 3.8.1
                       for Vim version 6.0 and above
                      Fritz Mehner  <mehner@fh-swf.de>
 
-Write and run C/C++ programs using menus.
+C/C++-IDE. Write programs by inserting complete statements, comments, idioms
+code snippets, templates and comments.  
+Compile, link and run one-file-programs without a makefile.
 
  1.    Usage                                           |csupport-usage-gvim|        
  1.1    Menu 'Comments'                                |csupport-comm|
@@ -69,18 +71,18 @@ In VISUAL MODE these entries will append aligned comments to all marked lines.
 Marking the first 4 lines
 
   print_double_array ( double array[],
-                       int n,
-                       int columns,
-                       char* arrayname
+                       int    n,
+                       int    columns,
+                       char*  arrayname
                        )
 
 and choosing 'Line End Comm. /**/' will yield.
 
-  print_double_array ( double array[],           /*  */
-                       int n,                    /*  */
-                       int columns,              /*  */
-                       char* arrayname           /*  */
-                       )                         /*  */
+  print_double_array ( double array[],          /*  */
+                       int    n,                /*  */
+                       int    columns,          /*  */
+                       char*  arrayname         /*  */
+                       )                        /*  */
 
 If one ore more lines go beyond the starting column (s.below) the comments
 will start at the 2. column after the longest line.  The cursor will be
@@ -409,10 +411,10 @@ To make a prototype from a function head mark the function head and choose
 'Snippets -> pick up prototype'. From the first six lines of
 
    void
-  print_double_array (  double array[], /* array to print                */
-                        int n,          /* number of elements to print   */
-                        int columns,    /* number of elements per column */
-                        char* arrayname /* array name                    */
+  print_double_array (  double array[],  /* array to print                */
+                        int    n,        /* number of elements to print   */
+                        int    columns,  /* number of elements per column */
+                        char*  arrayname /* array name                    */
                         )
   {
     ...

@@ -16,7 +16,7 @@ runtime vimrc_example.vim
 if  has("win16") || has("win32")     || has("win32") || 
   \ has("win64") || has("win32unix") || has("win95")
     "
-    runtime mswin.vim
+"    runtime mswin.vim
 "    set backupdir =$VIM\vimfiles\backupdir
 "    set dictionary=$VIM\vimfiles\wordlists/german.list
 else
@@ -26,27 +26,13 @@ endif
 "
 "-------------------------------------------------------------------------------
 " Use of dictionaries
-" 
-" dictionary : List of file names that are used to lookup words
-"              for keyword completion commands
-"   complete : search the files defined by the 'dictionary' option
 "-------------------------------------------------------------------------------
 "
-set complete+=k
+set complete+=k           " scan the files given with the 'dictionary' option
 "
 "-------------------------------------------------------------------------------
-" Moving cursor to other windows
-" 
-" shift down   : change window focus to lower one (cyclic)
-" shift up     : change window focus to upper one (cyclic)
-" shift left   : change window focus to one on left
-" shift right  : change window focus to one on right
+" Various settings
 "-------------------------------------------------------------------------------
-"
-nmap <s-down>   <c-w>w
-nmap <s-up>     <c-w>W
-nmap <s-left>   <c-w>h
-nmap <s-right>  <c-w>l
 "
 set autoread              " read open files again when changed outside Vim
 set autowrite             " write a modified buffer on each :next , ...
