@@ -1,4 +1,4 @@
-README for c.vim (Version 3.8.1) / August 07 2005
+README for c.vim (Version 3.8.2) / September 05 2005
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -58,11 +58,21 @@ and look at csupport help with
 
              +-----------------------------------------------+
              | +-------------------------------------------+ |
-             | |    ** Please read the documentation **    | |
+             | |    ** PLEASE READ THE DOCUMENTATION **    | |
              | |    Actions differ for different modes!    | |
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.8.2
+=======================================================================================
+
++ Screen update problem solved: color inversion under FC4 (Thanks to Bernie Barton).
++ RTTI menu : additional v-mode.
++ Statement menu and C++ menu rearranged.
++ Include guard : name generation improved.
++ File header templates will be included for additional file extensions (cp, cxx, c++, ...).
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.8.1

@@ -1,9 +1,9 @@
-*csupport.txt*             C/C++ Support            Last Change:   Aug 07 2005
+*csupport.txt*                  C/C++ Support                      Sep 03 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                           Plugin version 3.8.1
-                      for Vim version 6.0 and above
-                     Fritz Mehner  <mehner@fh-swf.de>
+                             Plugin version 3.8.2
+                        for Vim version 6.0 and above
+                       Fritz Mehner  <mehner@fh-swf.de>
 
 C/C++-IDE. Write programs by inserting complete statements, comments, idioms
 code snippets, templates and comments.  
@@ -305,6 +305,8 @@ can be surrounded by one of the following statements:
   |    #endif   /* ----- #ifndef INC_TEST  ----- */          |
   +----------------------------------------------------------+
 
+The macro name for an include guard (e.g. INC_TEST above) will be derived as a
+sugestion from the file name.
 The whole statement will be indented after insertion.
 
 
@@ -534,6 +536,7 @@ option file (~/.splintrc). For a quick try you can use the menu entry
 1.5.6  HARDCOPY                                               *csupport-run-6*
 
 Generates a PostScript file from the whole buffer or from a marked region.
+On a Windows system a printer dialog is displayed.
 
 
 1.5.7  XTERM SIZE                                             *csupport-run-7*
