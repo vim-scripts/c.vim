@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Sep 03 2005
+*csupport.txt*                  C/C++ Support                      Oct 28 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 3.8.2
+                              Plugin version 3.9
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -9,43 +9,47 @@ C/C++-IDE. Write programs by inserting complete statements, comments, idioms
 code snippets, templates and comments.  
 Compile, link and run one-file-programs without a makefile.
 
- 1.    Usage                                           |csupport-usage-gvim|        
- 1.1    Menu 'Comments'                                |csupport-comm|
- 1.1.1   Append aligned comments to consecutive lines  |csupport-comm-1|
- 1.1.2   Multiline comment                             |csupport-comm-2|
- 1.1.3   Code to comment                               |csupport-comm-3|
- 1.1.4   Comment to code                               |csupport-comm-4|
- 1.1.5   Frame comments, file header, ...              |csupport-comm-5|
- 1.1.6   KEYWORD + comment                             |csupport-comm-6|
- 1.1.7   Switch comment style                          |csupport-comm-7|
- 1.2    Menu 'Statements'                              |csupport-stat|
- 1.3    Menu 'Idioms'                                  |csupport-idioms|
- 1.4    Menu 'Snippets'                                |csupport-snippets|
- 1.4.1   Code snippets                                 |csupport-snippets|
- 1.4.2   Picking up prototypes                         |csupport-proto|
- 1.5    Menu 'Run'                                     |csupport-run|
- 1.5.1   Minimal make functionality                    |csupport-run-1|
- 1.5.2   Command line arguments                        |csupport-run-2|
- 1.5.3   Run make                                      |csupport-run-3|
- 1.5.4   Command line arguments for make               |csupport-run-4|
- 1.5.5   Splint                                        |csupport-run-5|
- 1.5.6   Hardcopy                                      |csupport-run-6|
- 1.5.7   Xterm size                                    |csupport-run-7|
- 1.5.8   Output redirection                            |csupport-run-8|
+ 1.    Usage                                    |csupport-usage-gvim|        
+ 1.1    Menu 'Comments'                         |csupport-comm|
+ 1.1.1   Append aligned comments                |csupport-comm-aligned|
+ 1.1.2   Multiline comment                      |csupport-comm-multiline|
+ 1.1.3   Code to comment                        |csupport-code-to-comm|
+ 1.1.4   Comment to code                        |csupport-comm-to-code|
+ 1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
+ 1.1.6   KEYWORD + comment                      |csupport-comm-keywords|
+ 1.1.7   Switch comment style                   |csupport-comm-style|
+ 1.2    Menu 'Statements'                       |csupport-stat|
+ 1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
+ 1.2.2   Visual mode.                           |csupport-stat-visual-mode|
+ 1.2.3   Block out code with "#if 0 .. #endif"  |csupport-stat-if0|
+ 1.3    Menu 'Idioms'                           |csupport-idioms|
+ 1.4    Menu 'Snippets'                         |csupport-snippets|
+ 1.4.1   Code snippets                          |csupport-snippets|
+ 1.4.2   Picking up prototypes                  |csupport-proto|
+ 1.5    Menu 'Run'                              |csupport-run|
+ 1.5.1   Minimal make functionality             |csupport-run-buffer|
+ 1.5.2   Command line arguments                 |csupport-run-cmdline-args|
+ 1.5.3   Run make                               |csupport-run-make|
+ 1.5.4   Command line arguments for make        |csupport-run-make-args|
+ 1.5.5   Splint                                 |csupport-run-splint|
+ 1.5.6   Indent                                 |csupport-run-indent|
+ 1.5.7   Hardcopy                               |csupport-run-hardcopy|
+ 1.5.8   Xterm size                             |csupport-run-xterm|
+ 1.5.9   Output redirection                     |csupport-run-output|
 
- 2.    Hotkeys                                         |csupport-hotkeys|           
- 3.    Customization and configuration                 |csupport-custom|     
- 3.1    Global variables                               |csupport-custom-1|
- 3.2    The root menu                                  |csupport-custom-2|
- 4.    Template files and tags                         |csupport-tempfiles|    
- 4.1    Template files                                 |csupport-tempfiles-1|    
- 4.2    Tags                                           |csupport-tempfiles-2|
- 5.    C/C++ Dictionaries                              |csupport-dictionary|        
- 6.    Extend taglist.vim for make and qmake           |csupport-taglist|     
- 7.    Windows particularities                         |csupport-windows|
- 8.    Release Notes                                   |csupport-release-notes|     
+ 2.    Hotkeys                                  |csupport-hotkeys|           
+ 3.    Customization and configuration          |csupport-custom|     
+ 3.1    Global variables                        |csupport-custom-glob-vars|
+ 3.2    The root menu                           |csupport-custom-root-menu|
+ 4.    Template files and tags                  |csupport-templates|    
+ 4.1    Template files                          |csupport-templates|    
+ 4.2    Tags                                    |csupport-templates-tags|
+ 5.    C/C++ Dictionaries                       |csupport-dictionary|        
+ 6.    Extend taglist.vim for make and qmake    |csupport-taglist|     
+ 7.    Windows particularities                  |csupport-windows|
+ 8.    Release Notes                            |csupport-release-notes|     
 
-       How to add this help file to Vim's help         |add-local-help|             
+       How to add this help file to Vim's help  |add-local-help|             
 
 
 ==============================================================================
@@ -60,7 +64,7 @@ The entry "Load C Support" can also be used to unload the C/C++-root menu.
 1.1 MENU 'Comments'                                            *csupport-comm*
 ------------------------------------------------------------------------------
 
-1.1.1 APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES           *csupport-comm-1*
+1.1.1 APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES     *csupport-comm-aligned*
 
 In NORMAL MODE the menu entries
  'Line End Comm. //' 
@@ -99,7 +103,7 @@ shown in the Vim status line) and choose this menu entry.
 
 ------------------------------------------------------------------------------
 
-1.1.2 MULTILINE COMMENT                                      *csupport-comm-2*
+1.1.2 MULTILINE COMMENT                              *csupport-comm-multiline*
 
 NORMAL MODE, INSERT MODE. The comment shown below will be inserted.
 
@@ -121,7 +125,7 @@ will be changed into a multiline comment (all (partially) marked lines):
 
 ------------------------------------------------------------------------------
 
-1.1.3 CODE TO COMMENT                                        *csupport-comm-3*
+1.1.3 CODE TO COMMENT                                  *csupport-code-to-comm*
 
 When 'comment style C' is active a marked block
 
@@ -148,7 +152,7 @@ marked.
 
 ------------------------------------------------------------------------------
 
-1.1.4 COMMENT TO CODE                                        *csupport-comm-4*
+1.1.4 COMMENT TO CODE                                  *csupport-comm-to-code*
 
 If one (or more) complete comment (i.e. all lines belonging to the comment) is
 marked the entry 'comment->code' will uncomment it.  If the following lines
@@ -189,21 +193,21 @@ needs not to be marked.
 
 ------------------------------------------------------------------------------
 
-1.1.5 FRAME COMMENTS, FILE HEADER, ...                       *csupport-comm-5*
+1.1.5 FRAME COMMENTS, FILE HEADER, ...                   *csupport-comm-frame*
 
 Frame comments, file header comments and function, methods, class descriptions 
 are read as templates from the appropriate files (see |csupport-tempfiles|).
 
 ------------------------------------------------------------------------------
 
-1.1.6 KEYWORD+comment                                      *csupport-comm-6*
+1.1.6 KEYWORD+comment                                 *csupport-comm-keywords*
 
 Preliminary comments to document (and find again) places where works will be
 resumed shortly. Usually not meant for the final documentation.
 
 ------------------------------------------------------------------------------
 
-1.1.7  SWITCH COMMENT STYLE                                  *csupport-comm-7*
+1.1.7  SWITCH COMMENT STYLE                              *csupport-comm-style*
 
 The entry 'Comment style C -> C++' changes the comment style to C++ style.
 The entry 'Comment style C++ -> C' changes the comment style back to C style.
@@ -228,7 +232,7 @@ Inserted do-while with C++-style comment:
 1.2  MENU 'Statements'                                         *csupport-stat*
 ------------------------------------------------------------------------------
 
-1.2.1  NORMAL MODE, INSERT MODE. 
+1.2.1  NORMAL MODE, INSERT MODE.                   *csupport-stat-normal-mode*
 
 An empty statement will be inserted and properly indented. The entry 'if{}'
 will insert an if-statement:
@@ -238,7 +242,7 @@ if (  )
 }
 
 
-1.2.2  VISUAL MODE.
+1.2.2  VISUAL MODE.                                *csupport-stat-visual-mode*
 
 STATEMENTS WITH BLOCKS AND CASE LABEL.  
 --------------------------------------
@@ -304,10 +308,15 @@ can be surrounded by one of the following statements:
   |    xxxxx                                                 |
   |    #endif   /* ----- #ifndef INC_TEST  ----- */          |
   +----------------------------------------------------------+
+  |    #if  0     /* ----- #if 0 : If0Label_1 ----- */       |
+  |                                                          |
+  |    #endif     /* ----- #if 0 : If0Label_1 ----- */       |
+  +----------------------------------------------------------+
+
 
 The macro name for an include guard (e.g. INC_TEST above) will be derived as a
-sugestion from the file name.
-The whole statement will be indented after insertion.
+sugestion from the file name.  The whole statement will be indented after
+insertion.
 
 
 STATEMENTS WITHOUT BLOCKS.  
@@ -331,6 +340,26 @@ one of the following statements can be inserted:
   +-------------------------------+--------------------------+
 
 The lines will be indented after insertion.
+
+
+1.2.3  BLOCK OUT CODE WITH  "#if 0 ... #endif"             *csupport-stat-if0*
+
+The menu entry "#if 0 #endif" inserts the lines
+
+  #if  0     /* ----- #if 0 : If0Label_1 ----- */
+
+  #endif     /* ----- #if 0 : If0Label_1 ----- */
+
+In visual mode the marked block of lines will be surrounded by these lines.
+
+This is usually done to temporarily block out some code.  The label names like
+If0Label_1 are automatically inserted into the comments.  The trailing numbers
+are automatically incremented.  These numbers can be changed by the user.  The
+next number will be one above the highest number found in the current buffer.
+
+A corresponding label can be found by searching with the vim star command (*).
+All labels can be found with a global search like :g/If0Label_/ or
+:g/If0Label_\d\+/. All corresponding lines can be deleted with :g/If0Label_/d .
 
 
 ------------------------------------------------------------------------------
@@ -463,14 +492,14 @@ want to use an extractor like cextract or something else.
 1.5  MENU 'Run'                                                 *csupport-run*
 ------------------------------------------------------------------------------
 
-1.5.1  MINIMAL MAKE FUNCTIONALITY                             *csupport-run-1*
+1.5.1  MINIMAL MAKE FUNCTIONALITY                        *csupport-run-buffer*
 
 The 'Run' menu provides a minimal make functionality for single file projects
 (e.g. in education) :
 
 SAVE AND COMPILE
 'save and compile' saves the buffer and run the compiler with the given
-options (see |csupport-custom-1|).
+options (see |csupport-custom-glob-vars|).
 
 LINK
 'link' makes an executable from the current buffer. If the buffer is not
@@ -478,7 +507,7 @@ saved, or no object is available or the object is older then the source step
 'save and compile' is executed first.
 
 The behavior of the compiler / linker is determined by the options assigned to
-the variables described in |csupport-custom-1| (4.group).
+the variables described in |csupport-custom-glob-vars| (4.group).
 
 RUN
 'run' runs the executable with the same name (extension .e) as the current
@@ -487,7 +516,7 @@ executable is older then the source steps 'save and compile' and 'link' are
 executed first.
 
 
-1.5.2  COMMAND LINE ARGUMENTS                                 *csupport-run-2*
+1.5.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
 
 The entry 'command line arguments' calls an input dialog which asks for command
 line arguments. These arguments are forwarded to the program which is run by
@@ -507,19 +536,19 @@ be sure to leave it with a CR (not Esc !). Due to a limitation of an internal
 Vim function CR will keep the arguments, Esc with discard them.
 
 
-1.5.3  RUN make                                               *csupport-run-3*
+1.5.3  RUN make                                            *csupport-run-make*
 
 The entry 'make' runs the external make program.
 
 
-1.5.4  COMMAND LINE ARGUMENTS FOR make                        *csupport-run-4*
+1.5.4  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
 
 The entry 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
 when called by the entry 'make'.
 
 
-1.5.5  SPLINT                                                 *csupport-run-5*
+1.5.5  SPLINT                                            *csupport-run-splint*
 
 Splint is a tool for statically checking C programs (see http://www.splint.org).
 Of course it has to be installed in order to be used within Vim.  The menu entry
@@ -533,20 +562,30 @@ option file (~/.splintrc). For a quick try you can use the menu entry
 'Run->cmd. line arg. for splint' and specify some buffer related options.  
 
 
-1.5.6  HARDCOPY                                               *csupport-run-6*
+1.5.6  INDENT                                            *csupport-run-indent*
+
+The formatter 'indent' can be run over the whole buffer or a marked region.
+Before formatting the whole buffer this buffer will be saved to disk and you
+will be asked for a confirmation.
+
+Indent has many options. These are kept in the file '.indent.pro' in your home
+directory. See the indent manual for more information.
+
+
+1.5.7  HARDCOPY                                        *csupport-run-hardcopy*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
 
 
-1.5.7  XTERM SIZE                                             *csupport-run-7*
+1.5.8  XTERM SIZE                                         *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu entry. The default is 80 columns with 24 lines.  
 This feature is not available under Windows.
 
 
-1.5.8  OUTPUT REDIRECTION                                     *csupport-run-8*
+1.5.9  OUTPUT REDIRECTION                                *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -596,7 +635,7 @@ The hotkeys are defined in the file type plugin  c.vim .
 ==============================================================================
 
 ------------------------------------------------------------------------------
-3.1  GLOBAL VARIABLES                                      *csupport-custom-1*
+3.1  GLOBAL VARIABLES                              *csupport-custom-glob-vars*
 ------------------------------------------------------------------------------
 
 Several global variables are checked by the script to customize it:
@@ -703,7 +742,7 @@ Here are my settings as an example:
 
 
 ------------------------------------------------------------------------------
-3.2  THE ROOT MENU                                        *csupport-custom-2*
+3.2  THE ROOT MENU                                 *csupport-custom-root-menu*
 ------------------------------------------------------------------------------
 
 The variable g:C_Root, if set (in .vimrc or in .gvimrc), give the name of the
@@ -719,11 +758,11 @@ installation or for C-only programmers.
 
 
 ==============================================================================
-4.  TEMPLATE FILES AND TAGS                               *csupport-tempfiles*
+4.  TEMPLATE FILES AND TAGS                               *csupport-templates*
 ==============================================================================
 
 ------------------------------------------------------------------------------
-4.1  TEMPLATE FILES                                     *csupport-tempfiles-1*
+4.1  TEMPLATE FILES
 ------------------------------------------------------------------------------
 
 Many menu entries generate comments or commented code. The style of these 
@@ -774,7 +813,7 @@ necessary. So you may want to lay out your own templates.
 
 
 ------------------------------------------------------------------------------
-4.2  TAGS                                                *csupport-tempfiles-2*
+4.2  TAGS                                            *csupport-templates-tags*
 ------------------------------------------------------------------------------
 
 The comments in these files do not have to be personalized but they can be.

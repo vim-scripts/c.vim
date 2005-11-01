@@ -61,7 +61,7 @@ LOCAL_LIBS      =
 
 # ------------  archive generation -----------------------------------------------------
 TARBALL_EXCLUDE = *.{o,gz,zip}
-ZIP_EXCLUDE     = *.o *.gz *.zip
+ZIP_EXCLUDE     = *.{o,gz,zip}
 
 # ------------  run executable out of this Makefile  (yes/no)  -------------------------
 # ------------  cmd line parameters for this executable  -------------------------------

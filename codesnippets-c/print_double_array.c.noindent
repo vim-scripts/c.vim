@@ -18,11 +18,11 @@ print_double_array (  double  array[],  /* array to print              */
   printf ("\n\n  array \"%s\", length %d\n", arrayname, n );
   for ( i=0; i<n; i+=1 )
   {
-    if(i%nrow==0)
+    if( i%nrow == 0 )
       printf ("\n%6d : ", i );
     printf (" %8.2f", array[i] );
   }
-	printf ("\n");
+  printf ("\n\n");
   return ;
 }       /* ----------  end of function print_double_array  ---------- */
 

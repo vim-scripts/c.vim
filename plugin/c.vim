@@ -2,8 +2,8 @@
 "  
 "       Filename:  c.vim
 "  
-"    Description:  C/C++-IDE. Write programs by inserting complete statements, comments, idioms 
-"                  code snippets, templates and comments.
+"    Description:  C/C++-IDE. Write programs by inserting complete statements, 
+"                  comments, idioms, code snippets, templates and comments.
 "                  Compile, link and run one-file-programs without a makefile.
 "                  See also help file csupport.txt .
 "  
@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  03.09.2005
+"       Revision:  28.10.2005
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -27,7 +27,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.8.2"  							" version number of this script; do not change
+let g:C_Version= "3.9"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -37,18 +37,20 @@ let g:C_Version= "3.8.2"  							" version number of this script; do not change
 " - root directory
 " - characters that must be escaped for filenames
 " 
-let	s:MSWIN =		has("win16") || has("win32")     || has("win32") || 
-							\ has("win64") || has("win32unix") || has("win95")
+let	s:MSWIN =		has("win16") || has("win32")     || has("win64") || 
+							\ has("win95") || has("win32unix")
 " 
 if	s:MSWIN
 	"
 	let s:root_dir	  = $VIM.'\vimfiles\'
+	let s:home_dir	  = ''
   let s:escfilename = ' %#'
   let s:escfilename = ''
 	"
 else
 	"
 	let s:root_dir	  = $HOME.'/.vim/'
+	let s:home_dir	  = $HOME.'/'
   let s:escfilename = ' \%#[]'
 	"
 endif
@@ -94,6 +96,7 @@ let s:C_LFlags         = "-Wall -g -O0"         " compiler flags: link   , don't
 let s:C_Libs           = "-lm"                  " libraries to use
 let s:C_Comments       = "yes"
 let s:C_MenuHeader     = "yes"
+let s:C_IndentErrorLog = s:home_dir.'.indent.errorlog'
 "  
 "   ----- template files ---- ( 1. set of templates ) ----------------
 let s:C_Template_Directory       = s:root_dir."plugin/templates/"
@@ -187,6 +190,7 @@ call C_CheckGlobal("C_XtermDefaults          ")
 "
 call C_CheckGlobal("C_MenuHeader             ")
 call C_CheckGlobal("C_LineEndCommColDefault  ")
+call C_CheckGlobal("C_IndentErrorLog         ")
 "
 "----- some variables for internal use only -----------------------------------
 "
@@ -206,7 +210,12 @@ if match( s:C_XtermDefaults, "-geometry\\s\\+\\d\\+x\\d\\+" ) < 0
 	let s:C_XtermDefaults	= s:C_XtermDefaults." -geometry 80x24"
 endif
 "
+let s:C_HlMessage    = ""
+"
 " characters that must be escaped for filenames
+"
+let s:C_If0_Counter   = 0
+let s:C_If0_Txt		 		= "If0Label_"
 "
 "------------------------------------------------------------------------------
 "  C : C_InitC
@@ -331,12 +340,13 @@ function! C_InitC ()
 	"
 	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..<Tab>C\/C\+\+     <Esc>'
 	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..-Sep0-            :'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:          <Esc><Esc>$<Esc>:call C_CommentClassified("BUG")     <CR>kgJ$F:la'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&COMPILER\:     <Esc><Esc>$<Esc>:call C_CommentClassified("COMPILER")<CR>kgJ$F:la'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&TODO\:         <Esc><Esc>$<Esc>:call C_CommentClassified("TODO")    <CR>kgJ$F:la'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:T&RICKY\:       <Esc><Esc>$<Esc>:call C_CommentClassified("TRICKY")  <CR>kgJ$F:la'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&WARNING\:      <Esc><Esc>$<Esc>:call C_CommentClassified("WARNING") <CR>kgJ$F:la'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&new\ keyword\: <Esc><Esc>$<Esc>:call C_CommentClassified("")        <CR>kgJf:a'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:          <Esc><Esc>$<Esc>:call C_CommentClassified("BUG")        <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&COMPILER\:     <Esc><Esc>$<Esc>:call C_CommentClassified("COMPILER")   <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&TODO\:         <Esc><Esc>$<Esc>:call C_CommentClassified("TODO")       <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:T&RICKY\:       <Esc><Esc>$<Esc>:call C_CommentClassified("TRICKY")     <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&WARNING\:      <Esc><Esc>$<Esc>:call C_CommentClassified("WARNING")    <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:W&ORKAROUND\:   <Esc><Esc>$<Esc>:call C_CommentClassified("WORKAROUND") <CR>kgJ$F:la'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&new\ keyword\: <Esc><Esc>$<Esc>:call C_CommentClassified("")           <CR>kgJf:a'
 	"
 	"----- Submenu : C-Comments : special comments  ----------------------------------------------------------
 	"
@@ -485,15 +495,17 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'St&atements.&#define                        <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a'
 	exe "amenu  ".s:C_Root.'St&atements.#&undef                         <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"a") <CR>ji'
-	exe "amenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a") <CR>ji'
-	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","a") <CR>ji'
-	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "a") <CR>2ji'
+	exe "amenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2jS'
+	exe "amenu  ".s:C_Root.'St&atements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("a")<CR>2jS'
 	"
-	exe "vmenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"v") <CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"v") <CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","v") <CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "v") <CR>'
+	exe "vmenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"v+")<CR>'
+	exe "vmenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"v+")<CR>'
+	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>'
+	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "v" )<CR>'
+	exe "vmenu  ".s:C_Root.'St&atements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("v")<CR>'
 	"
 	"
 	"===============================================================================================
@@ -525,14 +537,16 @@ function! C_InitC ()
 	exe "imenu          ".s:C_Root.'&Idioms.&printf                     printf ("\n");<Esc>F\i'
 	exe "imenu          ".s:C_Root.'&Idioms.s&canf                      scanf ("", & );<Esc>F"i'
 	"
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP4-                           :'
+	exe "amenu          ".s:C_Root.'&Idioms.-SEP4-                       :'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.p=ca&lloc\(n,sizeof(type)\)  <Esc><Esc>:call C_CodeMalloc("c")<CR>i'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.p=m&alloc\(sizeof(type)\)    <Esc><Esc>:call C_CodeMalloc("m")<CR>i'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                     isizeof(  )<Esc>hi'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                     disizeof(  )<Esc>hPa'
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP5-                           :'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &input\ file           <Esc><Esc>:call C_CodeFopenRead()<CR>jf"a'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &output\ file          <Esc><Esc>:call C_CodeFopenWrite()<CR>jf"a'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                  isizeof(  )<Esc>hi'
+	exe "vmenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                 disizeof(  )<Esc>hPa'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 <Esc><Esc>oassert(  );<Esc>2hi'
+	exe "vmenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 diassert(  );<Esc>2hPa'
+	exe "amenu          ".s:C_Root.'&Idioms.-SEP5-                       :'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &input\ file           <Esc><Esc>:call C_CodeFopen("input")<CR>jf"a'
+	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &output\ file          <Esc><Esc>:call C_CodeFopen("output")<CR>jf"a'
 "	exe "imenu          ".s:C_Root.'&Idioms.-SEP7-                       :'
 	"
 	"===============================================================================================
@@ -756,8 +770,8 @@ function! C_InitC ()
 	exe "imenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              catch (...)<CR>{<CR>}<Esc>O'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP6-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \(&1\)     <Esc><Esc>:call C_CodeIfstream()<CR>f"a'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ output\ file\ \(&2\)    <Esc><Esc>:call C_CodeOfstream()<CR>f"a'
+	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \(&1\)     <Esc><Esc>:call C_CodeIOStream("ifstream")<CR>f"a'
+	exe "amenu <silent> ".s:C_Root.'C&++.open\ output\ file\ \(&2\)    <Esc><Esc>:call C_CodeIOStream("ofstream")<CR>f"a'
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP7-                        :'
 
 	exe " menu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       <Esc><Esc>ousing namespace std;<CR>'
@@ -807,15 +821,17 @@ function! C_InitC ()
 		exe "amenu  ".s:C_Root.'&Run.-Sep00-                 :'
 	endif
 	"
-	exe "amenu  <silent>  ".s:C_Root.'&Run.save\ and\ &compile<Tab>\<A-F9\>    <C-C>:call C_Compile()<CR><CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.&link<Tab>\<F9\>                    <C-C>:call C_Link()<CR>'
+	exe "amenu  <silent>  ".s:C_Root.'&Run.save\ and\ &compile<Tab>\<A-F9\>    <C-C>:call C_Compile()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu  <silent>  ".s:C_Root.'&Run.&link<Tab>\<F9\>                    <C-C>:call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.&run<Tab>\<C-F9\>                   <C-C>:call C_Run()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ &arg\.<Tab>\<S-F9\>    <C-C>:call C_Arguments()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP0-                              :'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.&make                               <C-C>:call C_Make()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ ar&g\.\ for\ make      <C-C>:call C_MakeArguments()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.s&plint                             <C-C>:call C_SplintCheck()<CR>:redraw<CR>:call C_SplintCheckMsg()<CR>'
+	exe "amenu  <silent>  ".s:C_Root.'&Run.s&plint                             <C-C>:call C_SplintCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ arg\.\ for\ spl&int    <C-C>:call C_SplintArguments()<CR>'
+	exe "amenu            ".s:C_Root.'&Run.in&dent                             <C-C>:call C_Indent("a")<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "vmenu            ".s:C_Root.'&Run.in&dent                             <C-C>:call C_Indent("v")<CR>:redraw<CR>:call C_HlMessage()<CR>'
 	exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP2-                              :'
 	if	s:MSWIN
 		exe "amenu  <silent>  ".s:C_Root.'&Run.&hardcopy\ to\ printer              <C-C>:call C_Hardcopy("n")<CR>'
@@ -1365,21 +1381,32 @@ endfunction    " ----------  end of function C_PPDefine  ----------
 "  Statements : #ifndef .. #else .. #endif 
 "------------------------------------------------------------------------------
 function! C_PPIfElse (keyword,mode)
-	let identifier = "CONDITION"
-	let	identifier = C_Input("(uppercase) condition for #".a:keyword." : ", identifier )
+	"
+	if a:mode=='a+' || a:mode=='v+'
+		let identifier = "CONDITION"
+		let	identifier = C_Input("(uppercase) condition for #".a:keyword." : ", identifier )
+	else
+		let identifier = '0'
+	endif
+	"
 	if identifier != ""
 		
-		if a:mode=='a'
+		if a:mode=='a+' || a:mode=='a-'
 			let zz=    "#".a:keyword."  ".identifier."\n\n"
-			let zz= zz."#else      ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n\n"
+			if a:mode=='a+'
+				let zz= zz."#else      ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n\n"
+			endif
 			let zz= zz."#endif     ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n"
 			put =zz
 		endif
 		
-		if a:mode=='v'
+		if a:mode=='v+' || a:mode=='v-'
 			let zz=    "#".a:keyword."  ".identifier."\n"
 			:'<put! =zz
-			let zz=    "#else      ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n\n"
+			let zz	= ""
+			if a:mode=='v+'
+				let zz=    "#else      ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n\n"
+			endif
 			let zz= zz."#endif     ".s:C_Com1." ----- #".a:keyword." ".identifier."  ----- ".s:C_Com2."\n"
 			:'>put  =zz
 			:normal '<
@@ -1387,6 +1414,45 @@ function! C_PPIfElse (keyword,mode)
 
 	endif
 endfunction    " ----------  end of function C_PPIfElse ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : #if 0 .. #endif 
+"------------------------------------------------------------------------------
+function! C_PPIf0 (mode)
+	"
+	let	s:C_If0_Counter	= 0
+	let	save_line					= line(".")
+	let	actual_line				= 0
+	"
+	" search for the maximum option number (if any)
+	"
+	normal gg
+	while actual_line < search( s:C_If0_Txt."\\d\\+" )
+		let actual_line	= line(".")
+	 	let actual_opt  = matchstr( getline(actual_line), s:C_If0_Txt."\\d\\+" )
+		let actual_opt  = strpart( actual_opt, strlen(s:C_If0_Txt),strlen(actual_opt)-strlen(s:C_If0_Txt))
+		if s:C_If0_Counter < actual_opt
+			let	s:C_If0_Counter = actual_opt
+		endif
+	endwhile
+	let	s:C_If0_Counter = s:C_If0_Counter+1
+	silent exe ":".save_line
+	"
+	if a:mode=='a'
+		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
+		let zz= zz."\n#endif     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n\n"
+		put =zz
+	endif
+
+	if a:mode=='v'
+		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
+		:'<put! =zz
+		let zz=      "#endif     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n\n"
+		:'>put  =zz
+		:normal '<
+	endif
+
+endfunction    " ----------  end of function C_PPIf0 ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : #ifndef .. #define .. #endif 
@@ -1400,7 +1466,7 @@ function! C_PPIfDef (arg)
 	let identifier = substitute( identifier, '_\+', '_', 'g' )
 	let	identifier = C_Input("(uppercase) condition for #ifndef : ", identifier )
 	if identifier != ""
-		
+
 		if a:arg=='a'
 			let zz=    "#ifndef  ".identifier."\n"
 			let zz= zz."#define  ".identifier."\n\n"
@@ -1688,7 +1754,7 @@ function! C_CodeMalloc (type)
 			let zz=    pointername."\t= (".size."*)malloc ( sizeof(".size.") );"
 		endif
 		let zz= zz."\nif ( ".pointername."==NULL )\n{"
-		let zz= zz."\n\tfprintf (stderr, \"\\ndynamic memory allocation failed\\n\" );"
+		let zz= zz."\n\tfprintf ( stderr, \"\\ndynamic memory allocation failed\\n\" );"
 		let zz= zz."\n\texit (EXIT_FAILURE);\n}"
 		let zz= zz."\n\nfree (".pointername.");\n\n"
 		put =zz
@@ -1702,95 +1768,64 @@ function! C_CodeMalloc (type)
 endfunction    " ----------  end of function C_CodeMalloc ----------
 "
 "------------------------------------------------------------------------------
-"  C-Idioms : open file for reading
+"  C-Idioms : open file for reading/writing
 "------------------------------------------------------------------------------
-function! C_CodeFopenRead ()
-	let	filepointer=C_Input("input-file pointer : ", "infile")
+function! C_CodeFopen ( inout )
+	if a:inout=="input"
+		let	filepointer	= C_Input(a:inout."-file pointer : ", "infile")
+		let	mode				= 'r'
+	else
+		let	filepointer=C_Input(a:inout."-file pointer : ", "outfile")
+		let	mode				= 'w'
+	endif
 	if filepointer != ""
 		let filename=filepointer."_file_name"
-		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t".s:C_Com1." input-file pointer ".s:C_Com2."\n"
-		let zz= zz."char\t*".filename." = \"\";\t\t".s:C_Com1." input-file name    ".s:C_Com2."\n\n"
-		let zz= zz.filepointer."\t= fopen( ".filename.", \"r\" );\n"
+		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t\t".s:C_Com1." ".a:inout."-file pointer ".s:C_Com2."\n"
+		let zz= zz."char\t*".filename." = \"\";\t\t".s:C_Com1." ".a:inout."-file name    ".s:C_Com2."\n\n"
+		let zz= zz.filepointer."\t= fopen( ".filename.", \"".mode."r\" );\n"
 		let zz= zz."if ( ".filepointer." == NULL )\n{\n"
-		let zz= zz."\tfprintf (stderr, \"couldn't open file '%s'; %s\\n\", ".filename.", strerror(errno) );\n"
+		let zz= zz."\tfprintf ( stderr, \"couldn't open file '%s'; %s\\n\",\n".filename.", strerror(errno) );\n"
 		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
-		let zz= zz."if( fclose(".filepointer.") == EOF )\t\t\t".s:C_Com1." close input file ".s:C_Com2."\n"
-		let zz= zz."{\n\tfprintf (stderr, \"couldn't close file '%s'; %s\\n\", ".filename.", strerror(errno) );\n"
+		let zz= zz."if( fclose(".filepointer.") == EOF )\t\t\t".s:C_Com1." close ".a:inout." file ".s:C_Com2."\n"
+		let zz= zz."{\n\tfprintf ( stderr, \"couldn't close file '%s'; %s\\n\",\n".filename.", strerror(errno) );\n"
 		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
 		put =zz
-		normal =15+
+		normal =17+
 		"
-		exe ": menu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );    <Esc><Esc>ofscanf ( '.filepointer.', "", & );<ESC>F"i'
-		exe ":imenu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );               fscanf ( '.filepointer.', "", & );<ESC>F"i'
+		if a:inout=="input"
+			exe ": menu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );    <Esc><Esc>ofscanf ( '.filepointer.', "", & );<ESC>F"i'
+			exe ":imenu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );               fscanf ( '.filepointer.', "", & );<ESC>F"i'
+		else
+			exe ": menu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );     <Esc><Esc>ofprintf ( '.filepointer.', "\n",  );<ESC>F\i'
+			exe ":imenu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );                fprintf ( '.filepointer.', "\n",  );<ESC>F\i'
+		endif
 	endif
-endfunction    " ----------  end of function C_CodeFopenRead ----------
+endfunction    " ----------  end of function C_CodeFopen ----------
 "
 "------------------------------------------------------------------------------
-"  C-Idioms : open file for writing
+"  C++ : open file for reading/writing
 "------------------------------------------------------------------------------
-function! C_CodeFopenWrite ()
-	let	filepointer=C_Input("output-file pointer : ", "outfile")
-	if filepointer != ""
-		let filename=filepointer."_file_name"
-		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t".s:C_Com1." output-file pointer ".s:C_Com2."\n"
-		let zz= zz."char\t*".filename." = \"\";\t".s:C_Com1." output-file name    ".s:C_Com2."\n\n"
-		let zz= zz.filepointer."\t= fopen( ".filename.", \"w\" );\n"
-		let zz= zz."if ( ".filepointer." == NULL )\n{\n"
-		let zz= zz."\tfprintf (stderr, \"couldn't open file '%s'; %s\\n\", ".filename.", strerror(errno) );\n"
-		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
-		let zz= zz."if( fclose(".filepointer.") == EOF )\t\t".s:C_Com1." close output file ".s:C_Com2."\n"
-		let zz= zz."{\n\tfprintf (stderr, \"couldn't close file '%s'; %s\\n\", ".filename.", strerror(errno) );\n"
-		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
-		put =zz
-		normal =15+
-		exe ": menu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );     <Esc><Esc>ofprintf ( '.filepointer.', "\n",  );<ESC>F\i'
-		exe ":imenu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );                fprintf ( '.filepointer.', "\n",  );<ESC>F\i'
+function! C_CodeIOStream ( stream )
+	if a:stream=="ifstream"
+		let	streamobject= C_Input("ifstream object : ", "ifs" )
+		let direction		= 'input '
+	else
+		let	streamobject=C_Input("ofstream object : ", "ofs" )
+		let direction		= 'output'
 	endif
-endfunction    " ----------  end of function C_CodeFopenWrite ----------
-"
-"------------------------------------------------------------------------------
-"  C++ : open file for reading
-"------------------------------------------------------------------------------
-function! C_CodeIfstream ()
-	let	comment1	= " input file name        "
-	let	comment2	= " create ifstream object "
-	let	comment3	= " open ifstream          "
-	let	ifstreamobject=C_Input("ifstream object : ", "ifs" )
-	if ifstreamobject != ""
-		let filename=ifstreamobject."_file_name"
-		let zz=    "char *".filename." = \"\";\t\t".s:C_Com1.comment1.s:C_Com2."\n"
-		let zz= zz."ifstream\t".ifstreamobject.";\t\t\t\t\t\t\t".s:C_Com1.comment2.s:C_Com2."\n\n"
-		let zz= zz.ifstreamobject.".open (".filename.");\t\t".s:C_Com1.comment3.s:C_Com2."\n"
-		let zz= zz."if (!".ifstreamobject.")\n{\n"
-		let zz= zz."\tcerr << \"\\nERROR : failed to open input file \" << ".filename." << endl;\n"
+	if streamobject != ""
+		let filename=streamobject."_file_name"
+		let zz=    "char *".filename." = \"\";\t\t".s:C_Com1." ".direction." file name       ".s:C_Com2."\n"
+		let zz= zz.a:stream."\t".streamobject.";\t\t\t\t\t\t\t".s:C_Com1." create ".a:stream." object ".s:C_Com2."\n\n"
+		let zz= zz.streamobject.".open (".filename.");\t\t".s:C_Com1." open ".a:stream."          ".s:C_Com2."\n"
+		let zz= zz."if (!".streamobject.")\n{\n"
+		let zz= zz."\tcerr << \"\\nERROR : failed to open ".direction." file \" << ".filename." << endl;\n"
 		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
-		let zz= zz.ifstreamobject.".close ();\t\t".s:C_Com1." close ifstream ".s:C_Com2."\n"
+		let zz= zz.streamobject.".close ();\t\t".s:C_Com1." close ".a:stream." ".s:C_Com2."\n"
 		put =zz
 		normal =11+
 	endif
-endfunction    " ----------  end of function C_CodeIfstream ----------
-"
-"------------------------------------------------------------------------------
-"  C++ : open file for writing
-"------------------------------------------------------------------------------
-function! C_CodeOfstream ()
-	let	comment1	= " output file name       "
-	let	comment2	= " create ofstream object "
-	let	comment3	= " open ofstream          "
-	let	ofstreamobject=C_Input("ofstream object : ", "ofs" )
-	if ofstreamobject != ""
-		let filename=ofstreamobject."_file_name"
-		let zz=    "char *".filename." = \"\";\t\t".s:C_Com1.comment1.s:C_Com2."\n"
-		let zz= zz."ofstream\t".ofstreamobject.";\t\t\t\t\t\t\t".s:C_Com1.comment2.s:C_Com2."\n\n"
-		let zz= zz.ofstreamobject.".open (".filename.");\t\t".s:C_Com1.comment3.s:C_Com2."\n"
-		let zz= zz."if (!".ofstreamobject.")\n{\n"
-		let zz= zz."\tcerr << \"\\nERROR : failed to open output file \" << ".filename." << endl;\n"
-		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
-		let zz= zz.ofstreamobject.".close ();\t\t".s:C_Com1." close ofstream ".s:C_Com2."\n"
-		put =zz
-		normal =11+
-	endif
-endfunction    " ----------  end of function C_CodeOfstream ----------
+endfunction    " ----------  end of function C_CodeIOStream ----------
 "
 "------------------------------------------------------------------------------
 "  C-Idioms : namespace
@@ -1823,7 +1858,7 @@ endfunction    " ----------  end of function C_Namespace ----------
 function! C_CodeOutputOperator ()
 	let	identifier=C_Input("class name : ", s:C_ClassName )
 	if identifier != ""
-		let zz=    "ostream &\noperator << (ostream & os, const ".identifier." & obj )\n"
+		let zz=    "ostream &\noperator << ( ostream & os, const ".identifier." & obj )\n"
 		let zz= zz."{\n\tos << obj. ;\n\treturn os;\n}"
 		let zz= zz."\t\t".s:C_Com1." -----  class ".identifier." : end of friend function operator <<  ----- ".s:C_Com2
 		put =zz
@@ -1836,7 +1871,7 @@ endfunction    " ----------  end of function C_CodeOutputOperator ----------
 function! C_CodeInputOperator ()
 	let	identifier=C_Input("class name : ", s:C_ClassName )
 	if identifier != ""
-		let zz=    "istream &\noperator >> (istream & is, ".identifier." & obj )"
+		let zz=    "istream &\noperator >> ( istream & is, ".identifier." & obj )"
 		let zz= zz."\n{\n\tis >> obj. ;\n\treturn is;\n}"
 		let zz= zz."\t\t".s:C_Com1." -----  class ".identifier." : end of friend function operator >>  ----- ".s:C_Com2
 		put =zz
@@ -1848,7 +1883,7 @@ endfunction    " ----------  end of function C_CodeInputOperator ----------
 "------------------------------------------------------------------------------
 function! C_CodeTryCatch ()
   let zz=    "try\n{\n\t\n}\n"
-  let zz= zz."catch (const  &ExceptObj)\t\t".s:C_Com1." handle exception: ".s:C_Com2."\n{\n\t\n}\n"
+  let zz= zz."catch ( const &ExceptObj )\t\t".s:C_Com1." handle exception: ".s:C_Com2."\n{\n\t\n}\n"
   let zz= zz."catch (...)\t\t\t".s:C_Com1." handle exception: unspezified ".s:C_Com2."\n{\n\t\n}"
 	put =zz		
 	normal  =11+
@@ -1858,7 +1893,7 @@ endfunction    " ----------  end of function C_CodeTryCatch ----------
 "  C++ : catch
 "------------------------------------------------------------------------------
 function! C_CodeCatch ()
-  put =\"catch (const  &ExceptObj)\t\t\".s:C_Com1.\" handle exception: \".s:C_Com2.\"\n{\n\t\n}\n\"
+  put =\"catch ( const &ExceptObj )\t\t\".s:C_Com1.\" handle exception: \".s:C_Com2.\"\n{\n\t\n}\n\"
 	normal  =3+
 endfunction    " ----------  end of function C_CodeCatch ----------
 "
@@ -1970,6 +2005,8 @@ endfunction    " ---------  end of function C_EscapeBlanks  ----------
 "------------------------------------------------------------------------------
 function! C_Compile ()
 
+	let	l:currentbuffer	= bufname("%")
+	let s:C_HlMessage = ""
 	exe	":cclose"
 	let	Sou		= expand("%")											" name of the file in the current buffer
 	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object
@@ -2000,7 +2037,7 @@ function! C_Compile ()
 		" open error window if necessary 
 		exe	":botright cwindow"
 	else
-		echo "'".Obj."' is up to date"
+		let s:C_HlMessage = " '".Obj."' is up to date "
 	endif
 	
 endfunction    " ----------  end of function C_Compile ----------
@@ -2017,6 +2054,7 @@ function! C_Link ()
 
 	call	C_Compile()
 
+	let s:C_HlMessage = ""
 	let	Sou		= expand("%")						       		" name of the file in the current buffer
 	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object file
 	let	Exe		= expand("%:r").s:C_ExeExtension	" name of the executable
@@ -2035,7 +2073,7 @@ function! C_Link ()
       \ filereadable(Sou)                &&
       \ (getftime(Exe) >= getftime(Obj)) &&
       \ (getftime(Obj) >= getftime(Sou))
-		echo "'".Exe."' is up to date"
+		let s:C_HlMessage = " '".Exe."' is up to date "
 		return
 	endif
 	
@@ -2057,7 +2095,7 @@ function! C_Link ()
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o ".ExeEsc." ".ObjEsc
 		endif
 		if v:statusmsg != ""
-			echoerr v:statusmsg 
+			let s:C_HlMessage = v:statusmsg 
 		endif
 		exe		"set makeprg=make"
 	endif
@@ -2253,11 +2291,9 @@ endfunction    " ----------  end of function C_Make ----------
 "------------------------------------------------------------------------------
 "  run : splint command line arguments
 "------------------------------------------------------------------------------
-let s:C_SplintCheckMsg    = ""
-"
 function! C_SplintArguments ()
 	if !executable("splint") 
-		let s:C_SplintCheckMsg = 'Splint is not executable or not installed!'
+		let s:C_HlMessage = ' Splint is not executable or not installed! '
 	else
 		let	prompt	= 'Splint command line arguments for "'.expand("%").'" : '
 		if exists("b:C_SplintCmdLineArgs")
@@ -2273,15 +2309,15 @@ endfunction    " ----------  end of function C_SplintArguments ----------
 "------------------------------------------------------------------------------
 function! C_SplintCheck ()
 	if !executable("splint") 
-		let s:C_SplintCheckMsg = 'Splint is not executable or not installed!'
+		let s:C_HlMessage = ' Splint is not executable or not installed! '
 		return
 	endif
 	let	l:currentbuffer=bufname("%")
 	if &filetype != "c" && &filetype != "cpp"
-		let s:C_SplintCheckMsg = l:currentbuffer.' seems not to be a C/C++ file'
+		let s:C_HlMessage = ' "'.l:currentbuffer.'" seems not to be a C/C++ file '
 		return
 	endif
-	let s:C_SplintCheckMsg = ""
+	let s:C_HlMessage = ""
 	exe	":cclose"	
 	silent exe	":update"
 	exe	"set makeprg=splint"
@@ -2313,7 +2349,7 @@ function! C_SplintCheck ()
 	" message in case of success
 	"
 	if l:currentbuffer == bufname("%")
-		let s:C_SplintCheckMsg = " Splint --- no warnings for : ".l:currentbuffer
+		let s:C_HlMessage = " Splint --- no warnings for : ".l:currentbuffer
 	else
 		setlocal wrap
 		setlocal linebreak
@@ -2321,13 +2357,57 @@ function! C_SplintCheck ()
 endfunction    " ----------  end of function C_SplintCheck ----------
 "
 "------------------------------------------------------------------------------
-"  run : splint check message
+"  run : indent
 "------------------------------------------------------------------------------
-function! C_SplintCheckMsg ()
-		echohl Search 
-		echo s:C_SplintCheckMsg
-		echohl None
-endfunction    " ----------  end of function C_SplintCheckMsg ----------
+"
+function! C_Indent ( mode )
+	if !executable("indent") 
+		let s:C_HlMessage	= ' indent is not executable or not installed! '
+		return
+	endif
+	let	l:currentbuffer=bufname("%")
+	if &filetype != "c" && &filetype != "cpp"
+		let s:C_HlMessage = ' "'.l:currentbuffer.'" seems not to be a C/C++ file '
+		return
+	endif
+	let s:C_HlMessage    = ""
+
+	if a:mode=="a"
+		if C_Input("indent whole file [y/n/Esc] : ", "" ) != "y"
+			return
+		endif
+		exe	":update"
+		if has("MSWIN")
+			silent exe ":'<,'>!indent"
+		else
+			silent exe ":%!indent 2> ".s:C_IndentErrorLog
+		endif
+		let s:C_HlMessage = ' File "'.l:currentbuffer.'" reformatted.'
+	endif
+
+	if a:mode=="v"
+		if has("MSWIN")
+			silent exe ":'<,'>!indent"
+		else
+			silent exe ":'<,'>!indent 2> ".s:C_IndentErrorLog
+		endif
+		let s:C_HlMessage = ' File "'.l:currentbuffer.'" (lines '.line("'<").'-'.line("'>").') reformatted. '
+	endif
+
+	if v:shell_error != 0
+		let s:C_HlMessage = ' Indent reported an error when processing file "'.l:currentbuffer.'". '
+	endif
+
+endfunction    " ----------  end of function C_Indent ----------
+"
+"------------------------------------------------------------------------------
+"  run : indent message
+"------------------------------------------------------------------------------
+function! C_HlMessage ()
+	echohl Search 
+	echo s:C_HlMessage
+	echohl None
+endfunction    " ----------  end of function C_HlMessage ----------
 "
 "------------------------------------------------------------------------------
 "  run : settings
@@ -2463,12 +2543,13 @@ endif
 "
 "------------------------------------------------------------------------------
 "  Automated header insertion
+"  C/C++ file name suffixes from the gcc manual (Linux)
 "------------------------------------------------------------------------------
 "
 if has("autocmd")
-	autocmd BufNewFile  *.c,*.cc,*.cxx,*.c++,*.C,*.H,*.hh,*.hxx,*.hpp,*.moc,*.tcc,*.inl
+	autocmd BufNewFile  *.c,*.cc,*.cp,*.cxx,*.cpp,*.c++,*.C,*.i,*.ii
 				\		call C_CommentTemplates('cheader')
-	autocmd BufNewFile  *.hh,*.hxx,*.hpp
+	autocmd BufNewFile  *.h,*.H,*.hh,*.hxx,*.hpp
 				\		call C_CommentTemplates('hheader')
 endif " has("autocmd")
 "

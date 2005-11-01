@@ -1,4 +1,4 @@
-README for c.vim (Version 3.8.2) / September 05 2005
+README for c.vim (Version 3.9) / October 28 2005
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -63,6 +63,16 @@ and look at csupport help with
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.9
+=======================================================================================
+
++ Formatter 'indent' integrated.
++ Bugfix in the automatic header insertion.
++ Assert idiom added.
++ #if 0 ... #endif statement for blocking out code added.
++ Minor stylistic improvements in some idioms.
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.8.2
@@ -273,21 +283,24 @@ wordlists/stl_index.list        Standard Template Library (STL): method and type
                           c.vim will work without them.
                           -------------------------------------------------------------
 
-rc/costumization.vimrc    Additional settings I use in .vimrc:  incremental search,
-                          tabstop, hot keys, font, use of dictionaries, ...
-                          The file is commented. Append it to your .vimrc if you like.
+rc/customization.ctags       Additional settings I use in  .ctags to enable navigation
+                             through makefiles ans qmake files with the plugin taglist.vim.
 
-rc/costumization.gvimrc   Additional settings I use in .gvimrc:
-                          hot keys, mouse settings, ...
-                          The file is commented. Append it to your .gvimrc if you like.
+rc/costumization.gvimrc      Additional settings I use in .gvimrc :
+                             hot keys, mouse settings, ...
+                             The file is commented. Append it to your .gvimrc if you like.
 
-rc/customization.ctags    Additional settings I use in  .ctags to enable navigation
-                          through makefiles ans qmake files with the plugin taglist.vim.
+rc/costumization.indent.pro  Additional settings I use in .indent.pro :
+                             See the indent manual.
 
-c-templates-comm.zip      The C/C++ templates from the previous versions (without 
-                          method comments).
+rc/costumization.vimrc       Additional settings I use in .vimrc :  incremental search,
+                             tabstop, hot keys, font, use of dictionaries, ...
+                             The file is commented. Append it to your .vimrc if you like.
 
-c-templates+comm.zip      The C/C++ templates with method comments.
+c-templates-comm.zip         The C/C++ templates from the previous versions (without 
+                             method comments).
+
+c-templates+comm.zip         The C/C++ templates with method comments.
 
 =======================================================================================
   ADDITIONAL TIPS

@@ -13,8 +13,8 @@ runtime vimrc_example.vim
 " - central backup directory (has to be created)
 " - default dictionary
 " Uncomment your choice.  
-if  has("win16") || has("win32")     || has("win32") || 
-  \ has("win64") || has("win32unix") || has("win95")
+if  has("win16") || has("win32")     || has("win64") || 
+  \ has("win95") || has("win32unix")
     "
 "    runtime mswin.vim
 "    set backupdir =$VIM\vimfiles\backupdir
@@ -23,6 +23,10 @@ else
 "    set backupdir =$HOME/.vim.backupdir
 "    set dictionary=$HOME/.vim/wordlists/german.list
 endif
+"
+" Using a backupdir under UNIX/Linux: you may want to include a line similar to
+"   find  $HOME/.vim.backupdir -name "*" -type f -mtime +60 -exec rm -f {} \;
+" in one of your shell startup files (e.g. $HOME/.profile)
 "
 "-------------------------------------------------------------------------------
 " Use of dictionaries
@@ -77,6 +81,7 @@ imap  <silent> <F12>   :let &number=1-&number<CR>
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
 " The current buffer will be saved before switching to the next one.
+" Choose :bprevious or :bnext
 "-------------------------------------------------------------------------------
 "
  map  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly && 

@@ -16,7 +16,7 @@ class |CLASSNAME|
 
     // ====================  OPERATORS   ========================================= 
 
-    const |CLASSNAME|& operator = ( const |CLASSNAME| &other );  // assignement operator 
+    const |CLASSNAME|& operator = ( const |CLASSNAME| &other );  // assignment operator 
 
     // ====================  OPERATIONS  ========================================= 
 
@@ -65,7 +65,7 @@ class |CLASSNAME|
 const |CLASSNAME|&
 |CLASSNAME|::operator = ( const |CLASSNAME| &other )
 {
-  if(this!=&other)
+  if( this!=&other )
   {
   }
   return *this;
