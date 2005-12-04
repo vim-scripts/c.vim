@@ -19,11 +19,11 @@
 #        Notes: C   extension   :  c 
 #               C++ extensions  :  cc  C 
 #               C and C++ sources can be mixed.
-#               Prerequisites are generated automatically; makedepend is not 
+#               Prerequisites are generated automatically; makedepend is not
 #               needed (see documentation for GNU make Version 3.80, July 2002,
-#               section 4.13). BASH file tests and the utility sed are used.
+#               section 4.13). The utility sed is used.
 #               
-#============================================== makefile template version 1.3 ==========
+#============================================== makefile template version 1.4 ==========
 
 # ------------  name of the executable  ------------------------------------------------
 EXECUTABLE      = main
@@ -110,7 +110,7 @@ endif
 
 # ------------  make the objects  ------------------------------------------------------
 %.o:						%.c
-								$(CC) -c $(ALL_CFLAGS) $< 
+								$(CC)  -c $(ALL_CFLAGS) $< 
 
 %.o:						%.cc
 								$(CXX) -c $(ALL_CFLAGS) $< 
@@ -122,22 +122,19 @@ endif
 #  echoing of the sed command is suppressed by the leading @
 #
 .%.d:           %.c
-								@set -e; $(CC)  -MM $< \
-								| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
-								[ -s $@ ] || rm -f $@
-								@[ -f $@ ]&& echo "prerequisite file  $@  generated"
+								@$(CC)   -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
+								sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
+								rm -f $@.$$$$; 
 
 .%.d:						%.cc
-								@set -e; $(CXX)  -MM $< \
-								| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
-								[ -s $@ ] || rm -f $@
-								@[ -f $@ ]&& echo "prerequisite file  $@  generated"
+								@$(CXX)  -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
+								sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
+								rm -f $@.$$$$; 
 
 .%.d:						%.C
-								@set -e; $(CXX)  -MM $< \
-								| sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
-								[ -s $@ ] || rm -f $@
-								@[ -f $@ ]&& echo "prerequisite file  $@  generated"
+								@$(CXX)  -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
+								sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
+								rm -f $@.$$$$; 
 
 # ------------  remove generated files  ------------------------------------------------
 # ------------  remove hidden backup files  --------------------------------------------
@@ -146,17 +143,17 @@ clean:
 
 # ------------ tarball generation ------------------------------------------------------
 tarball:
-					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
-					rm --force $$lokaldir.tar.gz;              \
-					tar --exclude=$(TARBALL_EXCLUDE)           \
-					    --create                               \
-					    --gzip                                 \
-					    --verbose                              \
+					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
+					rm --force $$lokaldir.tar.gz;               \
+					tar --exclude=$(TARBALL_EXCLUDE)            \
+					    --create                                \
+					    --gzip                                  \
+					    --verbose                               \
 					    --file  $$lokaldir.tar.gz *
 
 # ------------ zip ---------------------------------------------------------------------
 zip:
-					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
+					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
 					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE)
 
 # ======================================================================================

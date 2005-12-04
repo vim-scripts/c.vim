@@ -1,4 +1,4 @@
-README for c.vim (Version 3.9) / October 28 2005
+README for c.vim (Version 3.9.1) / December 02 2005
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -21,7 +21,7 @@ The subdirectories in the zip archive  cvim.zip  mirror the directory structure
 which is needed below the local installation directory $HOME/.vim/ for LINUX/UNIX
 ($VIM/vimfiles/ for Windows; find the value of $VIM with ":echo $VIM" from inside Vim).
 
-(1) Copy the zip archive  cvim.zip to $HOME/.vim and run
+(1) Copy the zip archive cvim.zip to $HOME/.vim and run
 
       unzip cvim.zip
 
@@ -30,7 +30,7 @@ which is needed below the local installation directory $HOME/.vim/ for LINUX/UNI
     archive by hand.
 
 (2) Set at least some personal details into the file $HOME/.vimrc (file $VIM\_vimrc 
-    under Windows).  Here the minimal personalization (my settings as an example, 
+    under Windows). Here is the minimal personalization (my settings as an example, 
     of course):
 
       let g:C_AuthorName      = 'Dr.-Ing. Fritz Mehner'     
@@ -42,9 +42,9 @@ There are a lot of features and options which can be used and influenced:
 
   *  use of template files and tags
   *  surround marked blocks with statements
+  *  using and managing personal code snippets
   *  generate/remove multiline comments 
   *  picking up prototypes
-  *  using and managing personal code snippets
   *  C/C++ dictionaries for keyword completion
   *  removing the root menu
 
@@ -63,6 +63,14 @@ and look at csupport help with
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.9.1
+=======================================================================================
+
++ Doubling of file header for new c- and h-files under Windows fixed (Thanks to
+   Fabricio C A Oliveira).
++ Tiny bug in the file open idioms fixed.
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.9
@@ -270,6 +278,11 @@ plugin/templates/cpp-class-using-new             |
 plugin/templates/cpp-template-class              |
 plugin/templates/cpp-template-class-using-new    |
 plugin/templates/cpp-error-class                -+
+
+plugin/templates/c-function-description.long      old version of /c-function-description
+plugin/templates/cpp-function-description.long    old version of /cpp-function-description
+                                                  These templates overdo the commenting of
+                                                  functions in most cases.
 
 wordlists/c-c++-keywords.list   All C and C++ keywords (already in word.list).
 wordlists/german.list           German words for commenting sources.

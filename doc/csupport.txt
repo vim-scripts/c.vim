@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Oct 28 2005
+*csupport.txt*                  C/C++ Support                      Dec 02 2005
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 3.9
+                             Plugin version 3.9.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -196,7 +196,7 @@ needs not to be marked.
 1.1.5 FRAME COMMENTS, FILE HEADER, ...                   *csupport-comm-frame*
 
 Frame comments, file header comments and function, methods, class descriptions 
-are read as templates from the appropriate files (see |csupport-tempfiles|).
+are read as templates from the appropriate files (see |csupport-templates|).
 
 ------------------------------------------------------------------------------
 
@@ -650,7 +650,7 @@ Several global variables are checked by the script to customize it:
   g:C_Project               ""                               |PROJECT|
   g:C_CopyrightHolder       ""                               |COPYRIGHTHOLDER|
 
-  g:C_Template_Directory    root_dir."/.vim/plugin/templates/"
+  g:C_Template_Directory    plugin_dir."/.vim/plugin/templates/"
   g:C_Template_C_File       "c-file-header"
   g:C_Template_Class        "c-class-description"
   g:C_Template_Frame        "c-frame"
@@ -665,7 +665,7 @@ Several global variables are checked by the script to customize it:
   g:Cpp_Template_Method     "cpp-method-description"
 
   g:C_Comments              "yes"
-  g:C_CodeSnippets          root_dir."/.vim/codesnippets-c/"
+  g:C_CodeSnippets          plugin_dir."/.vim/codesnippets-c/"
   g:C_Dictionary_File       ""
   g:C_LoadMenus             "yes"
   g:C_MenuHeader            "yes"
@@ -688,14 +688,14 @@ Several global variables are checked by the script to customize it:
   g:C_LineEndCommColDefault 49
   g:C_CExtension            "c"              
 
-The variable root_dir will automatically be set to one of the following values:
+The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for Windows
 
   ----------------------------------------------------------------------------
 
 1. group: Defines the text which will be inserted for the tags when a template  
-          is read in (see also |csupport-tempfiles| below).
+          is read in (see also |csupport-templates| below).
 
           g:C_AuthorName         : author name
           g:C_AuthorRef          : author reference (e.g. acronym)
@@ -705,11 +705,11 @@ The variable root_dir will automatically be set to one of the following values:
           g:C_CopyrightHolder    : the copyright holder
 
 2. group: g:C_Template_Directory : Sets the template directory and the names of the 
-           ...                     template files (see |csupport-tempfiles|).
+           ...                     template files (see |csupport-templates|).
 
 3. group: g:C_Comments           : The initial comment style (C = yes, C++ = no).
           g:C_CodeSnippets       : The name of the code snippet directory 
-                                   (see |csupport-code-snippets|).
+                                   (see |csupport-snippets|).
           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
                                    word completion (see also |csupport-dictionary|)
           g:C_Root               : the name of the root menu of this plugin
@@ -863,20 +863,20 @@ are a part of this plugin and can be used (together with your own lists) as
 dictionaries for automatic word completion.  This feature is enabled by
 default. The default word lists are
 
-  root_dir/.vim/wordlists/c-c++-keywords.list
-  root_dir/.vim/wordlists/k+r.list
-  root_dir/.vim/wordlists/stl_index.list
+  plugin_dir/.vim/wordlists/c-c++-keywords.list
+  plugin_dir/.vim/wordlists/k+r.list
+  plugin_dir/.vim/wordlists/stl_index.list
 
-The variable root_dir will automatically be set to one of the following values:
+The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for Windows
 If you want to use an additional list MyC.list put the following lines into
  .vimrc :
 
-  let g:C_Dictionary_File = root_dir.'/.vim/wordlists/c-c++-keywords.list,'.
-        \                   root_dir.'/.vim/wordlists/k+r.list,'.
-        \                   root_dir.'/.vim/wordlists/stl_index.list,'.
-        \                   root_dir.'/.vim/wordlists/MyC.list'
+  let g:C_Dictionary_File = plugin_dir.'/.vim/wordlists/c-c++-keywords.list,'.
+        \                   plugin_dir.'/.vim/wordlists/k+r.list,'.
+        \                   plugin_dir.'/.vim/wordlists/stl_index.list,'.
+        \                   plugin_dir.'/.vim/wordlists/MyC.list'
   
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 

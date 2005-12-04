@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  28.10.2005
+"       Revision:  02.12.2005
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -27,7 +27,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.9"  							" version number of this script; do not change
+let g:C_Version= "3.9.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -42,14 +42,14 @@ let	s:MSWIN =		has("win16") || has("win32")     || has("win64") ||
 " 
 if	s:MSWIN
 	"
-	let s:root_dir	  = $VIM.'\vimfiles\'
+	let s:plugin_dir	= $VIM.'\vimfiles\'
 	let s:home_dir	  = ''
   let s:escfilename = ' %#'
   let s:escfilename = ''
 	"
 else
 	"
-	let s:root_dir	  = $HOME.'/.vim/'
+	let s:plugin_dir	= $HOME.'/.vim/'
 	let s:home_dir	  = $HOME.'/'
   let s:escfilename = ' \%#[]'
 	"
@@ -59,9 +59,9 @@ endif
 "  g:C_Dictionary_File  must be global
 "          
 if !exists("g:C_Dictionary_File")
-  let g:C_Dictionary_File = s:root_dir.'wordlists/c-c++-keywords.list,'.
-        \                   s:root_dir.'wordlists/k+r.list,'.
-        \                   s:root_dir.'wordlists/stl_index.list'
+  let g:C_Dictionary_File = s:plugin_dir.'wordlists/c-c++-keywords.list,'.
+        \                   s:plugin_dir.'wordlists/k+r.list,'.
+        \                   s:plugin_dir.'wordlists/stl_index.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden.
@@ -77,7 +77,7 @@ let  s:C_Root          = '&C\/C\+\+.'           " the name of the root menu of t
 "
 let s:C_LoadMenus      = "yes"
 " 
-let s:C_CodeSnippets   = s:root_dir.'codesnippets-c/'
+let s:C_CodeSnippets   = s:plugin_dir.'codesnippets-c/'
 "                     
 let s:C_CExtension     = "c"                    " C file extension; everything else is C++
 if	s:MSWIN
@@ -99,7 +99,7 @@ let s:C_MenuHeader     = "yes"
 let s:C_IndentErrorLog = s:home_dir.'.indent.errorlog'
 "  
 "   ----- template files ---- ( 1. set of templates ) ----------------
-let s:C_Template_Directory       = s:root_dir."plugin/templates/"
+let s:C_Template_Directory       = s:plugin_dir."plugin/templates/"
 "
 "   ----- C template files ---- ( 1. set of templates ) --------------
 let s:C_Template_C_File          = "c-file-header"
@@ -143,54 +143,52 @@ function! C_CheckGlobal ( name )
   endif
 endfunction    " ----------  end of function C_CheckGlobal ----------
 "
-call C_CheckGlobal("C_AuthorName         ")
-call C_CheckGlobal("C_AuthorRef          ")
-call C_CheckGlobal("C_Email              ")
-call C_CheckGlobal("C_Company            ")
-call C_CheckGlobal("C_Project            ")
-call C_CheckGlobal("C_CopyrightHolder    ")
-call C_CheckGlobal("C_Root               ")
-call C_CheckGlobal("C_LoadMenus          ")
-call C_CheckGlobal("C_CodeSnippets       ")
-call C_CheckGlobal("C_CExtension         ")
-call C_CheckGlobal("C_ObjExtension       ")
-call C_CheckGlobal("C_ExeExtension       ")
-call C_CheckGlobal("C_CCompiler          ")
-call C_CheckGlobal("C_CplusCompiler      ")
-call C_CheckGlobal("C_CFlags             ")
-call C_CheckGlobal("C_LFlags             ")
-call C_CheckGlobal("C_Libs               ")
-call C_CheckGlobal("C_Comments           ")
-call C_CheckGlobal("C_Template_Directory ")
-call C_CheckGlobal("C_Template_C_File    ")
-call C_CheckGlobal("C_Template_Class     ")
-call C_CheckGlobal("C_Template_Frame     ")
-call C_CheckGlobal("C_Template_Function  ")
-call C_CheckGlobal("C_Template_H_File    ")
-call C_CheckGlobal("C_Template_Method    ")
-call C_CheckGlobal("Cpp_Template_C_File  ")
-call C_CheckGlobal("Cpp_Template_Class   ")
-call C_CheckGlobal("Cpp_Template_Frame   ")
-call C_CheckGlobal("Cpp_Template_Function")
-call C_CheckGlobal("Cpp_Template_H_File  ")
-call C_CheckGlobal("Cpp_Template_Method  ")
-"
+call C_CheckGlobal("C_AuthorName             ")
+call C_CheckGlobal("C_AuthorRef              ")
+call C_CheckGlobal("C_CCompiler              ")
+call C_CheckGlobal("C_CExtension             ")
+call C_CheckGlobal("C_CFlags                 ")
 call C_CheckGlobal("C_Class                  ")
 call C_CheckGlobal("C_ClassUsingNew          ")
+call C_CheckGlobal("C_CodeSnippets           ")
+call C_CheckGlobal("C_Comments               ")
+call C_CheckGlobal("C_Company                ")
+call C_CheckGlobal("C_CopyrightHolder        ")
+call C_CheckGlobal("C_CplusCompiler          ")
+call C_CheckGlobal("C_Email                  ")
+call C_CheckGlobal("C_ErrorClass             ")
+call C_CheckGlobal("C_ExeExtension           ")
+call C_CheckGlobal("C_IndentErrorLog         ")
+call C_CheckGlobal("C_LFlags                 ")
+call C_CheckGlobal("C_Libs                   ")
+call C_CheckGlobal("C_LineEndCommColDefault  ")
+call C_CheckGlobal("C_LoadMenus              ")
+call C_CheckGlobal("C_MenuHeader             ")
+call C_CheckGlobal("C_ObjExtension           ")
+call C_CheckGlobal("C_OutputGvim             ")
+call C_CheckGlobal("C_Project                ")
+call C_CheckGlobal("C_Root                   ")
 call C_CheckGlobal("C_TemplateClass          ")
 call C_CheckGlobal("C_TemplateClassUsingNew  ")
-call C_CheckGlobal("C_ErrorClass             ")
+call C_CheckGlobal("C_Template_C_File        ")
+call C_CheckGlobal("C_Template_Class         ")
+call C_CheckGlobal("C_Template_Directory     ")
+call C_CheckGlobal("C_Template_Frame         ")
+call C_CheckGlobal("C_Template_Function      ")
+call C_CheckGlobal("C_Template_H_File        ")
+call C_CheckGlobal("C_Template_Method        ")
+call C_CheckGlobal("C_XtermDefaults          ")
 call C_CheckGlobal("Cpp_Class                ")
 call C_CheckGlobal("Cpp_ClassUsingNew        ")
+call C_CheckGlobal("Cpp_ErrorClass           ")
 call C_CheckGlobal("Cpp_TemplateClass        ")
 call C_CheckGlobal("Cpp_TemplateClassUsingNew")
-call C_CheckGlobal("Cpp_ErrorClass           ")
-call C_CheckGlobal("C_OutputGvim             ")
-call C_CheckGlobal("C_XtermDefaults          ")
-"
-call C_CheckGlobal("C_MenuHeader             ")
-call C_CheckGlobal("C_LineEndCommColDefault  ")
-call C_CheckGlobal("C_IndentErrorLog         ")
+call C_CheckGlobal("Cpp_Template_C_File      ")
+call C_CheckGlobal("Cpp_Template_Class       ")
+call C_CheckGlobal("Cpp_Template_Frame       ")
+call C_CheckGlobal("Cpp_Template_Function    ")
+call C_CheckGlobal("Cpp_Template_H_File      ")
+call C_CheckGlobal("Cpp_Template_Method      ")
 "
 "----- some variables for internal use only -----------------------------------
 "
@@ -1775,14 +1773,14 @@ function! C_CodeFopen ( inout )
 		let	filepointer	= C_Input(a:inout."-file pointer : ", "infile")
 		let	mode				= 'r'
 	else
-		let	filepointer=C_Input(a:inout."-file pointer : ", "outfile")
+		let	filepointer = C_Input(a:inout."-file pointer : ", "outfile")
 		let	mode				= 'w'
 	endif
 	if filepointer != ""
 		let filename=filepointer."_file_name"
 		let zz=    "FILE\t*".filepointer.";\t\t\t\t\t\t\t\t\t\t".s:C_Com1." ".a:inout."-file pointer ".s:C_Com2."\n"
 		let zz= zz."char\t*".filename." = \"\";\t\t".s:C_Com1." ".a:inout."-file name    ".s:C_Com2."\n\n"
-		let zz= zz.filepointer."\t= fopen( ".filename.", \"".mode."r\" );\n"
+		let zz= zz.filepointer."\t= fopen( ".filename.", \"".mode."\" );\n"
 		let zz= zz."if ( ".filepointer." == NULL )\n{\n"
 		let zz= zz."\tfprintf ( stderr, \"couldn't open file '%s'; %s\\n\",\n".filename.", strerror(errno) );\n"
 		let zz= zz."\texit (EXIT_FAILURE);\n}\n\n\n"
@@ -2547,10 +2545,18 @@ endif
 "------------------------------------------------------------------------------
 "
 if has("autocmd")
-	autocmd BufNewFile  *.c,*.cc,*.cp,*.cxx,*.cpp,*.c++,*.C,*.i,*.ii
-				\		call C_CommentTemplates('cheader')
-	autocmd BufNewFile  *.h,*.H,*.hh,*.hxx,*.hpp
-				\		call C_CommentTemplates('hheader')
+	if	s:MSWIN
+		" Windows does not distinguish between lower and upper case
+		autocmd BufNewFile  *.c,*.cc,*.cp,*.cxx,*.cpp,*.c++,*.i,*.ii
+					\		call C_CommentTemplates('cheader')
+		autocmd BufNewFile  *.h,*.hh,*.hxx,*.hpp
+					\		call C_CommentTemplates('hheader')
+	else
+		autocmd BufNewFile  *.c,*.cc,*.cp,*.cxx,*.cpp,*.c++,*.C,*.i,*.ii
+					\		call C_CommentTemplates('cheader')
+		autocmd BufNewFile  *.h,*.H,*.hh,*.hxx,*.hpp
+					\		call C_CommentTemplates('hheader')
+	endif
 endif " has("autocmd")
 "
 "=====================================================================================
