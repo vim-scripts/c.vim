@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  02.12.2005
+"       Revision:  26.01.2006
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -27,7 +27,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.9.1"  							" version number of this script; do not change
+let g:C_Version= "3.10"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -132,6 +132,7 @@ let s:Cpp_ErrorClass             = "cpp-error-class"
 let s:C_OutputGvim               = "vim"
 let s:C_XtermDefaults            = "-fa courier -fs 12 -geometry 80x24"
 let s:C_LineEndCommColDefault    = 49
+let s:C_Printheader              = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 "
 "------------------------------------------------------------------------------
 "
@@ -166,6 +167,7 @@ call C_CheckGlobal("C_LoadMenus              ")
 call C_CheckGlobal("C_MenuHeader             ")
 call C_CheckGlobal("C_ObjExtension           ")
 call C_CheckGlobal("C_OutputGvim             ")
+call C_CheckGlobal("C_Printheader            ")
 call C_CheckGlobal("C_Project                ")
 call C_CheckGlobal("C_Root                   ")
 call C_CheckGlobal("C_TemplateClass          ")
@@ -207,6 +209,10 @@ endif
 if match( s:C_XtermDefaults, "-geometry\\s\\+\\d\\+x\\d\\+" ) < 0
 	let s:C_XtermDefaults	= s:C_XtermDefaults." -geometry 80x24"
 endif
+"
+" escape the printheader
+"
+let s:C_Printheader  = escape( s:C_Printheader, ' %' )
 "
 let s:C_HlMessage    = ""
 "
@@ -257,8 +263,8 @@ function! C_InitC ()
 	exe "vmenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ \/&*\ *\/   <Esc><Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>'
 	exe "amenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>'
 	exe "vmenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code         <Esc><Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code         <Esc><Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>'
+	exe "amenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>'
+	exe "vmenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>'
 	
 	exe "amenu          ".s:C_Root.'&Comments.-SEP0-                  :'
 	exe "amenu <silent> ".s:C_Root.'&Comments.&frame\ comment         <Esc><Esc>:call C_CommentTemplates("frame")<CR>'
@@ -399,8 +405,12 @@ function! C_InitC ()
 		exe "amenu  ".s:C_Root.'&Comments.&vim\ modeline             <Esc><Esc>:call C_CommentVimModeline()<CR>'
 		exe "amenu  ".s:C_Root.'&Comments.-SEP12-                    :'
 		if s:C_Comments == 'yes' 
+			exe "amenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/       <Esc><Esc>:call C_CommentCppToC("a")<CR><Esc>:nohlsearch<CR>'
+			exe "vmenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/       <Esc><Esc>:call C_CommentCppToC("v")<CR><Esc>:nohlsearch<CR>'
 			exe "amenu  <silent>  ".s:C_Root.'&Comments.st&yle\ C\ ->\ C\+\+   <Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		else
+			exe "amenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx       <Esc><Esc>:call C_CommentCToCpp("a")<CR><Esc>:nohlsearch<CR>'
+			exe "vmenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx       <Esc><Esc>:call C_CommentCToCpp("v")<CR><Esc>:nohlsearch<CR>'
 			exe "amenu  <silent>  ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C   <Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		endif
 		"
@@ -417,31 +427,29 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("a")<CR><Esc>3jf(la'
 	exe "vmenu  ".s:C_Root.'St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("v")<CR><Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.f&or                        <Esc><Esc>ofor ( ; ;  )<Esc>2F;i'
-	exe "vmenu  ".s:C_Root."St&atements.f&or                        DOfor ( ; ;  )<Esc>p:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>kf(la"
+	exe "amenu  ".s:C_Root.'St&atements.f&or                        <Esc><Esc>:call C_Stat("a","for ( ; ; )")<Esc>f;i'
+	exe "vmenu  ".s:C_Root.'St&atements.f&or                        <Esc><Esc>:call C_Stat("v","for ( ; ; )")<Esc>f;i'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.fo&r\ \{\ \}                <Esc><Esc>ofor ( ; ;  )<CR>{<CR>}<Esc>2kf;i'
-	exe "vmenu  ".s:C_Root."St&atements.fo&r\\ \{\\ \}              DOfor ( ; ;  )<CR>{<CR>}<Esc>Pk=%k<Esc>f;i"
+	exe "amenu  ".s:C_Root.'St&atements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("a","for ( ; ; )")<Esc>f;i'
+	exe "vmenu  ".s:C_Root.'St&atements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("v","for ( ; ; )")<Esc>f;i'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&if                         <Esc><Esc>oif (  )<Esc>F(la'
-	exe "vmenu  ".s:C_Root."St&atements.&if                         DOif (  )<Esc>p:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>kf(la"
+	exe "amenu  ".s:C_Root.'St&atements.&if                         <Esc><Esc>:call C_Stat("a","if (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.&if                         <Esc><Esc>:call C_Stat("v","if (  )")<Esc>f(la'
 
-
-	exe "amenu  ".s:C_Root.'St&atements.if\ &else                   <Esc><Esc>oif (  )<CR>else<Esc>1kf)hi'
-	exe "vmenu  ".s:C_Root."St&atements.if\\ &else                   DOif (  )<CR>else<Esc>P:exe \"normal =\".(line(\"'>\")-line(\".\")-2).\"+\"<CR>kf(la"
-	"-----------------------------        ^-- these backslashes have to be doubled 
+	exe "amenu  ".s:C_Root.'St&atements.if\ &else                   <Esc><Esc>:call C_IfElse("a")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.if\ &else                   <Esc><Esc>:call C_IfElse("v")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.i&f\ \{\ \}                 <Esc><Esc>oif (  )<CR>{<CR>}<Esc>2kf(la'
-	exe "vmenu  ".s:C_Root."St&atements.i&f\\ \{\\ \}               DOif (  )<CR>{<CR>}<Esc>Pk=%k<Esc>f(la"
+	exe "amenu  ".s:C_Root.'St&atements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("a","if (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("v","if (  )")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.if\ \{\ \}\ e&lse\ \{\ \}       <Esc><Esc>oif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>5kf(la'
-	exe "vmenu  ".s:C_Root."St&atements.if\\ \{\\ \}\\ e&lse\\ \{\\ \}   DOif (  )<CR>{<CR>}<CR>else<CR>{<CR>}<Esc>3kPk=%k<Esc>f(la"
+	exe "amenu  ".s:C_Root.'St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("a")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("v")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.w&hile                      <Esc><Esc>owhile (  )<Esc>F(la'
-	exe "vmenu  ".s:C_Root."St&atements.w&hile                      DOwhile (  )<Esc>p:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>kf(la"
+	exe "amenu  ".s:C_Root.'St&atements.w&hile                      <Esc><Esc>:call C_Stat("a","while (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.w&hile                      <Esc><Esc>:call C_Stat("v","while (  )")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&while\ \{\ \}              <Esc><Esc>owhile (  )<CR>{<CR>}<Esc>2kf(la'
-	exe "vmenu  ".s:C_Root."St&atements.&while\\ \{\\ \}            DOwhile (  )<CR>{<CR>}<Esc>Pk=%k<Esc>f(la"
+	exe "amenu  ".s:C_Root.'St&atements.&while\ \{\ \}              <Esc><Esc>:call C_StatBlock("a","while (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'St&atements.&while\ \{\ \}              <Esc><Esc>:call C_StatBlock("v","while (  )")<Esc>f(la'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.&switch                     <Esc><Esc>:call C_CodeSwitch()<Esc>f(la'
 	"
@@ -449,8 +457,8 @@ function! C_InitC ()
 	exe "vmenu  ".s:C_Root."St&atements.&case                       DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f0s"
 	"
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&\{\ \}                     <Esc><Esc>o{<CR>}<Esc>O'
-	exe "vmenu  ".s:C_Root."St&atements.&\{\\ \}                  	DO{<CR>}<Esc>Pk=%<Esc>"
+	exe "amenu  ".s:C_Root.'St&atements.&\{\ \}                     <Esc><Esc>:call C_Block("a")<CR>jO'
+	exe "vmenu  ".s:C_Root.'St&atements.&\{\ \}                   	<Esc><Esc>:call C_Block("v")<CR>'
 	"                                      
 	exe "amenu  ".s:C_Root.'St&atements.-SEP1-                      :'
 	"
@@ -488,7 +496,7 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
 	"
 	exe "amenu  ".s:C_Root.'St&atements.-SEP2-                          :'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab><><Esc>i'
+	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab>>><Esc>hr<a'
 	exe "amenu  ".s:C_Root.'St&atements.#include\ \"&\.\.\.\"           <Esc><Esc>o#include<Tab>""<Esc>i'
 	exe "amenu  ".s:C_Root.'St&atements.&#define                        <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a'
 	exe "amenu  ".s:C_Root.'St&atements.#&undef                         <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a'
@@ -504,6 +512,8 @@ function! C_InitC ()
 	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>'
 	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "v" )<CR>'
 	exe "vmenu  ".s:C_Root.'St&atements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("v")<CR>'
+	"
+	exe "amenu  <silent> ".s:C_Root.'St&atements.remove\ #if\ 0\ #endif\ (&6)  <Esc><Esc>:call C_PPIf0Remove()<CR>'
 	"
 	"
 	"===============================================================================================
@@ -530,18 +540,21 @@ function! C_InitC ()
 	exe "amenu <silent> ".s:C_Root.'&Idioms.&union\+typedef             <Esc><Esc>:call C_EST("union")<CR>jo'
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP3-                      :'
 	"
-	exe " menu          ".s:C_Root.'&Idioms.&printf                     <Esc><Esc>oprintf ("\n");<Esc>F\i'
-	exe " menu          ".s:C_Root.'&Idioms.s&canf                      <Esc><Esc>oscanf ("", & );<Esc>F"i'
-	exe "imenu          ".s:C_Root.'&Idioms.&printf                     printf ("\n");<Esc>F\i'
-	exe "imenu          ".s:C_Root.'&Idioms.s&canf                      scanf ("", & );<Esc>F"i'
+	exe " menu          ".s:C_Root.'&Idioms.&printf                     <Esc><Esc>oprintf )"\n");<Esc>2F)r(f\i'
+	exe "imenu          ".s:C_Root.'&Idioms.&printf                     printf )"\n");<Esc>2F)r(f\i'
+	
+	exe " menu          ".s:C_Root.'&Idioms.s&canf                      <Esc><Esc>oscanf )"", & );<Esc>2F)r(f"a'
+	exe "imenu          ".s:C_Root.'&Idioms.s&canf                      scanf )"", & );<Esc>2F)r(f"a'
 	"
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP4-                       :'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.p=ca&lloc\(n,sizeof(type)\)  <Esc><Esc>:call C_CodeMalloc("c")<CR>i'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.p=m&alloc\(sizeof(type)\)    <Esc><Esc>:call C_CodeMalloc("m")<CR>i'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                  isizeof(  )<Esc>hi'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                 disizeof(  )<Esc>hPa'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 <Esc><Esc>oassert(  );<Esc>2hi'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 diassert(  );<Esc>2hPa'
+	"
+	exe "amenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                  isizeof))<Esc>hr(a'
+	exe "vmenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)                 disizeof))<Esc>hr(pa'
+	"
+	exe "amenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 <Esc><Esc>oassert));<Esc>2F)r(a'
+	exe "vmenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)                 diassert));<Esc>2F)r(pa'
 	exe "amenu          ".s:C_Root.'&Idioms.-SEP5-                       :'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &input\ file           <Esc><Esc>:call C_CodeFopen("input")<CR>jf"a'
 	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &output\ file          <Esc><Esc>:call C_CodeFopen("output")<CR>jf"a'
@@ -761,11 +774,13 @@ function! C_InitC ()
 	exe "amenu <silent> ".s:C_Root.'C&++.operator\ &<<                <Esc><Esc>:call C_CodeOutputOperator()<CR>3jf.a'
 	exe "amenu <silent> ".s:C_Root.'C&++.operator\ &>>                <Esc><Esc>:call C_CodeInputOperator()<CR>3jf.a'
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP5-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.tr&y\ \.\.\ catch             <Esc><Esc>:call C_CodeTryCatch()<CR>4j2f a'
-	exe "amenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_CodeCatch()<CR>2f a'
+	exe "amenu <silent> ".s:C_Root.'C&++.tr&y\ \.\.\ catch             <Esc><Esc>:call C_CodeTryCatch("a")<CR>jo'
+	exe "vmenu <silent> ".s:C_Root.'C&++.tr&y\ \.\.\ catch             <Esc><Esc>:call C_CodeTryCatch("v")<CR>f(fci'
+	exe "amenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_CodeCatch("a"," const &ExceptObj ")<CR>2f a'
+	exe "vmenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_CodeCatch("v"," const &ExceptObj ")<CR>2f a'
 
-	exe " menu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>ocatch (...)<CR>{<CR>}<Esc>O'
-	exe "imenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              catch (...)<CR>{<CR>}<Esc>O'
+	exe "amenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("a","...")<CR>jo'
+	exe "vmenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("v","...")<CR>jo'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP6-                        :'
 	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \(&1\)     <Esc><Esc>:call C_CodeIOStream("ifstream")<CR>f"a'
@@ -787,28 +802,28 @@ function! C_InitC ()
 	exe "amenu ".s:C_Root.'C&++.&RTTI.<Tab>C\/C\+\+          <Esc>'
 	exe "amenu ".s:C_Root.'C&++.&RTTI.-Sep0-                 :'
 	"
-	exe " menu ".s:C_Root.'C&++.&RTTI.&typeid                atypeid()<Esc>i'
-	exe " menu ".s:C_Root.'C&++.&RTTI.&static_cast           astatic_cast<>()<Esc>i'
-	exe " menu ".s:C_Root.'C&++.&RTTI.&const_cast            aconst_cast<>()<Esc>i'
-	exe " menu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      areinterpret_cast<>()<Esc>i'
-	exe " menu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          adynamic_cast<>()<Esc>i'
+	exe " menu ".s:C_Root.'C&++.&RTTI.&typeid                atypeid))<Esc>hr(a'
+	exe " menu ".s:C_Root.'C&++.&RTTI.&static_cast           astatic_cast>>))<Esc>2F>r<f)r(a'
+	exe " menu ".s:C_Root.'C&++.&RTTI.&const_cast            aconst_cast>>))<Esc>2F>r<f)r(a'
+	exe " menu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      areinterpret_cast>>))<Esc>2F>r<f)r(a'
+	exe " menu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          adynamic_cast>>))<Esc>2F>r<f)r(a'
 	"
-	exe "vmenu ".s:C_Root.'C&++.&RTTI.&typeid                ditypeid()<Esc>P'
-	exe "vmenu ".s:C_Root.'C&++.&RTTI.&static_cast           distatic_cast<>()<Esc>PF>i'
-	exe "vmenu ".s:C_Root.'C&++.&RTTI.&const_cast            diconst_cast<>()<Esc>PF>i'
-	exe "vmenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      direinterpret_cast<>()<Esc>PF>i'
-	exe "vmenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          didynamic_cast<>()<Esc>PF>i'
+	exe "vmenu ".s:C_Root.'C&++.&RTTI.&typeid                ditypeid))<Esc>hr(p'
+	exe "vmenu ".s:C_Root.'C&++.&RTTI.&static_cast           distatic_cast>>))<Esc>2F>r<f)r(p'
+	exe "vmenu ".s:C_Root.'C&++.&RTTI.&const_cast            diconst_cast>>))<Esc>2F>r<f)r(p'
+	exe "vmenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      direinterpret_cast>>))<Esc>2F>r<f)r(p'
+	exe "vmenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          didynamic_cast>>))<Esc>2F>r<f)r(p'
 	"
-	exe "imenu ".s:C_Root.'C&++.&RTTI.&typeid                typeid()<Esc>i'
-	exe "imenu ".s:C_Root.'C&++.&RTTI.&static_cast           static_cast<>()<Esc>i'
-	exe "imenu ".s:C_Root.'C&++.&RTTI.&const_cast            const_cast<>()<Esc>i'
-	exe "imenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      reinterpret_cast<>()<Esc>i'
-	exe "imenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          dynamic_cast<>()<Esc>i'
+	exe "imenu ".s:C_Root.'C&++.&RTTI.&typeid                typeid))<Esc>hr(a'
+	exe "imenu ".s:C_Root.'C&++.&RTTI.&static_cast           static_cast>>))<Esc>2F>r<f)r(a'
+	exe "imenu ".s:C_Root.'C&++.&RTTI.&const_cast            const_cast>>))<Esc>2F>r<f)r(a'
+	exe "imenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      reinterpret_cast>>))<Esc>2F>r<f)r(a'
+	exe "imenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          dynamic_cast>>))<Esc>2F>r<f)r(a'
 	"
 	"----- End Submenu : RTTI  ------------------------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>oextern "C"<CR>{<CR>#include<Tab><CR>}<Esc>kA'
-	exe "vmenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       DOextern "C"<CR>{<CR>}<Esc>P'
+	exe "amenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>:call C_StatBlock("a","extern \"C\"")<Esc>jo'
+	exe "vmenu ".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>:call C_StatBlock("v","extern \"C\"")<Esc>2j'
 	"
 	"===============================================================================================
 	"----- Menu : run  -----------------------------------------------------------------------------
@@ -855,6 +870,12 @@ function! C_InitC ()
 			exe "amenu  <silent>  ".s:C_Root.'&Run.&output:\ XTERM->vim->buffer          <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		endif
 	endif
+	"
+	"===============================================================================================
+	"----- Menu : help  ----------------------------------------------------------------------------
+	"===============================================================================================
+	"
+	exe "menu  <silent>  ".s:C_Root.'&help         <C-C><C-C>:call C_HelpCsupport()<CR>'
 
 endfunction    " ----------  end of function  C_InitC  ----------
 "
@@ -1244,7 +1265,10 @@ function! C_RemoveCComment( start, end )
 
 	return linenumber-a:start+1			" lines removed
 endfunction    " ----------  end of function  C_RemoveCComment  ----------
-
+"
+"----------------------------------------------------------------------
+"  Comment -> Code
+"----------------------------------------------------------------------
 function! C_CommentCode(mode)
 	if a:mode=="a"
 		let	pos1		= line(".")
@@ -1278,17 +1302,51 @@ function! C_CommentCode(mode)
 endfunction    " ----------  end of function  C_CommentCode  ----------
 "
 "----------------------------------------------------------------------
+"  C++ Comment -> C Comment
+"----------------------------------------------------------------------
+function! C_CommentCppToC(mode)
+	if a:mode=="a"
+		exe ":s/\\/\\/\\s*\\(.*\\)$/\\/* \\1 *\\//"
+	endif
+	if a:mode=="v"
+		exe ":'<,'>s/\\/\\/\\s*\\(.*\\)$/\\/* \\1 *\\//"
+	endif
+endfunction    " ----------  end of function  C_CommentCppToC  ----------
+"
+"----------------------------------------------------------------------
+"  C Comment -> C++ Comment
+"----------------------------------------------------------------------
+function! C_CommentCToCpp(mode)
+	if a:mode=="a"
+		silent exe ":s/\\/\\*\\s*\\(.*\\)\\*\\/\\s*$/\\/\\/ \\1/"
+		silent exe ":s/\\s*$//"
+	endif
+	if a:mode=="v"
+		silent exe ":'<,'>s/\\/\\*\\s*\\(.*\\)\\*\\/\\s*$/\\/\\/ \\1/"
+		silent exe ":'<,'>s/\\s*$//"
+	endif
+endfunction    " ----------  end of function  C_CommentCToCpp  ----------
+"
+"----------------------------------------------------------------------
 "  Toggle comment style
 "----------------------------------------------------------------------
 function! C_Toggle_C_Cpp ()
 	if s:C_Comments == 'yes'
+		exe "aunmenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/'
 		exe "aunmenu <silent> ".s:C_Root.'&Comments.st&yle\ C\ ->\ C\+\+'
+		"
+		exe "amenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx       <Esc><Esc>:call C_CommentCToCpp("a")<CR><Esc>:nohlsearch<CR>'
+		exe "vmenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx       <Esc><Esc>:call C_CommentCToCpp("v")<CR><Esc>:nohlsearch<CR>'
 		exe "amenu   <silent> ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C       <Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		let	s:C_Comments	= 'no'
 		let s:C_Com1      = '//'     " C++style : comment start 
 		let s:C_Com2      = ''       " C++style : comment end
 	else
+		exe "aunmenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx'
 		exe "aunmenu <silent> ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C'
+		"
+		exe "amenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/       <Esc><Esc>:call C_CommentCppToC("a")<CR><Esc>:nohlsearch<CR>'
+		exe "vmenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/       <Esc><Esc>:call C_CommentCppToC("v")<CR><Esc>:nohlsearch<CR>'
 		exe "amenu   <silent> ".s:C_Root.'&Comments.st&yle\ C\ ->\ C\+\+    		<Esc><Esc>:call C_Toggle_C_Cpp()<CR>'
 		let	s:C_Comments	= 'yes'
 		let s:C_Com1      = '/*'     " C-style : comment start 
@@ -1328,8 +1386,109 @@ function! C_DoWhile (arg)
 		:exe "normal =".(line("'>")-line(".")+3)."+"
 		:'>+2
 	endif
-	
 endfunction    " ----------  end of function C_DoWhile  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : statement
+"------------------------------------------------------------------------------
+function! C_Stat (mode,stmt)
+	let zz=   a:stmt
+	if a:mode=='a'
+		put =zz
+		:exe "normal =="
+	endif
+	if a:mode=='v'
+		:'<put! =zz
+		:exe "normal =1+"
+	endif
+endfunction    " ----------  end of function C_Stat  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : if else
+"------------------------------------------------------------------------------
+function! C_IfElse (arg)
+
+	if a:arg=='a'
+		let zz=    "if (  )\nelse"
+		put =zz
+		:exe "normal =1+"
+	endif
+	
+	if a:arg=='v'
+		let zz=    "if (  )"
+		:'<put! =zz
+		let zz=    "else"
+		:'<put =zz
+		:exe "normal =2-"
+	endif
+endfunction    " ----------  end of function C_IfElse  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : statement  {}
+"------------------------------------------------------------------------------
+function! C_StatBlock (mode,stmt)
+
+	if a:mode=='a'
+		let zz=    a:stmt."\n{\n}"
+		put =zz
+		:exe "normal =2+"
+	endif
+	
+	if a:mode=='v'
+		let zz=    a:stmt."\n{"
+		:'<put! =zz
+		let zz=    "}"
+		:'>put =zz
+		:exe "normal =".(line("'>")-line("'<")+3)."-"
+	endif
+endfunction    " ----------  end of function C_StatBlock  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : if {} else {}
+"------------------------------------------------------------------------------
+function! C_IfBlockElse (arg)
+
+	if a:arg=='a'
+		let zz=    "if (  )\n{\n}\nelse\n{\n}"
+		put =zz
+		:exe "normal =5+"
+	endif
+	
+	if a:arg=='v'
+		let zz=    "if (  )\n{"
+		:'<put! =zz
+		let zz=    "}\nelse\n{\n}"
+		:'>put =zz
+		:exe "normal 3j=".(line("'>")-line("'<")+6)."-"
+	endif
+endfunction    " ----------  end of function C_IfBlockElse  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : block ; replaces an empty line
+"------------------------------------------------------------------------------
+function! C_Block (arg)
+
+	if a:arg=='a'
+		if match(getline(line(".")), '^\s*$' ) < 0
+			""			exe "normal o{\r}"
+			let zz=    "{\n\}"
+			:put =zz
+			:normal =2+
+		else
+			:s/^\s*$/{\r}/ |normal =-
+		endif
+	endif
+	
+	if a:arg=='v'
+		let zz=    '{'
+		:'<put! =zz
+		let zz=    "}\n"
+		:'>put =zz
+		:'<-1
+		:exe "normal =".(line("'>")-line(".")+2)."+"
+		:'>+1
+	endif
+endfunction    " ----------  end of function C_Block  ----------
 "
 "------------------------------------------------------------------------------
 "  Statements : switch
@@ -1451,6 +1610,25 @@ function! C_PPIf0 (mode)
 	endif
 
 endfunction    " ----------  end of function C_PPIf0 ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : remove  #if 0 .. #endif 
+"------------------------------------------------------------------------------
+function! C_PPIf0Remove ()
+
+	let lastline	= searchpair( '^\s*#if\s\+0', '', '^\s*#endif\>.\+\<If0Label_', 'n' )
+	if lastline<=0
+		return
+	endif
+	let actual_opt  = matchstr( getline(lastline), s:C_If0_Txt."\\d\\+" )
+	if actual_opt==""
+		return
+	endif
+
+	silent exe ":g/".actual_opt."/d"
+	
+endfunction    " ----------  end of function C_PPIf0Remove ----------
+"
 "
 "------------------------------------------------------------------------------
 "  Statements : #ifndef .. #define .. #endif 
@@ -1674,6 +1852,9 @@ function! C_CodeMethod()
 		\\t\t".s:C_Com1." -----  end of method ".identifier."  ----- ".s:C_Com2
 		put =zz
 	endif
+	let identifier 	= matchstr( identifier, '\<\(\h\w*\s*::\s*\)\+' )
+	let identifier 	= substitute( identifier, '::\s*$', '', '' )
+	let s:C_ClassName	= identifier
 endfunction    " ----------  end of function C_CodeMethod ----------
 "
 "
@@ -1737,7 +1918,7 @@ function! C_CodeMalloc (type)
 			if size=="" || cnt ==""
 				let jmp	= 1
 			endif
-			let zz=    pointername."\t= (".size."*)calloc ( ".cnt.", sizeof(".size.") );"
+			let zz=    pointername."\t= (".size."*)calloc ( (size_t)(".cnt."), sizeof(".size.") );"
 		" 
 		" malloc
 		"
@@ -1791,11 +1972,11 @@ function! C_CodeFopen ( inout )
 		normal =17+
 		"
 		if a:inout=="input"
-			exe ": menu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );    <Esc><Esc>ofscanf ( '.filepointer.', "", & );<ESC>F"i'
-			exe ":imenu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );               fscanf ( '.filepointer.', "", & );<ESC>F"i'
+			exe ": menu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );    <Esc><Esc>ofscanf ) '.filepointer.', "", & );<ESC>2F)r(f"a'
+			exe ":imenu ".s:C_Root.'&Idioms.fscanf('.filepointer.',\ "",\ );               fscanf ) '.filepointer.', "", & );<ESC>2F)r(f"a'
 		else
-			exe ": menu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );     <Esc><Esc>ofprintf ( '.filepointer.', "\n",  );<ESC>F\i'
-			exe ":imenu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );                fprintf ( '.filepointer.', "\n",  );<ESC>F\i'
+			exe ": menu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );     <Esc><Esc>ofprintf ) '.filepointer.', "\n",  );<ESC>2F)r(f\i'
+			exe ":imenu ".s:C_Root.'&Idioms.fprintf('.filepointer.',\ "\\n",\ );                fprintf ) '.filepointer.', "\n",  );<ESC>2F)r(f\i'
 		endif
 	endif
 endfunction    " ----------  end of function C_CodeFopen ----------
@@ -1879,20 +2060,48 @@ endfunction    " ----------  end of function C_CodeInputOperator ----------
 "------------------------------------------------------------------------------
 "  C++ : try catch
 "------------------------------------------------------------------------------
-function! C_CodeTryCatch ()
-  let zz=    "try\n{\n\t\n}\n"
-  let zz= zz."catch ( const &ExceptObj )\t\t".s:C_Com1." handle exception: ".s:C_Com2."\n{\n\t\n}\n"
-  let zz= zz."catch (...)\t\t\t".s:C_Com1." handle exception: unspezified ".s:C_Com2."\n{\n\t\n}"
-	put =zz		
-	normal  =11+
+function! C_CodeTryCatch (arg1)
+	let str1=    "try\n{"
+
+	let str2=    "}\n"
+	let str2= str2."catch ( const &ExceptObj )\t\t".s:C_Com1." handle exception: ".s:C_Com2."\n{\n}\n"
+	let str2= str2."catch (...)\t\t\t".s:C_Com1." handle exception: unspezified ".s:C_Com2."\n{\n}"
+
+	if a:arg1=="a"
+		let str1 =str1."\n".str2
+		put =str1
+		normal  =9+
+	endif
+
+	if a:arg1=="v"
+		:'<put! =str1
+		:'>put =str2
+		:'<-2
+		:exe "normal =".(line("'>")-line(".")+7)."+"
+		:'>+2
+	endif
 endfunction    " ----------  end of function C_CodeTryCatch ----------
 "
 "------------------------------------------------------------------------------
 "  C++ : catch
 "------------------------------------------------------------------------------
-function! C_CodeCatch ()
-  put =\"catch ( const &ExceptObj )\t\t\".s:C_Com1.\" handle exception: \".s:C_Com2.\"\n{\n\t\n}\n\"
-	normal  =3+
+function! C_CodeCatch (mode,decl)
+	let str1= "catch (".a:decl.")\t\t".s:C_Com1." handle exception: ".s:C_Com2."\n{"
+	let str2= "}\n"
+
+	if a:mode=="a"
+		let str1 =str1."\n".str2
+		put =str1
+		normal  =3+
+	endif
+
+	if a:mode=="v"
+		:'<put! =str1
+		:'>put =str2
+		:'<-2
+		:exe "normal =".(line("'>")-line(".")+1)."+"
+	endif
+
 endfunction    " ----------  end of function C_CodeCatch ----------
 "
 "------------------------------------------------------------------------------
@@ -1933,7 +2142,16 @@ function! C_ProtoPick (mode)
 	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments 
 	let prototyp  = substitute( prototyp, '\s\+', " ", "g" )				" squeeze whitespaces
 	let prototyp  = substitute( prototyp, '\s\+$', "", "" )					" remove trailing whitespaces
-	let prototyp	= substitute( prototyp, '\<\h\w*\s*::', "", "" )	" remove the scope res. operator
+	"
+	let parlist 	= stridx( prototyp, '(' )													" start of the parameter list
+	let part1   	= strpart( prototyp, 0, parlist )
+	let part2   	= strpart( prototyp, parlist )
+
+	let part1   	= substitute( part1, '\<std\s*::', 'std##', 'g' )		" remove the scope res. operator
+	let part1   	= substitute( part1, '\<\h\w*\s*::', '', 'g' )		" remove the scope res. operator
+	let part1   	= substitute( part1, '\<std##', 'std::', 'g' )		" remove the scope res. operator
+	let	prototyp	= part1.part2
+	"
 	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" )     	" remove trailing parts of the function body
 	let prototyp	= prototyp.";\n"
 	let s:C_PrototypeCounter = s:C_PrototypeCounter+1
@@ -2454,6 +2672,8 @@ function! C_Hardcopy (arg1)
 		return
   endif
 	let	Sou		= escape(Sou,s:escfilename)		" name of the file in the current buffer
+	let	old_printheader=&printheader
+	exe  ':set printheader='.s:C_Printheader
 	" ----- normal mode ----------------
 	if a:arg1=="n"
 		silent exe	"hardcopy > ".Sou.".ps"		
@@ -2468,7 +2688,20 @@ function! C_Hardcopy (arg1)
 			echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
 		endif
 	endif
+	exe  ':set printheader='.escape( old_printheader, ' %' )
 endfunction    " ----------  end of function C_Hardcopy ----------
+"
+"------------------------------------------------------------------------------
+"  run : help csupport
+"------------------------------------------------------------------------------
+function! C_HelpCsupport ()
+	try
+		:help csupport
+	catch
+		exe ':helptags '.s:plugin_dir.'doc'
+		:help csupport
+	endtry
+endfunction    " ----------  end of function C_HelpCsupport ----------
 "
 "------------------------------------------------------------------------------
 "  c : C_CreateUnLoadMenuEntries
@@ -2523,6 +2756,7 @@ function! C_Handle ()
 			aunmenu Snippets
 			aunmenu C++
 			aunmenu Run
+			aunmenu help
 		else
 			exe "aunmenu ".s:C_Root
 		endif
@@ -2558,6 +2792,7 @@ if has("autocmd")
 					\		call C_CommentTemplates('hheader')
 	endif
 endif " has("autocmd")
+"
 "
 "=====================================================================================
 " vim: set tabstop=2 shiftwidth=2: 

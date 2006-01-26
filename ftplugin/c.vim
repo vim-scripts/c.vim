@@ -3,7 +3,7 @@
 " Language   :  C / C++
 " Plugin     :  c.vim
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  04.10.2005
+" Last Change:  12.12.2005
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -41,4 +41,12 @@ imap  <buffer>  <silent>  <C-F9>  <C-C><C-C>:call C_Run()<CR>
 "
  map  <buffer>  <silent>  <S-F9>       <C-C>:call C_Arguments()<CR>
 imap  <buffer>  <silent>  <S-F9>  <C-C><C-C>:call C_Arguments()<CR>
+"
+" alternate file plugin
+"
+if exists("loaded_alternateFile")
+ map  <buffer>  <silent>  <S-F2>       <C-C>:A<CR>
+imap  <buffer>  <silent>  <S-F2>  <C-C><C-C>:A<CR>
+endif
 
+"

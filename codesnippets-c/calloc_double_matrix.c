@@ -24,8 +24,8 @@ calloc_double_matrix ( int rows, int columns )
   void
 free_double_matrix ( double **m )
 {
-  free(*m); /* free data array    */
-  free( m); /* free pointer array */
+  free(*m);                                       /* free data array            */
+  free( m);                                       /* free pointer array         */
   return ;
 }  /* ----------  end of function free_double_matrix  ---------- */
 

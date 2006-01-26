@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Dec 02 2005
+*csupport.txt*                  C/C++ Support                      Jan 21 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 3.9.1
+                             Plugin version 3.10
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -17,7 +17,8 @@ Compile, link and run one-file-programs without a makefile.
  1.1.4   Comment to code                        |csupport-comm-to-code|
  1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
  1.1.6   KEYWORD + comment                      |csupport-comm-keywords|
- 1.1.7   Switch comment style                   |csupport-comm-style|
+ 1.1.7   C to C++ comments and vice versa       |csupport-comm-c-cpp|
+ 1.1.8   Switch comment style                   |csupport-comm-style|
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
@@ -26,16 +27,20 @@ Compile, link and run one-file-programs without a makefile.
  1.4    Menu 'Snippets'                         |csupport-snippets|
  1.4.1   Code snippets                          |csupport-snippets|
  1.4.2   Picking up prototypes                  |csupport-proto|
- 1.5    Menu 'Run'                              |csupport-run|
- 1.5.1   Minimal make functionality             |csupport-run-buffer|
- 1.5.2   Command line arguments                 |csupport-run-cmdline-args|
- 1.5.3   Run make                               |csupport-run-make|
- 1.5.4   Command line arguments for make        |csupport-run-make-args|
- 1.5.5   Splint                                 |csupport-run-splint|
- 1.5.6   Indent                                 |csupport-run-indent|
- 1.5.7   Hardcopy                               |csupport-run-hardcopy|
- 1.5.8   Xterm size                             |csupport-run-xterm|
- 1.5.9   Output redirection                     |csupport-run-output|
+ 1.5    Menu 'C++'                              |csupport-c++|
+ 1.5.1   Normal mode, insert mode.              |csupport-c++-normal-mode|
+ 1.5.2   Visual mode.                           |csupport-c++-visual-mode|
+ 1.6    Menu 'Run'                              |csupport-run|
+ 1.6.1   Minimal make functionality             |csupport-run-buffer|
+ 1.6.2   Command line arguments                 |csupport-run-cmdline-args|
+ 1.6.3   Run make                               |csupport-run-make|
+ 1.6.4   Command line arguments for make        |csupport-run-make-args|
+ 1.6.5   Splint                                 |csupport-run-splint|
+ 1.6.6   Indent                                 |csupport-run-indent|
+ 1.6.7   Hardcopy                               |csupport-run-hardcopy|
+ 1.6.8   Xterm size                             |csupport-run-xterm|
+ 1.6.9   Output redirection                     |csupport-run-output|
+ 1.7    Help                                    |csupport-help|
 
  2.    Hotkeys                                  |csupport-hotkeys|           
  3.    Customization and configuration          |csupport-custom|     
@@ -207,7 +212,17 @@ resumed shortly. Usually not meant for the final documentation.
 
 ------------------------------------------------------------------------------
 
-1.1.7  SWITCH COMMENT STYLE                              *csupport-comm-style*
+1.1.7 C TO C++ COMMENTS AND VICE VERSA                   *csupport-comm-c-cpp*
+
+The entry '// xxx -> /* xxx */' changes a C++ comment into an C comment.
+This is done for the current line in normal or insert mode and for a marked
+area of lines in visual mode.
+The entry changes to '/* xxx */ -> // xxx' if the comment style is switched
+(see below).
+
+------------------------------------------------------------------------------
+
+1.1.8  SWITCH COMMENT STYLE                              *csupport-comm-style*
 
 The entry 'Comment style C -> C++' changes the comment style to C++ style.
 The entry 'Comment style C++ -> C' changes the comment style back to C style.
@@ -362,6 +377,12 @@ All labels can be found with a global search like :g/If0Label_/ or
 :g/If0Label_\d\+/. All corresponding lines can be deleted with :g/If0Label_/d .
 
 
+REMOVE THE ENCLOSING "#if 0 ... #endif"-CONSTRUCT.
+
+The menu entry 'remove #if #endif' removes such a construct if the cursor is
+in the middle of such a section or on one of the two enclosing lines. Nested
+constructs will be untouched.
+
 ------------------------------------------------------------------------------
 1.3  MENU 'Idioms'                                           *csupport-idioms*
 ------------------------------------------------------------------------------
@@ -464,6 +485,19 @@ is produced and put in an internal buffer.
   implementations).
 Further prototypes can be picked up and gathered in the buffer.
 
+For C++ methods namespace names and class names will be removed
+(exception: 'std::' ). The first two lines of
+
+  std::string
+  ROBOT::Robot::get_name  ( void )
+  {
+    return type_name;
+  }   /* -----  end of method Robot::get_name  ----- */
+
+result in the prototype
+
+  std::string get_name ( void );
+
 
 INSERT PROTOTYPES  
 With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
@@ -489,10 +523,45 @@ want to use an extractor like cextract or something else.
 
 
 ------------------------------------------------------------------------------
-1.5  MENU 'Run'                                                 *csupport-run*
+1.5  MENU 'C++'                                                 *csupport-c++*
 ------------------------------------------------------------------------------
 
-1.5.1  MINIMAL MAKE FUNCTIONALITY                        *csupport-run-buffer*
+1.5.1  NORMAL MODE, INSERT MODE.                    *csupport-c++-normal-mode*
+
+An empty statement will be inserted and in some cases properly indented. The
+entry 'try .. catch' will insert the following 10 lines:
+
+  try
+  {
+    |
+  }
+  catch ( const &ExceptObj )    /* handle exception: */
+  {
+  }
+  catch (...)      /* handle exception: unspezified */
+  {
+  }
+
+The cursor will go into the try block.
+
+1.5.2  VISUAL MODE.                                 *csupport-c++-visual-mode*
+
+The highlighted area can be surrounded by one of the following statements:
+
+  try - catch
+  catch
+  catch(...)
+  namespace { }
+  extern "C" { }
+
+The whole statement will be indented after insertion.
+
+
+------------------------------------------------------------------------------
+1.6  MENU 'Run'                                                 *csupport-run*
+------------------------------------------------------------------------------
+
+1.6.1  MINIMAL MAKE FUNCTIONALITY                        *csupport-run-buffer*
 
 The 'Run' menu provides a minimal make functionality for single file projects
 (e.g. in education) :
@@ -516,7 +585,7 @@ executable is older then the source steps 'save and compile' and 'link' are
 executed first.
 
 
-1.5.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
+1.6.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
 
 The entry 'command line arguments' calls an input dialog which asks for command
 line arguments. These arguments are forwarded to the program which is run by
@@ -536,19 +605,19 @@ be sure to leave it with a CR (not Esc !). Due to a limitation of an internal
 Vim function CR will keep the arguments, Esc with discard them.
 
 
-1.5.3  RUN make                                            *csupport-run-make*
+1.6.3  RUN make                                            *csupport-run-make*
 
 The entry 'make' runs the external make program.
 
 
-1.5.4  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
+1.6.4  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
 
 The entry 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
 when called by the entry 'make'.
 
 
-1.5.5  SPLINT                                            *csupport-run-splint*
+1.6.5  SPLINT                                            *csupport-run-splint*
 
 Splint is a tool for statically checking C programs (see http://www.splint.org).
 Of course it has to be installed in order to be used within Vim.  The menu entry
@@ -562,7 +631,7 @@ option file (~/.splintrc). For a quick try you can use the menu entry
 'Run->cmd. line arg. for splint' and specify some buffer related options.  
 
 
-1.5.6  INDENT                                            *csupport-run-indent*
+1.6.6  INDENT                                            *csupport-run-indent*
 
 The formatter 'indent' can be run over the whole buffer or a marked region.
 Before formatting the whole buffer this buffer will be saved to disk and you
@@ -572,20 +641,35 @@ Indent has many options. These are kept in the file '.indent.pro' in your home
 directory. See the indent manual for more information.
 
 
-1.5.7  HARDCOPY                                        *csupport-run-hardcopy*
+1.6.7  HARDCOPY                                        *csupport-run-hardcopy*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
 
+The print header contains date and time for the current locale. The definition
+used is
+ 
+  let s:C_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 
-1.5.8  XTERM SIZE                                         *csupport-run-xterm*
+The current locale can be overwritten by changing the language, e.g. 
+
+  :language C
+
+or by setting a global variable in the file .vimrc , e.g. :
+
+  let g:C_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     SEITE %N"
+
+See :h printheader and :h strftime()  for more details. 
+
+
+1.6.8  XTERM SIZE                                         *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu entry. The default is 80 columns with 24 lines.  
 This feature is not available under Windows.
 
 
-1.5.9  OUTPUT REDIRECTION                                *csupport-run-output*
+1.6.9  OUTPUT REDIRECTION                                *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -615,6 +699,14 @@ The default is "-fa courier -fs 12 -geometry 80x24" :
   terminal size : -geometry 80x24
 See 'xterm -help' for more options. Xterms are not available under Windows.
 
+------------------------------------------------------------------------------
+1.7  'help'                                                    *csupport-help*
+------------------------------------------------------------------------------
+
+The root menu entry 'help' shows this plugin help in a help window.  The help
+tags must have been generated with
+  :helptags ~/.vim/doc
+
 
 ==============================================================================
 2.  HOTKEYS                                                 *csupport-hotkeys*
@@ -627,8 +719,17 @@ The following hotkeys are defined in normal, visual and insert mode:
   Ctrl-F9   run executable
  Shift-F9   set command line arguments
 
-The hotkeys are defined in the file type plugin  c.vim .
+ Shift-F2   switch between source files and header files
 
+Shift-F2 can be used to switch between source files and header files if the
+plugin a.vim is present.  To suppress the creation of a new header file when
+switching from a source file the file .vimrc should contain a line  
+
+  let g:alternateNoDefaultAlternate = 1
+
+A header file will only be opened if it already exists.
+
+The hotkeys are defined in the file type plugin  c.vim .
 
 ==============================================================================
 3.  CUSTOMIZATION                                            *csupport-custom*
@@ -671,6 +772,7 @@ Several global variables are checked by the script to customize it:
   g:C_MenuHeader            "yes"
   g:C_OutputGvim            "vim"
   g:C_XtermDefaults         "-fa courier -fs 12 -geometry 80x24"
+  g:C_Printheader           "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 
   Linux/UNIX: 
    g:C_ObjExtension         ".o"
@@ -719,6 +821,7 @@ The variable plugin_dir will automatically be set to one of the following values
                                    command line ("vim"), to a buffer ("buffer") or to
                                    an xterm ("xterm").
           g:C_XtermDefaults      : the xterm defaults
+          g:C_Printheader        : hardcopy: definition of the page header 
 
 4. group: g:C_CExtension             : Extension of C files. Everything else is C++.
           g:C_CCompiler              : The name of the C compiler.

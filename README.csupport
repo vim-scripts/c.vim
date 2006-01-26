@@ -1,4 +1,4 @@
-README for c.vim (Version 3.9.1) / December 02 2005
+README for c.vim (Version 3.10) / January 26 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -48,13 +48,15 @@ There are a lot of features and options which can be used and influenced:
   *  C/C++ dictionaries for keyword completion
   *  removing the root menu
 
-Restart gVim/Vim generate the help tags 
+Restart gVim/Vim generate the help tags  
 
   :helptags ~/.vim/doc
 
 and look at csupport help with
 
   :help csupport 
+
+or use the 'help' entry in the root menu of this plugin.
 
              +-----------------------------------------------+
              | +-------------------------------------------+ |
@@ -63,6 +65,20 @@ and look at csupport help with
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.10
+=======================================================================================
+
++ Remove "#if 0 ... #endif" from the inside. 
++ Change C comments to C++ comments and vice versa.
++ try..catch / catch / catch(...)  now can be set surround a marked area.
++ Prototype picking improved (for C++).
++ A hardcopy shows the localized date and time in the header line.
++ New help menu entry in the main menu of this plugin (shows the plugin documentation).
++ Switch between corresponding source and header files with <S-F2> if the plugin a.vim
+  is present.
++ Plugin can be used with autocompletion for (, [, and { .
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.9.1
@@ -350,7 +366,7 @@ c-templates+comm.zip         The C/C++ templates with method comments.
 
   ... finally
 
-  Johann Wolfgang von Goethe (1749-1832), the greatest of the german poets,
+  Johann Wolfgang von Goethe (1749-1832), the greatest of the German poets,
   about LINUX, Vim/gVim and other great tools (Ok, almost.) :
 
     Ein Mann, der recht zu wirken denkt,         Who on efficient work is bent, 

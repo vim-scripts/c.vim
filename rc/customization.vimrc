@@ -78,6 +78,12 @@ imap  <silent> <F7>    <Esc>:cp<CR>
 imap  <silent> <F8>    <Esc>:cn<CR>
 imap  <silent> <F12>   :let &number=1-&number<CR>
 "
+" autocomplete parentheses and brackets 
+" 
+imap ( ()<Left>
+imap [ []<Left>
+imap { {}<Left>
+"
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
 " The current buffer will be saved before switching to the next one.

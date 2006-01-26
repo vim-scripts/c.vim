@@ -1,18 +1,17 @@
 /*
  * =====================================================================================
  * 
- *        Filename:  |FILENAME|
+ *       Filename:  |FILENAME|
  * 
- *     Description:  |CURSOR|
+ *    Description:  |CURSOR|
  * 
- *         Version:  1.0
- *         Created:  |DATE|
- *        Revision:  none
- *        Compiler:  gcc
+ *        Version:  1.0
+ *        Created:  |DATE|
+ *       Revision:  none
+ *       Compiler:  gcc
  * 
- *          Author:  |AUTHOR| (|AUTHORREF|)
- *         Company:  |COMPANY|
- *           Email:  |EMAIL|
+ *         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
+ *        Company:  |COMPANY|
  * 
  * =====================================================================================
  */
