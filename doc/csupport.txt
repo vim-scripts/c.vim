@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Jan 21 2006
+*csupport.txt*                  C/C++ Support                      Mar 17 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 3.10
+                             Plugin version 3.11
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -42,17 +42,19 @@ Compile, link and run one-file-programs without a makefile.
  1.6.9   Output redirection                     |csupport-run-output|
  1.7    Help                                    |csupport-help|
 
- 2.    Hotkeys                                  |csupport-hotkeys|           
- 3.    Customization and configuration          |csupport-custom|     
- 3.1    Global variables                        |csupport-custom-glob-vars|
- 3.2    The root menu                           |csupport-custom-root-menu|
- 4.    Template files and tags                  |csupport-templates|    
- 4.1    Template files                          |csupport-templates|    
- 4.2    Tags                                    |csupport-templates-tags|
- 5.    C/C++ Dictionaries                       |csupport-dictionary|        
- 6.    Extend taglist.vim for make and qmake    |csupport-taglist|     
- 7.    Windows particularities                  |csupport-windows|
- 8.    Release Notes                            |csupport-release-notes|     
+ 2.    Usage without GUI                        |csupport-usage-vim|
+ 3.    Hotkeys                                  |csupport-hotkeys|           
+ 4.    Customization and configuration          |csupport-custom|     
+ 4.1    Global variables                        |csupport-custom-glob-vars|
+ 4.2    The root menu                           |csupport-custom-root-menu|
+ 5.    Template files and tags                  |csupport-templates|    
+ 5.1    Template files                          |csupport-templates|    
+ 5.2    Tags                                    |csupport-templates-tags|
+ 6.    C/C++ Dictionaries                       |csupport-dictionary|        
+ 7.    Extend taglist.vim for make and qmake    |csupport-taglist|     
+ 8.    Syntax based folding                     |csupport-folding|     
+ 9.    Windows particularities                  |csupport-windows|
+10.    Release Notes                            |csupport-release-notes|     
 
        How to add this help file to Vim's help  |add-local-help|             
 
@@ -498,6 +500,8 @@ result in the prototype
 
   std::string get_name ( void );
 
+Folding may help picking up prototypes (see |csupport-folding|).
+
 
 INSERT PROTOTYPES  
 With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
@@ -707,9 +711,116 @@ The root menu entry 'help' shows this plugin help in a help window.  The help
 tags must have been generated with
   :helptags ~/.vim/doc
 
+==============================================================================
+2.  USAGE WITHOUT GUI  (Vim)                              *csupport-usage-vim*
+==============================================================================
+
+The frequently used constructs can be inserted with key mappings.  The
+mappings are also described in the document c-hot-keys.pdf (reference card,
+part of this package).
+Hint: Typing speed matters. The combination of a leader ('\') and the
+following character(s) will only be recognized for a short time.
+
+  -- Load / Unload C/C++ Support ----------------------------------------
+
+  \lcs    Load C/C++ Support                  (normal)}
+  \ucs    Unload C/C++ Support                (normal)}
+
+  -- Comments -----------------------------------------------------------
+
+  \ce     line end comment /**/               (normal, visual)
+  \cn     line end comment //                 (normal, visual)
+  \cl     set end comment column              (normal)
+  \ci     multiline comment /**/              (normal, visual)
+  \c*     code -> comment /**/                (normal, visual)
+  \c\     code -> comment //                  (normal, visual)
+  \co     comment -> code /**/                (normal, visual)
+  \cf     frame comment                       (normal)
+  \cu     function comment                    (normal)
+  \cm     method description                  (normal)
+  \ca     class description                   (normal)
+  \cd     date                                (normal)
+  \ct     date \& time                        (normal)
+  \cy     change comment style                (normal)
+
+  -- Statements ---------------------------------------------------------
+
+  \sd     do { } while                        (normal, visual)
+  \so     for                                 (normal, visual)
+  \sr     for { }                             (normal, visual)
+  \si     if                                  (normal, visual)
+  \se     if else                             (normal, visual)
+  \sf     if { }                              (normal, visual)
+  \sl     if { } else { }                     (normal, visual)
+  \sw     while                               (normal, visual)
+  \sh     while { }                           (normal, visual)
+  \ss     switch                              (normal, visual)
+  \sc     case                                (normal, visual)
+  \s{     { }                                 (normal, visual)
+
+  -- Idioms -------------------------------------------------------------
+
+  \if     function                            (normal, visual)
+  \it     static function                     (normal, visual)
+  \im     main()                              (normal)
+  \i0     for( x=0; x<n; x+=1 )               (normal)
+  \in     for( x=n-1; x>=0; x-=1 )            (normal)
+  \ie     enum   + typedef                    (normal)
+  \is     struct + typedef                    (normal)
+  \iu     union  + typedef                    (normal)
+  \ip     printf()                            (normal)
+  \ic     scanf()                             (normal)
+  \il     p=calloc()                          (normal)
+  \ia     p=malloc()                          (normal)
+  \iz     sizeof()                            (normal, visual)
+  \ir     assert()                            (normal, visual)
+  \ii     open input file                     (normal)
+  \io     open output file                    (normal)
+
+  -- Snippets -----------------------------------------------------------
+
+  \nr     read code snippet                   (normal & GUI only)
+  \nw     write code snippet                  (normal, visual & GUI only)
+  \ne     edit code snippet                   (normal & GUI only)
+  \np     pick up prototype                   (normal, visual)
+  \ni     insert prototype(s)                 (normal)
+  \nc     clear  prototype(s)                 (normal)
+  \ns     show   prototype(s)                 (normal)
+
+  -- C++ ----------------------------------------------------------------
+
+  \+d     method implementation               (normal)
+  \+l     class                               (normal)
+  \+n     class (using new)                   (normal)
+  \+o     error class                         (normal)
+  \+t     template class                      (normal)
+  \+w     template class (using new)          (normal)
+  \+f     template function                   (normal)
+  \+y     try ... catch                       (normal, visual)
+  \+h     catch                               (normal, visual)
+  \+.     catch(...)                          (normal, visual)
+
+  -- Run ----------------------------------------------------------------
+
+  \rc     save and compile                    (normal)
+  \rl     link                                (normal)
+  \rr     run                                 (normal)
+  \ra     set comand line arguments           (normal)
+  \rm     run make                            (normal)
+  \rg     cmd. line arg. for make             (normal)
+  \rp     run splint                          (normal)
+  \ri     cmd. line arg. for splint           (normal)
+  \rd     run indent                          (normal, visual)
+  \rh     hardcopy buffer                     (normal, visual)
+  \rs     show plugin settings                (normal)
+  \rx     set xterm size                      (normal, only Linux/UNIX & GUI)
+  \ro     change output destination           (normal)
+
+The hotkeys are defined in the file type plugin c.vim (part of this csupport
+plugin package).
 
 ==============================================================================
-2.  HOTKEYS                                                 *csupport-hotkeys*
+3.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
 
 The following hotkeys are defined in normal, visual and insert mode: 
@@ -731,12 +842,14 @@ A header file will only be opened if it already exists.
 
 The hotkeys are defined in the file type plugin  c.vim .
 
+All hotkeys from the non-GUI mode also work for gVim (see |csupport-usage-vim|).
+
 ==============================================================================
-3.  CUSTOMIZATION                                            *csupport-custom*
+4.  CUSTOMIZATION                                            *csupport-custom*
 ==============================================================================
 
 ------------------------------------------------------------------------------
-3.1  GLOBAL VARIABLES                              *csupport-custom-glob-vars*
+4.1  GLOBAL VARIABLES                              *csupport-custom-glob-vars*
 ------------------------------------------------------------------------------
 
 Several global variables are checked by the script to customize it:
@@ -845,7 +958,7 @@ Here are my settings as an example:
 
 
 ------------------------------------------------------------------------------
-3.2  THE ROOT MENU                                 *csupport-custom-root-menu*
+4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
 ------------------------------------------------------------------------------
 
 The variable g:C_Root, if set (in .vimrc or in .gvimrc), give the name of the
@@ -861,11 +974,11 @@ installation or for C-only programmers.
 
 
 ==============================================================================
-4.  TEMPLATE FILES AND TAGS                               *csupport-templates*
+5.  TEMPLATE FILES AND TAGS                               *csupport-templates*
 ==============================================================================
 
 ------------------------------------------------------------------------------
-4.1  TEMPLATE FILES
+5.1  TEMPLATE FILES
 ------------------------------------------------------------------------------
 
 Many menu entries generate comments or commented code. The style of these 
@@ -916,7 +1029,7 @@ necessary. So you may want to lay out your own templates.
 
 
 ------------------------------------------------------------------------------
-4.2  TAGS                                            *csupport-templates-tags*
+5.2  TAGS                                            *csupport-templates-tags*
 ------------------------------------------------------------------------------
 
 The comments in these files do not have to be personalized but they can be.
@@ -952,7 +1065,7 @@ The template files can actually be links pointing to existing templates.
 
 
 ==============================================================================
-5.  C/C++ DICTIONARY                                     *csupport-dictionary*
+6.  C/C++ DICTIONARY                                     *csupport-dictionary*
 ==============================================================================
 
 The files  
@@ -988,7 +1101,7 @@ You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
 
 ==============================================================================
-6.  EXTEND taglist.vim FOR make AND qmake                   *csupport-taglist*     
+7.  EXTEND taglist.vim FOR make AND qmake                   *csupport-taglist*     
 ==============================================================================
 
 The use of the Vim plugin taglist.vim (Author: Yegappan Lakshmanan) is highly
@@ -1025,9 +1138,26 @@ The two assignments define the headings for the (q)make sections in the
 taglist window.  The autocmd set the file type 'qmake' for the filename
 extension 'pro' (ctags needs this). 
 
+==============================================================================
+8.  SYNTAX BASED FOLDING                                    *csupport-folding*
+==============================================================================
+
+The file syntax/c.vim contains the basic settings for syntax based folding
+(see also |folding|).The Vim variable foldlevel is set to 999 :
+  set foldlevel=999
+i.e. folding starts at block nesting level 999 (i.e. at first there is
+typically no folding at all). 
+This could be changed to an appropriate value, e.g. 5. Folding now would start
+always at level 5.
+The alternative is to keep the level 999 and start folding with the normal
+mode command 'zM' (close all folds) and then open those folds needed.
+
+To enable syntax based folding uncomment the last 3 lines in the file
+syntax/c.vim .
+
 
 ==============================================================================
-7.  WINDOWS PARTICULARITIES                                 *csupport-windows*
+9.  WINDOWS PARTICULARITIES                                 *csupport-windows*
 ==============================================================================
 
 The plugins should go into the directory structure below the local
@@ -1054,7 +1184,7 @@ directory):
 
 
 ==============================================================================
-8.  RELEASE NOTES                                     *csupport-release-notes*
+10. RELEASE NOTES                                     *csupport-release-notes*
 ==============================================================================
 
 See file README.csupport .

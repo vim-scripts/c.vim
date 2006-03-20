@@ -1,4 +1,4 @@
-README for c.vim (Version 3.10) / January 26 2006
+README for c.vim (Version 3.11) / March 15 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -65,6 +65,14 @@ or use the 'help' entry in the root menu of this plugin.
              | +-------------------------------------------+ |
              +-----------------------------------------------+
 
+
+=======================================================================================
+  RELEASE NOTES FOR VERSION 3.11
+=======================================================================================
+
++ Hotkeys and an accompanying reference card added.
++ Preparation for syntax based folding.
++ Some minor improvements.
 
 =======================================================================================
   RELEASE NOTES FOR VERSION 3.10
@@ -265,6 +273,7 @@ or use the 'help' entry in the root menu of this plugin.
 README.csupport                 This file.
 
 doc/csupport.txt                The help file for the local online help. 
+doc/c-hotkeys.pdf               Hotkey reference card.
                           
 ftplugin/c.vim                  A filetype plugin. Define hotkeys, creates a local 
                                 dictionary for each C/C++ file.
@@ -299,6 +308,8 @@ plugin/templates/c-function-description.long      old version of /c-function-des
 plugin/templates/cpp-function-description.long    old version of /cpp-function-description
                                                   These templates overdo the commenting of
                                                   functions in most cases.
+
+syntax/c.vim                    Settings for syntax based folding.
 
 wordlists/c-c++-keywords.list   All C and C++ keywords (already in word.list).
 wordlists/german.list           German words for commenting sources.

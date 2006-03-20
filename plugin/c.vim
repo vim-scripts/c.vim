@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  26.01.2006
+"       Revision:  15.03.2006
 "        Created:  04.11.2000
 "        License:  GPL (GNU Public License)
 "        
@@ -27,7 +27,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "3.10"  							" version number of this script; do not change
+let g:C_Version= "3.11"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -247,11 +247,11 @@ function! C_InitC ()
 		exe "amenu  ".s:C_Root.'&Comments.Comments<Tab>C\/C\+\+             <Esc>'
 		exe "amenu  ".s:C_Root.'&Comments.-Sep00-                            :'
 	endif
-	exe "amenu <silent> ".s:C_Root.'&Comments.line\ e&nd\ comm\.\ \/*\ *\/   <Esc><Esc><Esc>:call C_LineEndComment("/*  */")<CR>$2hi'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.line\ e&nd\ comm\.\ \/*\ *\/   <Esc><Esc><Esc>:call C_MultiLineEndComments("/*  */")<CR>$2hi'
+	exe "amenu <silent> ".s:C_Root.'&Comments.line\ &end\ comm\.\ \/*\ *\/   <Esc><Esc><Esc>:call C_LineEndComment("/*  */")<CR>$2hi'
+	exe "vmenu <silent> ".s:C_Root.'&Comments.line\ &end\ comm\.\ \/*\ *\/   <Esc><Esc><Esc>:call C_MultiLineEndComments("/*  */")<CR>$2hi'
 
-	exe "amenu <silent> ".s:C_Root.'&Comments.line\ &end\ comm\.\ \/\/       <Esc><Esc><Esc>:call C_LineEndComment("// ")<CR>A' 
-	exe "vmenu <silent> ".s:C_Root.'&Comments.line\ &end\ comm\.\ \/\/       <Esc><Esc><Esc>:call C_MultiLineEndComments("// ")<CR>A'
+	exe "amenu <silent> ".s:C_Root.'&Comments.line\ e&nd\ comm\.\ \/\/       <Esc><Esc><Esc>:call C_LineEndComment("// ")<CR>A' 
+	exe "vmenu <silent> ".s:C_Root.'&Comments.line\ e&nd\ comm\.\ \/\/       <Esc><Esc><Esc>:call C_MultiLineEndComments("// ")<CR>A'
 
 	exe "amenu <silent> ".s:C_Root.'&Comments.Set\ End\ Comm\.\ Co&l\.       <Esc><Esc>:call C_GetLineEndCommCol()<CR>'
 	
@@ -420,100 +420,100 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu  ".s:C_Root.'St&atements.Statements<Tab>C\/C\+\+     <Esc>'
-		exe "amenu  ".s:C_Root.'St&atements.-Sep00-                      :'
+		exe "amenu  ".s:C_Root.'&Statements.Statements<Tab>C\/C\+\+     <Esc>'
+		exe "amenu  ".s:C_Root.'&Statements.-Sep00-                      :'
 	endif
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("a")<CR><Esc>3jf(la'
-	exe "vmenu  ".s:C_Root.'St&atements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("v")<CR><Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("a")<CR><Esc>3jf(la'
+	exe "vmenu  ".s:C_Root.'&Statements.&do\ \{\ \}\ while          <Esc><Esc>:call C_DoWhile("v")<CR><Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.f&or                        <Esc><Esc>:call C_Stat("a","for ( ; ; )")<Esc>f;i'
-	exe "vmenu  ".s:C_Root.'St&atements.f&or                        <Esc><Esc>:call C_Stat("v","for ( ; ; )")<Esc>f;i'
+	exe "amenu  ".s:C_Root.'&Statements.f&or                        <Esc><Esc>:call C_Stat("a","for ( ; ; )")<Esc>f;i'
+	exe "vmenu  ".s:C_Root.'&Statements.f&or                        <Esc><Esc>:call C_Stat("v","for ( ; ; )")<Esc>f;i'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("a","for ( ; ; )")<Esc>f;i'
-	exe "vmenu  ".s:C_Root.'St&atements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("v","for ( ; ; )")<Esc>f;i'
+	exe "amenu  ".s:C_Root.'&Statements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("a","for ( ; ; )")<Esc>f;i'
+	exe "vmenu  ".s:C_Root.'&Statements.fo&r\ \{\ \}                <Esc><Esc>:call C_StatBlock("v","for ( ; ; )")<Esc>f;i'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&if                         <Esc><Esc>:call C_Stat("a","if (  )")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.&if                         <Esc><Esc>:call C_Stat("v","if (  )")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.&if                         <Esc><Esc>:call C_Stat("a","if (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.&if                         <Esc><Esc>:call C_Stat("v","if (  )")<Esc>f(la'
 
-	exe "amenu  ".s:C_Root.'St&atements.if\ &else                   <Esc><Esc>:call C_IfElse("a")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.if\ &else                   <Esc><Esc>:call C_IfElse("v")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("a")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("v")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("a","if (  )")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("v","if (  )")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("a","if (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("v","if (  )")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("a")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("v")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("a")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("v")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.w&hile                      <Esc><Esc>:call C_Stat("a","while (  )")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.w&hile                      <Esc><Esc>:call C_Stat("v","while (  )")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.&while                      <Esc><Esc>:call C_Stat("a","while (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.&while                      <Esc><Esc>:call C_Stat("v","while (  )")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&while\ \{\ \}              <Esc><Esc>:call C_StatBlock("a","while (  )")<Esc>f(la'
-	exe "vmenu  ".s:C_Root.'St&atements.&while\ \{\ \}              <Esc><Esc>:call C_StatBlock("v","while (  )")<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.w&hile\ \{\ \}              <Esc><Esc>:call C_StatBlock("a","while (  )")<Esc>f(la'
+	exe "vmenu  ".s:C_Root.'&Statements.w&hile\ \{\ \}              <Esc><Esc>:call C_StatBlock("v","while (  )")<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&switch                     <Esc><Esc>:call C_CodeSwitch()<Esc>f(la'
+	exe "amenu  ".s:C_Root.'&Statements.&switch                     <Esc><Esc>:call C_CodeSwitch()<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&case                       <Esc><Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s'
-	exe "vmenu  ".s:C_Root."St&atements.&case                       DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f0s"
+	exe "amenu  ".s:C_Root.'&Statements.&case                       <Esc><Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s'
+	exe "vmenu  ".s:C_Root."&Statements.&case                       DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f0s"
 	"
 	"
-	exe "amenu  ".s:C_Root.'St&atements.&\{\ \}                     <Esc><Esc>:call C_Block("a")<CR>jO'
-	exe "vmenu  ".s:C_Root.'St&atements.&\{\ \}                   	<Esc><Esc>:call C_Block("v")<CR>'
+	exe "amenu  ".s:C_Root.'&Statements.&\{\ \}                     <Esc><Esc>:call C_Block("a")<CR>jO'
+	exe "vmenu  ".s:C_Root.'&Statements.&\{\ \}                   	<Esc><Esc>:call C_Block("v")<CR>'
 	"                                      
-	exe "amenu  ".s:C_Root.'St&atements.-SEP1-                      :'
+	exe "amenu  ".s:C_Root.'&Statements.-SEP1-                      :'
 	"
 	"----- Submenu : C-Idioms: standard library -------------------------------------------------------
 	"'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..<Tab>C\/C\+\+  <Esc>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..-Sep0-         :'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..<Tab>C\/C\+\+  <Esc>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..-Sep0-         :'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&assert\.h     <Esc><Esc>o#include<Tab><assert.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&ctype\.h      <Esc><Esc>o#include<Tab><ctype.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&errno\.h      <Esc><Esc>o#include<Tab><errno.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&float\.h      <Esc><Esc>o#include<Tab><float.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&limits\.h     <Esc><Esc>o#include<Tab><limits.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..l&ocale\.h     <Esc><Esc>o#include<Tab><locale.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&math\.h       <Esc><Esc>o#include<Tab><math.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..set&jmp\.h     <Esc><Esc>o#include<Tab><setjmp.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..s&ignal\.h     <Esc><Esc>o#include<Tab><signal.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..stdar&g\.h     <Esc><Esc>o#include<Tab><stdarg.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..st&ddef\.h     <Esc><Esc>o#include<Tab><stddef.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&stdio\.h      <Esc><Esc>o#include<Tab><stdio.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..stdli&b\.h     <Esc><Esc>o#include<Tab><stdlib.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..st&ring\.h     <Esc><Esc>o#include<Tab><string.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ S&td\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&assert\.h     <Esc><Esc>o#include<Tab><assert.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&ctype\.h      <Esc><Esc>o#include<Tab><ctype.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&errno\.h      <Esc><Esc>o#include<Tab><errno.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&float\.h      <Esc><Esc>o#include<Tab><float.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&limits\.h     <Esc><Esc>o#include<Tab><limits.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..l&ocale\.h     <Esc><Esc>o#include<Tab><locale.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&math\.h       <Esc><Esc>o#include<Tab><math.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..set&jmp\.h     <Esc><Esc>o#include<Tab><setjmp.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..s&ignal\.h     <Esc><Esc>o#include<Tab><signal.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..stdar&g\.h     <Esc><Esc>o#include<Tab><stdarg.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..st&ddef\.h     <Esc><Esc>o#include<Tab><stddef.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&stdio\.h      <Esc><Esc>o#include<Tab><stdio.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..stdli&b\.h     <Esc><Esc>o#include<Tab><stdlib.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..st&ring\.h     <Esc><Esc>o#include<Tab><string.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h>'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.<Tab>C\/C\+\+         <Esc>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.-Sep0-                :'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&inttypes\.h          <Esc><Esc>o#include<Tab><inttypes.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.is&o646\.h            <Esc><Esc>o#include<Tab><iso646.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&stdbool\.h           <Esc><Esc>o#include<Tab><stdbool.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.s&tdint\.h            <Esc><Esc>o#include<Tab><stdint.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.tg&math\.h            <Esc><Esc>o#include<Tab><tgmath.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.&wchar\.h             <Esc><Esc>o#include<Tab><wchar.h>'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.<Tab>C\/C\+\+         <Esc>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.-Sep0-                :'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&inttypes\.h          <Esc><Esc>o#include<Tab><inttypes.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.is&o646\.h            <Esc><Esc>o#include<Tab><iso646.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&stdbool\.h           <Esc><Esc>o#include<Tab><stdbool.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.s&tdint\.h            <Esc><Esc>o#include<Tab><stdint.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.tg&math\.h            <Esc><Esc>o#include<Tab><tgmath.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&wchar\.h             <Esc><Esc>o#include<Tab><wchar.h>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.-SEP2-                          :'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab>>><Esc>hr<a'
-	exe "amenu  ".s:C_Root.'St&atements.#include\ \"&\.\.\.\"           <Esc><Esc>o#include<Tab>""<Esc>i'
-	exe "amenu  ".s:C_Root.'St&atements.&#define                        <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a'
-	exe "amenu  ".s:C_Root.'St&atements.#&undef                         <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a'
+	exe "amenu  ".s:C_Root.'&Statements.-SEP2-                          :'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ &\<\.\.\.\>           <Esc><Esc>o#include<Tab>>><Esc>hr<a'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ \"&\.\.\.\"           <Esc><Esc>o#include<Tab>""<Esc>i'
+	exe "amenu  ".s:C_Root.'&Statements.&#define                        <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a'
+	exe "amenu  ".s:C_Root.'&Statements.#&undef                         <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a'
 	"
-	exe "amenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>jS'
-	exe "amenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>jS'
-	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>jS'
-	exe "amenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2jS'
-	exe "amenu  ".s:C_Root.'St&atements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("a")<CR>2jS'
+	exe "amenu  ".s:C_Root.'&Statements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'&Statements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'&Statements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>jS'
+	exe "amenu  ".s:C_Root.'&Statements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2jS'
+	exe "amenu  ".s:C_Root.'&Statements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("a")<CR>2jS'
 	"
-	exe "vmenu  ".s:C_Root.'St&atements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"v+")<CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"v+")<CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "v" )<CR>'
-	exe "vmenu  ".s:C_Root.'St&atements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("v")<CR>'
+	exe "vmenu  ".s:C_Root.'&Statements.#if\ #else\ #endif\ (&1)      <Esc><Esc>:call C_PPIfElse("if"    ,"v+")<CR>'
+	exe "vmenu  ".s:C_Root.'&Statements.#ifdef\ #else\ #endif\ (&2)   <Esc><Esc>:call C_PPIfElse("ifdef" ,"v+")<CR>'
+	exe "vmenu  ".s:C_Root.'&Statements.#ifndef\ #else\ #endif\ (&3)  <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>'
+	exe "vmenu  ".s:C_Root.'&Statements.#ifndef\ #def\ #endif\ (&4)   <Esc><Esc>:call C_PPIfDef (         "v" )<CR>'
+	exe "vmenu  ".s:C_Root.'&Statements.#if\ 0\ #endif\ (&5)          <Esc><Esc>:call C_PPIf0("v")<CR>'
 	"
-	exe "amenu  <silent> ".s:C_Root.'St&atements.remove\ #if\ 0\ #endif\ (&6)  <Esc><Esc>:call C_PPIf0Remove()<CR>'
+	exe "amenu  <silent> ".s:C_Root.'&Statements.remove\ #if\ 0\ #endif\ (&6)  <Esc><Esc>:call C_PPIf0Remove()<CR>'
 	"
 	"
 	"===============================================================================================
@@ -618,11 +618,11 @@ function! C_InitC ()
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &oct                 i<< oct<Space>'
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               i<< right<Space>'
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          i<< scientific<Space>'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       i<< setbase(10) <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       i<< setfill() <ESC>hi'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags() <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  i<< setprecision(6) <ESC>F)i'
-	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          i<< setw(0) <ESC>F)i'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       i<< setbase)) <ESC>2F)r(a10'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       i<< setfill)) <ESC>2F)r(a'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags)) <ESC>2F)r(a'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  i<< setprecision)) <ESC>2F)r(a6'
+	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          i<< setw)) <ESC>2F)r(a0'
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            i<< showbase<Space>'
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           i<< showpoint<Space>'
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      i<< showpos<Space>'
@@ -639,11 +639,11 @@ function! C_InitC ()
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ o&ct                 << oct<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               << right<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          << scientific<Space>'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       << setbase(10) <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       << setfill() <ESC>hi'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    << setiosflags() <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision(6) <ESC>F)i'
-	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw(0) <ESC>F)i'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       << setbase)) <ESC>2F)r(a10'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       << setfill)) <ESC>2F)r(a'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    << setiosflags)) <ESC>2F)r(a'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision)) <ESC>2F)r(a6'
+	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw)) <ESC>2F)r(a0'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            << showbase<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           << showpoint<Space>'
 	exe "imenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      << showpos<Space>'
@@ -780,7 +780,7 @@ function! C_InitC ()
 	exe "vmenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_CodeCatch("v"," const &ExceptObj ")<CR>2f a'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("a","...")<CR>jo'
-	exe "vmenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("v","...")<CR>jo'
+	exe "vmenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("v","...")<CR>2j'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP6-                        :'
 	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \(&1\)     <Esc><Esc>:call C_CodeIOStream("ifstream")<CR>f"a'
@@ -1341,6 +1341,7 @@ function! C_Toggle_C_Cpp ()
 		let	s:C_Comments	= 'no'
 		let s:C_Com1      = '//'     " C++style : comment start 
 		let s:C_Com2      = ''       " C++style : comment end
+		echomsg "comment style is C++"
 	else
 		exe "aunmenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx'
 		exe "aunmenu <silent> ".s:C_Root.'&Comments.st&yle\ C\+\+\ ->\ C'
@@ -1351,6 +1352,7 @@ function! C_Toggle_C_Cpp ()
 		let	s:C_Comments	= 'yes'
 		let s:C_Com1      = '/*'     " C-style : comment start 
 		let s:C_Com2      = '*/'     " C-style : comment end
+		echomsg "comment style is C"
 	endif
 endfunction    " ----------  end of function C_Toggle_C_Cpp  ----------
 "
@@ -1708,6 +1710,9 @@ endfunction    " ----------  end of function C_CodeMain ----------
 "  C-Idioms : read / edit code snippet
 "------------------------------------------------------------------------------
 function! C_CodeSnippet(arg1)
+	if !has("gui_running")
+		return
+	endif
 	if isdirectory(s:C_CodeSnippets)
 		"
 		" read snippet file, put content below current line and indent
@@ -2792,6 +2797,12 @@ if has("autocmd")
 					\		call C_CommentTemplates('hheader')
 	endif
 endif " has("autocmd")
+"
+"------------------------------------------------------------------------------
+"  Key mappings : show / hide the c-support menus
+"------------------------------------------------------------------------------
+nmap    <silent>  <Leader>lcs             :call C_Handle()<CR>
+nmap    <silent>  <Leader>ucs             :call C_Handle()<CR>
 "
 "
 "=====================================================================================
