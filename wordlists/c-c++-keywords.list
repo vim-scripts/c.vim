@@ -5,17 +5,13 @@ char
 const
 continue
 default
-do
 double
 else
 enum
 extern
 float
-for
 goto
-if
 inline
-int
 long
 register
 restrict
@@ -38,7 +34,6 @@ _Imaginary
 EXIT_FAILURE
 EXIT_SUCCESS
 
-asm
 bool
 catch
 class
@@ -51,7 +46,6 @@ false
 friend
 mutable
 namespace
-new
 operator
 private
 protected
@@ -62,23 +56,18 @@ template
 this
 throw
 true
-try
 typeid
 typename
 using
 virtual
 wchar_t
 
-and
 and_eq
 bitand
 bitor
 compl
-not
 not_eq
-or
 or_eq
-xor
 xor_eq
 
 define

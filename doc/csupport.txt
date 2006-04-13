@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Mar 17 2006
+*csupport.txt*                  C/C++ Support                      Apr 12 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 3.11
+                              Plugin version 4.0
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -257,6 +257,19 @@ will insert an if-statement:
 if (  )
 {
 }
+
+The opening curly brace will be put in a new line. To enable Kernighan &
+Ritchie style 
+
+if (  ) {
+}
+
+set the appropriate global variable in .vimrc :
+
+  let g:C_BraceOnNewLine     = "no"   
+
+The default values is "yes".  This flag applies to all structural blocks,
+excluding subroutines and classes. 
 
 
 1.2.2  VISUAL MODE.                                *csupport-stat-visual-mode*
@@ -574,6 +587,17 @@ SAVE AND COMPILE
 'save and compile' saves the buffer and run the compiler with the given
 options (see |csupport-custom-glob-vars|).
 
+An error window will be opened if the compiler reports errors and/or warnings.
+Quickfix commands can now be used to jump to an error location.
+
+Consider using maps like 
+  map  <silent> <F7>    <Esc>:cp<CR>
+  map  <silent> <F8>    <Esc>:cn<CR>
+in your .vimrc file to jump over the error locations and make navigation
+easier.  The error list and the error locations in your source buffer will be
+synchronized.
+
+
 LINK
 'link' makes an executable from the current buffer. If the buffer is not
 saved, or no object is available or the object is older then the source step
@@ -628,7 +652,8 @@ Of course it has to be installed in order to be used within Vim.  The menu entry
 'Run->splint' will run the current buffer through splint.
 
 An error window will be opened if splint has something to complain about.
-Quickfix commands can now be used to jump to an error location.
+Quickfix commands can now be used to jump to an error location.  For easier
+navigation see tip under 'SAVE AND COMPILE' |csupport-run-buffer|.
 
 Splint has many options. Presumably the best way is to keep the options in an
 option file (~/.splintrc). For a quick try you can use the menu entry
@@ -878,6 +903,7 @@ Several global variables are checked by the script to customize it:
   g:Cpp_Template_H_File     "hpp-file-header"
   g:Cpp_Template_Method     "cpp-method-description"
 
+  g:C_BraceOnNewLine        "no"   
   g:C_Comments              "yes"
   g:C_CodeSnippets          plugin_dir."/.vim/codesnippets-c/"
   g:C_Dictionary_File       ""
@@ -922,7 +948,9 @@ The variable plugin_dir will automatically be set to one of the following values
 2. group: g:C_Template_Directory : Sets the template directory and the names of the 
            ...                     template files (see |csupport-templates|).
 
-3. group: g:C_Comments           : The initial comment style (C = yes, C++ = no).
+3. group: g:C_BraceOnNewLine     : block statements: opening curly brace on a
+                                   new line / not on a new line
+          g:C_Comments           : The initial comment style (C = yes, C++ = no).
           g:C_CodeSnippets       : The name of the code snippet directory 
                                    (see |csupport-snippets|).
           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 

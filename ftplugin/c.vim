@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  C / C++
-" Plugin     :  c.vim
+" Plugin     :  c.vim (version 4.0)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  14.03.2006
+" Last Change:  12.04.2006
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -77,7 +77,7 @@ vmap    <buffer>  <silent>  <Leader>co    <Esc>:call C_CommentCode("v")<CR><Esc>
 "
 " ---------- statements menu  ------------------------------------------------
 "
- map    <buffer>  <silent>  <Leader>sd    <Esc>:call C_DoWhile("a")<CR><Esc>3jf(la
+ map    <buffer>  <silent>  <Leader>sd    <Esc>:call C_DoWhile("a")<CR><Esc>f(la
 vmap    <buffer>  <silent>  <Leader>sd    <Esc>:call C_DoWhile("v")<CR><Esc>f(la
 
  map    <buffer>  <silent>  <Leader>so    <Esc>:call C_Stat("a","for ( ; ; )")<Esc>f;i
@@ -109,7 +109,7 @@ vmap    <buffer>  <silent>  <Leader>sh    <Esc>:call C_StatBlock("v","while (  )
  map    <buffer>  <silent>  <Leader>sc    <Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s
 vmap    <buffer>  <silent>  <Leader>sc    DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f0s
 
- map    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("a")<CR>jO
+ map    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("a")<CR>o
 vmap    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("v")<CR>
 
 "
@@ -124,12 +124,12 @@ vmap    <buffer>  <silent>  <Leader>it    <Esc>:call C_CodeFunction("sv")<CR>w
  map    <buffer>  <silent>  <Leader>i0    <Esc>:call C_CodeFor("up"  )<CR>a
  map    <buffer>  <silent>  <Leader>in    <Esc>:call C_CodeFor("down")<CR>a
 "
- map    <buffer>  <silent>  <Leader>ie    <Esc>:call C_EST("enum")<CR>jo
- map    <buffer>  <silent>  <Leader>is    <Esc>:call C_EST("struct")<CR>jo
- map    <buffer>  <silent>  <Leader>iu    <Esc>:call C_EST("union")<CR>jo
+ map    <buffer>  <silent>  <Leader>ie    <Esc>:call C_EST("enum")<CR>o
+ map    <buffer>  <silent>  <Leader>is    <Esc>:call C_EST("struct")<CR>o
+ map    <buffer>  <silent>  <Leader>iu    <Esc>:call C_EST("union")<CR>o
 "
- map    <buffer>  <silent>  <Leader>ip    <Esc><Esc>oprintf )"\n");<Esc>2F)r(f\i
- map    <buffer>  <silent>  <Leader>ic    <Esc><Esc>oscanf )"", & );<Esc>2F)r(f"a
+ map    <buffer>  <silent>  <Leader>ip    <Esc><Esc>oprintf )x\nx);<Esc>2F)r(fxr"fxr"2hi
+ map    <buffer>  <silent>  <Leader>ic    <Esc><Esc>oscanf )xx, & );<Esc>2F)r(lr"lr"i
 "
  map    <buffer>  <silent>  <Leader>il    <Esc>:call C_CodeMalloc("c")<CR>i
  map    <buffer>  <silent>  <Leader>ia    <Esc>:call C_CodeMalloc("m")<CR>i
@@ -164,12 +164,12 @@ vmap    <buffer>  <silent>  <Leader>np    <Esc>:call C_ProtoPick("v")<CR>
  map    <buffer>  <silent>  <Leader>+t    <Esc>:call C_CommentTemplates("CppTemplateClass")<CR>
  map    <buffer>  <silent>  <Leader>+w    <Esc>:call C_CommentTemplates("CppTemplateClassUsingNew")<CR>
  map    <buffer>  <silent>  <Leader>+f    <Esc>:call C_CodeTemplateFunct()<CR>
- map    <buffer>  <silent>  <Leader>+y    <Esc>:call C_CodeTryCatch("a")<CR>jo
+ map    <buffer>  <silent>  <Leader>+y    <Esc>:call C_CodeTryCatch("a")<CR>o
 vmap    <buffer>  <silent>  <Leader>+y    <Esc>:call C_CodeTryCatch("v")<CR>f(fci
- map    <buffer>  <silent>  <Leader>+h    <Esc>:call C_CodeCatch("a"," const &ExceptObj ")<CR>2f a
-vmap    <buffer>  <silent>  <Leader>+h    <Esc>:call C_CodeCatch("v"," const &ExceptObj ")<CR>2f a
- map    <buffer>  <silent>  <Leader>+.    <Esc>:call C_CodeCatch("a","...")<CR>jo
-vmap    <buffer>  <silent>  <Leader>+.    <Esc>:call C_CodeCatch("v","...")<CR>2j
+ map    <buffer>  <silent>  <Leader>+h    <Esc>:call C_CodeCatch("a"," const &ExceptObj ")<CR>f(fci
+vmap    <buffer>  <silent>  <Leader>+h    <Esc>:call C_CodeCatch("v"," const &ExceptObj ")<CR>f(fci
+ map    <buffer>  <silent>  <Leader>+.    <Esc>:call C_CodeCatch("a","...")<CR>
+vmap    <buffer>  <silent>  <Leader>+.    <Esc>:call C_CodeCatch("v","...")<CR>
 "
 " ---------- run menu --------------------------------------------------------
 "
