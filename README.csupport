@@ -1,4 +1,4 @@
-README for c.vim (Version 4.0) / April 12 2006
+README for c.vim (Version 4.1) / June 29 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -56,7 +56,7 @@ and look at csupport help with
 
   :help csupport 
 
-or use the 'help' entry in the root menu of this plugin.
+or use the 'help' entry in the root menu of this plug-in.
 
              +-----------------------------------------------+
              | +-------------------------------------------+ |
@@ -67,12 +67,11 @@ or use the 'help' entry in the root menu of this plugin.
 
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.0
+  RELEASE NOTES FOR VERSION 4.1
 =======================================================================================
-
-+ Kernighan & Ritchie style for block statements can be enabled.
-+ Changes to make it compatible with Vim 7.
-+ Set C/C++ file type for source files which should not be preprocessed (*.i, *.ii).
++ A complete switch statement can be made from a list of labels.
++ Additional cases can be made from a list of labels.
++ Small bug in line end commenting fixed.
 + Some minor improvements.
 
 =======================================================================================
@@ -86,13 +85,13 @@ or use the 'help' entry in the root menu of this plugin.
 README.csupport                 This file.
 ChangeLog                       The change log.
 
-doc/csupport.txt                The help file for the local online help. 
+doc/csupport.txt                The help file for the local on-line help. 
 doc/c-hotkeys.pdf               Hotkey reference card.
                           
-ftplugin/c.vim                  A filetype plugin. Define hotkeys, creates a local 
+ftplugin/c.vim                  A file type plug-in. Define hotkeys, creates a local 
                                 dictionary for each C/C++ file.
 
-plugin/c.vim                    The C/C++ plugin for GVIM.
+plugin/c.vim                    The C/C++ plug-in for GVIM.
 plugin/wrapper.sh               The wrapper script for the use of an xterm.
 
 plugin/templates/c-class-description            -+- C-style and C++-style template files
@@ -138,7 +137,7 @@ wordlists/stl_index.list        Standard Template Library (STL): method and type
                           -------------------------------------------------------------
 
 rc/customization.ctags       Additional settings I use in  .ctags to enable navigation
-                             through makefiles ans qmake files with the plugin taglist.vim.
+                             through makefiles ans qmake files with the plug-in taglist.vim.
 
 rc/costumization.gvimrc      Additional settings I use in .gvimrc :
                              hot keys, mouse settings, ...

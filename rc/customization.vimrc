@@ -108,7 +108,7 @@ nmap  <C-q>    :wqa<CR>
 " Change the working directory to the directory containing the current file
 "-------------------------------------------------------------------------------
 if has("autocmd")
-  autocmd BufEnter * :lcd %:p:h
+  autocmd BufEnter,BufRead,BufNewFile,BufFilePost * :lcd %:p:h
 endif " has("autocmd")
 "
 "-------------------------------------------------------------------------------

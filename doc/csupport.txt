@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Apr 12 2006
+*csupport.txt*                  C/C++ Support                      Jun 29 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.0
+                              Plugin version 4.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -22,7 +22,9 @@ Compile, link and run one-file-programs without a makefile.
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
- 1.2.3   Block out code with "#if 0 .. #endif"  |csupport-stat-if0|
+ 1.2.3   Make a switch from a label list        |csupport-stat-switch|
+ 1.2.4   Make cases from a label list           |csupport-stat-case|
+ 1.2.5   Block out code with "#if 0 .. #endif"  |csupport-stat-if0|
  1.3    Menu 'Idioms'                           |csupport-idioms|
  1.4    Menu 'Snippets'                         |csupport-snippets|
  1.4.1   Code snippets                          |csupport-snippets|
@@ -306,11 +308,6 @@ can be surrounded by one of the following statements:
   |     }                      |     }                       |
   |     while (  );            |                             |
   +----------------------------+-----------------------------+
-  |     case :                 |                             |
-  |       xxxxx                |                             |
-  |       xxxxx                |                             |
-  |       break;               |                             |
-  +----------------------------+-----------------------------+
   |    #if  CONDITION                                        |
   |    xxxxx                                                 |
   |    xxxxx                                                 |
@@ -343,9 +340,10 @@ can be surrounded by one of the following statements:
   |    #endif     /* ----- #if 0 : If0Label_1 ----- */       |
   +----------------------------------------------------------+
 
+For 'switch' and 'case' see |csupport-stat-switch| and |csupport-stat-case|.
 
 The macro name for an include guard (e.g. INC_TEST above) will be derived as a
-sugestion from the file name.  The whole statement will be indented after
+suggestion from the file name.  The whole statement will be indented after
 insertion.
 
 
@@ -372,7 +370,85 @@ one of the following statements can be inserted:
 The lines will be indented after insertion.
 
 
-1.2.3  BLOCK OUT CODE WITH  "#if 0 ... #endif"             *csupport-stat-if0*
+1.2.3   MAKE A SWITCH FROM A LABEL LIST                 *csupport-stat-switch*
+
+The menu entry "switch {}" can be used to convert a list of labels (one in a
+line) into a switch statement. A visually marked list of labels, e.g. 
+
+ (   Default, /* a comment */
+ Red,
+ Green,
+ Blue=777 );
+
+extracted from an enum, will be changed into
+
+  switch (  )
+  {
+    case Default: 
+      break;
+
+    case Red: 
+      break;
+
+    case Green: 
+      break;
+
+    case Blue: 
+      break;
+
+    default:  
+      break;
+  }       /* -----  end switch  ----- */
+
+The label will be the first word ("\w\+") of each line, leading and trailing
+non-word characters (including whitespaces) will be discarded.  Empty lines
+will be skipped.
+
+
+1.2.4   MAKE CASES FROM A LABEL LIST                      *csupport-stat-case*
+
+The menu entry "case ... break" can be used to convert a marked list of raw
+labels (one in a line) inside a switch into empty cases, e.g. 
+
+  switch (  ) {
+    case Red: 
+      break;
+  
+    case Green: 
+      break;
+
+Blue            << marked line
+LightBlue       << marked line
+DarkBlue        << marked line
+  }       /* -----  end switch  ----- */
+
+extracted from an enum, will be changed into
+
+  switch (  ) {
+    case Red: 
+      break;
+  
+    case Green: 
+      break;
+
+    case Blue: 
+      break;
+
+    case LightBlue: 
+      break;
+
+    case DarkBlue: 
+      break;
+
+  }       /* -----  end switch  ----- */
+
+
+The label will be the first word ("\w\+") of each line, leading and trailing
+non-word characters (including whitespaces) will be discarded.  Empty lines
+will be skipped.
+
+
+1.2.5  BLOCK OUT CODE WITH  "#if 0 ... #endif"             *csupport-stat-if0*
 
 The menu entry "#if 0 #endif" inserts the lines
 
@@ -994,7 +1070,7 @@ single Vim root menu entry in which the C/C++ submenus will be put.
 The default is 
                   '&C\/C\+\+.'
 Note the terminating dot. A single root menu can be used if the screen is
-limited or several plugins are used in parallel.
+limited or several plunks are used in parallel.
 
 If set to "", this single root menu entry will not appear.  Now all submenus
 are put into the Vim root menu. This is nice for beginners in a lab
@@ -1050,7 +1126,7 @@ If the second set is not empty it is assumed that these files contain C++-style
 blocks and the style toggle entry in the Comments-menu is present.
 
 The template files can be written or changed by the user to fulfill special
-requirements (layout for a project or workgroup already exists, 
+requirements (layout for a project or work group already exists, 
 file headers / blocks have to be prepared for a documentation tool, ... ).
 They can hold not only comments but a complete file skeleton if this is 
 necessary. So you may want to lay out your own templates.
@@ -1171,7 +1247,7 @@ extension 'pro' (ctags needs this).
 ==============================================================================
 
 The file syntax/c.vim contains the basic settings for syntax based folding
-(see also |folding|).The Vim variable foldlevel is set to 999 :
+(see also |folding|).The Vim variable fold level is set to 999 :
   set foldlevel=999
 i.e. folding starts at block nesting level 999 (i.e. at first there is
 typically no folding at all). 
@@ -1188,7 +1264,7 @@ syntax/c.vim .
 9.  WINDOWS PARTICULARITIES                                 *csupport-windows*
 ==============================================================================
 
-The plugins should go into the directory structure below the local
+The plunks should go into the directory structure below the local
 installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
 Windows.
 The values of the two variables can be found from inside Vim:

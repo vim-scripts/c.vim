@@ -1,4 +1,12 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.1
+=======================================================================================
++ A complete switch statement can be made from a list of labels.
++ Additional cases can be made from a list of labels.
++ Small bug in line end commenting fixed.
++ Some minor improvements.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.0
 =======================================================================================
 

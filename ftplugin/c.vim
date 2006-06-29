@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  C / C++
-" Plugin     :  c.vim (version 4.0)
+" Plugin     :  c.vim (version 4.1)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  12.04.2006
+" Last Change:  24.06.2006
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -105,9 +105,10 @@ vmap    <buffer>  <silent>  <Leader>sw    <Esc>:call C_Stat("v","while (  )")<Es
 vmap    <buffer>  <silent>  <Leader>sh    <Esc>:call C_StatBlock("v","while (  )")<Esc>f(la
 
  map    <buffer>  <silent>  <Leader>ss    <Esc>:call C_CodeSwitch()<Esc>f(la
+vmap    <buffer>  <silent>  <Leader>ss    <Esc>:call C_CodeSwitchVisual()<Esc>f(la
 
  map    <buffer>  <silent>  <Leader>sc    <Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s
-vmap    <buffer>  <silent>  <Leader>sc    DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe "normal =".(line("'>")-line(".")-1)."+"<CR>f0s
+vmap    <buffer>  <silent>  <Leader>sc    <Esc>:call C_CodeCaseVisual()<Esc>
 
  map    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("a")<CR>o
 vmap    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("v")<CR>

@@ -16,9 +16,18 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  12.04.2006
+"       Revision:  25.06.2006
 "        Created:  04.11.2000
-"        License:  GPL (GNU Public License)
+"        License:  Copyright (c) 2000-2006, Fritz Mehner
+"                  This program is free software; you can redistribute it and/or
+"                  modify it under the terms of the GNU General Public License as
+"                  published by the Free Software Foundation, version 2 of the
+"                  License.
+"                  This program is distributed in the hope that it will be
+"                  useful, but WITHOUT ANY WARRANTY; without even the implied
+"                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+"                  PURPOSE.
+"                  See the GNU General Public License version 2 for more details.
 "        
 "------------------------------------------------------------------------------
 " 
@@ -27,7 +36,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "4.0"  							" version number of this script; do not change
+let g:C_Version= "4.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -246,7 +255,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu  ".s:C_Root.'&Comments.Comments<Tab>C\/C\+\+             <Esc>'
+		exe "amenu  ".s:C_Root.'&Comments.&Comments<Tab>C\/C\+\+             <Esc>'
 		exe "amenu  ".s:C_Root.'&Comments.-Sep00-                            :'
 	endif
 	exe "amenu <silent> ".s:C_Root.'&Comments.line\ &end\ comm\.\ \/*\ *\/   <Esc><Esc><Esc>:call C_LineEndComment("/*  */")<CR>$2hi'
@@ -422,7 +431,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu  ".s:C_Root.'&Statements.Statements<Tab>C\/C\+\+     <Esc>'
+		exe "amenu  ".s:C_Root.'&Statements.&Statements<Tab>C\/C\+\+     <Esc>'
 		exe "amenu  ".s:C_Root.'&Statements.-Sep00-                      :'
 	endif
 	"
@@ -454,9 +463,10 @@ function! C_InitC ()
 	exe "vmenu <silent>".s:C_Root.'&Statements.w&hile\ \{\ \}              <Esc><Esc>:call C_StatBlock("v","while (  )")<Esc>f(la'
 	"
 	exe "amenu <silent>".s:C_Root.'&Statements.&switch\ \{\ \}             <Esc><Esc>:call C_CodeSwitch()<Esc>f(la'
+	exe "vmenu <silent>".s:C_Root.'&Statements.&switch\ \{\ \}             <Esc><Esc>:call C_CodeSwitchVisual()<Esc>f(la'
 	"
-	exe "amenu  ".s:C_Root.'&Statements.&case\ \.\.\.\ break        <Esc><Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s'
-	exe "vmenu  ".s:C_Root."&Statements.&case\\ \\.\\.\\.\\ break   DOcase 0:<Tab><CR>break;<CR><Esc>kPk<Esc>:exe \"normal =\".(line(\"'>\")-line(\".\")-1).\"+\"<CR>f0s"
+	exe "amenu  ".s:C_Root.'&Statements.&case\ \.\.\.\ break               <Esc><Esc>ocase 0:<Tab><CR>break;<CR><Esc>2kf0s'
+	exe "vmenu  ".s:C_Root."&Statements.&case\\ \\.\\.\\.\\ break          <Esc><Esc>:call C_CodeCaseVisual()<Esc>"
 	"
 	"
 	exe "amenu <silent>".s:C_Root.'&Statements.&\{\ \}                     <Esc><Esc>:call C_Block("a")<CR>o'
@@ -523,7 +533,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu          ".s:C_Root.'&Idioms.Idioms<Tab>C\/C\+\+       <Esc>'
+		exe "amenu          ".s:C_Root.'&Idioms.&Idioms<Tab>C\/C\+\+       <Esc>'
 		exe "amenu          ".s:C_Root.'&Idioms.-Sep00-                   :'
 	endif
 	exe "amenu <silent> ".s:C_Root.'&Idioms.&function                   <Esc><Esc>:call C_CodeFunction("a")<CR>'
@@ -567,7 +577,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu           ".s:C_Root.'S&nippets.Snippets<Tab>C\/C\+\+       <Esc>'
+		exe "amenu           ".s:C_Root.'S&nippets.S&nippets<Tab>C\/C\+\+       <Esc>'
 		exe "amenu           ".s:C_Root.'S&nippets.-Sep00-                      :'
 	endif
 	if s:C_CodeSnippets != ""
@@ -589,7 +599,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu  ".s:C_Root.'C&++.C\+\+<Tab>C\/C\+\+          <Esc>'
+		exe "amenu  ".s:C_Root.'C&++.C&\+\+<Tab>C\/C\+\+          <Esc>'
 		exe "amenu  ".s:C_Root.'C&++.-Sep00-                     :'
 	endif
 	exe " menu ".s:C_Root.'C&++.c&in                 <Esc><Esc>ocin<Tab>>> ;<Esc>i'
@@ -832,7 +842,7 @@ function! C_InitC ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == "yes"
-		exe "amenu  ".s:C_Root.'&Run.Run<Tab>C\/C\+\+       <Esc>'
+		exe "amenu  ".s:C_Root.'&Run.&Run<Tab>C\/C\+\+       <Esc>'
 		exe "amenu  ".s:C_Root.'&Run.-Sep00-                 :'
 	endif
 	"
@@ -913,7 +923,7 @@ function! C_LineEndComment ( arg1 )
 		let	b:C_LineEndCommentColumn	= s:C_LineEndCommColDefault
 	endif
 	" ----- trim whitespaces -----
-	exe "s/\s\*$//"
+	exe 's/\s*$//'
 	let linelength= virtcol("$") - 1
 	if linelength < b:C_LineEndCommentColumn
 		let diff	= b:C_LineEndCommentColumn -1 -linelength
@@ -939,7 +949,7 @@ function! C_MultiLineEndComments ( arg1 )
 	let pos1	= line("'>")
 	"
 	" ----- trim whitespaces -----
-	exe "'<,'>s/\s\*$//"
+  exe pos0.','.pos1.'s/\s*$//'  
 	" 
 	" ----- find the longest line -----
 	let	maxlength		= 0
@@ -1308,9 +1318,11 @@ endfunction    " ----------  end of function  C_CommentCode  ----------
 "----------------------------------------------------------------------
 function! C_CommentCppToC(mode)
 	if a:mode=="a"
+		exe 's/\s*$//'
 		exe ":s/\\/\\/\\s*\\(.*\\)$/\\/* \\1 *\\//"
 	endif
 	if a:mode=="v"
+		exe ":'<,'>s/\s*$//"
 		exe ":'<,'>s/\\/\\/\\s*\\(.*\\)$/\\/* \\1 *\\//"
 	endif
 endfunction    " ----------  end of function  C_CommentCppToC  ----------
@@ -1579,6 +1591,76 @@ function! C_Block (arg)
 endfunction    " ----------  end of function C_Block  ----------
 "
 "------------------------------------------------------------------------------
+"  Statements : make switch from a label list
+"------------------------------------------------------------------------------
+"
+function! C_CodeSwitchVisual ()
+
+	let	nonemptylines	= 0
+	let	linenumber 		= line("'<")
+	while linenumber <= line("'>")
+		let newline			= getline(linenumber)
+		if match(newline, '^\s*$' ) < 0  
+			exe ':'.linenumber.'s/\W*\(\w\+\).*/case \1: break;/'
+			let nonemptylines	= nonemptylines+1
+		endif
+		let linenumber	= linenumber+1
+	endwhile
+
+	if nonemptylines==0
+		echohl WarningMsg | echo " no case label found " | echohl None
+		return
+	endif
+
+	let zz=    "default:\t\n\t\tbreak;\n}"
+	let zz= zz."\t\t\t\t".s:C_Com1." -----  end switch  ----- ".s:C_Com2."\n"
+	:'>put =zz
+
+	exe "'<,'>s/break;/\r&\r/"
+
+	if s:C_BraceOnNewLine == "yes"
+		let zz= "switch (  )\n{\n"
+		:'<put! =zz
+		exe ":'<-2"
+		:exe "normal =".(line("'>")-line("'<")+7)."+"
+	else
+		let zz= "switch (  ) {\n"
+		:'<put! =zz
+		exe ":'<-1"
+		:exe "normal =".(line("'>")-line("'<")+6)."+"
+	endif
+
+endfunction    " ----------  end of function C_CodeSwitchVisual  ----------
+"
+"------------------------------------------------------------------------------
+"  Statements : make cases from a label list
+"------------------------------------------------------------------------------
+"
+function! C_CodeCaseVisual ()
+
+	let	nonemptylines	= 0
+	let	linenumber 		= line("'<")
+	while linenumber <= line("'>")
+		let newline			= getline(linenumber)
+		if match(newline, '^\s*$' ) < 0  
+			exe ':'.linenumber.'s/\W*\(\w\+\).*/case \1: break;/'
+			let nonemptylines	= nonemptylines+1
+		endif
+		let linenumber	= linenumber+1
+	endwhile
+
+	if nonemptylines==0
+		echohl WarningMsg | echo " no case label found " | echohl None
+		return
+	endif
+
+	exe "'<,'>s/break;/\r&\r/"
+	exe ":'<-1"
+	exe "normal =".(line("'>")-line("'<")+2)."+"
+
+endfunction    " ----------  end of function C_CodeCaseVisual  ----------
+"
+"------------------------------------------------------------------------------
 "  Statements : switch
 "------------------------------------------------------------------------------
 "
@@ -1731,16 +1813,25 @@ endfunction    " ----------  end of function C_PPIf0 ----------
 "------------------------------------------------------------------------------
 function! C_PPIf0Remove ()
 
+	let frstline	= searchpair( '^\s*#if\s\+0', '', '^\s*#endif\>.\+\<If0Label_', 'bn' )
+  if frstline<=0
+		echohl WarningMsg | echo 'no  #if 0 ... #endif  found or cursor not inside such a directive'| echohl None
+    return
+  endif
 	let lastline	= searchpair( '^\s*#if\s\+0', '', '^\s*#endif\>.\+\<If0Label_', 'n' )
 	if lastline<=0
+		echohl WarningMsg | echo 'no  #if 0 ... #endif  found or cursor not inside such a directive'| echohl None
 		return
 	endif
-	let actual_opt  = matchstr( getline(lastline), s:C_If0_Txt."\\d\\+" )
-	if actual_opt==""
+  let actualnumber1  = matchstr( getline(frstline), s:C_If0_Txt."\\d\\+" )
+  let actualnumber2  = matchstr( getline(lastline), s:C_If0_Txt."\\d\\+" )
+	if actualnumber1 != actualnumber2
+    echohl WarningMsg | echo 'lines '.frstline.', '.lastline.': comment tags do not match'| echohl None
 		return
 	endif
 
-	silent exe ":g/".actual_opt."/d"
+  silent exe ':'.lastline.','.lastline.'d'
+	silent exe ':'.frstline.','.frstline.'d'
 	
 endfunction    " ----------  end of function C_PPIf0Remove ----------
 "
@@ -3089,7 +3180,6 @@ endif " has("autocmd")
 "------------------------------------------------------------------------------
 nmap    <silent>  <Leader>lcs             :call C_Handle()<CR>
 nmap    <silent>  <Leader>ucs             :call C_Handle()<CR>
-"
 "
 "=====================================================================================
 " vim: set tabstop=2 shiftwidth=2: 
