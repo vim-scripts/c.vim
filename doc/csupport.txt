@@ -1,13 +1,15 @@
-*csupport.txt*                  C/C++ Support                      Jun 29 2006
+*csupport.txt*                  C/C++ Support                      Aug 01 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.1
+                              Plugin version 4.2
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
-C/C++-IDE. Write programs by inserting complete statements, comments, idioms
-code snippets, templates and comments.  
-Compile, link and run one-file-programs without a makefile.
+C/C++-IDE for Vim/gVim. It is written to considerably speed up writing code in
+a consistent style.  This is done by inserting complete statements,idioms, code
+snippets, templates, and comments.  Syntax checking, compiling,  running a
+program, running splint and indent can be done with a keystroke.  
+
 
  1.    Usage                                    |csupport-usage-gvim|        
  1.1    Menu 'Comments'                         |csupport-comm|
@@ -56,7 +58,8 @@ Compile, link and run one-file-programs without a makefile.
  7.    Extend taglist.vim for make and qmake    |csupport-taglist|     
  8.    Syntax based folding                     |csupport-folding|     
  9.    Windows particularities                  |csupport-windows|
-10.    Release Notes                            |csupport-release-notes|     
+10.    Troubleshooting                          |csupport-troubleshooting|
+11.    Release Notes /Change Log                |csupport-release-notes|     
 
        How to add this help file to Vim's help  |add-local-help|             
 
@@ -101,14 +104,19 @@ If one ore more lines go beyond the starting column (s.below) the comments
 will start at the 2. column after the longest line.  The cursor will be
 positioned inside the first comment.
 
-The default starting column is 49 ( = (8*6 or 4*12 or 2*24) + 1 ).  This can
+The default starting column is 49 ( = (multiple of 2,4, or 8) + 1 ).  This can
 be changed by setting a global variable in the file .vimrc , e.g. :
 
   let g:C_LineEndCommColDefault    = 45
 
 The starting column can also be set by the menu entry 'Comments->Set End Comm.
 Col.' . Just position the cursor in an arbitrary column (column number is
-shown in the Vim status line) and choose this menu entry.
+shown in the Vim status line) and choose this menu entry.  This setting is
+buffer related.
+
+If the cursor was at the end of a line you will be asked for a column number
+because this position is most likely not the desired starting column.
+Your choice will be confirmed.
 
 ------------------------------------------------------------------------------
 
@@ -1065,12 +1073,12 @@ Here are my settings as an example:
 4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
 ------------------------------------------------------------------------------
 
-The variable g:C_Root, if set (in .vimrc or in .gvimrc), give the name of the
+The variable g:C_Root, if set (in .vimrc or in .gvimrc), gives the name of the
 single Vim root menu entry in which the C/C++ submenus will be put. 
 The default is 
                   '&C\/C\+\+.'
 Note the terminating dot. A single root menu can be used if the screen is
-limited or several plunks are used in parallel.
+limited or several plugins are used in parallel.
 
 If set to "", this single root menu entry will not appear.  Now all submenus
 are put into the Vim root menu. This is nice for beginners in a lab
@@ -1246,25 +1254,21 @@ extension 'pro' (ctags needs this).
 8.  SYNTAX BASED FOLDING                                    *csupport-folding*
 ==============================================================================
 
-The file syntax/c.vim contains the basic settings for syntax based folding
-(see also |folding|).The Vim variable fold level is set to 999 :
+Syntax based folding can be enabled by adding the following lines to the file
+'~/.vim/syntax/c.vim':
+
+  syn region cBlock start="{" end="}" transparent fold
+  set foldmethod=syntax
+  " initially all folds open:
   set foldlevel=999
-i.e. folding starts at block nesting level 999 (i.e. at first there is
-typically no folding at all). 
-This could be changed to an appropriate value, e.g. 5. Folding now would start
-always at level 5.
-The alternative is to keep the level 999 and start folding with the normal
-mode command 'zM' (close all folds) and then open those folds needed.
 
-To enable syntax based folding uncomment the last 3 lines in the file
-syntax/c.vim .
-
+You may have to create this file first. See |folding| for more information.
 
 ==============================================================================
 9.  WINDOWS PARTICULARITIES                                 *csupport-windows*
 ==============================================================================
 
-The plunks should go into the directory structure below the local
+The plugin should go into the directory structure below the local
 installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
 Windows.
 The values of the two variables can be found from inside Vim:
@@ -1286,9 +1290,20 @@ directory):
 
   let g:C_CFlags  = '-Wall -g -o0 -c -I c:\programs\dev-c++\include\g++'
 
+==============================================================================
+10. TROUBLESHOOTING                                 *csupport-troubleshooting*
+==============================================================================
+
+* Some plugin features not present (e.g. hotkeys).
+  - Does the file type plugin $HOME/.vim/ftplugin/c.vim exist ?
+
+* Some hotkeys do not work.
+  - The hotkeys might be in use by your graphical desktop environment.
+    Under KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.
+    The key settings can usually be redefined.
 
 ==============================================================================
-10. RELEASE NOTES                                     *csupport-release-notes*
+11. RELEASE NOTES                                     *csupport-release-notes*
 ==============================================================================
 
 See file README.csupport .

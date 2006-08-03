@@ -1,4 +1,12 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.2
+=======================================================================================
++ Setting the starting column for trailing comments improved.
++ Small bug in block uncommenting fixed.
++ Mac OS X : circumvent a Vim bug which caused a crash when loading plugin version 4.1.
++ File syntax/c.vim removed (but see help in csupport.txt).
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.1
 =======================================================================================
 + A complete switch statement can be made from a list of labels.

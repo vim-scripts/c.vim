@@ -1,4 +1,4 @@
-README for c.vim (Version 4.1) / June 29 2006
+README for c.vim (Version 4.2) / August 03 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -10,9 +10,12 @@ README for c.vim (Version 4.1) / June 29 2006
 =======================================================================================
   DESCRIPTION
 =======================================================================================
-C/C++-IDE. Write programs by inserting complete statements, comments, idioms
-code snippets, templates and comments.  Compile, link and run one-file-programs
-without a makefile. See file csupport.txt for more.
+C/C++-IDE for Vim/gVim. It is written to considerably speed up writing code in
+a consistent style.  This is done by inserting complete statements,idioms, code
+snippets, templates, and comments.  Syntax checking, compiling,  running a
+program, running splint and indent can be done with a keystroke.  There are
+many additional hints and options which can improve speed and comfort when
+writing C/C++. See the help file csupport.txt for more information.
 
 =======================================================================================
   INSTALLATION
@@ -67,12 +70,12 @@ or use the 'help' entry in the root menu of this plug-in.
 
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.1
+  RELEASE NOTES FOR VERSION 4.2
 =======================================================================================
-+ A complete switch statement can be made from a list of labels.
-+ Additional cases can be made from a list of labels.
-+ Small bug in line end commenting fixed.
-+ Some minor improvements.
++ Setting the starting column for trailing comments improved.
++ Small bug in block uncommenting fixed.
++ Mac OS X : circumvent a Vim bug which caused a crash when loading plugin version 4.1.
++ File syntax/c.vim removed (but see help in csupport.txt).
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -121,8 +124,6 @@ plugin/templates/c-function-description.long      old version of /c-function-des
 plugin/templates/cpp-function-description.long    old version of /cpp-function-description
                                                   These templates overdo the commenting of
                                                   functions in most cases.
-
-syntax/c.vim                    Settings for syntax based folding.
 
 wordlists/c-c++-keywords.list   All C and C++ keywords (already in word.list).
 wordlists/german.list           German words for commenting sources.

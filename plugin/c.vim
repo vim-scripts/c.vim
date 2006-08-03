@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  25.06.2006
+"       Revision:  01.08.2006
 "        Created:  04.11.2000
 "        License:  Copyright (c) 2000-2006, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "4.1"  							" version number of this script; do not change
+let g:C_Version= "4.2"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -245,7 +245,7 @@ function! C_InitC ()
 	"
 	if s:C_Root != ""
 		if s:C_MenuHeader == "yes"
-			exe "amenu  ".s:C_Root.'<Tab>C\/C\+\+   <Esc>'
+			exe "amenu  ".s:C_Root.'C\/C\+\+   <Esc>'
 			exe "amenu  ".s:C_Root.'-Sep00-         :'
 		endif
 	endif
@@ -887,7 +887,9 @@ function! C_InitC ()
 	"----- Menu : help  ----------------------------------------------------------------------------
 	"===============================================================================================
 	"
-	exe "menu  <silent>  ".s:C_Root.'&help\ \(plugin\)     <C-C><C-C>:call C_HelpCsupport()<CR>'
+	if s:C_Root != ""
+		exe "menu  <silent>  ".s:C_Root.'&help\ \(plugin\)     <C-C><C-C>:call C_HelpCsupport()<CR>'
+	endif
 
 endfunction    " ----------  end of function  C_InitC  ----------
 "
@@ -911,7 +913,12 @@ endfunction    " ----------  end of function C_Input ----------
 "  Comments : get line-end comment position
 "------------------------------------------------------------------------------
 function! C_GetLineEndCommCol ()
-  let	b:C_LineEndCommentColumn	= virtcol(".") 
+	let actcol	= virtcol(".")
+	if actcol+1 == virtcol("$")
+		let	b:C_LineEndCommentColumn	= C_Input( 'start line-end comment at virtual column : ', actcol )
+	else
+		let	b:C_LineEndCommentColumn	= virtcol(".") 
+	endif
   echomsg "line end comments will start at column  ".b:C_LineEndCommentColumn
 endfunction		" ---------- end of function  C_GetLineEndCommCol  ----------
 "
@@ -1298,9 +1305,10 @@ function! C_CommentCode(mode)
 		" Do we have a C++ comment ?
 		if getline(	linenumber ) =~ '^\s*//'
 			exe "silent :".linenumber.' s#^\s*//##'
+			let	removed    = 1
 		endif
 		" Do we have a C   comment ?
-		if getline(	linenumber ) =~ s:C_StartMultilineComment
+		if removed == 0 && getline(	linenumber ) =~ s:C_StartMultilineComment
 			let removed = C_RemoveCComment(linenumber,pos2)
 		endif
 
@@ -3127,7 +3135,6 @@ function! C_Handle ()
 			aunmenu Snippets
 			aunmenu C++
 			aunmenu Run
-			aunmenu help
 		else
 			exe "aunmenu ".s:C_Root
 		endif
@@ -3163,16 +3170,13 @@ if has("autocmd")
 					\		call C_CommentTemplates('hheader')
 	endif
 	"
-	if has("autocmd")
-		"
-		" C/C++ source code files which should not be preprocessed.
-		autocmd BufNewFile,BufRead  *.i  :set filetype=c
-		autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
-		"
-		" Wrap error descriptions in the quickfix window.
-		autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 
-		"
-	endif " has("autocmd")
+	" C/C++ source code files which should not be preprocessed.
+	autocmd BufNewFile,BufRead  *.i  :set filetype=c
+	autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
+	"
+	" Wrap error descriptions in the quickfix window.
+	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 
+	"
 endif " has("autocmd")
 "
 "------------------------------------------------------------------------------
