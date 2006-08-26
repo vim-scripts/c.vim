@@ -16,7 +16,7 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  01.08.2006
+"       Revision:  26.08.2006
 "        Created:  04.11.2000
 "        License:  Copyright (c) 2000-2006, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "4.2"  							" version number of this script; do not change
+let g:C_Version= "4.2.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -290,8 +290,8 @@ function! C_InitC ()
 	"
 	"----- Submenu : C-Comments : file sections  -------------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.<Tab>C\/C\+\+            <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.-Sep0-                   :'
+	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.file\ sections<Tab>C\/C\+\+            <Esc>'
+	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.-Sep0-                                 :'
 	"
 	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.&Header\ File\ Includes  '
 				\'<Esc><Esc>:call C_CommentSection("HEADER FILE INCLUDES")<CR>0i'
@@ -325,7 +325,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : H-Comments : file sections  -------------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.<Tab>C\/C\+\+                  <Esc>'
+	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.H-file\ sections<Tab>C\/C\+\+                  <Esc>'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.-Sep0-                         :'
 	"'
 	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.&Header\ File\ Includes    '
@@ -353,7 +353,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C-Comments : keyword comments  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..<Tab>C\/C\+\+     <Esc>'
+	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..keyw\.+comm\.<Tab>C\/C\+\+     <Esc>'
 	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..-Sep0-            :'
 	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:          <Esc><Esc>$<Esc>:call C_CommentClassified("BUG")        <CR>kgJ$F:la'
 	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&COMPILER\:     <Esc><Esc>$<Esc>:call C_CommentClassified("COMPILER")   <CR>kgJ$F:la'
@@ -365,7 +365,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C-Comments : special comments  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..<Tab>C\/C\+\+         <Esc>'
+	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..special\ comm\.<Tab>C\/C\+\+         <Esc>'
 	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..-Sep0-                :'
 	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&EMPTY                <Esc><Esc>$<Esc>:call C_CommentSpecial("EMPTY")                    <CR>kgJA'
 	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&FALL\ THROUGH        <Esc><Esc>$<Esc>:call C_CommentSpecial("FALL THROUGH")             <CR>kgJA'
@@ -388,7 +388,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C-Comments : Tags  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).<Tab>C\/C\+\+     <Esc>'
+	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).tags\ (plugin)<Tab>C\/C\+\+     <Esc>'
 	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).-Sep0-            :'
 	"
 	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&AUTHOR           a'.s:C_AuthorName."<Esc>"
@@ -476,7 +476,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C-Idioms: standard library -------------------------------------------------------
 	"'
-	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..<Tab>C\/C\+\+  <Esc>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..Std\.Lib\.<Tab>C\/C\+\+  <Esc>'
 	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..-Sep0-         :'
 	"
 	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&assert\.h     <Esc><Esc>o#include<Tab><assert.h>'
@@ -495,7 +495,7 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..st&ring\.h     <Esc><Esc>o#include<Tab><string.h>'
 	exe "amenu  ".s:C_Root.'&Statements.#include\ S&td\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h>'
 	"
-	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.<Tab>C\/C\+\+         <Esc>'
+	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.C99<Tab>C\/C\+\+         <Esc>'
 	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.-Sep0-                :'
 	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h>'
 	exe "amenu  ".s:C_Root.'&Statements.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h>'
@@ -616,7 +616,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.<Tab>C\/C\+\+              <Esc>'
+	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.output\ manip\.<Tab>C\/C\+\+              <Esc>'
 	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.-Sep0-                     :'
 	"
 	exe " menu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &boolalpha           i<< boolalpha<Space>'
@@ -663,7 +663,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C++ : ios flag bits  -------------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.<Tab>C\/C\+\+        <Esc>'
+	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.ios\ flags<Tab>C\/C\+\+        <Esc>'
 	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.-Sep0-               :'
 	"
 	exe " menu ".s:C_Root.'C&++.ios\ flag&bits.ios::&adjustfield      iios::adjustfield'
@@ -706,7 +706,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C++   library  (algorithm - locale) ----------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.alg\.\.loc<Tab>C\/C\+\+   <Esc>'
 	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.-Sep0-          :'
 	"
 	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&algorithm      <Esc><Esc>o#include<Tab><algorithm>'
@@ -728,7 +728,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C++   library  (map - vector) ----------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.map\.\.vec<Tab>C\/C\+\+   <Esc>'
 	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.-Sep0-          :'
 
 	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&map            <Esc><Esc>o#include<Tab><map>'
@@ -750,7 +750,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : C     library  (cassert - ctime) -------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.<Tab>C\/C\+\+ <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.cX<Tab>C\/C\+\+ <Esc>'
 	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.-Sep0-        :'
 	"
 	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.c&assert      <Esc><Esc>o#include<Tab><cassert>'
@@ -811,7 +811,7 @@ function! C_InitC ()
 	"
 	"----- Submenu : RTTI  ----------------------------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.&RTTI.<Tab>C\/C\+\+          <Esc>'
+	exe "amenu ".s:C_Root.'C&++.&RTTI.RTTI<Tab>C\/C\+\+          <Esc>'
 	exe "amenu ".s:C_Root.'C&++.&RTTI.-Sep0-                 :'
 	"
 	exe " menu ".s:C_Root.'C&++.&RTTI.&typeid                atypeid))<Esc>hr(a'

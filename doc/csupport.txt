@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Aug 01 2006
+*csupport.txt*                  C/C++ Support                      Aug 26 2006
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.2
+                             Plugin version 4.2.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 

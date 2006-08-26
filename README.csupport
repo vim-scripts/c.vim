@@ -1,4 +1,4 @@
-README for c.vim (Version 4.2) / August 03 2006
+README for c.vim (Version 4.2.1) / August 26 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -70,12 +70,9 @@ or use the 'help' entry in the root menu of this plug-in.
 
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.2
+  RELEASE NOTES FOR VERSION 4.2.1
 =======================================================================================
-+ Setting the starting column for trailing comments improved.
-+ Small bug in block uncommenting fixed.
-+ Mac OS X : circumvent a Vim bug which caused a crash when loading plugin version 4.1.
-+ File syntax/c.vim removed (but see help in csupport.txt).
++ Bugfix: change needed for some menu names after patch 7.0.054 .
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'
