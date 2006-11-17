@@ -81,6 +81,23 @@ include
 pragma
 undef
 
+exception
+bad_alloc
+bad_exception
+bad_cast
+bad_typeid
+ios_base::failure
+logic_error
+domain_error
+invalid_argument
+length_error
+out_of_range
+runtime_error
+range_error
+overflow_error
+underflow_error
+uncaught_exception
+
 __DATE__
 __FILE__
 __LINE__

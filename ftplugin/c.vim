@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  C / C++
-" Plugin     :  c.vim (version 4.1)
+" Plugin     :  c.vim (version 4.3)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  24.06.2006
+" Last Change:  10.11.2006
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -114,6 +114,27 @@ vmap    <buffer>  <silent>  <Leader>sc    <Esc>:call C_CodeCaseVisual()<Esc>
 vmap    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("v")<CR>
 
 "
+" ---------- preprocessor menu  ----------------------------------------------
+"
+ map    <buffer>  <silent>  <Leader>p<   <Esc><Esc>o#include<Tab>>><Esc>hr<a
+ map    <buffer>  <silent>  <Leader>p"   <Esc><Esc>o#include<Tab>xx<Esc>hr"lr"i
+ map    <buffer>  <silent>  <Leader>pd   <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a
+ map    <buffer>  <silent>  <Leader>pu   <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a
+
+ map    <buffer>  <silent>  <Leader>pi   <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>ji
+ map    <buffer>  <silent>  <Leader>pf   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>ji
+ map    <buffer>  <silent>  <Leader>pn   <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>ji
+ map    <buffer>  <silent>  <Leader>pe   <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2ji
+ map    <buffer>  <silent>  <Leader>p0   <Esc><Esc>:call C_PPIf0("a")<CR>2ji
+
+vmap    <buffer>  <silent>  <Leader>pi   <Esc><Esc>:call C_PPIfElse("if"    ,"v+")<CR>
+vmap    <buffer>  <silent>  <Leader>pf   <Esc><Esc>:call C_PPIfElse("ifdef" ,"v+")<CR>
+vmap    <buffer>  <silent>  <Leader>pn   <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>
+vmap    <buffer>  <silent>  <Leader>pe   <Esc><Esc>:call C_PPIfDef (         "v" )<CR>
+vmap    <buffer>  <silent>  <Leader>p0   <Esc><Esc>:call C_PPIf0("v")<CR>
+
+ map    <buffer>  <silent>  <Leader>pr   <Esc><Esc>:call C_PPIf0Remove()<CR>
+"
 " ---------- idioms menu  ----------------------------------------------------
 "
  map    <buffer>  <silent>  <Leader>if    <Esc>:call C_CodeFunction("a")<CR>
@@ -192,6 +213,12 @@ vmap    <buffer>  <silent>  <Leader>rh    <C-C>:call C_Hardcopy("v")<CR>
  endif
  map    <buffer>  <silent>  <Leader>ro    <C-C>:call C_Toggle_Gvim_Xterm()<CR>
 "
+" Abraxas CodeCheck (R)
+"
+if executable("check") 
+	map    <buffer>  <silent>  <Leader>rk    <C-C>:call C_CodeCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>
+	map    <buffer>  <silent>  <Leader>re    <C-C>:call C_CodeCheckArguments()<CR>
+endif
 " ---------- plugin help -----------------------------------------------------
 "
  map    <buffer>  <silent>  <Leader>h    <Esc>:call C_HelpCsupport()<CR>

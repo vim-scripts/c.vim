@@ -78,9 +78,6 @@ template < class T >
 template < class T >
 const |CLASSNAME|< T >& |CLASSNAME|< T >::operator = ( const |CLASSNAME| &other )
 {
-  if(this!=&other)
-  {
-  }
   return *this;
 }  /* ----------  end of assignment operator of template class |CLASSNAME|  ---------- */
 

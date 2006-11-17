@@ -1,4 +1,13 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.3
+=======================================================================================
++ CodeCheck (TM) integrated (source code analysing tool).
++ New key mappings for preprocessor statements. 
++ New preprocessor menu.
++ Bugfix: indent under Windows.
++ Minor improvements.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.2.1
 =======================================================================================
 + Bugfix: change needed for some menu names after patch 7.0.054 .

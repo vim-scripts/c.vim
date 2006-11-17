@@ -1,4 +1,4 @@
-README for c.vim (Version 4.2.1) / August 26 2006
+README for c.vim (Version 4.3) / November 11 2006
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -11,10 +11,10 @@ README for c.vim (Version 4.2.1) / August 26 2006
   DESCRIPTION
 =======================================================================================
 C/C++-IDE for Vim/gVim. It is written to considerably speed up writing code in
-a consistent style.  This is done by inserting complete statements,idioms, code
-snippets, templates, and comments.  Syntax checking, compiling,  running a
-program, running splint and indent can be done with a keystroke.  There are
-many additional hints and options which can improve speed and comfort when
+a consistent style.  This is done by inserting complete statements, idioms,
+code snippets, templates, and comments.  Syntax checking, compiling,  running a
+program, running indent or code checkers can be done with a keystroke.  There
+are many additional hints and options which can improve speed and comfort when
 writing C/C++. See the help file csupport.txt for more information.
 
 =======================================================================================
@@ -70,9 +70,13 @@ or use the 'help' entry in the root menu of this plug-in.
 
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.2.1
+  RELEASE NOTES FOR VERSION 4.3
 =======================================================================================
-+ Bugfix: change needed for some menu names after patch 7.0.054 .
++ CodeCheck (TM) integrated (source code analysing tool).
++ New key mappings for preprocessor statements. 
++ New preprocessor menu.
++ Bugfix: indent under Windows.
++ Minor improvements.
 
 =======================================================================================
   OLDER RELEASE NOTES : see file 'ChangeLog'

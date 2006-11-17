@@ -1,17 +1,19 @@
 
-/*----------------------------------------------------------------------
- *  print_int_array
- *  Print an int-array with one dimension 
- *  Use
- *    print_int_array( *matrix, n1*n2, n2, "matrix" ); 
- *  for
- *    int matrix[n1][n2];   
- *----------------------------------------------------------------------*/
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  print_int_array
+ *  Description:  Print a double-array with one dimension.
+ *                Use
+ *                  print_int_array( *matrix, n1*n2, n2, "matrix" ); 
+ *                for
+ *                  int matrix[n1][n2];   
+ * =====================================================================================
+ */
 static void
-print_int_array ( int   array[],  /* array to print              */
-                  int   n,        /* number of elements to print */
-                  int   nrow,     /* number of elements per row  */
-                  char *arrayname /* array name                  */
+print_int_array ( int   array[],                /* array to print              */
+                  int   n,                      /* number of elements to print */
+                  int   nrow,                   /* number of elements per row  */
+                  char *arrayname               /* array name                  */
                   )
 {
   int i;

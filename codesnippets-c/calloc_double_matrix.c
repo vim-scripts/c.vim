@@ -1,8 +1,11 @@
 
-/*-----------------------------------------------------------------------------
- *  calloc_double_matrix
- *  Allocate a dynamic double-matrix of size rows*columns ; return a pointer.
- *-----------------------------------------------------------------------------*/
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  calloc_double_matrix
+ *  Description:  Allocate a dynamic double-matrix of size rows*columns;
+ *                return a pointer.
+ * =====================================================================================
+ */
   double**
 calloc_double_matrix ( int rows, int columns )
 {
@@ -17,10 +20,12 @@ calloc_double_matrix ( int rows, int columns )
   return m;
 }  /* ----------  end of function calloc_double_matrix  ---------- */
 
-/*-----------------------------------------------------------------------------
- *  free_matrix_double
- *  Free a dynamic double-matrix. 
- *-----------------------------------------------------------------------------*/
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  free_matrix_double
+ *  Description:  Free a dynamic double-matrix.
+ * =====================================================================================
+ */
   void
 free_double_matrix ( double **m )
 {

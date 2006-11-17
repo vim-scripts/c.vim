@@ -65,9 +65,6 @@ class |CLASSNAME|
 const |CLASSNAME|&
 |CLASSNAME|::operator = ( const |CLASSNAME| &other )
 {
-  if( this!=&other )
-  {
-  }
   return *this;
 }  // -----  end of method |CLASSNAME|::operator =  (assignment operator)  ----- 
 
