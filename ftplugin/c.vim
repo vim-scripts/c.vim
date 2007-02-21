@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  C / C++
-" Plugin     :  c.vim (version 4.3)
+" Plugin     :  c.vim (version 4.4)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  10.11.2006
+" Last Change:  19.02.2007
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -21,6 +21,13 @@ let b:did_C_ftplugin = 1
 if exists("g:C_Dictionary_File")
     silent! exec 'setlocal dictionary+='.g:C_Dictionary_File
 endif    
+"
+" ---------- Commands -------------------------------------------
+"
+command! -nargs=1 	CSetBraceOnNewLine 	call C_SetBraceOnNewLine (<f-args>)
+command! -nargs=1 	CSetCComments      	call C_SetCComments      (<f-args>)
+command! -nargs=1 	CSetCCommentsToggle	call C_SetCCommentsToggle(<f-args>)
+command! -nargs=? 	CSetClassName      	call C_SetClassName      (<f-args>)
 "
 " ---------- F-key mappings  ------------------------------------
 "
@@ -61,10 +68,10 @@ vmap    <buffer>  <silent>  <Leader>cn    <Esc>:call C_MultiLineEndComments("// 
  map    <buffer>  <silent>  <Leader>cl    <Esc>:call C_GetLineEndCommCol()<CR>
  map    <buffer>  <silent>  <Leader>ci    <Esc>o/*<CR>/<Esc>kA<Space>
 vmap    <buffer>  <silent>  <Leader>ci    <Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>
- map    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>
-vmap    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>
- map    <buffer>  <silent>  <Leader>c\    <Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>
-vmap    <buffer>  <silent>  <Leader>c\    <Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>
+ map    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>j
+vmap    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>j
+ map    <buffer>  <silent>  <Leader>c\    <Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>j
+vmap    <buffer>  <silent>  <Leader>c\    <Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>j
  map    <buffer>  <silent>  <Leader>co    <Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>
 vmap    <buffer>  <silent>  <Leader>co    <Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>
  map    <buffer>  <silent>  <Leader>cf    <Esc>:call C_CommentTemplates("frame")<CR>
@@ -116,14 +123,14 @@ vmap    <buffer>  <silent>  <Leader>s{    <Esc>:call C_Block("v")<CR>
 "
 " ---------- preprocessor menu  ----------------------------------------------
 "
- map    <buffer>  <silent>  <Leader>p<   <Esc><Esc>o#include<Tab>>><Esc>hr<a
- map    <buffer>  <silent>  <Leader>p"   <Esc><Esc>o#include<Tab>xx<Esc>hr"lr"i
+ noremap    <buffer>  <silent>  <Leader>p<   <Esc><Esc>o#include<Tab><><Left>
+ noremap    <buffer>  <silent>  <Leader>p"   <Esc><Esc>o#include<Tab>""<Left>
  map    <buffer>  <silent>  <Leader>pd   <Esc><Esc>:call C_PPDefine()<CR>f<Tab>a
  map    <buffer>  <silent>  <Leader>pu   <Esc><Esc>:call C_PPUndef()<CR>f<Tab>a
 
- map    <buffer>  <silent>  <Leader>pi   <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>ji
- map    <buffer>  <silent>  <Leader>pf   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>ji
- map    <buffer>  <silent>  <Leader>pn   <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>ji
+ map    <buffer>  <silent>  <Leader>pi   <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>
+ map    <buffer>  <silent>  <Leader>pf   <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>
+ map    <buffer>  <silent>  <Leader>pn   <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>
  map    <buffer>  <silent>  <Leader>pe   <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2ji
  map    <buffer>  <silent>  <Leader>p0   <Esc><Esc>:call C_PPIf0("a")<CR>2ji
 
@@ -141,25 +148,29 @@ vmap    <buffer>  <silent>  <Leader>p0   <Esc><Esc>:call C_PPIf0("v")<CR>
 vmap    <buffer>  <silent>  <Leader>if    <Esc>:call C_CodeFunction("v")<CR>
  map    <buffer>  <silent>  <Leader>it    <Esc>:call C_CodeFunction("sa")<CR>w
 vmap    <buffer>  <silent>  <Leader>it    <Esc>:call C_CodeFunction("sv")<CR>w
- map    <buffer>  <silent>  <Leader>im    <Esc>:call C_CodeMain()<CR>3jA
+ map    <buffer>  <silent>  <Leader>im    <Esc>:call C_CodeMain("a")<CR>3jA
+vmap    <buffer>  <silent>  <Leader>im    <Esc>:call C_CodeMain("v")<CR>
 "
- map    <buffer>  <silent>  <Leader>i0    <Esc>:call C_CodeFor("up"  )<CR>a
- map    <buffer>  <silent>  <Leader>in    <Esc>:call C_CodeFor("down")<CR>a
+ map    <buffer>  <silent>  <Leader>i0    <Esc>:call C_CodeFor("up"  , "a")<CR>a
+ map    <buffer>  <silent>  <Leader>in    <Esc>:call C_CodeFor("down", "a")<CR>a
+vmap    <buffer>  <silent>  <Leader>i0    <Esc>:call C_CodeFor("up"  , "v")<CR>
+vmap    <buffer>  <silent>  <Leader>in    <Esc>:call C_CodeFor("down", "v")<CR>
 "
  map    <buffer>  <silent>  <Leader>ie    <Esc>:call C_EST("enum")<CR>o
  map    <buffer>  <silent>  <Leader>is    <Esc>:call C_EST("struct")<CR>o
  map    <buffer>  <silent>  <Leader>iu    <Esc>:call C_EST("union")<CR>o
 "
- map    <buffer>  <silent>  <Leader>ip    <Esc><Esc>oprintf )x\nx);<Esc>2F)r(fxr"fxr"2hi
- map    <buffer>  <silent>  <Leader>ic    <Esc><Esc>oscanf )xx, & );<Esc>2F)r(lr"lr"i
+ noremap    <buffer>  <silent>  <Leader>ip    <Esc><Esc>oprintf("\n");<Esc>2F"a
+ noremap    <buffer>  <silent>  <Leader>ic    <Esc><Esc>oscanf("", & );<Esc>F"i
 "
  map    <buffer>  <silent>  <Leader>il    <Esc>:call C_CodeMalloc("c")<CR>i
  map    <buffer>  <silent>  <Leader>ia    <Esc>:call C_CodeMalloc("m")<CR>i
 "
- map    <buffer>  <silent>  <Leader>iz     isizeof))<Esc>hr(a
-vmap    <buffer>  <silent>  <Leader>iz    disizeof))<Esc>hr(pa
- map    <buffer>  <silent>  <Leader>ir    <Esc><Esc>oassert));<Esc>2F)r(a
-vmap    <buffer>  <silent>  <Leader>ir    diassert));<Esc>2F)r(pa
+ noremap    <buffer>  <silent>  <Leader>iz    isizeof()<Left>
+inoremap    <buffer>  <silent>  <Leader>iz     sizeof()<Left>
+vnoremap    <buffer>  <silent>  <Leader>iz    ssizeof()<Esc>P
+ noremap    <buffer>  <silent>  <Leader>ir    <Esc><Esc>oassert();<Left><Left>
+vnoremap    <buffer>  <silent>  <Leader>ir    sassert();<Esc>F(p
 "
  map    <buffer>  <silent>  <Leader>ii    <Esc>:call C_CodeFopen("input")<CR>jf"a
  map    <buffer>  <silent>  <Leader>io    <Esc>:call C_CodeFopen("output")<CR>jf"a

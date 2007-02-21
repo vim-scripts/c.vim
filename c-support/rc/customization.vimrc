@@ -5,6 +5,8 @@
 "
 runtime vimrc_example.vim
 "
+filetype plugin on
+"
 "===============================================================================
 "==========  CUSTOMIZATION (vimrc)  ============================================
 "===============================================================================
@@ -54,10 +56,10 @@ set visualbell            " visual bell instead of beeping
 "    F2   -  write file without confirmation
 "    F3   -  call file explorer Ex
 "    F4   -  show tag under curser in the preview window (tagfile must exist!)
-"    F6   -  list all errors           
+"    F5   -  open quickfix error window
+"    F6   -  close quickfix error window
 "    F7   -  display previous error
 "    F8   -  display next error   
-"    F12  -  toggle line numbers
 "  S-Tab  -  Fast switching between buffers (see below)
 "    C-q  -  Leave the editor with Ctrl-q (see below)
 "-------------------------------------------------------------------------------
@@ -65,28 +67,18 @@ set visualbell            " visual bell instead of beeping
 map   <silent> <F2>    :write<CR>
 map   <silent> <F3>    :Explore<CR>
 nmap  <silent> <F4>    :exe ":ptag ".expand("<cword>")<CR>
-map   <silent> <F6>    :copen<CR>
+map   <silent> <F5>    :copen<CR>
+map   <silent> <F6>    :cclose<CR>
 map   <silent> <F7>    :cp<CR>
 map   <silent> <F8>    :cn<CR>
-map   <silent> <F12>   :let &number=1-&number<CR>
 "
 imap  <silent> <F2>    <Esc>:write<CR>
 imap  <silent> <F3>    <Esc>:Explore<CR>
 imap  <silent> <F4>    <Esc>:exe ":ptag ".expand("<cword>")<CR>
-imap  <silent> <F6>    <Esc>:copen<CR>
+imap  <silent> <F5>    <Esc>:copen<CR>
+imap  <silent> <F6>    <Esc>:cclose<CR>
 imap  <silent> <F7>    <Esc>:cp<CR>
 imap  <silent> <F8>    <Esc>:cn<CR>
-imap  <silent> <F12>   :let &number=1-&number<CR>
-"
-" insert mode : autocomplete brackets and braces
-imap ( ()<Left>
-imap [ []<Left>
-imap { {}<Left>
-"
-" visual mode : frame a selection with brackets and braces
-vmap ( d<Esc>i(<Esc>p
-vmap [ d<Esc>i[<Esc>p
-vmap { d<Esc>i{<Esc>p
 "
 "-------------------------------------------------------------------------------
 " Fast switching between buffers
@@ -103,6 +95,17 @@ imap  <silent> <s-tab>  <Esc>:if &modifiable && !&readonly &&
 " Leave the editor with Ctrl-q : Write all changed buffers and exit Vim
 "-------------------------------------------------------------------------------
 nmap  <C-q>    :wqa<CR>
+"
+"-------------------------------------------------------------------------------
+" autocomplete parenthesis, brackets and braces
+"-------------------------------------------------------------------------------
+inoremap ( ()<Left>
+inoremap [ []<Left>
+inoremap { {}<Left>
+"
+vnoremap ( s()<Esc>P<Right>
+vnoremap [ s[]<Esc>P<Right>
+vnoremap { s{}<Esc>P<Right>
 "
 "-------------------------------------------------------------------------------
 " Change the working directory to the directory containing the current file

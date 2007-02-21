@@ -1,4 +1,15 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.4
+=======================================================================================
++ Plugin directories rearranged.
++ main- and for-idiom have a visual mode now.
++ Four new commands (command line) to control the comment style.
++ Comment style (C/C++) can automatically follow the filetype.
++ Bugfix: empty new file after removing the header template can't be closed.
++ Bugfix : Tools entry missing when root menu not shown from the start.
++ Minor improvements.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.3
 =======================================================================================
 + CodeCheck (TM) integrated (source code analysing tool).

@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Nov 16 2006
+*csupport.txt*                  C/C++ Support                      Feb 19 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.3
+                              Plugin version 4.4
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -37,6 +37,7 @@ program, running a code checker or indent can be done with a keystroke.
  1.6    Menu 'C++'                              |csupport-c++|
  1.6.1   Normal mode, insert mode.              |csupport-c++-normal-mode|
  1.6.2   Visual mode.                           |csupport-c++-visual-mode|
+ 1.6.3   Method implementation                  |csupport-c++-method-impl|
  1.7    Menu 'Run'                              |csupport-run|
  1.7.1   Minimal make functionality             |csupport-run-buffer|
  1.7.2   Command line arguments                 |csupport-run-cmdline-args|
@@ -230,11 +231,15 @@ resumed shortly. Usually not meant for the final documentation.
 
 1.1.7 C TO C++ COMMENTS AND VICE VERSA                   *csupport-comm-c-cpp*
 
-The entry '// xxx -> /* xxx */' changes a C++ comment into an C comment.
+The menu entry '// xxx -> /* xxx */' changes a C++ comment into an C comment.
 This is done for the current line in normal or insert mode and for a marked
 area of lines in visual mode.
-The entry changes to '/* xxx */ -> // xxx' if the comment style is switched
+This menu entry changes to '/* xxx */ -> // xxx' if the comment style is switched
 (see below).
+If there are multiple C comments only the first one will be changed:
+  printf ("\n");                     /* one */ /* two */ /* three */
+will be changed into
+  printf ("\n");                     // one  /* two */ /* three */
 
 ------------------------------------------------------------------------------
 
@@ -258,6 +263,15 @@ Inserted do-while with C++-style comment:
   }
   while (  );       // -----  end do-while  ----- 
 
+AUTO-TOGGLE. If the global variable g:C_CommentsToggle is set to 'yes' (in
+'.vimrc'; default is 'no') the comment style changes with the filetype of the
+current buffer.  This setting can be changed during a session using the Ex
+command
+ 
+  :CSetCCommentsToggle no
+
+(values 'yes' or 'no'). Start typing ':CS' und use the tabulator to complete
+the command.
 
 ------------------------------------------------------------------------------
 1.2  MENU 'Statements'                                         *csupport-stat*
@@ -284,6 +298,12 @@ set the appropriate global variable in .vimrc :
 
 The default values is "yes".  This flag applies to all structural blocks,
 excluding subroutines and classes. 
+This setting can be changed during a session using the Ex command
+ 
+  :CSetBraceOnNewLine yes
+
+(values 'yes' or 'no'). Start typing ':CS' und use the tabulator to complete
+the command.
 
 
 1.2.2  VISUAL MODE.                                *csupport-stat-visual-mode*
@@ -427,7 +447,7 @@ non-word characters (including whitespaces) will be discarded.  Empty lines
 will be skipped.
 
 ------------------------------------------------------------------------------
-1.3  MENU 'Idioms'                                             *csupport-prep*
+1.3  MENU 'Preprocessor'                                       *csupport-prep*
 ------------------------------------------------------------------------------
 
 1.3.1  NORMAL MODE, INSERT MODE.                   *csupport-prep-normal-mode*
@@ -524,7 +544,9 @@ name "f") will be inserted:
   }        /* ----------  end of function f  ---------- */
 
 VISUAL MODE: 
-Like normal mode; the highlighted lines will go inside the function.
+Main or [static] function: the highlighted lines will go inside the new
+function or main. 
+for-loops: the highlighted lines will be set in braces.
 
 1.4.2  ENTRY 'open input file'
 
@@ -682,6 +704,18 @@ The highlighted area can be surrounded by one of the following statements:
 
 The whole statement will be indented after insertion.
 
+1.6.3   METHOD IMPLEMENTATION                       *csupport-c++-method-impl*
+
+The menu entry 'method implement.' asks for a method name. If this entry is
+called the first time you will see just an scope resolution operator.  If you
+specify the scope this is used the next time you call this entry.  If you use
+one of the menu entries to generate a class (see |csupport-templates|) the
+scope will be extracted and used for the next method.  The scope can be
+changed by an Ex command:
+
+  :CSetClassName newClass
+
+Start typing ':CS' und use the tabulator to complete the command.
 
 ------------------------------------------------------------------------------
 1.7  MENU 'Run'                                                 *csupport-run*
@@ -941,9 +975,9 @@ following character(s) will only be recognized for a short time.
 
   \if     function                            (normal, visual)
   \it     static function                     (normal, visual)
-  \im     main()                              (normal)
-  \i0     for( x=0; x<n; x+=1 )               (normal)
-  \in     for( x=n-1; x>=0; x-=1 )            (normal)
+  \im     main()                              (normal, visual)
+  \i0     for( x=0; x<n; x+=1 )               (normal, visual)
+  \in     for( x=n-1; x>=0; x-=1 )            (normal, visual)
   \ie     enum   + typedef                    (normal)
   \is     struct + typedef                    (normal)
   \iu     union  + typedef                    (normal)
@@ -1043,7 +1077,7 @@ Several global variables are checked by the script to customize it:
   g:C_Project               ""                               |PROJECT|
   g:C_CopyrightHolder       ""                               |COPYRIGHTHOLDER|
 
-  g:C_Template_Directory    plugin_dir."/.vim/plugin/templates/"
+  g:C_Template_Directory    plugin_dir."c-support/templates/"
   g:C_Template_C_File       "c-file-header"
   g:C_Template_Class        "c-class-description"
   g:C_Template_Frame        "c-frame"
@@ -1059,7 +1093,8 @@ Several global variables are checked by the script to customize it:
 
   g:C_BraceOnNewLine        "no"   
   g:C_Comments              "yes"
-  g:C_CodeSnippets          plugin_dir."/.vim/codesnippets-c/"
+  g:C_CommentsToggle        "no"
+  g:C_CodeSnippets          plugin_dir."/c-support/codesnippets/"
   g:C_Dictionary_File       ""
   g:C_LoadMenus             "yes"
   g:C_MenuHeader            "yes"
@@ -1108,6 +1143,7 @@ The variable plugin_dir will automatically be set to one of the following values
 3. group: g:C_BraceOnNewLine     : block statements: opening curly brace on a
                                    new line / not on a new line
           g:C_Comments           : The initial comment style (C = yes, C++ = no).
+          g:C_CommentsToggle     : Comment style (C/C++) automatically follows file type.
           g:C_CodeSnippets       : The name of the code snippet directory 
                                    (see |csupport-snippets|).
           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
@@ -1262,15 +1298,14 @@ The files
  c-c++-keywords.list 
  k+r.list  
  stl_index.list  
- german.list
 
 are a part of this plugin and can be used (together with your own lists) as
 dictionaries for automatic word completion.  This feature is enabled by
 default. The default word lists are
 
-  plugin_dir/.vim/wordlists/c-c++-keywords.list
-  plugin_dir/.vim/wordlists/k+r.list
-  plugin_dir/.vim/wordlists/stl_index.list
+  plugin_dir/c-support/wordlists/c-c++-keywords.list
+  plugin_dir/c-support/wordlists/k+r.list
+  plugin_dir/c-support/wordlists/stl_index.list
 
 The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -1278,10 +1313,10 @@ The variable plugin_dir will automatically be set to one of the following values
 If you want to use an additional list MyC.list put the following lines into
  .vimrc :
 
-  let g:C_Dictionary_File = plugin_dir.'/.vim/wordlists/c-c++-keywords.list,'.
-        \                   plugin_dir.'/.vim/wordlists/k+r.list,'.
-        \                   plugin_dir.'/.vim/wordlists/stl_index.list,'.
-        \                   plugin_dir.'/.vim/wordlists/MyC.list'
+  let g:C_Dictionary_File = plugin_dir.'/c-support/wordlists/c-c++-keywords.list,'.
+        \                   plugin_dir.'/c-support/wordlists/k+r.list,'.
+        \                   plugin_dir.'/c-support/wordlists/stl_index.list,'.
+        \                   plugin_dir.'/c-support/wordlists/MyC.list'
   
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 
@@ -1371,8 +1406,23 @@ directory):
 10. TROUBLESHOOTING                                 *csupport-troubleshooting*
 ==============================================================================
 
-* Some plugin features not present (e.g. hotkeys).
-  - Does the file type plugin $HOME/.vim/ftplugin/c.vim exist ?
+* I do not see any new main menu entry.
+  - Was the archive extracted into the right directory?
+
+* How can I see what was loaded?
+  - Use ':scriptnames' from the Vim command line. 
+
+* No main menu entry.
+  - Loading of plugin files must be enabled. If not use
+      :filetype plugin on
+    This is the minimal content of the file '$HOME/.vimrc'. Create one if there
+    is none, or better use customization.vimrc.
+
+* Most key mappings do not work.
+  - They are defined in a filetype plugin in '$HOME/.vim/ftplugin/'. Use ':filetype'
+    to check if filetype plugins are enabled. If not, add the line 
+      filetype plugin on
+    to the file '.vimrc'.
 
 * Some hotkeys do not work.
   - The hotkeys might be in use by your graphical desktop environment.
