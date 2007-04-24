@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 " Language   :  C / C++
-" Plugin     :  c.vim (version 4.4)
+" Plugin     :  c.vim (version 4.5)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-" Last Change:  19.02.2007
+" Last Change:  20.04.2007
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -61,11 +61,14 @@ endif
 "
 " ---------- comments menu  ------------------------------------------------
 "
- map    <buffer>  <silent>  <Leader>ce    <Esc>:call C_LineEndComment("/*  */")<CR>$2hi
-vmap    <buffer>  <silent>  <Leader>ce    <Esc>:call C_MultiLineEndComments("/*  */")<CR>$2hi
+ map    <buffer>  <silent>  <Leader>cj    <Esc>:call C_AdjustLineEndComm("a")<CR>
+vmap    <buffer>  <silent>  <Leader>cj    <Esc>:call C_AdjustLineEndComm("v")<CR>
+
+ map    <buffer>  <silent>  <Leader>cl    <Esc>:call C_LineEndComment()<CR>a
+vmap    <buffer>  <silent>  <Leader>cl    <Esc>:call C_MultiLineEndComments()<CR>a
  map    <buffer>  <silent>  <Leader>cn    <Esc>:call C_LineEndComment("// ")<CR>A
 vmap    <buffer>  <silent>  <Leader>cn    <Esc>:call C_MultiLineEndComments("// ")<CR>A
- map    <buffer>  <silent>  <Leader>cl    <Esc>:call C_GetLineEndCommCol()<CR>
+ map    <buffer>  <silent>  <Leader>cs    <Esc>:call C_GetLineEndCommCol()<CR>
  map    <buffer>  <silent>  <Leader>ci    <Esc>o/*<CR>/<Esc>kA<Space>
 vmap    <buffer>  <silent>  <Leader>ci    <Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>
  map    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>j

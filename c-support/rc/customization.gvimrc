@@ -31,8 +31,8 @@ nmap <s-right>  <c-w>l
 "   S-F3  -  call gvim file browser
 "-------------------------------------------------------------------------------
 "
- map  <silent> <s-F3>       :browse confirm e<CR>
-imap  <silent> <s-F3>  <Esc>:browse confirm e<CR>
+ map  <silent> <s-F3>       :silent browse confirm e<CR>
+imap  <silent> <s-F3>  <Esc>:silent browse confirm e<CR>
 "
 "
 "-------------------------------------------------------------------------------

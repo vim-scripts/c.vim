@@ -1,4 +1,15 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.5
+=======================================================================================
++ New menu item and hotkey for the (re)alignement of end-of-line comments.
++ Hotkey \cn removed. Only one menu item for end-of-line comments left.
++ Changed hotkeys: \ce -> \cl and \cl -> \cs .
++ Three new tags (giving the basename of a file) for writing template files.
++ Prototype picker handles template methods.
++ Bugfix: splint works now under Windows.
++ Minor improvements.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.4
 =======================================================================================
 + Plugin directories rearranged.

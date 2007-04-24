@@ -1,4 +1,4 @@
-README for c.vim (Version 4.4) / February 19 2007
+README for c.vim (Version 4.5) / April 20 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -34,7 +34,7 @@ which is needed below the local installation directory $HOME/.vim/ for LINUX/UNI
 
 (2) Loading of plugin files must be enabled. If not use
       :filetype plugin on
-		This is the minimal content of the file '$HOME/.vimrc'. Create one if there
+    This is the minimal content of the file '$HOME/.vimrc'. Create one if there
     is none. 
 
 (3) Set at least some personal details into the file $HOME/.vimrc (file $VIM\_vimrc 
@@ -81,14 +81,14 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.4
+  RELEASE NOTES FOR VERSION 4.5
 =======================================================================================
-+ PLUGIN DIRECTORIES REARRANGED.
-+ main- and for-idiom have a visual mode now.
-+ Four new commands (command line) to control the comment style.
-+ Comment style (C/C++) can automatically follow the filetype.
-+ Bugfix: empty new file after removing the header template can't be closed.
-+ Bugfix : Tools entry missing when root menu not shown from the start.
++ New menu item and hotkey for the (re)alignement of end-of-line comments.
++ Hotkey \cn removed. Only one menu item for end-of-line comments left.
++ Changed hotkeys: \ce -> \cl and \cl -> \cs .
++ Three new tags (giving the basename of a file) for writing template files.
++ Prototype picker handles template methods.
++ Bugfix: splint works now under Windows.
 + Minor improvements.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
