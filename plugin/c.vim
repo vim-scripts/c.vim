@@ -16,7 +16,6 @@
 "          Email:  mehner@fh-swf.de
 "  
 "        Version:  see variable  g:C_Version  below 
-"       Revision:  19.04.2007
 "        Created:  04.11.2000
 "        License:  Copyright (c) 2000-2007, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -28,6 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
+"       Revision:  $Id: c.vim,v 1.15 2007/05/24 18:14:18 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -36,7 +36,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "4.5"  							" version number of this script; do not change
+let g:C_Version= "4.6"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -465,12 +465,12 @@ function! C_InitC ()
 	"
 	exe "amenu <silent>".s:C_Root.'&Statements.&if                         <Esc><Esc>:call C_Stat("a","if (  )")<Esc>f(la'
 	exe "vmenu <silent>".s:C_Root.'&Statements.&if                         <Esc><Esc>:call C_Stat("v","if (  )")<Esc>f(la'
-
-	exe "amenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("a")<Esc>f(la'
-	exe "vmenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("v")<Esc>f(la'
 	"
 	exe "amenu <silent>".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("a","if (  )")<Esc>f(la'
 	exe "vmenu <silent>".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_StatBlock("v","if (  )")<Esc>f(la'
+
+	exe "amenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("a")<Esc>f(la'
+	exe "vmenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_IfElse("v")<Esc>f(la'
 	"
 	exe "amenu <silent>".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("a")<Esc>f(la'
 	exe "vmenu <silent>".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_IfBlockElse("v")<Esc>f(la'
@@ -591,13 +591,13 @@ function! C_InitC ()
 	exe "amenu  ".s:C_Root.'&Preprocessor.#&if\ #else\ #endif            <Esc><Esc>:call C_PPIfElse("if"    ,"a+")<CR>'
 	exe "amenu  ".s:C_Root.'&Preprocessor.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_PPIfElse("ifdef" ,"a+")<CR>'
 	exe "amenu  ".s:C_Root.'&Preprocessor.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_PPIfElse("ifndef","a+")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_PPIfDef (         "a" )<CR>2ji'
+	exe "amenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_PPifndef(         "a" )<CR>2ji'
 	exe "amenu  ".s:C_Root.'&Preprocessor.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("a")<CR>2ji'
 	"
 	exe "vmenu  ".s:C_Root.'&Preprocessor.#&if\ #else\ #endif            <Esc><Esc>:call C_PPIfElse("if"    ,"v+")<CR>'
 	exe "vmenu  ".s:C_Root.'&Preprocessor.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_PPIfElse("ifdef" ,"v+")<CR>'
 	exe "vmenu  ".s:C_Root.'&Preprocessor.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_PPIfElse("ifndef","v+")<CR>'
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_PPIfDef (         "v" )<CR>'
+	exe "vmenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_PPifndef(         "v" )<CR>'
 	exe "vmenu  ".s:C_Root.'&Preprocessor.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("v")<CR>'
 	"
 	exe "amenu  <silent> ".s:C_Root.'&Preprocessor.&remove\ #if\ 0\ #endif        <Esc><Esc>:call C_PPIf0Remove()<CR>'
@@ -635,61 +635,59 @@ function! C_InitC ()
 	exe " noremenu ".s:C_Root.'C&++.c&in                 <Esc><Esc>ocin<Tab>>> ;<Esc>i'
 	exe " noremenu ".s:C_Root.'C&++.cout\ &variable      <Esc><Esc>ocout<Tab><<  << endl;<Esc>2F<hi'
 	exe " noremenu ".s:C_Root.'C&++.cout\ &string        <Esc><Esc>ocout<Tab><< "\n";<Esc>2F"a'
-	exe " noremenu ".s:C_Root.'C&++.c&err\ string        <Esc><Esc>ocerr<Tab><< "\n";<Esc>2F"a'
 	exe " noremenu ".s:C_Root.'C&++.<<\ &\"\"            i<< "" <Left><Left>'
 	"
 	exe "inoremenu ".s:C_Root.'C&++.c&in                 cin<Tab>>> ;<Esc>i'
 	exe "inoremenu ".s:C_Root.'C&++.cout\ &variable      cout<Tab><<  << endl;<Esc>2F<hi'
 	exe "inoremenu ".s:C_Root.'C&++.cout\ &string        cout<Tab><< "\n";<Esc>2F"a'
-	exe "inoremenu ".s:C_Root.'C&++.c&err\ string        cerr<Tab><< "\n";<Esc>2F"a'
 	exe "inoremenu ".s:C_Root.'C&++.<<\ &\"\"            << "" <Left><Left>'
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.output\ manip\.<Tab>C\/C\+\+              <Esc>'
-	exe "amenu ".s:C_Root.'C&++.output\ mani&pulators.-Sep0-                     :'
+	exe "amenu ".s:C_Root.'C&++.&output\ manipulators.output\ manip\.<Tab>C\/C\+\+              <Esc>'
+	exe "amenu ".s:C_Root.'C&++.&output\ manipulators.-Sep0-                     :'
 	"
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &boolalpha           i<< boolalpha<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &dec                 i<< dec<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                i<< endl<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &fixed               i<< fixed<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ fl&ush               i<< flush<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &hex                 i<< hex<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &internal            i<< internal<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &left                i<< left<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &oct                 i<< oct<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               i<< right<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          i<< scientific<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       i<< setbase(10) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       i<< setfill() <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags() <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  i<< setprecision(6) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          i<< setw(0) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            i<< showbase<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           i<< showpoint<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      i<< showpos<Space>'
-	exe " noremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ uppercase\ \(&2\)    i<< uppercase<Space>'
-	"
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &boolalpha           << boolalpha<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &dec                 << dec<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &endl                << endl<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &fixed               << fixed<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ fl&ush               << flush<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &hex                 << hex<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &internal            << internal<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &left                << left<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ o&ct                 << oct<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &right               << right<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ s&cientific          << scientific<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ &setbase\(\ \)       << setbase(10) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ se&tfill\(\ \)       << setfill() <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ setiosfla&g\(\ \)    << setiosflags() <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&precision\(\ \)  << setprecision(6) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ set&w\(\ \)          << setw(0) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showb&ase            << showbase<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpoi&nt           << showpoint<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ showpos\ \(&1\)      << showpos<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.output\ mani&pulators.\<\<\ uppercase\ \(&2\)    << uppercase<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &boolalpha           i<< boolalpha<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &dec                 i<< dec<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &endl                i<< endl<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &fixed               i<< fixed<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ fl&ush               i<< flush<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &hex                 i<< hex<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &internal            i<< internal<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &left                i<< left<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &oct                 i<< oct<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &right               i<< right<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ s&cientific          i<< scientific<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &setbase\(\ \)       i<< setbase(10) <Left><Left>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ se&tfill\(\ \)       i<< setfill() <Left><Left>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags() <Left><Left>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&precision\(\ \)  i<< setprecision(6) <Left><Left>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&w\(\ \)          i<< setw(0) <Left><Left>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showb&ase            i<< showbase<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpoi&nt           i<< showpoint<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpos\ \(&1\)      i<< showpos<Space>'
+	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ uppercase\ \(&2\)    i<< uppercase<Space>'
+	"                                
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &boolalpha           << boolalpha<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &dec                 << dec<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &endl                << endl<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &fixed               << fixed<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ fl&ush               << flush<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &hex                 << hex<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &internal            << internal<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &left                << left<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ o&ct                 << oct<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &right               << right<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ s&cientific          << scientific<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &setbase\(\ \)       << setbase(10) <Left><Left>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ se&tfill\(\ \)       << setfill() <Left><Left>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ setiosfla&g\(\ \)    << setiosflags() <Left><Left>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&precision\(\ \)  << setprecision(6) <Left><Left>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&w\(\ \)          << setw(0) <Left><Left>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showb&ase            << showbase<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpoi&nt           << showpoint<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpos\ \(&1\)      << showpos<Space>'
+	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ uppercase\ \(&2\)    << uppercase<Space>'
 	"
 	"----- Submenu : C++ : ios flag bits  -------------------------------------------------------------
 	"
@@ -736,77 +734,77 @@ function! C_InitC ()
 	"
 	"----- Submenu : C++   library  (algorithm - locale) ----------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.alg\.\.loc<Tab>C\/C\+\+   <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.-Sep0-          :'
+	exe "amenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).alg\.\.loc<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).-Sep0-          :'
 	"
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&algorithm      <Esc><Esc>o#include<Tab><algorithm>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&bitset         <Esc><Esc>o#include<Tab><bitset>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&complex        <Esc><Esc>o#include<Tab><complex>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&deque          <Esc><Esc>o#include<Tab><deque>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&exception      <Esc><Esc>o#include<Tab><exception>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&fstream        <Esc><Esc>o#include<Tab><fstream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.f&unctional     <Esc><Esc>o#include<Tab><functional>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iomani&p        <Esc><Esc>o#include<Tab><iomanip>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&ios            <Esc><Esc>o#include<Tab><ios>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iosf&wd         <Esc><Esc>o#include<Tab><iosfwd>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.io&stream       <Esc><Esc>o#include<Tab><iostream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.istrea&m        <Esc><Esc>o#include<Tab><istream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.iterato&r       <Esc><Esc>o#include<Tab><iterator>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.&limits         <Esc><Esc>o#include<Tab><limits>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.lis&t           <Esc><Esc>o#include<Tab><list>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&alg\.\.loc>.l&ocale         <Esc><Esc>o#include<Tab><locale>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&algorithm      <Esc><Esc>o#include<Tab><algorithm>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&bitset         <Esc><Esc>o#include<Tab><bitset>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&complex        <Esc><Esc>o#include<Tab><complex>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&deque          <Esc><Esc>o#include<Tab><deque>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&exception      <Esc><Esc>o#include<Tab><exception>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&fstream        <Esc><Esc>o#include<Tab><fstream>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).f&unctional     <Esc><Esc>o#include<Tab><functional>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iomani&p        <Esc><Esc>o#include<Tab><iomanip>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&ios            <Esc><Esc>o#include<Tab><ios>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iosf&wd         <Esc><Esc>o#include<Tab><iosfwd>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).io&stream       <Esc><Esc>o#include<Tab><iostream>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).istrea&m        <Esc><Esc>o#include<Tab><istream>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iterato&r       <Esc><Esc>o#include<Tab><iterator>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&limits         <Esc><Esc>o#include<Tab><limits>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).lis&t           <Esc><Esc>o#include<Tab><list>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).l&ocale         <Esc><Esc>o#include<Tab><locale>'
 	"
 	"----- Submenu : C++   library  (map - vector) ----------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.map\.\.vec<Tab>C\/C\+\+   <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.-Sep0-          :'
+	exe "amenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).map\.\.vec<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).-Sep0-          :'
 
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&map            <Esc><Esc>o#include<Tab><map>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.memor&y         <Esc><Esc>o#include<Tab><memory>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&new            <Esc><Esc>o#include<Tab><new>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.numeri&c        <Esc><Esc>o#include<Tab><numeric>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&ostream        <Esc><Esc>o#include<Tab><ostream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&queue          <Esc><Esc>o#include<Tab><queue>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&set            <Esc><Esc>o#include<Tab><set>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.sst&ream        <Esc><Esc>o#include<Tab><sstream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.st&ack          <Esc><Esc>o#include<Tab><stack>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stde&xcept      <Esc><Esc>o#include<Tab><stdexcept>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.stream&buf      <Esc><Esc>o#include<Tab><streambuf>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.str&ing         <Esc><Esc>o#include<Tab><string>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&typeinfo       <Esc><Esc>o#include<Tab><typeinfo>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&utility        <Esc><Esc>o#include<Tab><utility>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.&valarray       <Esc><Esc>o#include<Tab><valarray>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&map\.\.vec>.v&ector         <Esc><Esc>o#include<Tab><vector>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&map            <Esc><Esc>o#include<Tab><map>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).memor&y         <Esc><Esc>o#include<Tab><memory>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&new            <Esc><Esc>o#include<Tab><new>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).numeri&c        <Esc><Esc>o#include<Tab><numeric>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&ostream        <Esc><Esc>o#include<Tab><ostream>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&queue          <Esc><Esc>o#include<Tab><queue>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&set            <Esc><Esc>o#include<Tab><set>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).sst&ream        <Esc><Esc>o#include<Tab><sstream>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).st&ack          <Esc><Esc>o#include<Tab><stack>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).stde&xcept      <Esc><Esc>o#include<Tab><stdexcept>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).stream&buf      <Esc><Esc>o#include<Tab><streambuf>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).str&ing         <Esc><Esc>o#include<Tab><string>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&typeinfo       <Esc><Esc>o#include<Tab><typeinfo>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&utility        <Esc><Esc>o#include<Tab><utility>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&valarray       <Esc><Esc>o#include<Tab><valarray>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).v&ector         <Esc><Esc>o#include<Tab><vector>'
 	"
 	"----- Submenu : C     library  (cassert - ctime) -------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.cX<Tab>C\/C\+\+ <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <&cX>.-Sep0-        :'
+	exe "amenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cX<Tab>C\/C\+\+ <Esc>'
+	exe "amenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).-Sep0-        :'
 	"
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&assert      <Esc><Esc>o#include<Tab><cassert>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&ctype       <Esc><Esc>o#include<Tab><cctype>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&errno       <Esc><Esc>o#include<Tab><cerrno>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&float       <Esc><Esc>o#include<Tab><cfloat>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&limits      <Esc><Esc>o#include<Tab><climits>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cl&ocale      <Esc><Esc>o#include<Tab><clocale>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&math        <Esc><Esc>o#include<Tab><cmath>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cset&jmp      <Esc><Esc>o#include<Tab><csetjmp>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cs&ignal      <Esc><Esc>o#include<Tab><csignal>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cstdar&g      <Esc><Esc>o#include<Tab><cstdarg>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cst&ddef      <Esc><Esc>o#include<Tab><cstddef>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&stdio       <Esc><Esc>o#include<Tab><cstdio>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cstdli&b      <Esc><Esc>o#include<Tab><cstdlib>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.cst&ring      <Esc><Esc>o#include<Tab><cstring>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <&cX>.c&time        <Esc><Esc>o#include<Tab><ctime>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&assert      <Esc><Esc>o#include<Tab><cassert>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&ctype       <Esc><Esc>o#include<Tab><cctype>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&errno       <Esc><Esc>o#include<Tab><cerrno>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&float       <Esc><Esc>o#include<Tab><cfloat>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&limits      <Esc><Esc>o#include<Tab><climits>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cl&ocale      <Esc><Esc>o#include<Tab><clocale>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&math        <Esc><Esc>o#include<Tab><cmath>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cset&jmp      <Esc><Esc>o#include<Tab><csetjmp>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cs&ignal      <Esc><Esc>o#include<Tab><csignal>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cstdar&g      <Esc><Esc>o#include<Tab><cstdarg>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cst&ddef      <Esc><Esc>o#include<Tab><cstddef>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&stdio       <Esc><Esc>o#include<Tab><cstdio>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cstdli&b      <Esc><Esc>o#include<Tab><cstdlib>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cst&ring      <Esc><Esc>o#include<Tab><cstring>'
+	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&time        <Esc><Esc>o#include<Tab><ctime>'
 	"
 	"----- End Submenu : C     library  (cassert - ctime) ---------------------------------------------
 	"
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP2-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.metho&d\ implement\.          <Esc><Esc>:call C_CodeMethod()<CR>'
+	exe "amenu <silent> ".s:C_Root.'C&++.&method\ implement\.          <Esc><Esc>:call C_CodeMethod()<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.c&lass                        <Esc><Esc>:call C_CommentTemplates("CppClass")<CR>'
+	exe "amenu <silent> ".s:C_Root.'C&++.&class                        <Esc><Esc>:call C_CommentTemplates("CppClass")<CR>'
 	exe "amenu <silent> ".s:C_Root.'C&++.class\ (w\.\ &new)            <Esc><Esc>:call C_CommentTemplates("CppClassUsingNew")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.err&or\ class                 <Esc><Esc>:call C_CommentTemplates("CppErrorClass")<CR>'
+	exe "amenu <silent> ".s:C_Root.'C&++.&error\ class                 <Esc><Esc>:call C_CommentTemplates("CppErrorClass")<CR>'
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP3-                        :'
 	exe "amenu <silent> ".s:C_Root.'C&++.&templ\.\ class              <Esc><Esc>:call C_CommentTemplates("CppTemplateClass")<CR>'
 	exe "amenu <silent> ".s:C_Root.'C&++.templ\.\ class\ (w\.\ ne&w)  <Esc><Esc>:call C_CommentTemplates("CppTemplateClassUsingNew")<CR>'
@@ -825,8 +823,8 @@ function! C_InitC ()
 	exe "vmenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_CodeCatch("v","...")<CR>'
 
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP6-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \(&1\)     <Esc><Esc>:call C_CodeIOStream("ifstream")<CR>f"a'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ output\ file\ \(&2\)    <Esc><Esc>:call C_CodeIOStream("ofstream")<CR>f"a'
+	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \ \(&4\)   <Esc><Esc>:call C_CodeIOStream("ifstream")<CR>f"a'
+	exe "amenu <silent> ".s:C_Root.'C&++.open\ output\ file\ \(&5\)    <Esc><Esc>:call C_CodeIOStream("ofstream")<CR>f"a'
 	exe "amenu <silent> ".s:C_Root.'C&++.-SEP7-                        :'
 
 	exe " menu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       <Esc><Esc>ousing namespace std;<CR>'
@@ -1283,6 +1281,7 @@ function! C_CommentTemplates (arg)
 		"  substitute keywords
 		"----------------------------------------------------------------------
 		let	basename	= expand("%:t:r")
+		call  C_SubstituteTag( pos1, pos2, '|BASENAMElegal|',   toupper(C_LegalizeName(basename)) )
 		call  C_SubstituteTag( pos1, pos2, '|BASENAME|',        toupper(basename)    )
 		call  C_SubstituteTag( pos1, pos2, '|Basename|',                basename     )
 		call  C_SubstituteTag( pos1, pos2, '|basename|',        tolower(basename)    )
@@ -1961,17 +1960,26 @@ function! C_PPIf0Remove ()
 	
 endfunction    " ----------  end of function C_PPIf0Remove ----------
 "
+"-------------------------------------------------------------------------------
+"   C_LegalizeName : replace non-word characters by underscores
+"   - multiple whitespaces
+"   - multiple non-word characters
+"   - multiple underscores
+"-------------------------------------------------------------------------------
+function! C_LegalizeName ( name )
+	let identifier = substitute(     a:name, '\s\+',  '_', 'g' )
+	let identifier = substitute( identifier, '\W\+',  '_', 'g' ) 
+	let identifier = substitute( identifier, '_\+', '_', 'g' )
+	return identifier
+endfunction    " ----------  end of function C_LegalizeName  ----------
 "
 "------------------------------------------------------------------------------
-"  C_PPIfDef : #ifndef .. #define .. #endif        {{{1
+"  C_PPifndef : #ifndef .. #define .. #endif        {{{1
 "------------------------------------------------------------------------------
-function! C_PPIfDef (arg)
+function! C_PPifndef (arg)
 	" use filename without path (:t) and extension (:r) :
 	let identifier = toupper(expand("%:t:r"))."_INC"
-	" replace non-word characters
-	let identifier = substitute( identifier, '\s',  '_', 'g' )
-	let identifier = substitute( identifier, '\W',  '_', 'g' )
-	let identifier = substitute( identifier, '_\+', '_', 'g' )
+	let identifier = C_LegalizeName(identifier)
 	let	identifier = C_Input("(uppercase) condition for #ifndef : ", identifier )
 	if identifier != ""
 
@@ -1995,7 +2003,7 @@ function! C_PPIfDef (arg)
 		endif
 
 	endif
-endfunction    " ----------  end of function C_PPIfDef ----------
+endfunction    " ----------  end of function C_PPifndef ----------
 "
 "------------------------------------------------------------------------------
 "  C_CodeFunction : function       {{{1
@@ -2227,7 +2235,7 @@ function! C_CodeMethod()
 	let	identifier=C_Input("method name : ", s:C_ClassName."::" )
 	if identifier != ""
 		let zz= "
-		\void\n".identifier."\t(  )\n{\n\treturn ;\n}
+		\void\n".identifier." (  )\n{\n\treturn ;\n}
 		\\t\t".s:C_Com1." -----  end of method ".identifier."  ----- ".s:C_Com2
 		put =zz
 		if v:version >= 700
@@ -2247,7 +2255,7 @@ endfunction    " ----------  end of function C_CodeMethod ----------
 function! C_CodeTemplateFunct ()
 	let	identifier=C_Input("template function name : ", "" )
 	if identifier != ""
-		let zz=    "template <class T>\nvoid ".identifier."\t( T param )\n{\n\treturn ;\n}"
+		let zz=    "template <class T>\nvoid ".identifier." ( T param )\n{\n\treturn ;\n}"
 		let zz= zz."\t\t".s:C_Com1." -----  end of template function ".identifier."  ----- ".s:C_Com2
 		put =zz
 		if v:version >= 700

@@ -1,4 +1,11 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.6
+=======================================================================================
++ New insert mode mappings (comments, statements, preprocessing, idioms, C++).
++ Some mappings renamed (easier to remember). 
++ New tag (basename of a file reduced to characters allowed in names).
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.5
 =======================================================================================
 + New menu item and hotkey for the (re)alignement of end-of-line comments.

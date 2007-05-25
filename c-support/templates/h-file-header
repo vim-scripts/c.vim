@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 
-#ifndef  |BASENAME|_FILE_HEADER_INC
-#define  |BASENAME|_FILE_HEADER_INC
+#ifndef  |BASENAMElegal|_INC
+#define  |BASENAMElegal|_INC
 
-#endif   /* ----- #ifndef |BASENAME|_FILE_HEADER_INC  ----- */
+#endif   /* ----- #ifndef |BASENAMElegal|_INC  ----- */

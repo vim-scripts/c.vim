@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      Apr 24 2007
+*csupport.txt*                  C/C++ Support                      May 24 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.5
+                              Plugin version 4.6
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -946,113 +946,116 @@ mappings are also described in the document c-hot-keys.pdf (reference card,
 part of this package).
 Hint: Typing speed matters. The combination of a leader ('\') and the
 following character(s) will only be recognized for a short time.
+The insert mode mappings start with ` (backtick).  
+
+Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Load / Unload C/C++ Support ----------------------------------------
 
-  \lcs    Load C/C++ Support Menus            (normal, GUI only)}
-  \ucs    Unload C/C++ Support Menus          (normal, GUI only)}
+  \lcs      Load C/C++ Support Menus            (n, GUI only)}
+  \ucs      Unload C/C++ Support Menus          (n, GUI only)}
 
   -- Comments -----------------------------------------------------------
 
-  \cl     end-of-line comment                 (normal, visual)
-  \cj     adjust end-of-line comment(s)       (normal, visual)
-  \cs     set end-of-line comment column      (normal)
-  \ci     multiline comment /**/              (normal, visual)
-  \c*     code -> comment /**/                (normal, visual)
-  \c\     code -> comment //                  (normal, visual)
-  \co     comment -> code /**/                (normal, visual)
-  \cf     frame comment                       (normal)
-  \cu     function comment                    (normal)
-  \cm     method description                  (normal)
-  \ca     class description                   (normal)
-  \cd     date                                (normal)
-  \ct     date \& time                        (normal)
-  \cy     change comment style                (normal)
+  \cl       end-of-line comment                 (n,v,i)
+  \cj       adjust end-of-line comment(s)       (n,v,i)
+  \cs       set end-of-line comment column      (n)
+  \ci       multiline comment /**/              (n,v)
+  \c*       code -> comment /**/                (n,v)
+  \c\       code -> comment //                  (n,v)
+  \co       comment -> code /**/                (n,v)
+  \cf       frame comment                       (n,i)
+  \cfu      function comment                    (n,i)
+  \cm       method description                  (n,i)
+  \ca       class description                   (n,i)
+  \cd       date                                (n,i)
+  \ct       date \& time                        (n,i)
+  \cy       change comment style                (n)
 
   -- Statements ---------------------------------------------------------
 
-  \sd     do { } while                        (normal, visual)
-  \so     for                                 (normal, visual)
-  \sr     for { }                             (normal, visual)
-  \si     if                                  (normal, visual)
-  \se     if else                             (normal, visual)
-  \sf     if { }                              (normal, visual)
-  \sl     if { } else { }                     (normal, visual)
-  \sw     while                               (normal, visual)
-  \sh     while { }                           (normal, visual)
-  \ss     switch                              (normal, visual)
-  \sc     case                                (normal, visual)
-  \s{     { }                                 (normal, visual)
+  \sd       do { } while                        (n,v,i)
+  \sf       for                                 (n,v,i)
+  \sfo      for { }                             (n,v,i)
+  \si       if                                  (n,v,i)
+  \sif      if { }                              (n,v,i)
+  \sie      if else                             (n,v,i)
+  \sife     if { } else { }                     (n,v,i)
+  \sw       while                               (n,v,i)
+  \swh      while { }                           (n,v,i)
+  \ss       switch                              (n,v,i)
+  \sc       case                                (n,v,i)
+  \s{       { }                                 (n,v,i)
 
   -- Preprocessor -------------------------------------------------------
 
-  \p<     #include <>                         (normal)
-  \p"     #include ""                         (normal)
-  \pd     #define                             (normal)
-  \pu     #undef                              (normal)
-  \pi     #if  #else  #endif                  (normal, visual)
-  \pf     #ifdef  #else  #endif               (normal, visual)
-  \pn     #ifndef  #def  #endif               (normal, visual)
-  \pe     #if  0  endif                       (normal, visual)
-  \p0     remove  '#if  0  endif'             (normal, visual)
-
+  \p<       #include <>                         (n,i)
+  \p"       #include ""                         (n,i)
+  \pd       #define                             (n,i)
+  \pu       #undef                              (n,i)
+  \pie      #if  #else  #endif                  (n,v,i)
+  \pid      #ifdef  #else  #endif               (n,v,i)
+  \pin      #ifndef #else  #endif               (n,v,i)
+  \pind     #ifndef #def  #endif                (n,v,i)
+  \pi0      #if 0 #endif                        (n,v,i)
+  \pr0      remove  '#if  0 #endif'             (n) 
   -- Idioms -------------------------------------------------------------
 
-  \if     function                            (normal, visual)
-  \it     static function                     (normal, visual)
-  \im     main()                              (normal, visual)
-  \i0     for( x=0; x<n; x+=1 )               (normal, visual)
-  \in     for( x=n-1; x>=0; x-=1 )            (normal, visual)
-  \ie     enum   + typedef                    (normal)
-  \is     struct + typedef                    (normal)
-  \iu     union  + typedef                    (normal)
-  \ip     printf()                            (normal)
-  \ic     scanf()                             (normal)
-  \il     p=calloc()                          (normal)
-  \ia     p=malloc()                          (normal)
-  \iz     sizeof()                            (normal, visual)
-  \ir     assert()                            (normal, visual)
-  \ii     open input file                     (normal)
-  \io     open output file                    (normal)
+  \if       function                            (n,v,i)
+  \isf      static function                     (n,v,i)
+  \im       main()                              (n,v,i)
+  \i0       for( x=0; x<n; x+=1 )               (n,v,i)
+  \in       for( x=n-1; x>=0; x-=1 )            (n,v,i)
+  \ie       enum   + typedef                    (n,i)
+  \is       struct + typedef                    (n,i)
+  \iu       union  + typedef                    (n,i)
+  \ip       printf()                            (n,i)
+  \isc      scanf()                             (n,i)
+  \ica      p=calloc()                          (n,i)
+  \ima      p=malloc()                          (n,i)
+  \isi      sizeof()                            (n,v,i)
+  \ias      assert()                            (n,v,i)
+  \ii       open input file                     (n,i)
+  \io       open output file                    (n,i)
 
   -- Snippets -----------------------------------------------------------
 
-  \nr     read code snippet                   (normal & GUI only)
-  \nw     write code snippet                  (normal, visual & GUI only)
-  \ne     edit code snippet                   (normal & GUI only)
-  \np     pick up prototype                   (normal, visual)
-  \ni     insert prototype(s)                 (normal)
-  \nc     clear  prototype(s)                 (normal)
-  \ns     show   prototype(s)                 (normal)
+  \nr       read code snippet                   (n & GUI only)
+  \nw       write code snippet                  (n,v & GUI only)
+  \ne       edit code snippet                   (n & GUI only)
+  \np       pick up prototype                   (n,v)
+  \ni       insert prototype(s)                 (n)
+  \nc       clear  prototype(s)                 (n)
+  \ns       show   prototype(s)                 (n)
 
   -- C++ ----------------------------------------------------------------
 
-  \+d     method implementation               (normal)
-  \+l     class                               (normal)
-  \+n     class (using new)                   (normal)
-  \+o     error class                         (normal)
-  \+t     template class                      (normal)
-  \+w     template class (using new)          (normal)
-  \+f     template function                   (normal)
-  \+y     try ... catch                       (normal, visual)
-  \+h     catch                               (normal, visual)
-  \+.     catch(...)                          (normal, visual)
+  \+m       method implementation               (n,i)
+  \+c       class                               (n,i)
+  \+cn      class (using new)                   (n,i)
+  \+ec      error class                         (n,i)
+  \+t       template class                      (n,i)
+  \+tn      template class (using new)          (n,i)
+  \+tf      template function                   (n,i)
+  \+tr      try ... catch                       (n,v,i)
+  \+ca      catch                               (n,v,i)
+  \+c.      catch(...)                          (n,v,i)
 
   -- Run ----------------------------------------------------------------
 
-  \rc     save and compile                    (normal)
-  \rl     link                                (normal)
-  \rr     run                                 (normal)
-  \ra     set comand line arguments           (normal)
-  \rm     run make                            (normal)
-  \rg     cmd. line arg. for make             (normal)
-  \rp     run splint                          (normal)
-  \ri     cmd. line arg. for splint           (normal)
-  \rd     run indent                          (normal, visual)
-  \rh     hardcopy buffer                     (normal, visual)
-  \rs     show plugin settings                (normal)
-  \rx     set xterm size                      (normal, only Linux/UNIX & GUI)
-  \ro     change output destination           (normal)
+  \rc       save and compile                    (n)
+  \rl       link                                (n)
+  \rr       run                                 (n)
+  \ra       set comand line arguments           (n)
+  \rm       run make                            (n)
+  \rg       cmd. line arg. for make             (n)
+  \rp       run splint                          (n)
+  \ri       cmd. line arg. for splint           (n)
+  \rd       run indent                          (n,v)
+  \rh       hardcopy buffer                     (n,v)
+  \rs       show plugin settings                (n)
+  \rx       set xterm size                      (n, only Linux/UNIX & GUI)
+  \ro       change output destination           (n)
 
 The hotkeys are defined in the file type plugin c.vim (part of this csupport
 plugin package) and described in the document c-hot-keys.pdf
@@ -1303,6 +1306,7 @@ information when the file is read in:
     |basename|
     |Basename|
     |BASENAME|
+    |BASENAMElegal|
 
     |CURSOR|
 
@@ -1317,9 +1321,12 @@ There is no need to use any of these tags, some or all can be missing.
 
 BASENAME TAGS. These tags return the filename with directory and suffix
 stripped off:
-    |basename|   basename, all uppercase characters turned into lowercase
-    |Basename|   basename, unchanged
-    |BASENAME|   basename, all lowercase characters turned into uppercase
+    |Basename|       basename, unchanged
+    |basename|       basename, all uppercase characters turned into lowercase
+    |BASENAME|       basename, all lowercase characters turned into uppercase
+    |BASENAMElegal|  basename, all lowercase characters turned into uppercase;
+                     all non-word characters replaced by underscores
+                     (compressed).
 This can for instance be used to write a template for a header file header
 with include guard:
 
@@ -1332,10 +1339,10 @@ with include guard:
    *         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
    * =====================================================================================
    */
-  #ifndef  |BASENAME|_INC
-  #define  |BASENAME|_INC
+  #ifndef  |BASENAMElegal|_INC
+  #define  |BASENAMElegal|_INC
   
-  #endif   // ----- #ifndef |BASENAME|_INC  ----- 
+  #endif   // ----- #ifndef |BASENAMElegal|_INC  ----- 
 
 
 The template files can actually be links pointing to existing templates.
@@ -1359,17 +1366,21 @@ default. The default word lists are
   plugin_dir/c-support/wordlists/k+r.list
   plugin_dir/c-support/wordlists/stl_index.list
 
-The variable plugin_dir will automatically be set to one of the following values:
+The variable plugin_dir will automatically be set by the plugin to one of the
+following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for Windows
 If you want to use an additional list MyC.list put the following lines into
  .vimrc :
 
-  let g:C_Dictionary_File = plugin_dir.'/c-support/wordlists/c-c++-keywords.list,'.
-        \                   plugin_dir.'/c-support/wordlists/k+r.list,'.
-        \                   plugin_dir.'/c-support/wordlists/stl_index.list,'.
-        \                   plugin_dir.'/c-support/wordlists/MyC.list'
+  let g:C_Dictionary_File = PLUGIN_DIR.'/c-support/wordlists/c-c++-keywords.list,'.
+        \                   PLUGIN_DIR.'/c-support/wordlists/k+r.list,'.
+        \                   PLUGIN_DIR.'/c-support/wordlists/stl_index.list,'.
+        \                   PLUGIN_DIR.'/c-support/wordlists/MyC.list'
   
+When in file .vimrc the name PLUGIN_DIR has to be replaced by $HOME or $$VIM
+(see above).  Whitespaces in the pathnames have to be escaped with a
+backslash.
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 
 second line (continuation line). 
