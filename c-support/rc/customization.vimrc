@@ -103,15 +103,15 @@ inoremap ( ()<Left>
 inoremap [ []<Left>
 inoremap { {}<Left>
 "
-vnoremap ( s()<Esc>P<Right>
-vnoremap [ s[]<Esc>P<Right>
-vnoremap { s{}<Esc>P<Right>
+vnoremap ( s()<Esc>P<Right>%
+vnoremap [ s[]<Esc>P<Right>%
+vnoremap { s{}<Esc>P<Right>%
 "
 "-------------------------------------------------------------------------------
 " Change the working directory to the directory containing the current file
 "-------------------------------------------------------------------------------
 if has("autocmd")
-  autocmd BufEnter,BufRead,BufNewFile,BufFilePost * :lcd %:p:h
+  autocmd BufEnter * :lchdir %:p:h
 endif " has("autocmd")
 "
 "-------------------------------------------------------------------------------

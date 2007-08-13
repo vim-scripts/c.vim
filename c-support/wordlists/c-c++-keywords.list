@@ -1,3 +1,17 @@
+adjustfield
+basefield
+boolalpha 
+floatfield
+internal 
+scientific 
+setbase
+setiosflags
+setprecision
+showbase 
+showpoint 
+showpos 
+uppercase
+
 auto
 break
 case

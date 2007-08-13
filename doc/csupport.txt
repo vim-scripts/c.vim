@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                      May 24 2007
+*csupport.txt*                  C/C++ Support                   August 13 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 4.6
+                             Plugin version 4.6.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -111,7 +111,7 @@ will start at the 2. column after the longest line.  The cursor will be
 positioned inside the first comment.
 
 The default starting column is 49 ( = (multiple of 2,4, or 8) + 1 ).  This can
-be changed by setting a global variable in the file .vimrc , e.g. :
+be changed by setting a global variable in the file ~/.vimrc , e.g. :
 
   let g:C_LineEndCommColDefault    = 45
 
@@ -289,14 +289,22 @@ Inserted do-while with C++-style comment:
   while (  );       // -----  end do-while  ----- 
 
 AUTO-TOGGLE. If the global variable g:C_CommentsToggle is set to 'yes' (in
-'.vimrc'; default is 'no') the comment style changes with the filetype of the
-current buffer.  This setting can be changed during a session using the Ex
+'~/.vimrc'; default is 'no') the comment style changes with the filetype of
+the current buffer.  This setting can be changed during a session using the Ex
 command
  
   :CSetCCommentsToggle no
 
 (values 'yes' or 'no'). Start typing ':CS' und use the tabulator to complete
 the command.
+
+REMARK. The filetype of *.h files is 'cpp' by default. If the comment type is
+switched automatically the C++ commenting is on even when you are working on a
+pure C project. To change this place the line
+
+  let g:C_TypeOfH = 'c'
+
+in the file ~/.vimrc . The filetype of *.h files will now always be 'c'.
 
 ------------------------------------------------------------------------------
 1.2  MENU 'Statements'                                         *csupport-stat*
@@ -317,7 +325,7 @@ Ritchie style
 if (  ) {
 }
 
-set the appropriate global variable in .vimrc :
+set the appropriate global variable in ~/.vimrc :
 
   let g:C_BraceOnNewLine     = "no"   
 
@@ -761,7 +769,7 @@ Quickfix commands can now be used to jump to an error location.
 Consider using maps like 
   map  <silent> <F7>    <Esc>:cp<CR>
   map  <silent> <F8>    <Esc>:cn<CR>
-in your .vimrc file to jump over the error locations and make navigation
+in your ~/.vimrc file to jump over the error locations and make navigation
 easier.  The error list and the error locations in your source buffer will be
 synchronized.
 
@@ -847,13 +855,13 @@ CodeCheck has many options.  For a quick try you can use the menu item
 
 CodeCheck will be run with default options (see |csupport-custom-glob-vars|).
 The default options can be overwritten by  placing a global variable in
-.vimrc , e.g.
+~/.vimrc , e.g.
 
   let  g:C_CodeCheckOptions = "-K13 -Rmeyers"
 
 The default name for the executable is 'check'.  There are other names in use
 on different platforms.  The name can be changed by placing a global variable
-in .vimrc , e.g.
+in ~/.vimrc , e.g.
 
   let  g:C_CodeCheckExeName = "chknt.exe"
 
@@ -885,7 +893,7 @@ The current locale can be overwritten by changing the language, e.g.
 
   :language C
 
-or by setting a global variable in the file .vimrc , e.g. :
+or by setting a global variable in the file ~/.vimrc , e.g. :
 
   let g:C_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     SEITE %N"
 
@@ -922,7 +930,7 @@ The first (uppercase) item shows the current method.  The default is 'vim'.
 This can be changed by setting the variable g:C_OutputGvim to another value.
 Possible values are 'vim', 'buffer' and 'xterm' .
 
-The xterm defaults can be set in .vimrc by the variable g:C_XtermDefaults .
+The xterm defaults can be set in ~/.vimrc by the variable g:C_XtermDefaults .
 The default is "-fa courier -fs 12 -geometry 80x24" :
   font name     : -fa courier
   font size     : -fs 12
@@ -1075,7 +1083,7 @@ The following hotkeys are defined in normal, visual and insert mode:
 
 Shift-F2 can be used to switch between source files and header files if the
 plugin a.vim is present.  To suppress the creation of a new header file when
-switching from a source file the file .vimrc should contain a line  
+switching from a source file the file ~/.vimrc should contain a line  
 
   let g:alternateNoDefaultAlternate = 1
 
@@ -1145,6 +1153,7 @@ Several global variables are checked by the script to customize it:
   g:C_Libs                  "-lm"            
   g:C_LineEndCommColDefault 49
   g:C_CExtension            "c"              
+  g:C_TypeOfH               "cpp"
 
   g:C_CodeCheckExeName      "check"
   g:C_CodeCheckOptions      "-K13"
@@ -1186,6 +1195,8 @@ The variable plugin_dir will automatically be set to one of the following values
           g:C_Printheader        : hardcopy: definition of the page header 
 
 4. group: g:C_CExtension             : Extension of C files. Everything else is C++.
+          g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
+                                       (see |csupport-comm-style|)
           g:C_CCompiler              : The name of the C compiler.
           g:C_CplusCompiler          : The name of the C++ compiler.
           g:C_CFlags                 : Compiler flags used for a compilation.
@@ -1201,7 +1212,7 @@ The variable plugin_dir will automatically be set to one of the following values
           g:C_CodeCheckOptions       : Default options for CodeCheck (TM) 
                                        (see |csupport-run-codecheck|).
 
-To override the default add appropriate assignments to .vimrc .
+To override the default add appropriate assignments to ~/.vimrc .
 Here are my settings as an example:
 
   let g:C_AuthorName      = "Dr.-Ing. Fritz Mehner"    
@@ -1214,9 +1225,9 @@ Here are my settings as an example:
 4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
 ------------------------------------------------------------------------------
 
-The variable g:C_Root, if set (in .vimrc or in .gvimrc), gives the name of the
-single Vim root menu item in which the C/C++ submenus will be put. 
-The default is 
+The variable g:C_Root, if set (in ~/.vimrc or in ~/.gvimrc), gives the name of
+the single Vim root menu item in which the C/C++ submenus will be put.  The
+default is 
                   '&C\/C\+\+.'
 Note the terminating dot. A single root menu can be used if the screen is
 limited or several plugins are used in parallel.
@@ -1371,14 +1382,14 @@ following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for Windows
 If you want to use an additional list MyC.list put the following lines into
- .vimrc :
+ ~/.vimrc :
 
   let g:C_Dictionary_File = PLUGIN_DIR.'/c-support/wordlists/c-c++-keywords.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/k+r.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/stl_index.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/MyC.list'
   
-When in file .vimrc the name PLUGIN_DIR has to be replaced by $HOME or $$VIM
+When in file ~/.vimrc the name PLUGIN_DIR has to be replaced by $HOME or $$VIM
 (see above).  Whitespaces in the pathnames have to be escaped with a
 backslash.
 The right side is a comma separated list of files. Note the point at the end
@@ -1485,7 +1496,7 @@ directory):
   - They are defined in a filetype plugin in '$HOME/.vim/ftplugin/'. Use ':filetype'
     to check if filetype plugins are enabled. If not, add the line 
       filetype plugin on
-    to the file '.vimrc'.
+    to the file '~/.vimrc'.
 
 * Some hotkeys do not work.
   - The hotkeys might be in use by your graphical desktop environment.
@@ -1498,7 +1509,6 @@ directory):
 ==============================================================================
 11.  RELEASE NOTES                                    *csupport-release-notes*
 ==============================================================================
-
 See file README.csupport .
 
 ==============================================================================

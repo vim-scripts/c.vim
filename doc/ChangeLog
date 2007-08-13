@@ -1,4 +1,10 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 4.6.1
+=======================================================================================
++ New global variable to control the filetype of *.h header files (default is now 'cpp').
++ Bugfix: properly resetting 'compiler' after using make, splint, and CodeCheck.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.6
 =======================================================================================
 + New insert mode mappings (comments, statements, preprocessing, idioms, C++).

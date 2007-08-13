@@ -1,4 +1,4 @@
-README for c.vim (Version 4.6) / May 25 2007
+README for c.vim (Version 4.6.1) / August 13 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -81,11 +81,10 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 4.6
+  RELEASE NOTES FOR VERSION 4.6.1
 =======================================================================================
-+ New insert mode mappings (comments, statements, preprocessing, idioms, C++).
-+ Some mappings renamed (easier to remember). 
-+ New tag (basename of a file reduced to characters allowed in names).
++ New global variable to control the filetype of *.h header files (default is now 'cpp').
++ Bugfix: properly resetting 'compiler' after using make, splint, and CodeCheck.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

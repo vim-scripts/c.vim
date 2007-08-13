@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.15 2007/05/24 18:14:18 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.19 2007/08/13 10:42:51 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -36,7 +36,7 @@
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "4.6"  							" version number of this script; do not change
+let g:C_Version= "4.6.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -148,6 +148,10 @@ let s:C_OutputGvim               = 'vim'
 let s:C_Printheader              = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 let s:C_XtermDefaults            = '-fa courier -fs 12 -geometry 80x24'
 let s:C_Wrapper                  = s:plugin_dir.'c-support/scripts/wrapper.sh'
+"   
+"   ----- file extensions to be teated as C++ ------------------------
+"
+let s:C_TypeOfH                  = 'cpp'
 "
 "------------------------------------------------------------------------------
 "
@@ -175,6 +179,7 @@ call C_CheckGlobal('C_CommentsToggle         ')
 call C_CheckGlobal('C_Company                ')
 call C_CheckGlobal('C_CopyrightHolder        ')
 call C_CheckGlobal('C_CplusCompiler          ')
+call C_CheckGlobal('C_TypeOfH                ')
 call C_CheckGlobal('C_Email                  ')
 call C_CheckGlobal('C_ErrorClass             ')
 call C_CheckGlobal('C_ExeExtension           ')
@@ -2777,7 +2782,8 @@ function! C_Compile ()
 	
 	" compilation if object does not exist or object exists and is older then the source	
 	if !filereadable(Obj) || (filereadable(Obj) && (getftime(Obj) < getftime(Sou)))
-		
+		" &makeprg can be a string containing blanks
+		let makeprg_saved='"'.&makeprg.'"'
 		if expand("%:e") == s:C_CExtension
 			exe		"set makeprg=".s:C_CCompiler
 		else
@@ -2791,7 +2797,7 @@ function! C_Compile ()
 		else
 			exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
 		endif
-		exe		"set makeprg=make"
+		exe	"set makeprg=".makeprg_saved
 		" 
 		" open error window if necessary 
 		exe	":botright cwindow"
@@ -2842,6 +2848,7 @@ function! C_Link ()
 	"   object newer then source
 
 	if filereadable(Obj) && (getftime(Obj) >= getftime(Sou))
+		let makeprg_saved='"'.&makeprg.'"'
 		if expand("%:e") == s:C_CExtension
 			exe		"set makeprg=".s:C_CCompiler
 		else
@@ -2856,7 +2863,7 @@ function! C_Link ()
 		if v:statusmsg != ""
 			let s:C_HlMessage = v:statusmsg 
 		endif
-		exe		"set makeprg=make"
+		exe	"set makeprg=".makeprg_saved
 	endif
 endfunction    " ----------  end of function C_Link ----------
 "
@@ -3044,7 +3051,7 @@ function! C_Make()
 	" update : write source file if necessary
 	exe	":update"
 	" run make
-	exe		":make ".s:C_MakeCmdLineArgs
+	exe		":!make ".s:C_MakeCmdLineArgs
 endfunction    " ----------  end of function C_Make ----------
 "
 "------------------------------------------------------------------------------
@@ -3079,49 +3086,17 @@ function! C_SplintCheck ()
 	let s:C_HlMessage = ""
 	exe	":cclose"	
 	silent exe	":update"
-	exe	"set makeprg=splint"
-	" 
-	" match the splint error messages (quickfix commands)
-	" (source: $VIMRUNTIME/compiler/splint.vim )
-	"
+	let makeprg_saved='"'.&makeprg.'"'
+	" Windows seems to need this:
 	if	s:MSWIN
-		:setlocal errorformat=%OLCLint*m,
-					\%OSplint*m,
-					\%f(%l\\,%c):\ %m,
-					\%*[\ ]%f:%l:%c:\ %m,
-					\%*[\ ]%f:%l:\ %m,
-					\%*[^\"]\"%f\"%*\\D%l:\ %m,
-					\\"%f\"%*\\D%l:\ %m,
-					\%A%f:%l:%c:\ %m,
-					\%A%f:%l:%m,
-					\\"%f\"\\,
-					\\ line\ %l%*\\D%c%*[^\ ]\ %m,
-					\%D%*\\a[%*\\d]:\ Entering\ directory\ `%f',
-					\%X%*\\a[%*\\d]:\ Leaving\ directory\ `%f',
-					\%DMaking\ %*\\a\ in\ %f,
-					\%C\ %#%m
-	else
-		:setlocal errorformat=%OLCLint*m,
-					\%OSplint*m,
-					\%*[\ ]%f:%l:%c:\ %m,
-					\%*[\ ]%f:%l:\ %m,
-					\%*[^\"]\"%f\"%*\\D%l:\ %m,
-					\\"%f\"%*\\D%l:\ %m,
-					\%A%f:%l:%c:\ %m,
-					\%A%f:%l:%m,
-					\\"%f\"\\,
-					\\ line\ %l%*\\D%c%*[^\ ]\ %m,
-					\%D%*\\a[%*\\d]:\ Entering\ directory\ `%f',
-					\%X%*\\a[%*\\d]:\ Leaving\ directory\ `%f',
-					\%DMaking\ %*\\a\ in\ %f,
-					\%C\ \ %m
+		:compiler splint
 	endif
+	:set makeprg=splint
 	"	
-	let l:arguments  = exists("b:C_SplintCmdLineArgs") ? " ".b:C_SplintCmdLineArgs : ""
-	exe	":make ".l:arguments." ".escape( l:currentbuffer, s:escfilename )
+	let l:arguments  = exists("b:C_SplintCmdLineArgs") ? b:C_SplintCmdLineArgs : ' '
+	silent exe	"make ".l:arguments." ".escape(l:currentbuffer,s:escfilename)
+	exe	"set makeprg=".makeprg_saved
 	exe	":botright cwindow"
-	exe	':setlocal errorformat='
-	exe	"set makeprg=make"
 	"
 	" message in case of success
 	"
@@ -3162,6 +3137,7 @@ function! C_CodeCheck ()
 	let s:C_HlMessage = ""
 	exe	":cclose"	
 	silent exe	":update"
+	let makeprg_saved='"'.&makeprg.'"'
 	exe	"set makeprg=".s:C_CodeCheckExeName
 	" 
 	" match the splint error messages (quickfix commands)
@@ -3174,9 +3150,9 @@ function! C_CodeCheck ()
 		let l:arguments	=	s:C_CodeCheckOptions
 	endif
 	exe	":make ".l:arguments." ".escape( l:currentbuffer, s:escfilename )
-	exe	":botright cwindow"
 	exe	':setlocal errorformat='
-	exe	"set makeprg=make"
+	exe	"set makeprg=".makeprg_saved
+	exe	":botright cwindow"
 	"
 	" message in case of success
 	"
@@ -3452,9 +3428,11 @@ endif
 "
 if has("autocmd")
 	"
-	"  *.h is always C; all other h-extensions are considered C++
+	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
 	"
-	autocmd BufNewFile,BufEnter  *.h  :set filetype=c
+	if s:C_TypeOfH=='c' 
+		autocmd BufNewFile,BufEnter  *.h  :set filetype=c
+	end
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
