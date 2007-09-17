@@ -1,0 +1,26 @@
+$
+$ =============================================================
+$ ========== USER MACROS ======================================
+$ =============================================================
+$
+|AUTHOR|    = first_name last_name
+|AUTHORREF| = fl
+|EMAIL|     = fl@my-company.com
+|COMPANY|   = my-company
+|COPYRIGHT| = Copyright (c) |YEAR| |AUTHOR|
+$
+$ =============================================================
+$ ========== FILE INCLUDES ====================================
+$ =============================================================
+$
+|includefile| = c.comments.template
+|includefile| = c.cpp.template
+|includefile| = c.idioms.template
+|includefile| = c.preprocessor.template
+|includefile| = c.statements.template
+
+$|includefile| = cpp.comments.template
+$|includefile| = cpp.cpp.template
+$|includefile| = cpp.idioms.template
+$|includefile| = cpp.preprocessor.template
+$|includefile| = cpp.statements.template

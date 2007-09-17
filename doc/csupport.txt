@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                   August 13 2007
+*csupport.txt*                  C/C++ Support                September 13 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 4.6.1
+                              Plugin version 5.0
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -14,23 +14,19 @@ program, running a code checker or indent can be done with a keystroke.
  1.    Usage                                    |csupport-usage-gvim|        
  1.1    Menu 'Comments'                         |csupport-comm|
  1.1.1   Append aligned comments                |csupport-comm-aligned|
- 1.1.2   Realign end-of-line comments           |csupport-comm-realign|
- 1.1.3   Multiline comment                      |csupport-comm-multiline|
- 1.1.4   Code to comment                        |csupport-code-to-comm|
- 1.1.5   Comment to code                        |csupport-comm-to-code|
- 1.1.6   Frame comments, file header, ...       |csupport-comm-frame|
- 1.1.7   KEYWORD + comment                      |csupport-comm-keywords|
- 1.1.8   C to C++ comments and vice versa       |csupport-comm-c-cpp|
- 1.1.9   Switch comment style                   |csupport-comm-style|
+ 1.1.2   Adjust end-of-line comments            |csupport-comm-realign|
+ 1.1.3   Code to comment                        |csupport-code-to-comm|
+ 1.1.4   Comment to code                        |csupport-comm-to-code|
+ 1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
+ 1.1.6   KEYWORD + comment                      |csupport-comm-keywords|
+ 1.1.7   C to C++ comments and vice versa       |csupport-comm-c-cpp|
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
- 1.2.3   Make a switch from a label list        |csupport-stat-switch|
- 1.2.4   Make cases from a label list           |csupport-stat-case|
  1.3    Menu 'Preprocessor'                     |csupport-prep|
  1.3.1   Normal mode, insert mode.              |csupport-prep-normal-mode|
  1.3.2   Visual mode.                           |csupport-prep-visual-mode|
- 1.3.3   Block out code with "#if 0 .. #endif"  |csupport-prep-if0|
+ 1.3.3   Block out code with$#if 0 .. #endif$   |csupport-prep-if0|
  1.4    Menu 'Idioms'                           |csupport-idioms|
  1.5    Menu 'Snippets'                         |csupport-snippets|
  1.5.1   Code snippets                          |csupport-snippets|
@@ -48,8 +44,9 @@ program, running a code checker or indent can be done with a keystroke.
  1.7.6   CodeCheck                              |csupport-run-codecheck|
  1.7.7   Indent                                 |csupport-run-indent|
  1.7.8   Hardcopy                               |csupport-run-hardcopy|
- 1.7.9   Xterm size                             |csupport-run-xterm|
- 1.7.10  Output redirection                     |csupport-run-output|
+ 1.7.9   Rebuild templates                      |csupport-run-templates|
+ 1.7.10  Xterm size                             |csupport-run-xterm|
+ 1.7.11  Output redirection                     |csupport-run-output|
  1.8    Help                                    |csupport-help|
 
  2.    Usage without GUI                        |csupport-usage-vim|
@@ -57,9 +54,14 @@ program, running a code checker or indent can be done with a keystroke.
  4.    Customization and configuration          |csupport-custom|     
  4.1    Global variables                        |csupport-custom-glob-vars|
  4.2    The root menu                           |csupport-custom-root-menu|
+ 4.3     System-wide installation               |csupport-system-wide|
  5.    Template files and tags                  |csupport-templates|    
- 5.1    Template files                          |csupport-templates|    
- 5.2    Tags                                    |csupport-templates-tags|
+ 5.1    Template files                          |csupport-templates-files|    
+ 5.2    Macros                                  |csupport-templates-macros|
+ 5.3    Templates                               |csupport-templates-names|
+ 5.3.1  Template names                          |csupport-templates-names|
+ 5.3.2  Template definition                     |csupport-templates-definition|
+ 5.3.3  Template expansion                      |csupport-templates-expansion|
  6.    C/C++ Dictionaries                       |csupport-dictionary|        
  7.    Extend taglist.vim for make and qmake    |csupport-taglist|     
  8.    Syntax based folding                     |csupport-folding|     
@@ -78,18 +80,19 @@ If the root menu 'C/C++' is not visible call it with the item "Load C Support"
 from the standard Tools-menu.
 The item "Load C Support" can also be used to unload the C/C++-root menu.
 
+Nearly all menu entries insert code snippets or comments. All these stuff is
+taken from template files and can be changed by the user to meet his
+requirements (see|csupport-templates|).
+
 ------------------------------------------------------------------------------
 1.1  MENU 'Comments'                                           *csupport-comm*
 ------------------------------------------------------------------------------
 
 1.1.1  APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES    *csupport-comm-aligned*
 
-In NORMAL MODE the menu items
- 'end-of-line com. //' 
- 'end-of-line com. /**/' 
-will append the indicated comment to the current line. 
-
-In VISUAL MODE these items will append aligned comments to all marked lines.
+In NORMAL MODE the menu items 'end-of-line comment' will append an comment to
+the current line. 
+In VISUAL MODE these item will append aligned comments to all marked lines.
 Marking the first 4 lines
 
   print_double_array ( double array[],
@@ -126,7 +129,7 @@ Your choice will be confirmed.
 
 ------------------------------------------------------------------------------
 
-1.1.2  REALIGN END-OF-LINE COMMENTS                    *csupport-comm-realign*
+1.1.2  ADJUST END-OF-LINE COMMENTS                    *csupport-comm-realign*
 
 After some changes end-of-line comments may be no longer aligned:
 
@@ -149,57 +152,35 @@ comments in the marked block will be aligned:
 
 ------------------------------------------------------------------------------
 
-1.1.3  MULTILINE COMMENT                             *csupport-comm-multiline*
+1.1.3  CODE TO COMMENT                                 *csupport-code-to-comm*
 
-NORMAL MODE, INSERT MODE. The comment shown below will be inserted.
-
-  /*
-   * 
-   */
-
-VISUAL MODE. A marked block
-
-xxxxxxxx
-xxxxxxxx
-
-will be changed into a multiline comment (all (partially) marked lines):
-
-/* xxxxxxxx
- * xxxxxxxx
- */
-
-
-------------------------------------------------------------------------------
-
-1.1.4  CODE TO COMMENT                                 *csupport-code-to-comm*
-
-When 'comment style C' is active (see |csupport-comm-style| for switching) a
-marked block
+The marked block
 
 xxxxxxxx
 xxxxxxxx
 xxxxxxxx
 
-will be changed by the menu item 'code->comment' into a multiline comment
-(all (partially) marked lines):
+will be changed by the menu item 'code->comment /**/' into the multiline
+comment (all (partially) marked lines):
 
 /* xxxxxxxx
  * xxxxxxxx
  * xxxxxxxx
  */
 
-When 'comment style C++' is active the marked block will be changed into
+The marked block will be changed  by the menu item 'code->comment //' into the
+multiline comment
 
-// xxxxxxxx
-// xxxxxxxx
-// xxxxxxxx
+//xxxxxxxx
+//xxxxxxxx
+//xxxxxxxx
 
-The menu item works also for a single line. A single line needs not to be
+The menu items works also for a single line. A single line needs not to be
 marked. 
 
 ------------------------------------------------------------------------------
 
-1.1.5  COMMENT TO CODE                                 *csupport-comm-to-code*
+1.1.4  COMMENT TO CODE                                 *csupport-comm-to-code*
 
 If one (or more) complete comment (i.e. all lines belonging to the comment) is
 marked the item 'comment->code' will uncomment it.  If the following lines
@@ -232,79 +213,37 @@ uncommenting will yield
 
 The first 2 lines are only a part of a C-comment and remain unchanged.
 A C-comment can start with /* , /** or /*! .
-The menu item 'comment->code' does not depend on the currently set comment
-style (C/C++).
 
 The menu item works also for a single line with a leading // . A single line
 needs not to be marked. 
 
 ------------------------------------------------------------------------------
 
-1.1.6  FRAME COMMENTS, FILE HEADER, ...                  *csupport-comm-frame*
+1.1.5  FRAME COMMENTS, FILE HEADER, ...                  *csupport-comm-frame*
 
 Frame comments, file header comments and function, methods, class descriptions 
 are read as templates from the appropriate files (see |csupport-templates|).
 
 ------------------------------------------------------------------------------
 
-1.1.7  KEYWORD+comment                                *csupport-comm-keywords*
+1.1.6  KEYWORD+comment                                *csupport-comm-keywords*
 
 Preliminary comments to document (and find again) places where works will be
 resumed shortly. Usually not meant for the final documentation.
 
 ------------------------------------------------------------------------------
 
-1.1.8  C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
+1.1.7  C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
 
 The menu item '// xxx -> /* xxx */' changes a C++ comment into an C comment.
 This is done for the current line in normal or insert mode and for a marked
 area of lines in visual mode.
-This menu item changes to '/* xxx */ -> // xxx' if the comment style is switched
-(see below).
 If there are multiple C comments only the first one will be changed:
   printf ("\n");                     /* one */ /* two */ /* three */
 will be changed into
   printf ("\n");                     // one  /* two */ /* three */
 
-------------------------------------------------------------------------------
-
-1.1.9  SWITCH COMMENT STYLE                              *csupport-comm-style*
-
-The item 'Comment style C -> C++' changes the comment style to C++ style.
-The item 'Comment style C++ -> C' changes the comment style back to C style.
-
-Inserted do-while with C-style comment:
-
-  do
-  {
-  }
-  while (  );       /* -----  end do-while  ----- */
-
-
-Inserted do-while with C++-style comment:
-
-  do
-  {
-  }
-  while (  );       // -----  end do-while  ----- 
-
-AUTO-TOGGLE. If the global variable g:C_CommentsToggle is set to 'yes' (in
-'~/.vimrc'; default is 'no') the comment style changes with the filetype of
-the current buffer.  This setting can be changed during a session using the Ex
-command
- 
-  :CSetCCommentsToggle no
-
-(values 'yes' or 'no'). Start typing ':CS' und use the tabulator to complete
-the command.
-
-REMARK. The filetype of *.h files is 'cpp' by default. If the comment type is
-switched automatically the C++ commenting is on even when you are working on a
-pure C project. To change this place the line
-
-  let g:C_TypeOfH = 'c'
-
-in the file ~/.vimrc . The filetype of *.h files will now always be 'c'.
+The menu item '/* xxx */ -> // xxx' changes a C comment into an C++ comment.
 
 ------------------------------------------------------------------------------
 1.2  MENU 'Statements'                                         *csupport-stat*
@@ -318,25 +257,6 @@ will insert an if-statement:
 if (  )
 {
 }
-
-The opening curly brace will be put in a new line. To enable Kernighan &
-Ritchie style 
-
-if (  ) {
-}
-
-set the appropriate global variable in ~/.vimrc :
-
-  let g:C_BraceOnNewLine     = "no"   
-
-The default values is "yes".  This flag applies to all structural blocks,
-excluding subroutines and classes. 
-This setting can be changed during a session using the Ex command
- 
-  :CSetBraceOnNewLine yes
-
-(values 'yes' or 'no'). Start typing ':CS' und use the tabulator to complete
-the command.
 
 
 1.2.2  VISUAL MODE.                                *csupport-stat-visual-mode*
@@ -373,6 +293,23 @@ can be surrounded by one of the following statements:
   |     }                      |     }                       |
   |     while (  );            |                             |
   +----------------------------+-----------------------------+
+  |      switch (  ) {                                       |
+  |      case :                                              |
+  |       break;                                             |
+  |                                                          |
+  |      case :                                              |
+  |       break;                                             |
+  |                                                          |
+  |      case :                                              |
+  |       break;                                             |
+  |                                                          |
+  |      case :                                              |
+  |       break;                                             |
+  |                                                          |
+  |      default:                                            |
+  |       break;                                             |
+  |      }                                                   |
+  +----------------------------+-----------------------------+
 
 For 'switch' and 'case' see |csupport-stat-switch| and |csupport-stat-case|.
 
@@ -381,103 +318,18 @@ The whole statement will be indented after insertion.
 
 STATEMENTS WITHOUT BLOCKS.  
 --------------------------
-Above the highlighted lines 
-
-xxxxx
-xxxxx
-
-one of the following statements can be inserted:
+One of the following statements can be inserted:
 
   +-------------------------------+--------------------------+
   |    if (  )                    |    for ( ; ;  )          |
-  |      xxxxx                    |      xxxxx               |
-  |    xxxxxxx                    |    xxxxx                 |
   +-------------------------------+--------------------------+
   |    if (  )                    |    while (  )            |
-  |      xxxxx                    |      xxxxx               |
-  |    xxxxx                      |    xxxxx                 |
   |    else                       |                          |
   +-------------------------------+--------------------------+
+  |    case :                     |                          |
+  |      break;                   |                          |
+  +-------------------------------+--------------------------+
 
-The lines will be indented after insertion.
-
-
-1.2.3   MAKE A SWITCH FROM A LABEL LIST                 *csupport-stat-switch*
-
-The menu item "switch {}" can be used to convert a list of labels (one in a
-line) into a switch statement. A visually marked list of labels, e.g. 
-
- (   Default, /* a comment */
- Red,
- Green,
- Blue=777 );
-
-extracted from an enum, will be changed into
-
-  switch (  )
-  {
-    case Default: 
-      break;
-
-    case Red: 
-      break;
-
-    case Green: 
-      break;
-
-    case Blue: 
-      break;
-
-    default:  
-      break;
-  }       /* -----  end switch  ----- */
-
-The label will be the first word ("\w\+") of each line, leading and trailing
-non-word characters (including whitespaces) will be discarded.  Empty lines
-will be skipped.
-
-
-1.2.4   MAKE CASES FROM A LABEL LIST                      *csupport-stat-case*
-
-The menu item "case ... break" can be used to convert a marked list of raw
-labels (one in a line) inside a switch into empty cases, e.g. 
-
-  switch (  ) {
-    case Red: 
-      break;
-  
-    case Green: 
-      break;
-
-Blue            << marked line
-LightBlue       << marked line
-DarkBlue        << marked line
-  }       /* -----  end switch  ----- */
-
-extracted from an enum, will be changed into
-
-  switch (  ) {
-    case Red: 
-      break;
-  
-    case Green: 
-      break;
-
-    case Blue: 
-      break;
-
-    case LightBlue: 
-      break;
-
-    case DarkBlue: 
-      break;
-
-  }       /* -----  end switch  ----- */
-
-
-The label will be the first word ("\w\+") of each line, leading and trailing
-non-word characters (including whitespaces) will be discarded.  Empty lines
-will be skipped.
 
 ------------------------------------------------------------------------------
 1.3  MENU 'Preprocessor'                                       *csupport-prep*
@@ -534,9 +386,9 @@ can be surrounded by one of the following statements:
 The macro name for an include guard (e.g. INC_TEST above) will be derived as a
 suggestion from the file name.  
 
-1.3.3  BLOCK OUT CODE WITH  "#if 0 ... #endif"             *csupport-prep-if0*
+1.3.3  BLOCK OUT CODE WITH $#if 0 ... #endif$              *csupport-prep-if0*
 
-The menu item "#if 0 #endif" inserts the lines
+The menu item$#if 0 #endif$inserts the lines
 
   #if  0     /* ----- #if 0 : If0Label_1 ----- */
 
@@ -554,9 +406,9 @@ All labels can be found with a global search like :g/If0Label_/ or
 :g/If0Label_\d\+/. All corresponding lines can be deleted with :g/If0Label_/d .
 
 
-REMOVE THE ENCLOSING "#if 0 ... #endif"-CONSTRUCT.
+REMOVE THE ENCLOSING$#if 0 ... #endif$-CONSTRUCT.
 
-The menu item 'remove #if #endif' removes such a construct if the cursor is
+The menu item$'remove #if #endif'$removes such a construct if the cursor is
 in the middle of such a section or on one of the two enclosing lines. Nested
 constructs will be untouched.
 
@@ -585,19 +437,11 @@ for-loops: the highlighted lines will be set in braces.
 
 The item 'open input file' will create the statements to open and close an
 input file (e.g. with the file pointer 'infile'). 
-After the insertion the Idioms-menu has the additional item 
-'fscanf(infile,"",);'  which generates the following line:
-
- fscanf( infile, "", & );
 
 1.4.3  ENTRY 'open output file'
 
 The item 'open output file' will create the statements to open and close an
 output file (e.g. with the file pointer 'outfile'). 
-After the insertion the Idioms-menu has the additional item 
-'fprintf(outfile,"\n",);'   which generates the following line
-
- fprintf( outfile, "\n",  );
 
 ------------------------------------------------------------------------------
 1.5  MENU 'Snippets'                                       *csupport-snippets*
@@ -710,17 +554,13 @@ want to use an extractor like cextract or something else.
 1.6.1  NORMAL MODE, INSERT MODE.                    *csupport-c++-normal-mode*
 
 An empty statement will be inserted and in some cases properly indented. The
-item 'try .. catch' will insert the following 10 lines:
+item 'try .. catch' will insert the following lines:
 
-  try
-  {
-    |
+  try {
   }
-  catch ( const &ExceptObj )    /* handle exception: */
-  {
+  catch ( const &ExceptObj ) {    // handle exception:
   }
-  catch (...)      /* handle exception: unspezified */
-  {
+  catch (...) {   // handle exception: unspezified
   }
 
 The cursor will go into the try block.
@@ -743,12 +583,7 @@ The menu item 'method implement.' asks for a method name. If this item is
 called the first time you will see just an scope resolution operator.  If you
 specify the scope this is used the next time you call this item.  If you use
 one of the menu items to generate a class (see |csupport-templates|) the
-scope will be extracted and used for the next method.  The scope can be
-changed by an Ex command:
-
-  :CSetClassName newClass
-
-Start typing ':CS' und use the tabulator to complete the command.
+scope will be extracted and used for the next method.  
 
 ------------------------------------------------------------------------------
 1.7  MENU 'Run'                                                 *csupport-run*
@@ -900,14 +735,20 @@ or by setting a global variable in the file ~/.vimrc , e.g. :
 See :h printheader and :h strftime()  for more details. 
 
 
-1.7.9  XTERM SIZE                                         *csupport-run-xterm*
+1.7.9  REBUILD TEMPLATES                              *csupport-run-templates*
+
+After editing one or more template files  a click on this item rereads the
+template files and rebuilds all templates.
+
+
+1.7.10  XTERM SIZE                                        *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu item. The default is 80 columns with 24 lines.  
 This feature is not available under Windows.
 
 
-1.7.10  OUTPUT REDIRECTION                               *csupport-run-output*
+1.7.11  OUTPUT REDIRECTION                               *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -968,45 +809,43 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cl       end-of-line comment                 (n,v,i)
   \cj       adjust end-of-line comment(s)       (n,v,i)
   \cs       set end-of-line comment column      (n)
-  \ci       multiline comment /**/              (n,v)
-  \c*       code -> comment /**/                (n,v)
-  \c\       code -> comment //                  (n,v)
-  \co       comment -> code /**/                (n,v)
-  \cf       frame comment                       (n,i)
+  \c*       code -> comment /* */               (n,v)
+  \c/       code -> comment //                  (n,v)
+  \co       comment -> code                     (n,v)
+  \cfr      frame comment                       (n,i)
   \cfu      function comment                    (n,i)
-  \cm       method description                  (n,i)
-  \ca       class description                   (n,i)
+  \cme      method description                  (n,i)
+  \cca      class description                   (n,i)
   \cd       date                                (n,i)
   \ct       date \& time                        (n,i)
-  \cy       change comment style                (n)
 
   -- Statements ---------------------------------------------------------
 
   \sd       do { } while                        (n,v,i)
-  \sf       for                                 (n,v,i)
+  \sf       for                                 (n,i)
   \sfo      for { }                             (n,v,i)
-  \si       if                                  (n,v,i)
+  \si       if                                  (n,i)
   \sif      if { }                              (n,v,i)
   \sie      if else                             (n,v,i)
   \sife     if { } else { }                     (n,v,i)
-  \sw       while                               (n,v,i)
+  \sw       while                               (n,i)
   \swh      while { }                           (n,v,i)
   \ss       switch                              (n,v,i)
-  \sc       case                                (n,v,i)
+  \sc       case                                (n,i)
   \s{       { }                                 (n,v,i)
 
   -- Preprocessor -------------------------------------------------------
 
-  \p<       #include <>                         (n,i)
-  \p"       #include ""                         (n,i)
-  \pd       #define                             (n,i)
-  \pu       #undef                              (n,i)
-  \pie      #if  #else  #endif                  (n,v,i)
-  \pid      #ifdef  #else  #endif               (n,v,i)
-  \pin      #ifndef #else  #endif               (n,v,i)
-  \pind     #ifndef #def  #endif                (n,v,i)
-  \pi0      #if 0 #endif                        (n,v,i)
-  \pr0      remove  '#if  0 #endif'             (n) 
+  \p<      $#include <>$                        (n,i)
+  \p"      $#include ""$                        (n,i)
+  \pd      $#define$                            (n,i)
+  \pu      $#undef$                             (n,i)
+  \pie     $#if$$#else #endif$                  (n,v,i)
+  \pid     $#ifdef #else #endif$                (n,v,i)
+  \pin     $#ifndef #else #endif$               (n,v,i)
+  \pind    $#ifndef #def #endif$                (n,v,i)
+  \pi0     $#if 0 #endif$                       (n,v,i)
+  \pr0      remove$#if 0 #endif$                (n) 
   -- Idioms -------------------------------------------------------------
 
   \if       function                            (n,v,i)
@@ -1041,10 +880,11 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \+m       method implementation               (n,i)
   \+c       class                               (n,i)
   \+cn      class (using new)                   (n,i)
-  \+ec      error class                         (n,i)
-  \+t       template class                      (n,i)
-  \+tn      template class (using new)          (n,i)
+  \+tm      template method implementation      (n,i)
+  \+tc      template class                      (n,i)
+  \+tcn     template class (using new)          (n,i)
   \+tf      template function                   (n,i)
+  \+ec      error class                         (n,i)
   \+tr      try ... catch                       (n,v,i)
   \+ca      catch                               (n,v,i)
   \+c.      catch(...)                          (n,v,i)
@@ -1059,11 +899,14 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \rg       cmd. line arg. for make             (n)
   \rp       run splint                          (n)
   \ri       cmd. line arg. for splint           (n)
+  \rk       run CodeCheck (TM)                  (n)
+  \re       cmd. line arg. for CodeCheck (TM)   (n)
   \rd       run indent                          (n,v)
   \rh       hardcopy buffer                     (n,v)
   \rs       show plugin settings                (n)
   \rx       set xterm size                      (n, only Linux/UNIX & GUI)
   \ro       change output destination           (n)
+  \rt       rebuild templates                   (n)
 
 The hotkeys are defined in the file type plugin c.vim (part of this csupport
 plugin package) and described in the document c-hot-keys.pdf
@@ -1106,30 +949,10 @@ Several global variables are checked by the script to customize it:
   ----------------------------------------------------------------------------
   GLOBAL VARIABLE           DEFAULT VALUE                    TAG (see below)
   ----------------------------------------------------------------------------
-  g:C_AuthorName            ""                               |AUTHOR|
-  g:C_AuthorRef             ""                               |AUTHORREF|
-  g:C_Email                 ""                               |EMAIL|
-  g:C_Company               ""                               |COMPANY|   
-  g:C_Project               ""                               |PROJECT|
-  g:C_CopyrightHolder       ""                               |COPYRIGHTHOLDER|
+  g:C_GlobalTemplateFile     plugin_dir.'c-support/templates/Templates'
+  g:C_LocalTemplateFile      $HOME.'/.vim/c-support/templates/Templates'
+  g:C_TemplateOverwrittenMsg 'yes'
 
-  g:C_Template_Directory    plugin_dir."c-support/templates/"
-  g:C_Template_C_File       "c-file-header"
-  g:C_Template_Class        "c-class-description"
-  g:C_Template_Frame        "c-frame"
-  g:C_Template_Function     "c-function-description"
-  g:C_Template_H_File       "h-file-header"
-  g:C_Template_Method       "c-method-description"
-  g:Cpp_Template_C_File     "cpp-file-header"
-  g:Cpp_Template_Class      "cpp-class-description"
-  g:Cpp_Template_Frame      "cpp-frame"
-  g:Cpp_Template_Function   "cpp-function-description"
-  g:Cpp_Template_H_File     "hpp-file-header"
-  g:Cpp_Template_Method     "cpp-method-description"
-
-  g:C_BraceOnNewLine        "no"   
-  g:C_Comments              "yes"
-  g:C_CommentsToggle        "no"
   g:C_CodeSnippets          plugin_dir."/c-support/codesnippets/"
   g:C_Dictionary_File       ""
   g:C_LoadMenus             "yes"
@@ -1164,24 +987,11 @@ The variable plugin_dir will automatically be set to one of the following values
 
   ----------------------------------------------------------------------------
 
-1. group: Defines the text which will be inserted for the tags when a template  
-          is read in (see also |csupport-templates| below).
+1. group: g:C_GlobalTemplateFile : Sets the master template file (see|csupport-templates|)
+          g:C_LocalTemplateFile  : Sets the local template file  (see|csupport-templates|)
+          g:C_TemplateOverwrittenMsg : message if template is overwritten
 
-          g:C_AuthorName         : author name
-          g:C_AuthorRef          : author reference (e.g. acronym)
-          g:C_Email              : email address
-          g:C_Company            : name of the company / institution
-          g:C_Project            : project
-          g:C_CopyrightHolder    : the copyright holder
-
-2. group: g:C_Template_Directory : Sets the template directory and the names of the 
-           ...                     template files (see |csupport-templates|).
-
-3. group: g:C_BraceOnNewLine     : block statements: opening curly brace on a
-                                   new line / not on a new line
-          g:C_Comments           : The initial comment style (C = yes, C++ = no).
-          g:C_CommentsToggle     : Comment style (C/C++) automatically follows file type.
-          g:C_CodeSnippets       : The name of the code snippet directory 
+2. group: g:C_CodeSnippets       : The name of the code snippet directory 
                                    (see |csupport-snippets|).
           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
                                    word completion (see also |csupport-dictionary|)
@@ -1194,7 +1004,7 @@ The variable plugin_dir will automatically be set to one of the following values
           g:C_XtermDefaults      : the xterm defaults
           g:C_Printheader        : hardcopy: definition of the page header 
 
-4. group: g:C_CExtension             : Extension of C files. Everything else is C++.
+3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
           g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
                                        (see |csupport-comm-style|)
           g:C_CCompiler              : The name of the C compiler.
@@ -1213,13 +1023,6 @@ The variable plugin_dir will automatically be set to one of the following values
                                        (see |csupport-run-codecheck|).
 
 To override the default add appropriate assignments to ~/.vimrc .
-Here are my settings as an example:
-
-  let g:C_AuthorName      = "Dr.-Ing. Fritz Mehner"    
-  let g:C_AuthorRef       = "Mn"                       
-  let g:C_Email           = "mehner@fh-swf.de"         
-  let g:C_Company         = "FH Südwestfalen, Iserlohn"
-
 
 ------------------------------------------------------------------------------
 4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
@@ -1236,127 +1039,360 @@ If set to "", this single root menu item will not appear.  Now all submenus
 are put into the Vim root menu. This is nice for beginners in a lab
 installation or for C-only programmers.
 
+------------------------------------------------------------------------------
+4.3  SYSTEM-WIDE INSTALLATION                           *csupport-system-wide*
+------------------------------------------------------------------------------
+
+A system-wide installation (one installation for all users) is done as
+follows.
+
+As *** SUPERUSER *** :
+
+(1) Find the Vim installation directory.
+The Vim ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
+that. Beyond this directory you will find the Vim installation,  e.g. in
+'/usr/local/share/vim/vim71' if Vim version 7.1 has been installed.
+
+(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'.
+
+(3) Install C/C++ Support
+Copy the archive cvim.zip to this new directory and unpack it:
+  unzip cvim.zip
+
+(4) Generate the help tags:
+  :helptags $VIM/vimfiles/doc
+
+
+As *** USER *** :
+
+Create your private snippet directory:
+
+  mkdir --parents  ~/.vim/c-support/codesnippets 
+
+You may want to copy the snippets comming with this plugin (in
+$VIM/vimfiles/c-support/codesnippets) into the new directory or to set a
+link to the global directory.
+
+Create your private template directory:
+
+  mkdir --parents  ~/.vim/c-support/template 
+
+Create a private template file 'Templates' in this directory to overwrite some
+macros, e.g.
+
+ $|AUTHOR|$   = your name
+ $|AUTHORREF|$= ...
+ $|EMAIL|$    = ...
+ $|COMPANY|$  = ...
+ $|COPYRIGHT|$= ...
+
+You can also have local templates which overwrite the global ones. To suppress
+the messages in this case set a global variable in '~/.vimrc' :
+
+  let g:C_TemplateOverwrittenMsg= 'no'
+
+The default is 'yes'.
 
 ==============================================================================
 5.  TEMPLATE FILES AND TAGS                               *csupport-templates*
 ==============================================================================
 
 ------------------------------------------------------------------------------
-5.1  TEMPLATE FILES
+5.1  TEMPLATE FILES                                 *csupport-templates-files*
 ------------------------------------------------------------------------------
 
-Many menu items generate comments or commented code. The style of these 
-comments can be toggled between C-style ( /*...*/ ) and C++-style ( //... ). 
-Two menu items have a fixed style ( C-/C++ end-of-line comment)
+Nearly all menu entries insert code snippets or comments. All these stuff is
+taken from template files and can be changed by the user to meet his
+requirements.
 
-Six menu items generate block comments:
+The master template file is '$HOME/.vim/c-support/templates/Templates' for a
+user installation and  '$VIM/vimfiles/c-support/templates/Templates' for a
+system-wide installation (see|csupport-system-wide|).
 
-    C/C++-file header
-    Class Description
-    Frame Comment
-    Function Description
-    H-file header
-    Method Description
+The master template file starts with a macro section followed by templates for
+single menu items or better by including other template files grouping the
+templates according to the menu structure of this plugin. The master file
+could look like this:
 
-The comments which will be inserted by these menus items are read from files:
+  $
+  $ =============================================================
+  $ ========== USER MACROS ======================================
+  $ =============================================================
+  $
+ $|AUTHOR|$   = Dr. Fritz Mehner 
+ $|AUTHORREF|$= mn
+ $|EMAIL|$    = mehner@fh-swf.de
+ $|COMPANY|$  = FH SÃ¼dwestfalen, Iserlohn
+ $|COPYRIGHT|$= Copyright (c)$|YEAR|, |AUTHOR|$
+  $
+  $ =============================================================
+  $ ========== FILE INCLUDES ====================================
+  $ =============================================================
+  $
+ $|includefile|$= c.comments.template
+ $|includefile|$= c.cpp.template
+ $|includefile|$= c.idioms.template
+ $|includefile|$= c.preprocessor.template
+ $|includefile|$= c.statements.template
 
-+--------------------------+--------------------------------------------------------+
-| menu item               | global variable           | file (distribution set)    |
-+--------------------------+---------------------------+----------------------------+
-| C/C++-file header        | g:C_Template_C_File       | c-file-header              |
-| Class Description        | g:C_Template_Class        | c-class-description        |
-| Frame Comment            | g:C_Template_Frame        | c-frame                    |
-| Function Description     | g:C_Template_Function     | c-function-description     |
-| H-file header            | g:C_Template_H_File       | h-file-header              |
-| Method Description       | g:C_Template_Method       | c-method-description       |
-| class                    | g:C_Class                 | c-class                    |
-| class using new          | g:C_ClassUsingNew         | c-class-using-new          |
-| template class           | g:C_TemplateClass         | c-template-class           |
-| template class using new | g:C_TemplateClassUsingNew | c-template-class-using-new |
-| error class              | g:C_ErrorClass            | c-error-class              |
-+--------------------------+--------------------------------------------------------+
+Lines starting with a dollar sign are comments. The section starting
+with$|AUTHOR|$assigns values to predefined tags
+(see|csupport-templates-macros|) to personalize some templates. Other
+predefined tags with given default values can be used (e.g.$|YEAR|$).
 
-There may be a second set of files pointed to by the global variables whose 
-names start with  g:Cpp_Temp... .
-The second set of variables can point to the same files as the first set or to
-another set (but both in the template directory).
-If the second set is empty (i.e. all file names are empty strings: "") 
-the style toggle item does not appear in the Comments-menu.
-If the second set is not empty it is assumed that these files contain C++-style 
-blocks and the style toggle item in the Comments-menu is present.
+User defined tags are possible. They have the following syntax:
 
-The template files can be written or changed by the user to fulfill special
-requirements (layout for a project or work group already exists, 
-file headers / blocks have to be prepared for a documentation tool, ... ).
-They can hold not only comments but a complete file skeleton if this is 
-necessary. So you may want to lay out your own templates.
+ $|macroname|$ = replacement
 
+A macroname starts with a letter (uppercase or lowercase) followed by zero or
+more letters, digits or underscores.
 
 ------------------------------------------------------------------------------
-5.2  TAGS                                            *csupport-templates-tags*
+5.2  MACROS                                        *csupport-templates-macros*
 ------------------------------------------------------------------------------
 
-The comments in these files do not have to be personalized but they can be.
-The text can contain the following tags which are replaced by the appropriate
-information when the file is read in:
+The following macro names are predefined. The first group is used to
+personalize templates.
 
-    |AUTHOR|
-    |DATE|
-    |EMAIL|
-    |FILENAME|
-    |YEAR|
+ ----------------------------------------------------------------------------
+ PREDEFINED MACROS  DEFAULT VALUE
+ ----------------------------------------------------------------------------
+$|AUTHOR|$          ""
+$|AUTHORREF|$       ""
+$|EMAIL|$           ""
+$|COMPANY|$         ""
+$|PROJECT|$         ""
+$|COPYRIGHTHOLDER|$ ""
+$|includefile|$     "" 
+                   
+$|BASENAME|$        filename without path and suffix
+$|DATE|$            the preferred date representation for the current locale
+                    without the time
+$|FILENAME|$        filename without path
+$|PATH|$            path without filename
+$|SUFFIX|$          filename suffix
+$|TIME|$            the preferred time representation for the current locale
+                    without the date and the time zone or name or abbreviation
+$|YEAR|$            the year as a decimal number including the century
 
-    |AUTHORREF|
-    |COMPANY|
-    |COPYRIGHTHOLDER|
-    |PROJECT|
-    |TIME|
+$|includefile|$can  be used to include an additional template file. A file
+will be included only once. Commenting and uncommenting include macros is a
+simple way to switch between several sets of templates (see also
+|csupport-run-templates|). Overwriting existing macros and templates is
+possible.
 
-    |CLASSNAME|
 
-    |basename|
-    |Basename|
-    |BASENAME|
-    |BASENAMElegal|
+ ----------------------------------------------------------------------------
+ PREDEFINED TAGS
+ ----------------------------------------------------------------------------
+ <CURSOR>           The cursor position after insertion of a template
+ <SPLIT>            The split point when inserting in visual mode
+                    (see|csupport-templates-definition|)
 
-    |CURSOR|
+A dependent template file can start with its own macro section. There is no
+need to have all user defined macros in the master file.
+When the first template definition is found (see below) macro definitions are
+no longer recognized.
 
-Each tag can occur more than once. The tag |CURSOR| may appear only once.
+------------------------------------------------------------------------------
+5.3  TEMPLATES                                      *csupport-templates-names*
+------------------------------------------------------------------------------
 
-The tag |CLASSNAME| will be replaced by the class name given in a dialog box
-when calling "C++ -> class" etc.
+5.3.1  Template names
 
-The tag |CURSOR| will be the cursor position after the block is read in.
+The template behind a menu entry is identified by a given name. The first part
+of the name identifies the menu, the second part identifies the item. The
+modes are also hard coded (see|csupport-templates-definition|for the use of
+<SPLIT>).
 
-There is no need to use any of these tags, some or all can be missing.
+  TEMPLATE NAME                                              MODES
+ --------------------------------------------------------------------------
+  comment.end-of-line-comment                                normal visual
+  comment.frame                                              normal
+  comment.function                                           normal
+  comment.method                                             normal
+  comment.class                                              normal
+  comment.file-description                                   normal
+  comment.keyword-bug                                        normal
+  comment.keyword-compiler                                   normal
+  comment.keyword-todo                                       normal
+  comment.keyword-tricky                                     normal
+  comment.keyword-warning                                    normal
+  comment.keyword-workaround                                 normal
+  comment.keyword-keyword                                    normal
+  comment.file-section-cpp-header-includes                   normal
+  comment.file-section-cpp-macros                            normal
+  comment.file-section-cpp-typedefs                          normal
+  comment.file-section-cpp-data-types                        normal
+  comment.file-section-cpp-class-defs                        normal
+  comment.file-section-cpp-local-variables                   normal
+  comment.file-section-cpp-prototypes                        normal
+  comment.file-section-cpp-function-defs-exported            normal
+  comment.file-section-cpp-function-defs-local               normal
+  comment.file-section-cpp-class-implementations-exported    normal
+  comment.file-section-cpp-class-implementations-local       normal
+  comment.file-section-hpp-header-includes                   normal
+  comment.file-section-hpp-macros                            normal
+  comment.file-section-hpp-exported-typedefs                 normal
+  comment.file-section-hpp-exported-data-types               normal
+  comment.file-section-hpp-exported-class-defs               normal
+  comment.file-section-hpp-exported-variables                normal
+  comment.file-section-hpp-exported-function-declarations    normal
+ 
+  cpp.method-implementation                                  normal
+  cpp.class                                                  normal
+  cpp.class-using-new                                        normal
+  cpp.error-class                                            normal
+  cpp.template-method-implementation                         normal
+  cpp.template-class                                         normal
+  cpp.template-class-using-new                               normal
+  cpp.template-function                                      normal
+  cpp.operator-in                                            normal
+  cpp.operator-out                                           normal
+  cpp.try-catch                                              normal visual
+  cpp.catch                                                  normal visual
+  cpp.catch-points                                           normal visual
+  cpp.extern                                                 normal visual
+  cpp.open-input-file                                        normal
+  cpp.open-output-file                                       normal
+  cpp.namespace                                              normal visual
+      
+  idioms.function                                            normal visual
+  idioms.function-static                                     normal visual
+  idioms.main                                                normal visual
+  idioms.enum                                                normal visual
+  idioms.struct                                              normal visual
+  idioms.union                                               normal visual
+  idioms.calloc                                              normal
+  idioms.malloc                                              normal
+  idioms.open-input-file                                     normal
+  idioms.open-output-file                                    normal
+  idioms.fprintf                                             normal
+  idioms.fscanf                                              normal
 
-BASENAME TAGS. These tags return the filename with directory and suffix
-stripped off:
-    |Basename|       basename, unchanged
-    |basename|       basename, all uppercase characters turned into lowercase
-    |BASENAME|       basename, all lowercase characters turned into uppercase
-    |BASENAMElegal|  basename, all lowercase characters turned into uppercase;
-                     all non-word characters replaced by underscores
-                     (compressed).
-This can for instance be used to write a template for a header file header
-with include guard:
+  preprocessor.define                                        normal
+  preprocessor.undefine                                      normal
+  preprocessor.if-else-endif                                 normal visual
+  preprocessor.ifdef-else-endif                              normal visual
+  preprocessor.ifndef-else-endif                             normal visual
+  preprocessor.ifndef-def-endif                              normal visual
 
-  /*
-   * =====================================================================================
-   *       Filename:  |FILENAME|
-   *    Description:  |CURSOR|
-   *        Created:  |DATE|
-   *       Revision:  none
-   *         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-   * =====================================================================================
+  statements.do-while                                        normal visual
+  statements.for                                             normal
+  statements.for-block                                       normal visual
+  statements.if                                              normal
+  statements.if-block                                        normal visual
+  statements.if-else                                         normal visual
+  statements.if-block-else                                   normal visual
+  statements.while                                           normal
+  statements.while-block                                     normal visual
+  statements.switch                                          normal visual
+  statements.case                                            normal
+  statements.block                                           normal visual
+
+
+
+5.3.2  Template definition                     *csupport-templates-definition*
+
+A template definition starts with a template head line with the following
+syntax:
+
+  == templatename == [ position == ]
+
+The templatename is one of the above template identifiers. The position
+attribute is optional. Possible attribute values are:
+
+  above     insert the template before the current line
+  append    append the template to the current line 
+  below     insert the template below the current line
+  insert    insert the template at the cursor position
+  start     insert the template before the first line of the buffer
+
+An example:
+
+  == comment.function ==
+  /* 
+   * ===  FUNCTION  =======================================================
+   *         Name:  <CURSOR>
+   *  Description:  
+   * ======================================================================
    */
-  #ifndef  |BASENAMElegal|_INC
-  #define  |BASENAMElegal|_INC
-  
-  #endif   // ----- #ifndef |BASENAMElegal|_INC  ----- 
 
+The definition of a template ends at the next head line or at the end of the
+file.
 
-The template files can actually be links pointing to existing templates.
+Templates for the visual mode can use <SPLIT>. The text before <SPLIT> will
+than be inserted above the marked area, the text after <SPLIT> will be
+inserted behind the marked area. An example:
+
+  == statements.if-block-else ==
+  if ( <CURSOR> ) {
+  <SPLIT>} else {
+  }
+
+If applied to the marked block
+
+  xxxxxxxxxxx
+  xxxxxxxxxxx
+
+this template yields
+
+  if (  ) {
+    xxxxxxxxxxx
+    xxxxxxxxxxx
+  } else {
+  }
+
+The templates with a visual mode are shown in the table under
+|csupport-templates-names|.
+
+5.3.3  Template expansion                       *csupport-templates-expansion*
+
+There are additional ways to control the expansion of a template.
+
+USER INPUT
+----------
+If the usage of a yet undefined user macro starts with a question mark the
+user will be asked for the replacement first, e.g. with the following template
+
+  == idioms.function ==
+  void<CURSOR>
+ $|?FUNCTION_NAME|$(  )
+  {
+  <SPLIT> return ;
+  }   /* -----  end of function$|FUNCTION_NAME|$ ----- */
+
+The can specify the function name which then will be applied twice. If the
+macro was already in use the old value will be suggested as default.
+
+MACRO MANIPULATION
+------------------
+
+A macro expansion can be controlled by the following attributes
+
+  :l    change macro text to lowercase
+  :u    change macro text to uppercase
+  :c    capitalize macro text
+  :L    legalize name
+
+The include guard template is an example for the use of ':L' :
+
+  == preprocessor.ifndef-def-endif ==
+ $ #ifndef  |?BASENAME:L|_INC$
+ $ #define  |BASENAME|_INC$
+   <CURSOR><SPLIT>
+ $ #endif   // ----- #ifndef |BASENAME|_INC  -----$
+
+The base name of the file shall be used as part of the include guard name.
+The predefined macro$|BASENAME|$is used to ask for this part because this
+macro has already a defined value. That value can accepted or replaced by the
+user. For the filename 'test test++test.h' the legalized base name
+'TEST_TEST_TEST' will be suggested.
+
+Legalization means:
+ - replace all whitespaces by underscores
+ - replace all non-word characters by underscores
+ - replace '+' and '-' by underscore
 
 
 ==============================================================================
@@ -1389,8 +1425,8 @@ If you want to use an additional list MyC.list put the following lines into
         \                   PLUGIN_DIR.'/c-support/wordlists/stl_index.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/MyC.list'
   
-When in file ~/.vimrc the name PLUGIN_DIR has to be replaced by $HOME or $$VIM
-(see above).  Whitespaces in the pathnames have to be escaped with a
+When in file ~/.vimrc the name PLUGIN_DIR has to be replaced by $HOME or 
+$VIM (see above). Whitespaces in the pathnames have to be escaped with a
 backslash.
 The right side is a comma separated list of files. Note the point at the end
 of the first line (string concatenation) and the backslash in front of the 

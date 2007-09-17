@@ -129,14 +129,6 @@ set wildignore=*.bak,*.o,*.e,*~
 " print options  (pc = percentage of the media size)
 "-------------------------------------------------------------------------------
 set printoptions=left:8pc,right:3pc
-
-"-------------------------------------------------------------------------------
-" C-support.vim
-"-------------------------------------------------------------------------------
-let g:C_AuthorName   = 'Dr.-Ing. Fritz Mehner'
-let g:C_AuthorRef    = 'Mn'
-let g:C_Email        = 'mehner@fh-swf.de'
-let g:C_Company      = 'FH Südwestfalen, Iserlohn'
 "                         
 "-------------------------------------------------------------------------------
 " taglist.vim : toggle the taglist window

@@ -1,4 +1,11 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.0
+=======================================================================================
++ Completely new template system. Now every menu item is user definable.
++ Changes to allow a system-wide installation.
++ A few hotkeys added and renamed.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 4.6.1
 =======================================================================================
 + New global variable to control the filetype of *.h header files (default is now 'cpp').
