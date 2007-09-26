@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.25 2007/09/13 14:56:07 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.27 2007/09/26 07:58:39 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.0"  							" version number of this script; do not change
+let g:C_Version= "5.0.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -76,7 +76,7 @@ else
 	else
 		" user installation assumed
 		let s:plugin_dir  = $HOME.'/.vim/'
-	end
+	endif
 	"
 	let s:C_CodeSnippets   = $HOME.'/.vim/c-support/codesnippets/'
 	let s:C_IndentErrorLog = $HOME.'/.indent.errorlog'
@@ -910,7 +910,7 @@ function! C_AdjustLineEndComm ( mode ) range
 	else
 		let pos0	= line(".")
 		let pos1	= pos0
-	end
+	endif
 
 	let	linenumber	= pos0
 	exe ":".pos0
@@ -924,7 +924,7 @@ function! C_AdjustLineEndComm ( mode ) range
 			" look for a C++ comment
 			let idx1	= 1 + match( line, '\s*\/\/.*$' )
 			let idx2	= 1 + match( line, '\/\/.*$' )
-		end
+		endif
 
 		let	ln	= line(".")
 		call setpos(".", [ 0, ln, idx1, 0 ] )
@@ -943,16 +943,16 @@ function! C_AdjustLineEndComm ( mode ) range
 				call setpos(".", [ 0, ln, vpos2, 0 ] )
 				let	@"	= ' '
 				exe "normal	".diff."P"
-			end
+			endif
 
 			" remove some spaces
 			if vpos1 < b:C_LineEndCommentColumn && vpos2 > b:C_LineEndCommentColumn
 				let	diff	= vpos2 - b:C_LineEndCommentColumn
 				call setpos(".", [ 0, ln, b:C_LineEndCommentColumn, 0 ] )
 				exe "normal	".diff."x"
-			end
+			endif
 
-		end
+		endif
 		let linenumber=linenumber+1
 		normal j
 	endwhile
@@ -1064,7 +1064,7 @@ function! C_Comment_C_SectionAll ( type )
 	call C_InsertTemplate("comment.file-section-cpp-data-types")
 	if a:type=="cpp"
 		call C_InsertTemplate("comment.file-section-cpp-class-defs")
-	end
+	endif
 	call C_InsertTemplate("comment.file-section-cpp-local-variables")
 	call C_InsertTemplate("comment.file-section-cpp-prototypes")
 	call C_InsertTemplate("comment.file-section-cpp-function-defs-exported")
@@ -1072,7 +1072,7 @@ function! C_Comment_C_SectionAll ( type )
 	if a:type=="cpp"
 		call C_InsertTemplate("comment.file-section-cpp-class-implementations-exported")
 		call C_InsertTemplate("comment.file-section-cpp-class-implementations-local")
-	end
+	endif
 
 endfunction    " ----------  end of function C_Comment_C_SectionAll ----------
 "
@@ -1084,7 +1084,7 @@ function! C_Comment_H_SectionAll ( type )
 	call C_InsertTemplate("comment.file-section-hpp-exported-data-types")
 	if a:type=="cpp"
 		call C_InsertTemplate("comment.file-section-hpp-exported-class-defs")
-	end
+	endif
 	call C_InsertTemplate("comment.file-section-hpp-exported-variables")
 	call C_InsertTemplate("comment.file-section-hpp-exported-function-declarations")
 
@@ -2174,7 +2174,7 @@ function! C_RebuildTemplates ()
 		if s:installation == 'system' && filereadable( s:C_LocalTemplateFile )
 			call C_ReadTemplates( s:C_LocalTemplateFile ) 
 			echomsg " and from '".s:C_LocalTemplateFile."'"
-		end
+		endif
 endfunction    " ----------  end of function C_RebuildTemplates  ----------
 
 "------------------------------------------------------------------------------
@@ -2189,7 +2189,7 @@ function! C_ReadTemplates ( templatefile )
     echomsg "C/C++ template file '".a:templatefile."' does not exist or is not readable"
     echohl None
     return
-  end
+  endif
 
 	let	skipmacros	= 0
   let s:C_FileVisited  += [a:templatefile]
@@ -2219,7 +2219,7 @@ function! C_ReadTemplates ( templatefile )
           call C_ReadTemplates( path.'/'.val )    " recursive call
         else
           let s:C_Macro[key] = val
-        end
+        endif
         continue                                            " next line
       endif
       "
@@ -2232,19 +2232,19 @@ function! C_ReadTemplates ( templatefile )
         let item  = part[0]
         if has_key( s:C_Template, item ) && s:C_TemplateOverwrittenMsg == 'yes'
           echomsg "existing C/C++ template '".item."' overwritten"
-        end
+        endif
         let s:C_Template[item] = ''
 				let skipmacros	= 1
         "
         let s:C_Attribute[item] = 'below'
         if has_key( s:Attribute, get( part, 1, 'NONE' ) )
           let s:C_Attribute[item] = part[1]
-        end
+        endif
       else
         if item != ''
           let s:C_Template[item] = s:C_Template[item].line."\n"
-        end
-      end
+        endif
+      endif
     endif
   endfor
 
@@ -2261,7 +2261,7 @@ function! C_InsertTemplate ( key, ... )
 	if !has_key( s:C_Template, a:key )
 		echomsg "Template '".a:key."' not found. Please check your template file in '".s:C_GlobalTemplateDir."'"
 		return
-	end
+	endif
 
   "------------------------------------------------------------------------------
   "  insert the user macros
@@ -2274,7 +2274,7 @@ function! C_InsertTemplate ( key, ... )
 		let val = C_ExpandUserMacros (a:key)
 		if val	== ""
 			return
-		end
+		endif
 		let val	= C_ExpandSingleMacro( val, '<SPLIT>', '' )
 
 		if mode == 'below'
@@ -2285,7 +2285,7 @@ function! C_InsertTemplate ( key, ... )
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		end
+		endif
 
 		if mode == 'above'
 			let pos1  = line(".")
@@ -2295,7 +2295,7 @@ function! C_InsertTemplate ( key, ... )
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		end
+		endif
 
 		if mode == 'start'
 			normal gg
@@ -2306,7 +2306,7 @@ function! C_InsertTemplate ( key, ... )
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		end
+		endif
 
 		if mode == 'append'
 			let pos1  = line(".")
@@ -2314,14 +2314,14 @@ function! C_InsertTemplate ( key, ... )
 			let pos2  = line(".")-1
 			exe ":".pos1
 			:join!
-		end
+		endif
 
 		if mode == 'insert'
 			let val   = substitute( val, '\n$', '', '' )
 			let pos1  = line(".")
 			let pos2  = pos1 + count( split(val,'\zs'), "\n" ) 
 			exe "normal a".val
-		end
+		endif
 		"
 	else
 		"
@@ -2331,13 +2331,13 @@ function! C_InsertTemplate ( key, ... )
 			let val = C_ExpandUserMacros (a:key)
 			if val	== ""
 				return
-			end
+			endif
 
 			let part	= split( val, '<SPLIT>' )
 			if len(part) < 2
 				let part	= [ "" ] + part
 				echomsg 'SPLIT missing in template '.a:key
-			end
+			endif
 
 			if mode == 'below'
 
@@ -2351,11 +2351,11 @@ function! C_InsertTemplate ( key, ... )
 				exe ":".pos1
 				let ins	= pos2-pos1+1
 				exe "normal ".ins."=="
-			end
+			endif
 
 			"
-		end
-	end
+		endif
+	endif
   "------------------------------------------------------------------------------
   "  position the cursor
   "------------------------------------------------------------------------------
@@ -2373,8 +2373,8 @@ function! C_InsertTemplate ( key, ... )
 		" to the end of the block; needed for repeated inserts
 		if mode == 'below'
 			exe ":".pos2
-		end
-  end
+		endif
+  endif
 
 endfunction    " ----------  end of function C_InsertTemplate  ----------
 
@@ -2422,7 +2422,7 @@ function! C_ExpandUserMacros ( key )
 				let	name	= C_Input( match[1].flagaction.' : ', C_ApplyFlag( s:C_Macro[macroname], match[2] ) )
 			else
 				let	name	= C_Input( match[1].flagaction.' : ', '' )
-			end
+			endif
 			if name == ""
 				return ""
 			endif
@@ -2452,11 +2452,11 @@ function! C_ExpandUserMacros ( key )
 					let	s:C_ExpansionCounter[macroname]	+= 1
 				else
 					let	s:C_ExpansionCounter[macroname]	= 0
-				end
+				endif
 				if s:C_ExpansionCounter[macroname]	>= s:C_ExpansionLimit
 					echomsg " recursion terminated for recursive macro ".macroname
 					return template
-				end
+				endif
 				"-------------------------------------------------------------------------------
 				"   replace
 				"-------------------------------------------------------------------------------
@@ -2466,7 +2466,7 @@ function! C_ExpandUserMacros ( key )
 				"
 				" macro not yet defined
 				let s:C_Macro['|'.match[1].'|']  		= ''
-			end
+			endif
 		endif
 
 	endwhile
@@ -2563,13 +2563,13 @@ if has("autocmd")
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
 	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') | 
-			\       call C_InsertTemplate("comment.file-description")
+				\     call C_InsertTemplate("comment.file-description") | endif
 	"
 	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
 	"
 	if s:C_TypeOfH=='c' 
 		autocmd BufNewFile,BufEnter  *.h  :set filetype=c
-	end
+	endif
 	"
 	" C/C++ source code files which should not be preprocessed.
 	"

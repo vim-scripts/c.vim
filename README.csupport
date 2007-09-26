@@ -1,4 +1,4 @@
-README for c.vim (Version 5.0) / September 12 2007
+README for c.vim (Version 5.0.1) / September 26 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -85,11 +85,9 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.0
+  RELEASE NOTES FOR VERSION 5.0.1
 =======================================================================================
-+ Completely new template system. Now every menu item is user definable.
-+ Changes to allow a system-wide installation.
-+ A few hotkeys added and renamed.
++ Bugfix: autocmd setting can influence autocmd settings of OTHER plugins.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

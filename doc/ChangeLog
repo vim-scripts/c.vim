@@ -1,4 +1,9 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.0.1
+=======================================================================================
++ Bugfix: autocmd setting can influence autocmd settings of OTHER plugins.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.0
 =======================================================================================
 + Completely new template system. Now every menu item is user definable.
