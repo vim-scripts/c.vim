@@ -12,10 +12,8 @@
 #         NOTES:  ---
 #        AUTHOR:  Dr.-Ing. Fritz Mehner (Mn), mehner@fh-swf.de
 #       COMPANY:  Fachhochschule Südwestfalen, Iserlohn
-#       VERSION:  1.2
 #       CREATED:  23.11.2004 18:04:01 CET
-#      REVISION:  17.03.2005 - executable quoted
-#      REVISION:  18.02.2006 - look for the full pathname of an executable
+#      REVISION:  $Id: wrapper.sh,v 1.3 2007/10/03 09:06:09 mehner Exp $
 #===============================================================================
 
 command=${@}                             # the complete command line
@@ -28,7 +26,7 @@ if [ ${#} -ge 1 ] && [ -x "$executable" ]
 then
   shift
   "$executable" ${@}
-  echo -e "\n\n\"${command}\" returned ${?}"
+  echo -e "> \"${command}\" returned ${?}"
 else
   echo -e "\n  !! file \"${executable}\" does not exist or is not executable !!"
 fi

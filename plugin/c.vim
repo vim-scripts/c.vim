@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.27 2007/09/26 07:58:39 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.30 2007/10/03 09:07:27 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.0.1"  							" version number of this script; do not change
+let g:C_Version= "5.0.2"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -1040,9 +1040,13 @@ function! C_MultiLineEndComments ( )
 		endif
 		let linenumber=linenumber+1
 	endwhile
+	"
 	" ----- back to the begin of the marked block -----
-	exe ":".pos0
-	normal $
+	let diff	= pos1-pos0
+	normal a
+	if pos1-pos0 > 0
+		exe "normal ".diff."k"
+	end
 endfunction		" ---------- end of function  C_MultiLineEndComments  ----------
 "
 "------------------------------------------------------------------------------
@@ -1451,8 +1455,8 @@ endfunction    " ----------  end of function C_CodeFor ----------
 "  Handle prototypes       {{{1
 "------------------------------------------------------------------------------
 "
-let s:C_Prototype        = ''
-let s:C_PrototypeShow    = ''
+let s:C_Prototype        = []
+let s:C_PrototypeShow    = []
 let s:C_PrototypeCounter = 0
 let s:C_CComment         = '\/\*.\{-}\*\/\s*'		" C comment with trailing whitespaces
 																								"  '.\{-}'  any character, non-greedy
@@ -1465,45 +1469,55 @@ function! C_ProtoPick (mode)
 	if a:mode=="n"
 		" --- normal mode -------------------
 		let	pos1	= line(".")
-		let	pos2	= line(".")
+		let	pos2	= pos1
 	else
 		" --- visual mode -------------------
 		let	pos1	= line("'<")
 		let	pos2	= line("'>")
 	endif
+	"
+	" remove C/C++-comments, leading and trailing whitespaces, squeeze whitespaces
+	"
+	let prototyp   = ''
 	let	linenumber = pos1
-	let prototyp   = getline(linenumber)
-	let prototyp   = substitute( prototyp, s:C_CppComment, "", "" ) " remove C++ comment
-	let linenumber = linenumber+1
 	while linenumber <= pos2
 		let newline			= getline(linenumber)
 		let newline 	  = substitute( newline, s:C_CppComment, "", "" ) " remove C++ comment
 		let prototyp		= prototyp." ".newline
 		let linenumber	= linenumber+1
 	endwhile
+	"
 	let prototyp  = substitute( prototyp, '^\s\+', "", "" )					" remove leading whitespaces
 	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments 
 	let prototyp  = substitute( prototyp, '\s\+', " ", "g" )				" squeeze whitespaces
 	let prototyp  = substitute( prototyp, '\s\+$', "", "" )					" remove trailing whitespaces
 	"
+	" remove template keyword
+	"
 	let prototyp  = substitute( prototyp, '^template\s*<\s*class \w\+\s*>\s*', "", "" )
-	let prototyp  = substitute( prototyp, '<\s*\w\+\s*>', "", "g" )	
 	"
 	let parlist 	= stridx( prototyp, '(' )													" start of the parameter list
 	let part1   	= strpart( prototyp, 0, parlist )
 	let part2   	= strpart( prototyp, parlist )
-
+	"
+	" remove the scope res. operator
+	"
+	let part1		  = substitute( part1, '<\s*\w\+\s*>', "", "g" )	
 	let part1   	= substitute( part1, '\<std\s*::', 'std##', 'g' )	" remove the scope res. operator
 	let part1   	= substitute( part1, '\<\h\w*\s*::', '', 'g' )		" remove the scope res. operator
 	let part1   	= substitute( part1, '\<std##', 'std::', 'g' )		" remove the scope res. operator
 	let	prototyp	= part1.part2
 	"
-	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" )     	" remove trailing parts of the function body
+	" remove trailing parts of the function body; add semicolon
+	"
+	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" ) 
 	let prototyp	= prototyp.";\n"
-	let s:C_PrototypeCounter = s:C_PrototypeCounter+1
-	let s:C_Prototype        = s:C_Prototype.prototyp
-	let identstring          = s:C_PrototypeShow."(".s:C_PrototypeCounter.") ".bufname("%")." #  "
-	let s:C_PrototypeShow    = identstring.prototyp
+	"
+	" bookkeeping
+	"
+	let s:C_PrototypeCounter += 1
+	let s:C_Prototype        += [prototyp]
+	let s:C_PrototypeShow    += ["(".s:C_PrototypeCounter.") ".bufname("%")." #  ".prototyp]
 	"
 	echo	s:C_PrototypeCounter.' prototype(s)'
 	"
@@ -1513,13 +1527,15 @@ endfunction    " ---------  end of function C_ProtoPick  ----------
 "  C_ProtoInsert : insert       {{{1
 "------------------------------------------------------------------------------
 function! C_ProtoInsert ()
-	if s:C_PrototypeCounter==0
-		echo "currently no prototypes available"
-	else
-		put =s:C_Prototype
-		let	s:C_PrototypeCounter	-= 1
-		silent exe "normal =".s:C_PrototypeCounter."-"
+	if s:C_PrototypeCounter > 0
+		for protytype in s:C_Prototype
+			put =protytype
+		endfor
+		let	lines	= s:C_PrototypeCounter	- 1
+		silent exe "normal =".lines."-"
 		call C_ProtoClear()
+	else
+		echo "currently no prototypes available"
 	endif
 endfunction    " ---------  end of function C_ProtoInsert  ----------
 "
@@ -1527,13 +1543,13 @@ endfunction    " ---------  end of function C_ProtoInsert  ----------
 "  C_ProtoClear : clear       {{{1
 "------------------------------------------------------------------------------
 function! C_ProtoClear ()
-	if s:C_PrototypeCounter==0
-		echo "currently no prototypes available"
-	else
-		let s:C_Prototype        = ""
-		let s:C_PrototypeShow    = ""
+	if s:C_PrototypeCounter > 0
+		let s:C_Prototype        = []
+		let s:C_PrototypeShow    = []
 		let s:C_PrototypeCounter = 0
 		echo 'prototypes deleted'
+	else
+		echo "currently no prototypes available"
 	endif
 endfunction    " ---------  end of function C_ProtoClear  ----------
 "
@@ -1541,10 +1557,12 @@ endfunction    " ---------  end of function C_ProtoClear  ----------
 "  C_ProtoShow : show       {{{1
 "------------------------------------------------------------------------------
 function! C_ProtoShow ()
-	if s:C_PrototypeCounter==0
-		echo "currently no prototypes available"
+	if s:C_PrototypeCounter > 0
+		for protytype in s:C_PrototypeShow
+			echo protytype
+		endfor
 	else
-		echo s:C_PrototypeShow
+		echo "currently no prototypes available"
 	endif
 endfunction    " ---------  end of function C_ProtoShow  ----------
 "
@@ -1562,8 +1580,6 @@ endfunction    " ---------  end of function C_EscapeBlanks  ----------
 "  and reset after the compilation  (set makeprg=... ).
 "  The errorfile created by the compiler will now be read by gvim and
 "  the commands cl, cp, cn, ... can be used.
-"
-"
 "------------------------------------------------------------------------------
 function! C_Compile ()
 
@@ -1730,6 +1746,7 @@ function! C_Run ()
 				setlocal noswapfile
 				setlocal syntax=none
 				setlocal bufhidden=delete
+				setlocal tabstop=8
 			endif
 			"
 			" run programm 
@@ -1744,14 +1761,8 @@ function! C_Run ()
 			endif
 			setlocal	nomodifiable
 			"
-			" stdout is empty / not empty
-			"
-			if line("$")==1 && col("$")==1
-				silent	exe ":bdelete"
-			else
-				if winheight(winnr()) >= line("$")
-					exe bufwinnr(l:currentbuffernr) . "wincmd w" 
-				endif
+			if winheight(winnr()) >= line("$")
+				exe bufwinnr(l:currentbuffernr) . "wincmd w" 
 			endif
 			"
 		endif
@@ -2022,7 +2033,7 @@ function! C_Settings ()
 	let txt = txt.'                  project :  "'.s:C_Macro['|PROJECT|']."\"\n"
 	let txt = txt.'         copyright holder :  "'.s:C_Macro['|COPYRIGHTHOLDER|']."\"\n"
 	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
-	let txt = txt.'         C file extension :  '.s:C_CExtension.'  (everything else is C++)'."\n"
+	let txt = txt.'         C file extension :  "'.s:C_CExtension.'"  (everything else is C++)'."\n"
 	let txt = txt.'    extension for objects :  "'.s:C_ObjExtension."\"\n"
 	let txt = txt.'extension for executables :  "'.s:C_ExeExtension."\"\n"
 	let txt = txt.'           compiler flags :  "'.s:C_CFlags."\"\n"

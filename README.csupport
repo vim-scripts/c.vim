@@ -1,4 +1,4 @@
-README for c.vim (Version 5.0.1) / September 26 2007
+README for c.vim (Version 5.0.2) / September 29 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -24,6 +24,9 @@ The subdirectories in the zip archive  cvim.zip  mirror the directory structure
 which is needed below the local installation directory $HOME/.vim/ for LINUX/UNIX
 ($VIM/vimfiles/ for Windows; find the value of $VIM with ":echo $VIM" from inside Vim).
 
+(0) Save the template files in '$HOME/.vim/c-support/templates/Templates' if
+    you have changed any of them.
+
 (1) Copy the zip archive cvim.zip to $HOME/.vim and run
 
       unzip cvim.zip
@@ -33,7 +36,9 @@ which is needed below the local installation directory $HOME/.vim/ for LINUX/UNI
     archive by hand.
 
 (2) Loading of plugin files must be enabled. If not use
+
       :filetype plugin on
+
     This is the minimal content of the file '$HOME/.vimrc'. Create one if there
     is none. 
 
@@ -85,9 +90,10 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.0.1
+  RELEASE NOTES FOR VERSION 5.0.2
 =======================================================================================
-+ Bugfix: autocmd setting can influence autocmd settings of OTHER plugins.
++ Bugfix: Prototype picker did not alway delete no longer used prototypes.
++ Bugfix: Prototype picker removed template specializations from parameter lists.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

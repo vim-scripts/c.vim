@@ -1,4 +1,10 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.0.2
+=======================================================================================
++ Bugfix: Prototype picker did not alway delete no longer used prototypes.
++ Bugfix: Prototype picker removed template specializations from parameter lists.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.0.1
 =======================================================================================
 + Bugfix: autocmd setting can influence autocmd settings of OTHER plugins.
