@@ -1,4 +1,4 @@
-README for c.vim (Version 5.0.2) / September 29 2007
+README for c.vim (Version 5.0.3) / October 16 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,10 +90,10 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.0.2
+  RELEASE NOTES FOR VERSION 5.0.3
 =======================================================================================
-+ Bugfix: Prototype picker did not alway delete no longer used prototypes.
-+ Bugfix: Prototype picker removed template specializations from parameter lists.
++ Code snippets can now be used in the console mode (Vim without GUI).
++ Bugfix: Possible conflict with 'indent' removed when inserting templates.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                 October 02 2007
+*csupport.txt*                  C/C++ Support                 October 16 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.0.2
+                             Plugin version 5.0.3
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -868,9 +868,9 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Snippets -----------------------------------------------------------
 
-  \nr       read code snippet                   (n & GUI only)
-  \nw       write code snippet                  (n,v & GUI only)
-  \ne       edit code snippet                   (n & GUI only)
+  \nr       read code snippet                   (n)
+  \nw       write code snippet                  (n,v)
+  \ne       edit code snippet                   (n)
   \np       pick up prototype                   (n,v)
   \ni       insert prototype(s)                 (n)
   \nc       clear  prototype(s)                 (n)
