@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                 October 16 2007
+*csupport.txt*                  C/C++ Support                November 16 2007
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.0.3
+                             Plugin version 5.0.4
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -20,13 +20,14 @@ program, running a code checker or indent can be done with a keystroke.
  1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
  1.1.6   KEYWORD + comment                      |csupport-comm-keywords|
  1.1.7   C to C++ comments and vice versa       |csupport-comm-c-cpp|
+ 1.1.8   Date and date+time                     |csupport-comm-date|
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
  1.3    Menu 'Preprocessor'                     |csupport-prep|
  1.3.1   Normal mode, insert mode.              |csupport-prep-normal-mode|
  1.3.2   Visual mode.                           |csupport-prep-visual-mode|
- 1.3.3   Block out code with$#if 0 .. #endif$   |csupport-prep-if0|
+ 1.3.3   Block out code with #if 0 .. #endif    |csupport-prep-if0|
  1.4    Menu 'Idioms'                           |csupport-idioms|
  1.5    Menu 'Snippets'                         |csupport-snippets|
  1.5.1   Code snippets                          |csupport-snippets|
@@ -246,6 +247,13 @@ will be changed into
 The menu item '/* xxx */ -> // xxx' changes a C comment into an C++ comment.
 
 ------------------------------------------------------------------------------
+
+1.1.8  DATE AND DATE+TIME                                 *csupport-comm-date*
+
+The format for 'date' and 'date time' can be defined by the user (see
+|csupport-templates-date|).
+
+------------------------------------------------------------------------------
 1.2  MENU 'Statements'                                         *csupport-stat*
 ------------------------------------------------------------------------------
 
@@ -386,9 +394,9 @@ can be surrounded by one of the following statements:
 The macro name for an include guard (e.g. INC_TEST above) will be derived as a
 suggestion from the file name.  
 
-1.3.3  BLOCK OUT CODE WITH $#if 0 ... #endif$              *csupport-prep-if0*
+1.3.3  BLOCK OUT CODE WITH #if 0 ... #endif                *csupport-prep-if0*
 
-The menu item$#if 0 #endif$inserts the lines
+The menu item #if 0 #endif  inserts the lines
 
   #if  0     /* ----- #if 0 : If0Label_1 ----- */
 
@@ -406,9 +414,9 @@ All labels can be found with a global search like :g/If0Label_/ or
 :g/If0Label_\d\+/. All corresponding lines can be deleted with :g/If0Label_/d .
 
 
-REMOVE THE ENCLOSING$#if 0 ... #endif$-CONSTRUCT.
+REMOVE THE ENCLOSING #if 0 ... #endif -CONSTRUCT.
 
-The menu item$'remove #if #endif'$removes such a construct if the cursor is
+The menu item 'remove #if #endif' removes such a construct if the cursor is
 in the middle of such a section or on one of the two enclosing lines. Nested
 constructs will be untouched.
 
@@ -837,16 +845,16 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Preprocessor -------------------------------------------------------
 
-  \p<      $#include <>$                        (n,i)
-  \p"      $#include ""$                        (n,i)
-  \pd      $#define$                            (n,i)
-  \pu      $#undef$                             (n,i)
-  \pie     $#if$$#else #endif$                  (n,v,i)
-  \pid     $#ifdef #else #endif$                (n,v,i)
-  \pin     $#ifndef #else #endif$               (n,v,i)
-  \pind    $#ifndef #def #endif$                (n,v,i)
-  \pi0     $#if 0 #endif$                       (n,v,i)
-  \pr0      remove$#if 0 #endif$                (n) 
+  \p<       #include <>                         (n,i)
+  \p"       #include ""                         (n,i)
+  \pd       #define                             (n,i)
+  \pu       #undef                              (n,i)
+  \pie      #if  #else #endif                   (n,v,i)
+  \pid      #ifdef #else #endif                 (n,v,i)
+  \pin      #ifndef #else #endif                (n,v,i)
+  \pind     #ifndef #def #endif                 (n,v,i)
+  \pi0      #if 0 #endif                        (n,v,i)
+  \pr0      remove #if 0 #endif                 (n) 
   -- Idioms -------------------------------------------------------------
 
   \if       function                            (n,v,i)
@@ -1081,11 +1089,11 @@ Create your private template directory:
 Create a private template file 'Templates' in this directory to overwrite some
 macros, e.g.
 
- $|AUTHOR|$   = your name
- $|AUTHORREF|$= ...
- $|EMAIL|$    = ...
- $|COMPANY|$  = ...
- $|COPYRIGHT|$= ...
+ *|AUTHOR|*    = your name
+ *|AUTHORREF|* = ...
+ *|EMAIL|*     = ...
+ *|COMPANY|*   = ...
+ *|COPYRIGHT|* = ...
 
 You can also have local templates which overwrite the global ones. To suppress
 the messages in this case set a global variable in '~/.vimrc' :
@@ -1120,30 +1128,30 @@ could look like this:
   $ ========== USER MACROS ======================================
   $ =============================================================
   $
- $|AUTHOR|$   = Dr. Fritz Mehner 
- $|AUTHORREF|$= mn
- $|EMAIL|$    = mehner@fh-swf.de
- $|COMPANY|$  = FH Südwestfalen, Iserlohn
- $|COPYRIGHT|$= Copyright (c)$|YEAR|, |AUTHOR|$
+ *|AUTHOR|*    = Dr. Fritz Mehner 
+ *|AUTHORREF|* = mn
+ *|EMAIL|*     = mehner@fh-swf.de
+ *|COMPANY|*   = FH Südwestfalen, Iserlohn
+ *|COPYRIGHT|* = Copyright (c)*|YEAR|, |AUTHOR|*
   $
   $ =============================================================
   $ ========== FILE INCLUDES ====================================
   $ =============================================================
   $
- $|includefile|$= c.comments.template
- $|includefile|$= c.cpp.template
- $|includefile|$= c.idioms.template
- $|includefile|$= c.preprocessor.template
- $|includefile|$= c.statements.template
+ *|includefile|* = c.comments.template
+ *|includefile|* = c.cpp.template
+ *|includefile|* = c.idioms.template
+ *|includefile|* = c.preprocessor.template
+ *|includefile|* = c.statements.template
 
 Lines starting with a dollar sign are comments. The section starting
-with$|AUTHOR|$assigns values to predefined tags
+with *|AUTHOR|* assigns values to predefined tags
 (see|csupport-templates-macros|) to personalize some templates. Other
-predefined tags with given default values can be used (e.g.$|YEAR|$).
+predefined tags with given default values can be used (e.g. *|YEAR|* ).
 
 User defined tags are possible. They have the following syntax:
 
- $|macroname|$ = replacement
+ *|macroname|* = replacement
 
 A macroname starts with a letter (uppercase or lowercase) followed by zero or
 more letters, digits or underscores.
@@ -1158,30 +1166,29 @@ personalize templates.
  ----------------------------------------------------------------------------
  PREDEFINED MACROS  DEFAULT VALUE
  ----------------------------------------------------------------------------
-$|AUTHOR|$          ""
-$|AUTHORREF|$       ""
-$|EMAIL|$           ""
-$|COMPANY|$         ""
-$|PROJECT|$         ""
-$|COPYRIGHTHOLDER|$ ""
-$|includefile|$     "" 
+*|AUTHOR|*          ""
+*|AUTHORREF|*       ""
+*|EMAIL|*           ""
+*|COMPANY|*         ""
+*|PROJECT|*         ""
+*|COPYRIGHTHOLDER|* ""
+*|includefile|*     "" 
                    
-$|BASENAME|$        filename without path and suffix
-$|DATE|$            the preferred date representation for the current locale
+*|BASENAME|*        filename without path and suffix
+*|DATE|*            the preferred date representation for the current locale
                     without the time
-$|FILENAME|$        filename without path
-$|PATH|$            path without filename
-$|SUFFIX|$          filename suffix
-$|TIME|$            the preferred time representation for the current locale
+*|FILENAME|*        filename without path
+*|PATH|*            path without filename
+*|SUFFIX|*          filename suffix
+*|TIME|*            the preferred time representation for the current locale
                     without the date and the time zone or name or abbreviation
-$|YEAR|$            the year as a decimal number including the century
+*|YEAR|*            the year as a decimal number including the century
 
-$|includefile|$can  be used to include an additional template file. A file
+*|includefile|* can  be used to include an additional template file. A file
 will be included only once. Commenting and uncommenting include macros is a
 simple way to switch between several sets of templates (see also
 |csupport-run-templates|). Overwriting existing macros and templates is
 possible.
-
 
  ----------------------------------------------------------------------------
  PREDEFINED TAGS
@@ -1194,6 +1201,24 @@ A dependent template file can start with its own macro section. There is no
 need to have all user defined macros in the master file.
 When the first template definition is found (see below) macro definitions are
 no longer recognized.
+
+ ----------------------------------------------------------------------------
+ USER DEFINED FORMATS FOR DATE AND TIME            *csupport-templates-date*
+ ----------------------------------------------------------------------------
+The format for *|DATE|* ,*|TIME|* , and*|YEAR|* can be set by the user. The
+defaults are
+    *|DATE|*        '%x'    
+    *|TIME|*        '%X %Z'    
+    *|YEAR|*        '%Y'        
+See the manual page of the C function strftime() for the format.  The accepted
+format depends on your system, thus this is not portable!  The maximum length
+of the result is 80 characters.
+
+User defined formats can be set using the following global variables in
+~/.vimrc ,  e.g.
+    let g:C_FormatDate						= '%D'
+    let g:C_FormatTime						= '%H:%M'
+    let g:C_FormatYear						= 'year %Y'
 
 ------------------------------------------------------------------------------
 5.3  TEMPLATES                                      *csupport-templates-names*
@@ -1358,10 +1383,10 @@ user will be asked for the replacement first, e.g. with the following template
 
   == idioms.function ==
   void<CURSOR>
- $|?FUNCTION_NAME|$(  )
+ *|?FUNCTION_NAME|* (  )
   {
   <SPLIT> return ;
-  }   /* -----  end of function$|FUNCTION_NAME|$ ----- */
+  }   /* -----  end of function*|FUNCTION_NAME|* ----- */
 
 The can specify the function name which then will be applied twice. If the
 macro was already in use the old value will be suggested as default.
@@ -1379,13 +1404,13 @@ A macro expansion can be controlled by the following attributes
 The include guard template is an example for the use of ':L' :
 
   == preprocessor.ifndef-def-endif ==
- $ #ifndef  |?BASENAME:L|_INC$
- $ #define  |BASENAME|_INC$
-   <CURSOR><SPLIT>
- $ #endif   // ----- #ifndef |BASENAME|_INC  -----$
+ #ifndef *|?BASENAME:L|_INC*
+ #define *|BASENAME|_INC*
+ <CURSOR><SPLIT>
+ #endif   // ----- #ifndef*|BASENAME|_INC* -----
 
 The base name of the file shall be used as part of the include guard name.
-The predefined macro$|BASENAME|$is used to ask for this part because this
+The predefined macro*|BASENAME|* is used to ask for this part because this
 macro has already a defined value. That value can accepted or replaced by the
 user. For the filename 'test test++test.h' the legalized base name
 'TEST_TEST_TEST' will be suggested.

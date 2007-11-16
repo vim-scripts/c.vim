@@ -1,4 +1,4 @@
-README for c.vim (Version 5.0.3) / October 16 2007
+README for c.vim (Version 5.0.4) / November 15 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,10 +90,10 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.0.3
+  RELEASE NOTES FOR VERSION 5.0.4
 =======================================================================================
-+ Code snippets can now be used in the console mode (Vim without GUI).
-+ Bugfix: Possible conflict with 'indent' removed when inserting templates.
++ Format for the macros |DATE|, |TIME|, and |YEAR| can be defined by the user.
++ Help text improved.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

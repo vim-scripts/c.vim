@@ -1,4 +1,10 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.0.3
+=======================================================================================
++ Code snippets can now be used in the console mode (Vim without GUI).
++ Bugfix: Possible conflict with 'indent' removed when inserting templates.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.0.2
 =======================================================================================
 + Bugfix: Prototype picker did not alway delete no longer used prototypes.

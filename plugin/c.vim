@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.32 2007/10/16 16:59:54 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.33 2007/11/15 20:09:51 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.0.3"  							" version number of this script; do not change
+let g:C_Version= "5.0.4"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -109,7 +109,7 @@ else
 	let s:C_ExeExtension        = ''         " file extension for executables (leading point required)
 	let s:C_ObjExtension        = '.o'       " file extension for objects (leading point required)
 endif
-
+"
 let s:C_CExtension     				= 'c'                    " C file extension; everything else is C++
 let s:C_CFlags         				= '-Wall -g -O0 -c'      " compiler flags: compile, don't optimize
 let s:C_CodeCheckExeName      = 'check'
@@ -132,6 +132,10 @@ let s:C_LocalTemplateFile     = $HOME.'/.vim/c-support/templates/Templates'
 let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 let s:C_TemplateOverwrittenMsg= 'yes'
 "
+let s:C_FormatDate						= '%x'
+let s:C_FormatTime						= '%X %Z'
+let s:C_FormatYear						= '%Y'
+"
 "------------------------------------------------------------------------------
 "
 "  Look for global variables (if any), to override the defaults.
@@ -150,6 +154,9 @@ call C_CheckGlobal('C_CodeCheckOptions       ')
 call C_CheckGlobal('C_CodeSnippets           ')
 call C_CheckGlobal('C_CplusCompiler          ')
 call C_CheckGlobal('C_ExeExtension           ')
+call C_CheckGlobal('C_FormatDate             ')
+call C_CheckGlobal('C_FormatTime             ')
+call C_CheckGlobal('C_FormatYear             ')
 call C_CheckGlobal('C_GlobalTemplateFile     ')
 call C_CheckGlobal('C_IndentErrorLog         ')
 call C_CheckGlobal('C_LFlags                 ')
@@ -377,10 +384,10 @@ function! C_InitC ()
 	"
 	exe "amenu  ".s:C_Root.'&Comments.-SEP9-                     :'
 	"
-	exe " menu  ".s:C_Root.'&Comments.&date                   a<C-R>=strftime("%x")<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.&date                    <C-R>=strftime("%x")<CR>'
-	exe " menu  ".s:C_Root.'&Comments.date\ &time             a<C-R>=strftime("%x %X %Z")<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.date\ &time              <C-R>=strftime("%x %X %Z")<CR>'
+	exe " menu  ".s:C_Root.'&Comments.&date                             a<C-R>=C_InsertDate()<CR>'
+	exe "imenu  ".s:C_Root.'&Comments.&date                              <C-R>=C_InsertDate()<CR>'
+	exe " menu  ".s:C_Root.'&Comments.date\ &time                       a<C-R>=C_InsertDateTime()<CR>'
+	exe "imenu  ".s:C_Root.'&Comments.date\ &time                        <C-R>=C_InsertDateTime()<CR>'
 
 	exe "amenu  ".s:C_Root.'&Comments.-SEP12-                    :'
 	exe "amenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:call C_CommentCppToC()<CR>'
@@ -2451,12 +2458,12 @@ function! C_ExpandUserMacros ( key )
 	"  can be replaced, with e.g. |?DATE|
   "------------------------------------------------------------------------------
 	let	s:C_Macro['|BASENAME|']	= toupper(expand("%:t:r"))
-  let s:C_Macro['|DATE|']  		= strftime("%x")
+  let s:C_Macro['|DATE|']  		= C_InsertDate()
   let s:C_Macro['|FILENAME|'] = expand("%:t")
   let s:C_Macro['|PATH|']  		= expand("%:p:h")
   let s:C_Macro['|SUFFIX|'] 	= expand("%:e")
-  let s:C_Macro['|TIME|']  		= strftime("%X %Z")
-  let s:C_Macro['|YEAR|']  		= strftime("%Y")
+  let s:C_Macro['|TIME|']  		= C_InsertTime()
+  let s:C_Macro['|YEAR|']  		= C_InsertYear()
 
   "------------------------------------------------------------------------------
   "  look for replacements
@@ -2595,6 +2602,22 @@ function! C_InsertMacroValue ( key )
 		exe 'normal i'.s:C_Macro['|'.a:key.'|']
 	end
 endfunction    " ----------  end of function C_InsertMacroValue  ----------
+
+function! C_InsertDateTime ()
+	return strftime( s:C_FormatDate ).' '.strftime( s:C_FormatTime )
+endfunction    " ----------  end of function C_InsertDate  ----------
+
+function! C_InsertDate ()
+	return strftime( s:C_FormatDate )
+endfunction    " ----------  end of function C_InsertDate  ----------
+
+function! C_InsertTime ()
+	return strftime( s:C_FormatTime )
+endfunction    " ----------  end of function C_InsertTime  ----------
+
+function! C_InsertYear ()
+	return strftime( s:C_FormatYear )
+endfunction    " ----------  end of function C_InsertYear  ----------
 
 "------------------------------------------------------------------------------
 "  show / hide the c-support menus
