@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.33 2007/11/15 20:09:51 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.35 2007/11/21 09:14:16 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.0.4"  							" version number of this script; do not change
+let g:C_Version= "5.0.5"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -133,7 +133,7 @@ let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 let s:C_TemplateOverwrittenMsg= 'yes'
 "
 let s:C_FormatDate						= '%x'
-let s:C_FormatTime						= '%X %Z'
+let s:C_FormatTime						= '%X'
 let s:C_FormatYear						= '%Y'
 "
 "------------------------------------------------------------------------------
@@ -236,11 +236,11 @@ let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
 											\						}
 
 "------------------------------------------------------------------------------
-"  C : C_InitC                              {{{1
+"  C : C_InitMenus                              {{{1
 "  Initialization of C support menus
 "------------------------------------------------------------------------------
 "
-function! C_InitC ()
+function! C_InitMenus ()
 	"
 	"===============================================================================================
 	"----- Menu : C main menu entry -------------------------------------------   {{{2
@@ -384,10 +384,10 @@ function! C_InitC ()
 	"
 	exe "amenu  ".s:C_Root.'&Comments.-SEP9-                     :'
 	"
-	exe " menu  ".s:C_Root.'&Comments.&date                             a<C-R>=C_InsertDate()<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.&date                              <C-R>=C_InsertDate()<CR>'
-	exe " menu  ".s:C_Root.'&Comments.date\ &time                       a<C-R>=C_InsertDateTime()<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.date\ &time                        <C-R>=C_InsertDateTime()<CR>'
+	exe " menu  ".s:C_Root.'&Comments.&date                             a<C-R>=C_InsertDateAndTime("d")<CR>'
+	exe "imenu  ".s:C_Root.'&Comments.&date                              <C-R>=C_InsertDateAndTime("d")<CR>'
+	exe " menu  ".s:C_Root.'&Comments.date\ &time                       a<C-R>=C_InsertDateAndTime("dt")<CR>'
+	exe "imenu  ".s:C_Root.'&Comments.date\ &time                        <C-R>=C_InsertDateAndTime("dt")<CR>'
 
 	exe "amenu  ".s:C_Root.'&Comments.-SEP12-                    :'
 	exe "amenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:call C_CommentCppToC()<CR>'
@@ -882,7 +882,7 @@ function! C_InitC ()
 		exe "menu  <silent>  ".s:C_Root.'&help\ \(plugin\)     <C-C><C-C>:call C_HelpCsupport()<CR>'
 	endif
 
-endfunction    " ----------  end of function  C_InitC  ----------
+endfunction    " ----------  end of function  C_InitMenus  ----------
 "
 "===============================================================================================
 "----- Menu Functions --------------------------------------------------------------------------
@@ -1616,8 +1616,8 @@ function! C_Compile ()
 	let	l:currentbuffer	= bufname("%")
 	let s:C_HlMessage = ""
 	exe	":cclose"
-	let	Sou		= expand("%")											" name of the file in the current buffer
-	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object
+	let	Sou		= expand("%:p")											" name of the file in the current buffer
+	let	Obj		= expand("%:p:r").s:C_ObjExtension	" name of the object
 	let SouEsc= escape( Sou, s:escfilename )
 	let ObjEsc= escape( Obj, s:escfilename )
 
@@ -1664,9 +1664,9 @@ function! C_Link ()
 	call	C_Compile()
 
 	let s:C_HlMessage = ""
-	let	Sou		= expand("%")						       		" name of the file in the current buffer
-	let	Obj		= expand("%:r").s:C_ObjExtension	" name of the object file
-	let	Exe		= expand("%:r").s:C_ExeExtension	" name of the executable
+	let	Sou		= expand("%:p")						       		" name of the file in the current buffer
+	let	Obj		= expand("%:p:r").s:C_ObjExtension	" name of the object file
+	let	Exe		= expand("%:p:r").s:C_ExeExtension	" name of the executable
 	let ObjEsc= escape( Obj, s:escfilename )
 	let ExeEsc= escape( Exe, s:escfilename )
 	
@@ -1721,10 +1721,9 @@ let s:C_OutputBufferNumber = -1
 "
 function! C_Run ()
 "
-	let Cwd	 		= getcwd()
-	let Sou  		= expand("%")															" name of the source file
-	let Obj  		= expand("%:r").s:C_ObjExtension					" name of the object file
-	let Exe  		= Cwd."/".expand("%:r").s:C_ExeExtension	" name of the executable
+	let Sou  		= expand("%:p")														" name of the source file
+	let Obj  		= expand("%:p:r").s:C_ObjExtension				" name of the object file
+	let Exe  		= expand("%:p:r").s:C_ExeExtension				" name of the executable
 	let ExeEsc  = escape( Exe, s:escfilename )						" name of the executable, escaped
 	"
 	let l:arguments     = exists("b:C_CmdLineArgs") ? b:C_CmdLineArgs : ''
@@ -1755,7 +1754,6 @@ function! C_Run ()
 	"==============================================================================
 	if s:C_OutputGvim == "buffer"
 		let	l:currentbuffernr	= bufnr("%")
-		let l:currentdir			= getcwd()
 		"
 		silent call C_Link()
 		"
@@ -2181,7 +2179,7 @@ function! C_CreateGuiMenus ()
 		aunmenu <silent> &Tools.Load\ C\ Support
 		amenu   <silent> 40.1000 &Tools.-SEP100- : 
 		amenu   <silent> 40.1030 &Tools.Unload\ C\ Support <C-C>:call C_RemoveGuiMenus()<CR>
-		call C_InitC()
+		call C_InitMenus()
 		let s:C_MenuVisible = 1
 	endif
 endfunction    " ----------  end of function C_CreateGuiMenus  ----------
@@ -2458,12 +2456,12 @@ function! C_ExpandUserMacros ( key )
 	"  can be replaced, with e.g. |?DATE|
   "------------------------------------------------------------------------------
 	let	s:C_Macro['|BASENAME|']	= toupper(expand("%:t:r"))
-  let s:C_Macro['|DATE|']  		= C_InsertDate()
+  let s:C_Macro['|DATE|']  		= C_InsertDateAndTime('d')
   let s:C_Macro['|FILENAME|'] = expand("%:t")
   let s:C_Macro['|PATH|']  		= expand("%:p:h")
   let s:C_Macro['|SUFFIX|'] 	= expand("%:e")
-  let s:C_Macro['|TIME|']  		= C_InsertTime()
-  let s:C_Macro['|YEAR|']  		= C_InsertYear()
+  let s:C_Macro['|TIME|']  		= C_InsertDateAndTime('t')
+  let s:C_Macro['|YEAR|']  		= C_InsertDateAndTime('y')
 
   "------------------------------------------------------------------------------
   "  look for replacements
@@ -2603,21 +2601,23 @@ function! C_InsertMacroValue ( key )
 	end
 endfunction    " ----------  end of function C_InsertMacroValue  ----------
 
-function! C_InsertDateTime ()
-	return strftime( s:C_FormatDate ).' '.strftime( s:C_FormatTime )
-endfunction    " ----------  end of function C_InsertDate  ----------
-
-function! C_InsertDate ()
-	return strftime( s:C_FormatDate )
-endfunction    " ----------  end of function C_InsertDate  ----------
-
-function! C_InsertTime ()
-	return strftime( s:C_FormatTime )
-endfunction    " ----------  end of function C_InsertTime  ----------
-
-function! C_InsertYear ()
-	return strftime( s:C_FormatYear )
-endfunction    " ----------  end of function C_InsertYear  ----------
+"------------------------------------------------------------------------------
+"  date and time
+"------------------------------------------------------------------------------
+function! C_InsertDateAndTime ( format )
+	if a:format == 'd'
+		return strftime( s:C_FormatDate )
+	end
+	if a:format == 't'
+		return strftime( s:C_FormatTime )
+	end
+	if a:format == 'dt'
+		return strftime( s:C_FormatDate ).' '.strftime( s:C_FormatTime )
+	end
+	if a:format == 'y'
+		return strftime( s:C_FormatYear )
+	end
+endfunction    " ----------  end of function C_InsertDateAndTime  ----------
 
 "------------------------------------------------------------------------------
 "  show / hide the c-support menus

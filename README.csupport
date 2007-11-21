@@ -1,4 +1,4 @@
-README for c.vim (Version 5.0.4) / November 15 2007
+README for c.vim (Version 5.0.5) / November 21 2007
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,10 +90,10 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.0.4
+  RELEASE NOTES FOR VERSION 5.0.5
 =======================================================================================
-+ Format for the macros |DATE|, |TIME|, and |YEAR| can be defined by the user.
-+ Help text improved.
++ Bugfix: on a few systems doubling of path components in the run command (F9).
+  Skip this upgrade if you do not have this problem.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

@@ -3,7 +3,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim (version 5.0)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.17 2007/11/15 20:10:30 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.18 2007/11/20 18:12:02 mehner Exp $
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -79,10 +79,10 @@ inoremap    <buffer>  <silent>  <Leader>cfu   <Esc>:call C_InsertTemplate("comme
 inoremap    <buffer>  <silent>  <Leader>cme   <Esc>:call C_InsertTemplate("comment.method")<CR>
 inoremap    <buffer>  <silent>  <Leader>ccl   <Esc>:call C_InsertTemplate("comment.class")<CR>
 
- noremap    <buffer>  <silent>  <Leader>cd    a<C-R>=C_InsertDate()<CR>
-inoremap    <buffer>  <silent>  <Leader>cd     <C-R>=C_InsertDate()<CR>
- noremap    <buffer>  <silent>  <Leader>ct    a<C-R>=C_InsertDateTime()<CR>
-inoremap    <buffer>  <silent>  <Leader>ct     <C-R>=C_InsertDateTime()<CR>
+ noremap    <buffer>  <silent>  <Leader>cd    a<C-R>=C_InsertDateAndTime('d')<CR>
+inoremap    <buffer>  <silent>  <Leader>cd     <C-R>=C_InsertDateAndTime('d')<CR>
+ noremap    <buffer>  <silent>  <Leader>ct    a<C-R>=C_InsertDateAndTime('dt')<CR>
+inoremap    <buffer>  <silent>  <Leader>ct     <C-R>=C_InsertDateAndTime('dt')<CR>
 "
 " ---------- statements menu  ------------------------------------------------
 "
