@@ -1,9 +1,9 @@
 " Vim filetype plugin file
 "
 "   Language :  C / C++
-"     Plugin :  c.vim (version 5.0)
+"     Plugin :  c.vim (version 5.1)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.18 2007/11/20 18:12:02 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.23 2008/03/12 16:26:03 mehner Exp $
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -44,17 +44,10 @@ imap  <buffer>  <silent>  <S-F9>  <C-C><C-C>:call C_Arguments()<CR>
 "
 " alternate file plugin
 "
-"if exists("loaded_alternateFile")
-" map  <buffer>  <silent>  <S-F2>       <C-C>:A<CR>
-"imap  <buffer>  <silent>  <S-F2>  <C-C><C-C>:A<CR>
-"endif
-"
-"
 " ---------- KEY MAPPINGS : MENU ENTRIES -------------------------------------
 "
 " ---------- comments menu  ------------------------------------------------
 "
-
  noremap    <buffer>  <silent>  <Leader>cl    <Esc>:call C_LineEndComment()<CR>
 inoremap    <buffer>  <silent>  <Leader>cl    <Esc>:call C_LineEndComment()<CR>a
 vnoremap    <buffer>  <silent>  <Leader>cl    <Esc>:call C_MultiLineEndComments()<CR>
@@ -62,10 +55,14 @@ vnoremap    <buffer>  <silent>  <Leader>cl    <Esc>:call C_MultiLineEndComments(
 vnoremap    <buffer>  <silent>  <Leader>cj    <Esc>:call C_AdjustLineEndComm("v")<CR>
 inoremap    <buffer>  <silent>  <Leader>cj    <Esc>:call C_AdjustLineEndComm("a")<CR>a
  noremap    <buffer>  <silent>  <Leader>cs    <Esc>:call C_GetLineEndCommCol()<CR>
+
  noremap    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <Leader>c*    <Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>j
  noremap    <buffer>  <silent>  <Leader>c/    <Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <Leader>c/    <Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>j
+
+ noremap    <buffer>  <silent>  <Leader>cc    <Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>j
+vnoremap    <buffer>  <silent>  <Leader>cc    <Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>j
  noremap    <buffer>  <silent>  <Leader>co    <Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>
 vnoremap    <buffer>  <silent>  <Leader>co    <Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>
 
@@ -132,32 +129,33 @@ inoremap    <buffer>  <silent>  <Leader>s{    <Esc>:call C_InsertTemplate("state
 "
 " ---------- preprocessor menu  ----------------------------------------------
 "
-inoremap    <buffer>  <silent>  <Leader>p<   <Esc><Esc>o#include<Tab><><Left>
-inoremap    <buffer>  <silent>  <Leader>p"   <Esc><Esc>o#include<Tab>""<Left>
-inoremap    <buffer>  <silent>  <Leader>pd   <Esc><Esc>:call C_InsertTemplate("preprocessor.define")<CR>
-inoremap    <buffer>  <silent>  <Leader>pu   <Esc><Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>
-"
- noremap    <buffer>  <silent>  <Leader>p<   <Esc><Esc>o#include<Tab><><Left>
- noremap    <buffer>  <silent>  <Leader>p"   <Esc><Esc>o#include<Tab>""<Left>
+ noremap    <buffer>  <silent>  <Leader>p<   <Esc><Esc>:call C_InsertTemplate("preprocessor.include-global")<CR>
+ noremap    <buffer>  <silent>  <Leader>p"   <Esc><Esc>:call C_InsertTemplate("preprocessor.include-local")<CR>
  noremap    <buffer>  <silent>  <Leader>pd   <Esc><Esc>:call C_InsertTemplate("preprocessor.define")<CR>
  noremap    <buffer>  <silent>  <Leader>pu   <Esc><Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>
+"
+inoremap    <buffer>  <silent>  <Leader>p<   <Esc><Esc>:call C_InsertTemplate("preprocessor.include-global")<CR>
+inoremap    <buffer>  <silent>  <Leader>p"   <Esc><Esc>:call C_InsertTemplate("preprocessor.include-local")<CR>
+inoremap    <buffer>  <silent>  <Leader>pd   <Esc><Esc>:call C_InsertTemplate("preprocessor.define")<CR>
+inoremap    <buffer>  <silent>  <Leader>pu   <Esc><Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>
 
  noremap    <buffer>  <silent>  <Leader>pie  <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>
  noremap    <buffer>  <silent>  <Leader>pid  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>
  noremap    <buffer>  <silent>  <Leader>pin  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>
  noremap    <buffer>  <silent>  <Leader>pind <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif")<CR>
- noremap    <buffer>  <silent>  <Leader>pi0  <Esc><Esc>:call C_PPIf0("a")<CR>2ji
 
 vnoremap    <buffer>  <silent>  <Leader>pie  <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <Leader>pid  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <Leader>pin  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <Leader>pind <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif", "v")<CR>
-vnoremap    <buffer>  <silent>  <Leader>pi0  <Esc><Esc>:call C_PPIf0("v")<CR>
                                      
 inoremap    <buffer>  <silent>  <Leader>pie  <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>
 inoremap    <buffer>  <silent>  <Leader>pid  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>
 inoremap    <buffer>  <silent>  <Leader>pin  <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>
 inoremap    <buffer>  <silent>  <Leader>pind <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>pi0  <Esc><Esc>:call C_PPIf0("a")<CR>2ji
+vnoremap    <buffer>  <silent>  <Leader>pi0  <Esc><Esc>:call C_PPIf0("v")<CR>
 inoremap    <buffer>  <silent>  <Leader>pi0  <Esc><Esc>:call C_PPIf0("a")<CR>2ji
 
  noremap    <buffer>  <silent>  <Leader>pr0  <Esc><Esc>:call C_PPIf0Remove()<CR>
@@ -191,27 +189,29 @@ inoremap    <buffer>  <silent>  <Leader>is    <Esc>:call C_InsertTemplate("idiom
 vnoremap    <buffer>  <silent>  <Leader>iu    <Esc>:call C_InsertTemplate("idioms.union" , "v")<CR>
 inoremap    <buffer>  <silent>  <Leader>iu    <Esc>:call C_InsertTemplate("idioms.union")<CR>
 "
- noremap    <buffer>  <silent>  <Leader>ip    <Esc><Esc>oprintf("\n");<Esc>2F"a
-inoremap    <buffer>  <silent>  <Leader>ip    printf("\n");<Esc>2F"a
- noremap    <buffer>  <silent>  <Leader>isc    <Esc><Esc>oscanf("", & );<Esc>F"i
-inoremap    <buffer>  <silent>  <Leader>isc    scanf("", & );<Esc>F"i
+ noremap    <buffer>  <silent>  <Leader>ip    <Esc><Esc>:call C_InsertTemplate("idioms.printf")<CR>
+inoremap    <buffer>  <silent>  <Leader>ip    <Esc><Esc>:call C_InsertTemplate("idioms.printf")<CR>
+ noremap    <buffer>  <silent>  <Leader>isc   <Esc><Esc>:call C_InsertTemplate("idioms.scanf")<CR>
+inoremap    <buffer>  <silent>  <Leader>isc   <Esc><Esc>:call C_InsertTemplate("idioms.scanf")<CR>
 "
  noremap    <buffer>  <silent>  <Leader>ica    <Esc>:call C_InsertTemplate("idioms.calloc")
 inoremap    <buffer>  <silent>  <Leader>ica    <Esc>:call C_InsertTemplate("idioms.calloc")
  noremap    <buffer>  <silent>  <Leader>ima    <Esc>:call C_InsertTemplate("idioms.malloc")<CR>
 inoremap    <buffer>  <silent>  <Leader>ima    <Esc>:call C_InsertTemplate("idioms.malloc")<CR>
 "
- noremap    <buffer>  <silent>  <Leader>isi    isizeof()<Left>
-vnoremap    <buffer>  <silent>  <Leader>isi    ssizeof()<Esc>P
-inoremap    <buffer>  <silent>  <Leader>isi    sizeof()<Left>
- noremap    <buffer>  <silent>  <Leader>ias    <Esc><Esc>oassert();<Left><Left>
-vnoremap    <buffer>  <silent>  <Leader>ias    sassert();<Esc>F(p
-inoremap    <buffer>  <silent>  <Leader>ias    assert();<Left><Left>
+ noremap    <buffer>  <silent>  <Leader>isi    <Esc><Esc>:call C_InsertTemplate("idioms.sizeof")<CR>
+inoremap    <buffer>  <silent>  <Leader>isi    <Esc><Esc>:call C_InsertTemplate("idioms.sizeof")<CR>
+vnoremap    <buffer>  <silent>  <Leader>isi    <Esc><Esc>:call C_InsertTemplate("idioms.sizeof", "v")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>ias   <Esc><Esc>:call C_InsertTemplate("idioms.assert")<CR>
+vnoremap    <buffer>  <silent>  <Leader>ias   <Esc><Esc>:call C_InsertTemplate("idioms.assert", "v")<CR>
 "
  noremap    <buffer>  <silent>  <Leader>ii    <Esc>:call C_InsertTemplate("idioms.open-input-file")<CR>
 inoremap    <buffer>  <silent>  <Leader>ii    <Esc>:call C_InsertTemplate("idioms.open-input-file")<CR>
+vnoremap    <buffer>  <silent>  <Leader>ii    <Esc>:call C_InsertTemplate("idioms.open-input-file", "v")<CR>
  noremap    <buffer>  <silent>  <Leader>io    <Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>
 inoremap    <buffer>  <silent>  <Leader>io    <Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>
+vnoremap    <buffer>  <silent>  <Leader>io    <Esc>:call C_InsertTemplate("idioms.open-output-file", "v")<CR>
 "
 " ---------- snippet menu ----------------------------------------------------
 "
@@ -228,19 +228,35 @@ vnoremap    <buffer>  <silent>  <Leader>np    <Esc>:call C_ProtoPick("v")<CR>
 "
 " ---------- C++ menu ----------------------------------------------------
 "
- noremap    <buffer>  <silent>  <Leader>+m    <Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>
-inoremap    <buffer>  <silent>  <Leader>+m    <Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>
- noremap    <buffer>  <silent>  <Leader>+c    <Esc>:call C_InsertTemplate("cpp.class")<CR>
-inoremap    <buffer>  <silent>  <Leader>+c    <Esc>:call C_InsertTemplate("cpp.class")<CR>
- noremap    <buffer>  <silent>  <Leader>+cn   <Esc>:call C_InsertTemplate("cpp.class-using-new")<CR>
-inoremap    <buffer>  <silent>  <Leader>+cn   <Esc>:call C_InsertTemplate("cpp.class-using-new")<CR>
+ noremap    <buffer>  <silent>  <Leader>+c    <Esc>:call C_InsertTemplate("cpp.class-definition")<CR>
+inoremap    <buffer>  <silent>  <Leader>+c    <Esc>:call C_InsertTemplate("cpp.class-definition")<CR>
+ noremap    <buffer>  <silent>  <Leader>+cn   <Esc>:call C_InsertTemplate("cpp.class-using-new-definition")<CR>
+inoremap    <buffer>  <silent>  <Leader>+cn   <Esc>:call C_InsertTemplate("cpp.class-using-new-definition")<CR>
 
- noremap    <buffer>  <silent>  <Leader>+tm   <Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>
-inoremap    <buffer>  <silent>  <Leader>+tm   <Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>
- noremap    <buffer>  <silent>  <Leader>+tc   <Esc>:call C_InsertTemplate("cpp.template-class")<CR>
-inoremap    <buffer>  <silent>  <Leader>+tc   <Esc>:call C_InsertTemplate("cpp.template-class")<CR>
- noremap    <buffer>  <silent>  <Leader>+tcn  <Esc>:call C_InsertTemplate("cpp.template-class-using-new")<CR>
-inoremap    <buffer>  <silent>  <Leader>+tcn  <Esc>:call C_InsertTemplate("cpp.template-class-using-new")<CR>
+ noremap    <buffer>  <silent>  <Leader>+ci    <Esc>:call C_InsertTemplate("cpp.class-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+ci    <Esc>:call C_InsertTemplate("cpp.class-implementation")<CR>
+ noremap    <buffer>  <silent>  <Leader>+cni   <Esc>:call C_InsertTemplate("cpp.class-using-new-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+cni   <Esc>:call C_InsertTemplate("cpp.class-using-new-implementation")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>+mi    <Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+mi    <Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>
+ noremap    <buffer>  <silent>  <Leader>+ai    <Esc>:call C_InsertTemplate("cpp.accessor-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+ai    <Esc>:call C_InsertTemplate("cpp.accessor-implementation")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>+tc   <Esc>:call C_InsertTemplate("cpp.template-class-definition")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tc   <Esc>:call C_InsertTemplate("cpp.template-class-definition")<CR>
+ noremap    <buffer>  <silent>  <Leader>+tcn  <Esc>:call C_InsertTemplate("cpp.template-class-using-new-definition")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tcn  <Esc>:call C_InsertTemplate("cpp.template-class-using-new-definition")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>+tci   <Esc>:call C_InsertTemplate("cpp.template-class-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tci   <Esc>:call C_InsertTemplate("cpp.template-class-implementation")<CR>
+ noremap    <buffer>  <silent>  <Leader>+tcni  <Esc>:call C_InsertTemplate("cpp.template-class-using-new-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tcni  <Esc>:call C_InsertTemplate("cpp.template-class-using-new-implementation")<CR>
+
+ noremap    <buffer>  <silent>  <Leader>+tmi   <Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tmi   <Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>
+ noremap    <buffer>  <silent>  <Leader>+tai   <Esc>:call C_InsertTemplate("cpp.template-accessor-implementation")<CR>
+inoremap    <buffer>  <silent>  <Leader>+tai   <Esc>:call C_InsertTemplate("cpp.template-accessor-implementation")<CR>
 
  noremap    <buffer>  <silent>  <Leader>+tf   <Esc>:call C_InsertTemplate("cpp.template-function")<CR>
 inoremap    <buffer>  <silent>  <Leader>+tf   <Esc>:call C_InsertTemplate("cpp.template-function")<CR>
@@ -259,7 +275,6 @@ inoremap    <buffer>  <silent>  <Leader>+ca   <Esc>:call C_InsertTemplate("cpp.c
  noremap    <buffer>  <silent>  <Leader>+c.   <Esc>:call C_InsertTemplate("cpp.catch-points")<CR>
 vnoremap    <buffer>  <silent>  <Leader>+c.   <Esc>:call C_InsertTemplate("cpp.catch-points", "v")<CR>
 inoremap    <buffer>  <silent>  <Leader>+c.   <Esc>:call C_InsertTemplate("cpp.catch-points")<CR>
-"
 "
 " ---------- run menu --------------------------------------------------------
 "

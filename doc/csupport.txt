@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                November 21 2007
+*csupport.txt*                  C/C++ Support                   March 05 2008
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.0.5
+                              Plugin version 5.1
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -810,8 +810,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Load / Unload C/C++ Support ----------------------------------------
 
-  \lcs      Load C/C++ Support Menus            (n, GUI only)}
-  \ucs      Unload C/C++ Support Menus          (n, GUI only)}
+  \lcs      Load C/C++ Support Menus            (n, GUI only)
+  \ucs      Unload C/C++ Support Menus          (n, GUI only)
 
   -- Comments -----------------------------------------------------------
 
@@ -820,11 +820,12 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cs       set end-of-line comment column      (n)
   \c*       code -> comment /* */               (n,v)
   \c/       code -> comment //                  (n,v)
+  \cc       code -> comment //                  (n,v)
   \co       comment -> code                     (n,v)
   \cfr      frame comment                       (n,i)
   \cfu      function comment                    (n,i)
   \cme      method description                  (n,i)
-  \cca      class description                   (n,i)
+  \ccl      class description                   (n,i)
   \cd       date                                (n,i)
   \ct       date \& time                        (n,i)
 
@@ -870,7 +871,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \ica      p=calloc()                          (n,i)
   \ima      p=malloc()                          (n,i)
   \isi      sizeof()                            (n,v,i)
-  \ias      assert()                            (n,v,i)
+  \ias      assert()                            (n,v)
   \ii       open input file                     (n,i)
   \io       open output file                    (n,i)
 
@@ -886,12 +887,20 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- C++ ----------------------------------------------------------------
 
-  \+m       method implementation               (n,i)
   \+c       class                               (n,i)
   \+cn      class (using new)                   (n,i)
-  \+tm      template method implementation      (n,i)
+  \+ci      class implementation                (n,i)
+  \+cni     class (using new) implementation    (n,i)
+  \+mi      method implementation               (n,i)
+  \+ai      accessor implementation             (n,i)
+
   \+tc      template class                      (n,i)
   \+tcn     template class (using new)          (n,i)
+  \+tci     template class implementation       (n,i)
+  \+tcni    template class (using new) impl.    (n,i)
+  \+tmi     template method implementation      (n,i)
+  \+tai     template accessor implementation    (n,i)
+
   \+tf      template function                   (n,i)
   \+ec      error class                         (n,i)
   \+tr      try ... catch                       (n,v,i)
@@ -1132,7 +1141,7 @@ could look like this:
  *|AUTHORREF|* = mn
  *|EMAIL|*     = mehner@fh-swf.de
  *|COMPANY|*   = FH Südwestfalen, Iserlohn
- *|COPYRIGHT|* = Copyright (c)*|YEAR|, |AUTHOR|*
+ *|COPYRIGHT|* = Copyright (c)*|YEAR|,|AUTHOR|*
   $
   $ =============================================================
   $ ========== FILE INCLUDES ====================================
@@ -1233,89 +1242,141 @@ modes are also hard coded (see|csupport-templates-definition|for the use of
 
   TEMPLATE NAME                                              MODES
  --------------------------------------------------------------------------
-  comment.end-of-line-comment                                normal visual
+
+  comment.class                                              normal
+  comment.end-of-line-comment                                normal
+  comment.file-description                                   normal
+  comment.file-section-cpp-class-defs                        normal
+  comment.file-section-cpp-class-implementations-exported    normal
+  comment.file-section-cpp-class-implementations-local       normal
+  comment.file-section-cpp-data-types                        normal
+  comment.file-section-cpp-function-defs-exported            normal
+  comment.file-section-cpp-function-defs-local               normal
+  comment.file-section-cpp-header-includes                   normal
+  comment.file-section-cpp-local-variables                   normal
+  comment.file-section-cpp-macros                            normal
+  comment.file-section-cpp-prototypes                        normal
+  comment.file-section-cpp-typedefs                          normal
+  comment.file-section-hpp-exported-class-defs               normal
+  comment.file-section-hpp-exported-data-types               normal
+  comment.file-section-hpp-exported-function-declarations    normal
+  comment.file-section-hpp-exported-typedefs                 normal
+  comment.file-section-hpp-exported-variables                normal
+  comment.file-section-hpp-header-includes                   normal
+  comment.file-section-hpp-macros                            normal
   comment.frame                                              normal
   comment.function                                           normal
-  comment.method                                             normal
-  comment.class                                              normal
-  comment.file-description                                   normal
   comment.keyword-bug                                        normal
   comment.keyword-compiler                                   normal
+  comment.keyword-keyword                                    normal
   comment.keyword-todo                                       normal
   comment.keyword-tricky                                     normal
   comment.keyword-warning                                    normal
   comment.keyword-workaround                                 normal
-  comment.keyword-keyword                                    normal
-  comment.file-section-cpp-header-includes                   normal
-  comment.file-section-cpp-macros                            normal
-  comment.file-section-cpp-typedefs                          normal
-  comment.file-section-cpp-data-types                        normal
-  comment.file-section-cpp-class-defs                        normal
-  comment.file-section-cpp-local-variables                   normal
-  comment.file-section-cpp-prototypes                        normal
-  comment.file-section-cpp-function-defs-exported            normal
-  comment.file-section-cpp-function-defs-local               normal
-  comment.file-section-cpp-class-implementations-exported    normal
-  comment.file-section-cpp-class-implementations-local       normal
-  comment.file-section-hpp-header-includes                   normal
-  comment.file-section-hpp-macros                            normal
-  comment.file-section-hpp-exported-typedefs                 normal
-  comment.file-section-hpp-exported-data-types               normal
-  comment.file-section-hpp-exported-class-defs               normal
-  comment.file-section-hpp-exported-variables                normal
-  comment.file-section-hpp-exported-function-declarations    normal
- 
-  cpp.method-implementation                                  normal
-  cpp.class                                                  normal
-  cpp.class-using-new                                        normal
+  comment.method                                             normal
+  comment.special-constant-type-is-long                      normal
+  comment.special-constant-type-is-unsigned-long             normal
+  comment.special-constant-type-is-unsigned                  normal
+  comment.special-empty                                      normal
+  comment.special-fall-through                               normal
+  comment.special-implicit-type-conversion                   normal
+  comment.special-no-return                                  normal
+  comment.special-not-reached                                normal
+  comment.special-remains-to-be-implemented                  normal
+
+  cpp.accessor-implementation                                normal
+  cpp.catch                                                  normal, visual
+  cpp.catch-points                                           normal, visual
+  cpp.cin                                                    normal
+  cpp.class-definition                                       normal
+  cpp.class-implementation                                   normal
+  cpp.class-using-new-definition                             normal
+  cpp.class-using-new-implementation                         normal
+  cpp.cout-operator                                          normal
+  cpp.cout-string                                            normal
+  cpp.cout-variabe                                           normal
   cpp.error-class                                            normal
-  cpp.template-method-implementation                         normal
-  cpp.template-class                                         normal
-  cpp.template-class-using-new                               normal
-  cpp.template-function                                      normal
-  cpp.operator-in                                            normal
-  cpp.operator-out                                           normal
-  cpp.try-catch                                              normal visual
-  cpp.catch                                                  normal visual
-  cpp.catch-points                                           normal visual
-  cpp.extern                                                 normal visual
+  cpp.extern                                                 normal, visual
+  cpp.method-implementation                                  normal
+  cpp.namespace-block                                        normal, visual
+  cpp.namespace                                              normal
+  cpp.namespace-std                                          normal
   cpp.open-input-file                                        normal
   cpp.open-output-file                                       normal
-  cpp.namespace                                              normal visual
-      
-  idioms.function                                            normal visual
-  idioms.function-static                                     normal visual
-  idioms.main                                                normal visual
-  idioms.enum                                                normal visual
-  idioms.struct                                              normal visual
-  idioms.union                                               normal visual
+  cpp.operator-in                                            normal
+  cpp.operator-out                                           normal
+  cpp.output-manipulator-boolalpha                           normal
+  cpp.output-manipulator-dec                                 normal
+  cpp.output-manipulator-endl                                normal
+  cpp.output-manipulator-fixed                               normal
+  cpp.output-manipulator-flush                               normal
+  cpp.output-manipulator-hex                                 normal
+  cpp.output-manipulator-internal                            normal
+  cpp.output-manipulator-left                                normal
+  cpp.output-manipulator-oct                                 normal
+  cpp.output-manipulator-right                               normal
+  cpp.output-manipulator-scientific                          normal
+  cpp.output-manipulator-setbase                             normal
+  cpp.output-manipulator-setfill                             normal
+  cpp.output-manipulator-setiosflag                          normal
+  cpp.output-manipulator-setprecision                        normal
+  cpp.output-manipulator-setw                                normal
+  cpp.output-manipulator-showbase                            normal
+  cpp.output-manipulator-showpoint                           normal
+  cpp.output-manipulator-showpos                             normal
+  cpp.output-manipulator-uppercase                           normal
+  cpp.rtti-const-cast                                        normal
+  cpp.rtti-dynamic-cast                                      normal
+  cpp.rtti-reinterpret-cast                                  normal
+  cpp.rtti-static-cast                                       normal
+  cpp.rtti-typeid                                            normal
+  cpp.template-accessor-implementation                       normal
+  cpp.template-class-definition                              normal
+  cpp.template-class-implementation                          normal
+  cpp.template-class-using-new-definition                    normal
+  cpp.template-class-using-new-implementation                normal
+  cpp.template-function                                      normal
+  cpp.template-method-implementation                         normal
+  cpp.try-catch                                              normal, visual
+
+  idioms.assert                                              normal
   idioms.calloc                                              normal
+  idioms.enum                                                normal, visual
+  idioms.fprintf                                             normal
+  idioms.fscanf                                              normal
+  idioms.function                                            normal, visual
+  idioms.function-static                                     normal, visual
+  idioms.main                                                normal, visual
   idioms.malloc                                              normal
   idioms.open-input-file                                     normal
   idioms.open-output-file                                    normal
-  idioms.fprintf                                             normal
-  idioms.fscanf                                              normal
+  idioms.printf                                              normal
+  idioms.scanf                                               normal
+  idioms.sizeof                                              normal
+  idioms.struct                                              normal, visual
+  idioms.union                                               normal, visual
 
   preprocessor.define                                        normal
+  preprocessor.ifdef-else-endif                              normal, visual
+  preprocessor.if-else-endif                                 normal, visual
+  preprocessor.ifndef-def-endif                              normal, visual
+  preprocessor.ifndef-else-endif                             normal, visual
+  preprocessor.include-global                                normal
+  preprocessor.include-local                                 normal
   preprocessor.undefine                                      normal
-  preprocessor.if-else-endif                                 normal visual
-  preprocessor.ifdef-else-endif                              normal visual
-  preprocessor.ifndef-else-endif                             normal visual
-  preprocessor.ifndef-def-endif                              normal visual
 
-  statements.do-while                                        normal visual
-  statements.for                                             normal
-  statements.for-block                                       normal visual
-  statements.if                                              normal
-  statements.if-block                                        normal visual
-  statements.if-else                                         normal visual
-  statements.if-block-else                                   normal visual
-  statements.while                                           normal
-  statements.while-block                                     normal visual
-  statements.switch                                          normal visual
+  statements.block                                           normal, visual
   statements.case                                            normal
-  statements.block                                           normal visual
-
+  statements.do-while                                        normal, visual
+  statements.for-block                                       normal
+  statements.for                                             normal
+  statements.if-block-else                                   normal, visual
+  statements.if-block                                        normal, visual
+  statements.if-else                                         normal, visual
+  statements.if                                              normal
+  statements.switch                                          normal, visual
+  statements.while-block                                     normal, visual
+  statements.while                                           normal
 
 
 5.3.2  Template definition                     *csupport-templates-definition*
@@ -1388,8 +1449,8 @@ user will be asked for the replacement first, e.g. with the following template
   <SPLIT> return ;
   }   /* -----  end of function*|FUNCTION_NAME|* ----- */
 
-The can specify the function name which then will be applied twice. If the
-macro was already in use the old value will be suggested as default.
+The user can specify the function name which then will be applied twice. If
+the macro was already in use the old value will be suggested as default.
 
 MACRO MANIPULATION
 ------------------

@@ -17,7 +17,7 @@
 "  
 "        Version:  see variable  g:C_Version  below 
 "        Created:  04.11.2000
-"        License:  Copyright (c) 2000-2007, Fritz Mehner
+"        License:  Copyright (c) 2000-2008, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
 "                  modify it under the terms of the GNU General Public License as
 "                  published by the Free Software Foundation, version 2 of the
@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.35 2007/11/21 09:14:16 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.42 2008/03/12 16:26:03 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.0.5"  							" version number of this script; do not change
+let g:C_Version= "5.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -51,8 +51,7 @@ let g:C_Version= "5.0.5"  							" version number of this script; do not change
 " - root directory
 " - characters that must be escaped for filenames
 " 
-let	s:MSWIN =		has("win16") || has("win32")     || has("win64") || 
-							\ has("win95") || has("win32unix")
+let	s:MSWIN =		has("win16") || has("win32") || has("win64") || has("win95")
 " 
 if	s:MSWIN
 	"
@@ -240,6 +239,16 @@ let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
 "  Initialization of C support menus
 "------------------------------------------------------------------------------
 "
+" the menu names
+"
+let s:Comments     = s:C_Root.'&Comments'
+let s:Statements   = s:C_Root.'&Statements'
+let s:Idioms       = s:C_Root.'&Idioms'
+let s:Preprocessor = s:C_Root.'&Preprocessor'
+let s:Snippets     = s:C_Root.'S&nippets'
+let s:Cpp          = s:C_Root.'C&++'
+let s:Run          = s:C_Root.'&Run'
+"
 function! C_InitMenus ()
 	"
 	"===============================================================================================
@@ -261,181 +270,176 @@ function! C_InitMenus ()
 		exe "amenu  ".s:C_Root.'&Comments.&Comments<Tab>C\/C\+\+             <Esc>'
 		exe "amenu  ".s:C_Root.'&Comments.-Sep00-                            :'
 	endif
-	exe "amenu <silent> ".s:C_Root.'&Comments.end-of-&line\ comment           <Esc><Esc><Esc>:call C_LineEndComment( )<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.end-of-&line\ comment           <Esc><Esc><Esc>:call C_MultiLineEndComments( )<CR>'
+	exe "amenu <silent> ".s:Comments.'.end-of-&line\ comment           <Esc><Esc><Esc>:call C_LineEndComment( )<CR>'
+	exe "vmenu <silent> ".s:Comments.'.end-of-&line\ comment           <Esc><Esc><Esc>:call C_MultiLineEndComments( )<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'&Comments.ad&just\ end-of-line\ com\.     <Esc><Esc>:call C_AdjustLineEndComm("a")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.ad&just\ end-of-line\ com\.     <Esc><Esc>:call C_AdjustLineEndComm("v")<CR>'
+	exe "amenu <silent> ".s:Comments.'.ad&just\ end-of-line\ com\.     <Esc><Esc>:call C_AdjustLineEndComm("a")<CR>'
+	exe "vmenu <silent> ".s:Comments.'.ad&just\ end-of-line\ com\.     <Esc><Esc>:call C_AdjustLineEndComm("v")<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'&Comments.&set\ end-of-line\ com\.\ col\. <Esc><Esc>:call C_GetLineEndCommCol()<CR>'
+	exe "amenu <silent> ".s:Comments.'.&set\ end-of-line\ com\.\ col\. <Esc><Esc>:call C_GetLineEndCommCol()<CR>'
 	
-	exe "amenu  ".s:C_Root.'&Comments.-SEP10-                              :'
-	exe "amenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ \/&*\ *\/   <Esc><Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>j'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ \/&*\ *\/   <Esc><Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>j'
-	exe "amenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>j'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>j'
-	exe "amenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>'
+	exe "amenu  ".s:Comments.'.-SEP10-                              :'
+	exe "amenu <silent> ".s:Comments.'.code\ ->\ comment\ \/&*\ *\/   <Esc><Esc>:call C_CodeComment("a","yes")<CR><Esc>:nohlsearch<CR>j'
+	exe "vmenu <silent> ".s:Comments.'.code\ ->\ comment\ \/&*\ *\/   <Esc><Esc>:call C_CodeComment("v","yes")<CR><Esc>:nohlsearch<CR>j'
+	exe "amenu <silent> ".s:Comments.'.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("a","no")<CR><Esc>:nohlsearch<CR>j'
+	exe "vmenu <silent> ".s:Comments.'.code\ ->\ comment\ &\/\/       <Esc><Esc>:call C_CodeComment("v","no")<CR><Esc>:nohlsearch<CR>j'
+	exe "amenu <silent> ".s:Comments.'.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("a")<CR><Esc>:nohlsearch<CR>'
+	exe "vmenu <silent> ".s:Comments.'.c&omment\ ->\ code             <Esc><Esc>:call C_CommentCode("v")<CR><Esc>:nohlsearch<CR>'
 	
-	exe "amenu          ".s:C_Root.'&Comments.-SEP0-                  :'
-	exe "amenu <silent> ".s:C_Root.'&Comments.&frame\ comment         <Esc><Esc>:call C_InsertTemplate("comment.frame")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Comments.f&unction\ description  <Esc><Esc>:call C_InsertTemplate("comment.function")<CR>'
-	exe "amenu          ".s:C_Root.'&Comments.-SEP1-                  :'
-	exe "amenu <silent> ".s:C_Root.'&Comments.&method\ description    <Esc><Esc>:call C_InsertTemplate("comment.method")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Comments.cl&ass\ description     <Esc><Esc>:call C_InsertTemplate("comment.class")<CR>'
-	exe "amenu          ".s:C_Root.'&Comments.-SEP2-                  :'
-	exe "amenu <silent> ".s:C_Root.'&Comments.file\ description         <Esc><Esc>:call C_InsertTemplate("comment.file-description")<CR>'
-	exe "amenu          ".s:C_Root.'&Comments.-SEP3-                  :'
+	exe "amenu          ".s:Comments.'.-SEP0-                  :'
+	exe "amenu <silent> ".s:Comments.'.&frame\ comment         <Esc><Esc>:call C_InsertTemplate("comment.frame")<CR>'
+	exe "amenu <silent> ".s:Comments.'.f&unction\ description  <Esc><Esc>:call C_InsertTemplate("comment.function")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP1-                  :'
+	exe "amenu <silent> ".s:Comments.'.&method\ description    <Esc><Esc>:call C_InsertTemplate("comment.method")<CR>'
+	exe "amenu <silent> ".s:Comments.'.cl&ass\ description     <Esc><Esc>:call C_InsertTemplate("comment.class")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP2-                  :'
+	exe "amenu <silent> ".s:Comments.'.file\ description       <Esc><Esc>:call C_InsertTemplate("comment.file-description")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP3-                  :'
 	"
 	"----- Submenu : C-Comments : file sections  -------------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.file\ sections<Tab>C\/C\+\+            <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.-Sep0-                                 :'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.file\ sections<Tab>C\/C\+\+            <Esc>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.-Sep0-                                 :'
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.&Header\ File\ Includes  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-header-includes")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Macros           <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-macros")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Type\ Def\.      <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-typedefs")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Data\ Types      <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-data-types")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Variables        <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-defs")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Prototypes       <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-local-variables")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.&Exp\.\ Function\ Def\.  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-prototypes")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.&Local\ Function\ Def\.  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-function-defs-exported")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.-SEP6-                   :'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.Local\ &Class\ Def\.     <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-function-defs-local")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.E&xp\.\ Class\ Impl\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-implementations-exported")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.L&ocal\ Class\ Impl\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-implementations-local")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.-SEP7-                   :'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.&All\ sections,\ C       '
-				\'<Esc><Esc>:call C_Comment_C_SectionAll("c")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&C\/C\+\+-file\ sections.All\ &sections,\ C++     '
-				\'<Esc><Esc>:call C_Comment_C_SectionAll("cpp")<CR>'
-	"
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.&Header\ File\ Includes  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-header-includes")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Macros           <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-macros")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Type\ Def\.      <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-typedefs")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Data\ Types      <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-data-types")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Variables        <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-local-variables")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Prototypes       <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-prototypes")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.&Exp\.\ Function\ Def\.  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-function-defs-exported")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.&Local\ Function\ Def\.  <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-function-defs-local")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.-SEP6-                   :'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.Local\ &Class\ Def\.     <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-defs")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.E&xp\.\ Class\ Impl\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-implementations-exported")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.L&ocal\ Class\ Impl\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-cpp-class-implementations-local")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.-SEP7-                   :'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.&All\ sections,\ C       <Esc><Esc>:call C_Comment_C_SectionAll("c")<CR>'
+	exe "amenu  ".s:Comments.'.&C\/C\+\+-file\ sections.All\ &sections,\ C++     <Esc><Esc>:call C_Comment_C_SectionAll("cpp")<CR>'
 	"
 	"----- Submenu : H-Comments : file sections  -------------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.H-file\ sections<Tab>C\/C\+\+                  <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.-Sep0-                         :'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.H-file\ sections<Tab>C\/C\+\+                  <Esc>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.-Sep0-                         :'
 	"'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.&Header\ File\ Includes    <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-header-includes")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Macros          <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-macros")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Type\ Def\.     <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-typedefs")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Data\ Types     <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-data-types")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Variables       <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-class-defs")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.Exported\ &Funct\.\ Decl\. <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-variables")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.-SEP4-                     :'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.E&xported\ Class\ Def\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-function-declarations")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.&Header\ File\ Includes    <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-header-includes")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.Exported\ &Macros          <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-macros")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.Exported\ &Type\ Def\.     <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-typedefs")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.Exported\ &Data\ Types     <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-data-types")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.Exported\ &Variables       <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-variables")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.Exported\ &Funct\.\ Decl\. <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-function-declarations")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.-SEP4-                     :'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.E&xported\ Class\ Def\.    <Esc><Esc>:call C_InsertTemplate("comment.file-section-hpp-exported-class-defs")<CR>'
 
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.-SEP5-                     :'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.&All\ sections,\ C         '
-				\'<Esc><Esc>:call C_Comment_H_SectionAll("c")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&H-file\ sections.All\ &sections,\ C++       '
-				\'<Esc><Esc>:call C_Comment_H_SectionAll("cpp")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.-SEP5-                     :'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.&All\ sections,\ C         <Esc><Esc>:call C_Comment_H_SectionAll("c")<CR>'
+	exe "amenu  ".s:Comments.'.&H-file\ sections.All\ &sections,\ C++       <Esc><Esc>:call C_Comment_H_SectionAll("cpp")<CR>'
 	"
-	exe "amenu  ".s:C_Root.'&Comments.-SEP8-                        :'
+	exe "amenu  ".s:Comments.'.-SEP8-                        :'
 	"
 	"----- Submenu : C-Comments : keyword comments  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..keyw\.+comm\.<Tab>C\/C\+\+     <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..-Sep0-            :'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..keyw\.+comm\.<Tab>C\/C\+\+    <Esc>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..-Sep0-            						:'
 "
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&BUG\:          <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-bug")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&COMPILER\:     <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-compiler")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&TODO\:         <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-todo")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:T&RICKY\:       <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-tricky")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&WARNING\:      <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-warning")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:W&ORKAROUND\:   <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-workaround")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.&KEYWORD+comm\..\:&new\ keyword\: <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-keyword")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&BUG\:          <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-bug")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&COMPILER\:     <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-compiler")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&TODO\:         <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-todo")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:T&RICKY\:       <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-tricky")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&WARNING\:      <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-warning")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:W&ORKAROUND\:   <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-workaround")<CR>'
+	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&new\ keyword\: <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.keyword-keyword")<CR>'
 	"
 	"----- Submenu : C-Comments : special comments  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..special\ comm\.<Tab>C\/C\+\+         <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..-Sep0-                :'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&EMPTY                <Esc><Esc>$<Esc>:call C_CommentSpecial("EMPTY")                    <CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&FALL\ THROUGH        <Esc><Esc>$<Esc>:call C_CommentSpecial("FALL THROUGH")             <CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&IMPL\.\ TYPE\ CONV   <Esc><Esc>$<Esc>:call C_CommentSpecial("IMPLICIT TYPE CONVERSION") <CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&NO\ RETURN           <Esc><Esc>$<Esc>:call C_CommentSpecial("NO RETURN")                <CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..NOT\ &REACHED         <Esc><Esc>$<Esc>:call C_CommentSpecial("NOT REACHED")              <CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..&TO\ BE\ IMPL\.       <Esc><Esc>$<Esc>:call C_CommentSpecial("REMAINS TO BE IMPLEMENTED")<CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..-SEP81-               :'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..constant\ type\ is\ &long\ (L)              <Esc><Esc>$<Esc>:call C_CommentSpecial("constant type is long")<CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..constant\ type\ is\ &unsigned\ (U)          <Esc><Esc>$<Esc>:call C_CommentSpecial("constant type is unsigned")<CR>kgJA'
-	exe "amenu  ".s:C_Root.'&Comments.&special\ comm\..constant\ type\ is\ unsigned\ l&ong\ (UL)   <Esc><Esc>$<Esc>:call C_CommentSpecial("constant type is unsigned long")<CR>kgJA'
+	exe "amenu  ".s:Comments.'.&special\ comm\..special\ comm\.<Tab>C\/C\+\+         <Esc>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..-Sep0-                :'
+	exe "amenu  ".s:Comments.'.&special\ comm\..&EMPTY                <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-empty")<CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..&FALL\ THROUGH        <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-fall-through")             <CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..&IMPL\.\ TYPE\ CONV   <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-implicit-type-conversion") <CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..&NO\ RETURN           <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-no-return")                <CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..NOT\ &REACHED         <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-not-reached")              <CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..&TO\ BE\ IMPL\.       <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-remains-to-be-implemented")<CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..-SEP81-               :'
+	exe "amenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ &long\ (L)              <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-constant-type-is-long")<CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ &unsigned\ (U)          <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-constant-type-is-unsigned")<CR>'
+	exe "amenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ unsigned\ l&ong\ (UL)   <Esc><Esc>$<Esc>:call C_InsertTemplate("comment.special-constant-type-is-unsigned-long")<CR>'
 
 	"
 	"----- Submenu : C-Comments : Tags  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).tags\ (plugin)<Tab>C\/C\+\+     <Esc>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).-Sep0-            :'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).tags\ (plugin)<Tab>C\/C\+\+     <Esc>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).-Sep0-            :'
 	"
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&AUTHOR           <Esc><Esc>:call C_InsertMacroValue("AUTHOR")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).AUTHOR&REF        <Esc><Esc>:call C_InsertMacroValue("AUTHORREF")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&COMPANY          <Esc><Esc>:call C_InsertMacroValue("COMPANY")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc><Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&EMAIL            <Esc><Esc>:call C_InsertMacroValue("EMAIL")<CR>'
-	exe "amenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&PROJECT          <Esc><Esc>:call C_InsertMacroValue("PROJECT")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).&AUTHOR           <Esc><Esc>:call C_InsertMacroValue("AUTHOR")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).AUTHOR&REF        <Esc><Esc>:call C_InsertMacroValue("AUTHORREF")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).&COMPANY          <Esc><Esc>:call C_InsertMacroValue("COMPANY")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc><Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).&EMAIL            <Esc><Esc>:call C_InsertMacroValue("EMAIL")<CR>'
+	exe "amenu  ".s:Comments.'.ta&gs\ (plugin).&PROJECT          <Esc><Esc>:call C_InsertMacroValue("PROJECT")<CR>'
                                        
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&AUTHOR           <Esc><Esc>:call C_InsertMacroValue("AUTHOR")<CR>a'
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).AUTHOR&REF        <Esc><Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&COMPANY          <Esc><Esc>:call C_InsertMacroValue("COMPANY")<CR>a'
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc><Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&EMAIL            <Esc><Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
-	exe "imenu  ".s:C_Root.'&Comments.ta&gs\ (plugin).&PROJECT          <Esc><Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).&AUTHOR           <Esc><Esc>:call C_InsertMacroValue("AUTHOR")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).AUTHOR&REF        <Esc><Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).&COMPANY          <Esc><Esc>:call C_InsertMacroValue("COMPANY")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc><Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).&EMAIL            <Esc><Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
+	exe "imenu  ".s:Comments.'.ta&gs\ (plugin).&PROJECT          <Esc><Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
 	"
 	"
-	exe "amenu  ".s:C_Root.'&Comments.-SEP9-                     :'
+	exe "amenu  ".s:Comments.'.-SEP9-                     :'
 	"
-	exe " menu  ".s:C_Root.'&Comments.&date                             a<C-R>=C_InsertDateAndTime("d")<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.&date                              <C-R>=C_InsertDateAndTime("d")<CR>'
-	exe " menu  ".s:C_Root.'&Comments.date\ &time                       a<C-R>=C_InsertDateAndTime("dt")<CR>'
-	exe "imenu  ".s:C_Root.'&Comments.date\ &time                        <C-R>=C_InsertDateAndTime("dt")<CR>'
+	exe " menu  ".s:Comments.'.&date                             a<C-R>=C_InsertDateAndTime("d")<CR>'
+	exe "imenu  ".s:Comments.'.&date                              <C-R>=C_InsertDateAndTime("d")<CR>'
+	exe " menu  ".s:Comments.'.date\ &time                       a<C-R>=C_InsertDateAndTime("dt")<CR>'
+	exe "imenu  ".s:Comments.'.date\ &time                        <C-R>=C_InsertDateAndTime("dt")<CR>'
 
-	exe "amenu  ".s:C_Root.'&Comments.-SEP12-                    :'
-	exe "amenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:call C_CommentCppToC()<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:'."'<,'>".'call C_CommentCppToC()<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx          <Esc><Esc>:call C_CommentCToCpp()<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Comments.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx          <Esc><Esc>:'."'<,'>".'call C_CommentCToCpp()<CR>'
+	exe "amenu  ".s:Comments.'.-SEP12-                    :'
+	exe "amenu <silent> ".s:Comments.'.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:call C_CommentCppToC()<CR>'
+	exe "vmenu <silent> ".s:Comments.'.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    <Esc><Esc>:'."'<,'>".'call C_CommentCppToC()<CR>'
+	exe "amenu <silent> ".s:Comments.'.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx          <Esc><Esc>:call C_CommentCToCpp()<CR>'
+	exe "vmenu <silent> ".s:Comments.'.\/*\ xxx\ *\/\ \ -&>\ \ \/\/\ xxx          <Esc><Esc>:'."'<,'>".'call C_CommentCToCpp()<CR>'
 	"
 	"===============================================================================================
 	"----- Menu : C-Statements-------------------------------------------------   {{{2
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu  ".s:C_Root.'&Statements.&Statements<Tab>C\/C\+\+     <Esc>'
-		exe "amenu  ".s:C_Root.'&Statements.-Sep00-                      :'
+		exe "amenu  ".s:Statements.'.&Statements<Tab>C\/C\+\+     <Esc>'
+		exe "amenu  ".s:Statements.'.-Sep00-                      :'
 	endif
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.&do\ \{\ \}\ while          <Esc><Esc>:call C_InsertTemplate("statements.do-while")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.&do\ \{\ \}\ while          <Esc><Esc>:call C_InsertTemplate("statements.do-while", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.&do\ \{\ \}\ while          <Esc><Esc>:call C_InsertTemplate("statements.do-while")<CR>'
+	exe "vmenu <silent>".s:Statements.'.&do\ \{\ \}\ while          <Esc><Esc>:call C_InsertTemplate("statements.do-while", "v")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.f&or                        <Esc><Esc>:call C_InsertTemplate("statements.for")<CR>'
+	exe "amenu <silent>".s:Statements.'.f&or                        <Esc><Esc>:call C_InsertTemplate("statements.for")<CR>'
 	"
-	exe "anoremenu <silent>".s:C_Root.'&Statements.fo&r\ \{\ \}            <Esc><Esc>:call C_InsertTemplate("statements.for-block")<CR>'
-	exe "vnoremenu <silent>".s:C_Root.'&Statements.fo&r\ \{\ \}            <Esc><Esc>:call C_InsertTemplate("statements.for-block", "v")<CR>'
+	exe "anoremenu <silent>".s:Statements.'.fo&r\ \{\ \}            <Esc><Esc>:call C_InsertTemplate("statements.for-block")<CR>'
+	exe "vnoremenu <silent>".s:Statements.'.fo&r\ \{\ \}            <Esc><Esc>:call C_InsertTemplate("statements.for-block", "v")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.&if                         <Esc><Esc>:call C_InsertTemplate("statements.if")<CR>'
+	exe "amenu <silent>".s:Statements.'.&if                         <Esc><Esc>:call C_InsertTemplate("statements.if")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_InsertTemplate("statements.if-block")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.i&f\ \{\ \}                 <Esc><Esc>:call C_InsertTemplate("statements.if-block", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.i&f\ \{\ \}                 <Esc><Esc>:call C_InsertTemplate("statements.if-block")<CR>'
+	exe "vmenu <silent>".s:Statements.'.i&f\ \{\ \}                 <Esc><Esc>:call C_InsertTemplate("statements.if-block", "v")<CR>'
 
-	exe "amenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_InsertTemplate("statements.if-else")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.if\ &else                   <Esc><Esc>:call C_InsertTemplate("statements.if-else", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.if\ &else                   <Esc><Esc>:call C_InsertTemplate("statements.if-else")<CR>'
+	exe "vmenu <silent>".s:Statements.'.if\ &else                   <Esc><Esc>:call C_InsertTemplate("statements.if-else", "v")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_InsertTemplate("statements.if-block-else")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_InsertTemplate("statements.if-block-else", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_InsertTemplate("statements.if-block-else")<CR>'
+	exe "vmenu <silent>".s:Statements.'.if\ \{\ \}\ e&lse\ \{\ \}   <Esc><Esc>:call C_InsertTemplate("statements.if-block-else", "v")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.&while                      <Esc><Esc>:call C_InsertTemplate("statements.while")<CR>'
+	exe "amenu <silent>".s:Statements.'.&while                      <Esc><Esc>:call C_InsertTemplate("statements.while")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.w&hile\ \{\ \}              <Esc><Esc>:call C_InsertTemplate("statements.while-block")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.w&hile\ \{\ \}              <Esc><Esc>:call C_InsertTemplate("statements.while-block", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.w&hile\ \{\ \}              <Esc><Esc>:call C_InsertTemplate("statements.while-block")<CR>'
+	exe "vmenu <silent>".s:Statements.'.w&hile\ \{\ \}              <Esc><Esc>:call C_InsertTemplate("statements.while-block", "v")<CR>'
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.&switch\ \{\ \}             <Esc><Esc>:call C_InsertTemplate("statements.switch")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.&switch\ \{\ \}             <Esc><Esc>:call C_InsertTemplate("statements.switch", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.&switch\ \{\ \}             <Esc><Esc>:call C_InsertTemplate("statements.switch")<CR>'
+	exe "vmenu <silent>".s:Statements.'.&switch\ \{\ \}             <Esc><Esc>:call C_InsertTemplate("statements.switch", "v")<CR>'
 	"
-	exe "amenu  ".s:C_Root.'&Statements.&case\ \.\.\.\ break               <<Esc><Esc>:call C_InsertTemplate("statements.case")<CR>'
+	exe "amenu  ".s:Statements.'.&case\ \.\.\.\ break               <<Esc><Esc>:call C_InsertTemplate("statements.case")<CR>'
 	"
 	"
-	exe "amenu <silent>".s:C_Root.'&Statements.&\{\ \}                     <Esc><Esc>:call C_InsertTemplate("statements.block")<CR>'
-	exe "vmenu <silent>".s:C_Root.'&Statements.&\{\ \}                   	 <Esc><Esc>:call C_InsertTemplate("statements.block", "v")<CR>'
+	exe "amenu <silent>".s:Statements.'.&\{\ \}                     <Esc><Esc>:call C_InsertTemplate("statements.block")<CR>'
+	exe "vmenu <silent>".s:Statements.'.&\{\ \}                   	 <Esc><Esc>:call C_InsertTemplate("statements.block", "v")<CR>'
 	"
 	"
 	"===============================================================================================
@@ -443,135 +447,112 @@ function! C_InitMenus ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu          ".s:C_Root.'&Idioms.&Idioms<Tab>C\/C\+\+       <Esc>'
-		exe "amenu          ".s:C_Root.'&Idioms.-Sep00-                   :'
+		exe "amenu          ".s:Idioms.'.&Idioms<Tab>C\/C\+\+       <Esc>'
+		exe "amenu          ".s:Idioms.'.-Sep00-                   :'
 	endif
-	exe "amenu <silent> ".s:C_Root.'&Idioms.&function                   <Esc><Esc>:call C_InsertTemplate("idioms.function")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.&function                   <Esc><Esc>:call C_InsertTemplate("idioms.function", "v")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.s&tatic\ function           <Esc><Esc>:call C_InsertTemplate("idioms.function-static")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.s&tatic\ function           <Esc><Esc>:call C_InsertTemplate("idioms.function-static", "v")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.&main                       <Esc><Esc>:call C_InsertTemplate("idioms.main")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.&main                       <Esc><Esc>:call C_InsertTemplate("idioms.main", "v")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.&function                   <Esc><Esc>:call C_InsertTemplate("idioms.function")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.&function                   <Esc><Esc>:call C_InsertTemplate("idioms.function", "v")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.s&tatic\ function           <Esc><Esc>:call C_InsertTemplate("idioms.function-static")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.s&tatic\ function           <Esc><Esc>:call C_InsertTemplate("idioms.function-static", "v")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.&main                       <Esc><Esc>:call C_InsertTemplate("idioms.main")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.&main                       <Esc><Esc>:call C_InsertTemplate("idioms.main", "v")<CR>'
 
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP1-                      :'
-	exe "amenu          ".s:C_Root.'&Idioms.for(x=&0;\ x<n;\ x\+=1)     <Esc><Esc>:call C_CodeFor("up"  , "a")<CR>a'
-	exe "amenu          ".s:C_Root.'&Idioms.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc><Esc>:call C_CodeFor("down", "a")<CR>a'
-	exe "vmenu          ".s:C_Root.'&Idioms.for(x=&0;\ x<n;\ x\+=1)     <Esc><Esc>:call C_CodeFor("up"  , "v")<CR>'
-	exe "vmenu          ".s:C_Root.'&Idioms.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc><Esc>:call C_CodeFor("down", "v")<CR>'
+	exe "amenu          ".s:Idioms.'.-SEP1-                      :'
+	exe "amenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc><Esc>:call C_CodeFor("up"  , "a")<CR>a'
+	exe "amenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc><Esc>:call C_CodeFor("down", "a")<CR>a'
+	exe "vmenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc><Esc>:call C_CodeFor("up"  , "v")<CR>'
+	exe "vmenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc><Esc>:call C_CodeFor("down", "v")<CR>'
 	
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP2-                      :'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.&enum\+typedef              <Esc><Esc>:call C_InsertTemplate("idioms.enum")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.&struct\+typedef            <Esc><Esc>:call C_InsertTemplate("idioms.struct")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.&union\+typedef             <Esc><Esc>:call C_InsertTemplate("idioms.union")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.&enum\+typedef              <Esc><Esc>:call C_InsertTemplate("idioms.enum"  , "v")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.&struct\+typedef            <Esc><Esc>:call C_InsertTemplate("idioms.struct", "v")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'&Idioms.&union\+typedef             <Esc><Esc>:call C_InsertTemplate("idioms.union" , "v")<CR>'
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP3-                      :'
+	exe "amenu          ".s:Idioms.'.-SEP2-                      :'
+	exe "amenu <silent> ".s:Idioms.'.&enum                       <Esc><Esc>:call C_InsertTemplate("idioms.enum")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.&struct                     <Esc><Esc>:call C_InsertTemplate("idioms.struct")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.&union                      <Esc><Esc>:call C_InsertTemplate("idioms.union")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.&enum                       <Esc><Esc>:call C_InsertTemplate("idioms.enum"  , "v")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.&struct                     <Esc><Esc>:call C_InsertTemplate("idioms.struct", "v")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.&union                      <Esc><Esc>:call C_InsertTemplate("idioms.union" , "v")<CR>'
+	exe "amenu          ".s:Idioms.'.-SEP3-                      :'
 	"
-	exe " noremenu          ".s:C_Root.'&Idioms.&printf                     <Esc><Esc>oprintf("\n");<Esc>2F"a'
-	exe "inoremenu          ".s:C_Root.'&Idioms.&printf                                printf("\n");<Esc>2F"a'
-	
-	exe " noremenu          ".s:C_Root.'&Idioms.s&canf                      <Esc><Esc>oscanf("", & );<Esc>F"i'
-	exe "inoremenu          ".s:C_Root.'&Idioms.s&canf                                 scanf("", & );<Esc>F"i'
+	exe "amenu <silent> ".s:Idioms.'.scanf                       <Esc><Esc>:call C_InsertTemplate("idioms.scanf")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.printf                      <Esc><Esc>:call C_InsertTemplate("idioms.printf")<CR>'
 	"
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP4-                       :'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.p=ca&lloc\(n,sizeof(type)\)  <Esc><Esc>:call C_InsertTemplate("idioms.calloc")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.p=m&alloc\(sizeof(type)\)    <Esc><Esc>:call C_InsertTemplate("idioms.malloc")<CR>'
+	exe "amenu          ".s:Idioms.'.-SEP4-                       :'
+	exe "amenu <silent> ".s:Idioms.'.p=ca&lloc\(n,sizeof(type)\)  <Esc><Esc>:call C_InsertTemplate("idioms.calloc")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.p=m&alloc\(sizeof(type)\)    <Esc><Esc>:call C_InsertTemplate("idioms.malloc")<CR>'
 	"
-	exe "anoremenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)             isizeof()<Left>'
-	exe "inoremenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)             sizeof()<Left>'
-	exe "vnoremenu <silent> ".s:C_Root.'&Idioms.si&zeof(\ \)             ssizeof()<Esc>P'
+	exe "anoremenu <silent> ".s:Idioms.'.si&zeof(\ \)             <Esc><Esc>:call C_InsertTemplate("idioms.sizeof")<CR>'
+	exe "inoremenu <silent> ".s:Idioms.'.si&zeof(\ \)             <Esc><Esc>:call C_InsertTemplate("idioms.sizeof")<CR>'
+	exe "vnoremenu <silent> ".s:Idioms.'.si&zeof(\ \)             <Esc><Esc>:call C_InsertTemplate("idioms.sizeof", "v")<CR>'
 	"
-	exe "anoremenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)             oassert();<Left><Left>'
-	exe "vnoremenu <silent> ".s:C_Root.'&Idioms.asse&rt(\ \)             sassert();<Esc>F(p'
-	exe "amenu          ".s:C_Root.'&Idioms.-SEP5-                       :'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &input\ file           <Esc><Esc>:call C_InsertTemplate("idioms.open-input-file")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.open\ &output\ file          <Esc><Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.fscanf                       <Esc><Esc>:call C_InsertTemplate("idioms.fscanf")<CR>'
-	exe "amenu <silent> ".s:C_Root.'&Idioms.fprintf                      <Esc><Esc>:call C_InsertTemplate("idioms.fprintf")<CR>'
+	exe "anoremenu <silent> ".s:Idioms.'.asse&rt(\ \)             <Esc><Esc>:call C_InsertTemplate("idioms.assert")<CR>'
+	exe "vnoremenu <silent> ".s:Idioms.'.asse&rt(\ \)             <Esc><Esc>:call C_InsertTemplate("idioms.assert", "v")<CR>'
+
+	exe "amenu          ".s:Idioms.'.-SEP5-                       :'
+	exe "amenu <silent> ".s:Idioms.'.open\ &input\ file           <Esc><Esc>:call C_InsertTemplate("idioms.open-input-file")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.open\ &input\ file           <Esc><Esc>:call C_InsertTemplate("idioms.open-input-file", "v")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.open\ &output\ file          <Esc><Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>'
+	exe "vmenu <silent> ".s:Idioms.'.open\ &output\ file          <Esc><Esc>:call C_InsertTemplate("idioms.open-output-file", "v")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.fscanf                       <Esc><Esc>:call C_InsertTemplate("idioms.fscanf")<CR>'
+	exe "amenu <silent> ".s:Idioms.'.fprintf                      <Esc><Esc>:call C_InsertTemplate("idioms.fprintf")<CR>'
 	"                                      
 	"===============================================================================================
 	"----- Menu : C-Preprocessor ----------------------------------------------   {{{2
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu  ".s:C_Root.'&Preprocessor.&Preprocessor<Tab>C\/C\+\+     <Esc>'
-		exe "amenu  ".s:C_Root.'&Preprocessor.-Sep00-                      :'
+		exe "amenu  ".s:Preprocessor.'.&Preprocessor<Tab>C\/C\+\+     <Esc>'
+		exe "amenu  ".s:Preprocessor.'.-Sep00-                      :'
 	endif
 	"
 	"----- Submenu : C-Idioms: standard library -------------------------------------------------------
 	"'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..Std\.Lib\.<Tab>C\/C\+\+  <Esc>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..-Sep0-         :'
+	exe "amenu  ".s:Preprocessor.'.#include\ &Std\.Lib\..Std\.Lib\.<Tab>C\/C\+\+  <Esc>'
+	exe "amenu  ".s:Preprocessor.'.#include\ &Std\.Lib\..-Sep0-         :'
+	call C_CIncludeMenus ( s:Preprocessor.'.#include\ &Std\.Lib\.', s:C_StandardLibs )
 	"
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&assert\.h     <Esc><Esc>o#include<Tab><assert.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&ctype\.h      <Esc><Esc>o#include<Tab><ctype.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&errno\.h      <Esc><Esc>o#include<Tab><errno.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&float\.h      <Esc><Esc>o#include<Tab><float.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&limits\.h     <Esc><Esc>o#include<Tab><limits.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..l&ocale\.h     <Esc><Esc>o#include<Tab><locale.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&math\.h       <Esc><Esc>o#include<Tab><math.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..set&jmp\.h     <Esc><Esc>o#include<Tab><setjmp.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..s&ignal\.h     <Esc><Esc>o#include<Tab><signal.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..stdar&g\.h     <Esc><Esc>o#include<Tab><stdarg.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..st&ddef\.h     <Esc><Esc>o#include<Tab><stddef.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&stdio\.h      <Esc><Esc>o#include<Tab><stdio.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..stdli&b\.h     <Esc><Esc>o#include<Tab><stdlib.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..st&ring\.h     <Esc><Esc>o#include<Tab><string.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &Std\.Lib\..&time\.h       <Esc><Esc>o#include<Tab><time.h>'
+	exe "anoremenu  ".s:Preprocessor.'.#include\ C&99.C99<Tab>C\/C\+\+         <Esc>'
+	exe "anoremenu  ".s:Preprocessor.'.#include\ C&99.-Sep0-                :'
+	call C_CIncludeMenus ( s:Preprocessor.'.#include\ C&99', s:C_C99Libs )
 	"
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.C99<Tab>C\/C\+\+         <Esc>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.-Sep0-                :'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.&complex\.h           <Esc><Esc>o#include<Tab><complex.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.&fenv\.h              <Esc><Esc>o#include<Tab><fenv.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.&inttypes\.h          <Esc><Esc>o#include<Tab><inttypes.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.is&o646\.h            <Esc><Esc>o#include<Tab><iso646.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.&stdbool\.h           <Esc><Esc>o#include<Tab><stdbool.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.s&tdint\.h            <Esc><Esc>o#include<Tab><stdint.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.tg&math\.h            <Esc><Esc>o#include<Tab><tgmath.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.&wchar\.h             <Esc><Esc>o#include<Tab><wchar.h>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ C&99.wct&ype\.h            <Esc><Esc>o#include<Tab><wctype.h>'
+	exe "amenu  ".s:Preprocessor.'.-SEP2-                        :'
+	exe "anoremenu  ".s:Preprocessor.'.#include\ &\<\.\.\.\>      <Esc><Esc>:call C_InsertTemplate("preprocessor.include-global")<CR>'
+	exe "anoremenu  ".s:Preprocessor.'.#include\ &\"\.\.\.\"      <Esc><Esc>:call C_InsertTemplate("preprocessor.include-local")<CR>'
+	exe "amenu  ".s:Preprocessor.'.#&define                       <Esc><Esc>:call C_InsertTemplate("preprocessor.define")<CR>'
+	exe "amenu  ".s:Preprocessor.'.&#undef                        <Esc><Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>'
 	"
-	exe "amenu  ".s:C_Root.'&Preprocessor.-SEP2-                        :'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &\<\.\.\.\>      <Esc><Esc>o#include<Tab><><Left>'
-	exe "anoremenu  ".s:C_Root.'&Preprocessor.#include\ &\"\.\.\.\"      <Esc><Esc>o#include<Tab>""<Left>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#&define                       <Esc><Esc>:call C_InsertTemplate("preprocessor.define")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.&#undef                        <Esc><Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>'
+	exe "amenu  ".s:Preprocessor.'.#&if\ #else\ #endif            <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>'
+	exe "amenu  ".s:Preprocessor.'.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>'
+	exe "amenu  ".s:Preprocessor.'.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>'
+	exe "amenu  ".s:Preprocessor.'.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif")<CR>'
 	"
-	exe "amenu  ".s:C_Root.'&Preprocessor.#&if\ #else\ #endif            <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif")<CR>'
-	exe "amenu  ".s:C_Root.'&Preprocessor.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("a")<CR>2ji'
-	"
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#&if\ #else\ #endif            <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif", "v")<CR>'
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif", "v")<CR>'
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif", "v")<CR>'
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif", "v")<CR>'
-	exe "vmenu  ".s:C_Root.'&Preprocessor.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("v")<CR>'
-	"
-	exe "amenu  <silent> ".s:C_Root.'&Preprocessor.&remove\ #if\ 0\ #endif        <Esc><Esc>:call C_PPIf0Remove()<CR>'
+	exe "vmenu  ".s:Preprocessor.'.#&if\ #else\ #endif            <Esc><Esc>:call C_InsertTemplate("preprocessor.if-else-endif", "v")<CR>'
+	exe "vmenu  ".s:Preprocessor.'.#i&fdef\ #else\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif", "v")<CR>'
+	exe "vmenu  ".s:Preprocessor.'.#if&ndef\ #else\ #endif        <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif", "v")<CR>'
+	exe "vmenu  ".s:Preprocessor.'.#ifnd&ef\ #def\ #endif         <Esc><Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif", "v")<CR>'
+
+	exe "amenu  ".s:Preprocessor.'.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("a")<CR>2ji'
+	exe "vmenu  ".s:Preprocessor.'.#if\ &0\ #endif                <Esc><Esc>:call C_PPIf0("v")<CR>'
+	exe "amenu  <silent> ".s:Preprocessor.'.&remove\ #if\ 0\ #endif        <Esc><Esc>:call C_PPIf0Remove()<CR>'
 	"
 	"===============================================================================================
 	"----- Menu : Snippets ----------------------------------------------------   {{{2
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu           ".s:C_Root.'S&nippets.S&nippets<Tab>C\/C\+\+       <Esc>'
-		exe "amenu           ".s:C_Root.'S&nippets.-Sep00-                      :'
+		exe "amenu           ".s:Snippets.'.S&nippets<Tab>C\/C\+\+       <Esc>'
+		exe "amenu           ".s:Snippets.'.-Sep00-                      :'
 	endif
 	if s:C_CodeSnippets != ""
-		exe "amenu  <silent> ".s:C_Root.'S&nippets.&read\ code\ snippet   <C-C>:call C_CodeSnippet("r")<CR>'
-		exe "amenu  <silent> ".s:C_Root.'S&nippets.&write\ code\ snippet  <C-C>:call C_CodeSnippet("w")<CR>'
-		exe "vmenu  <silent> ".s:C_Root.'S&nippets.&write\ code\ snippet  <C-C>:call C_CodeSnippet("wv")<CR>'
-		exe "amenu  <silent> ".s:C_Root.'S&nippets.&edit\ code\ snippet   <C-C>:call C_CodeSnippet("e")<CR>'
-		exe " menu  <silent> ".s:C_Root.'S&nippets.-SEP1-									:'
+		exe "amenu  <silent> ".s:Snippets.'.&read\ code\ snippet   <C-C>:call C_CodeSnippet("r")<CR>'
+		exe "amenu  <silent> ".s:Snippets.'.&write\ code\ snippet  <C-C>:call C_CodeSnippet("w")<CR>'
+		exe "vmenu  <silent> ".s:Snippets.'.&write\ code\ snippet  <C-C>:call C_CodeSnippet("wv")<CR>'
+		exe "amenu  <silent> ".s:Snippets.'.&edit\ code\ snippet   <C-C>:call C_CodeSnippet("e")<CR>'
+		exe " menu  <silent> ".s:Snippets.'.-SEP1-									:'
 	endif
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("n")<CR>'
-	exe "vmenu  <silent> ".s:C_Root.'S&nippets.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("v")<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&insert\ prototype(s)  	<C-C>:call C_ProtoInsert()<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&clear\ prototype(s)			<C-C>:call C_ProtoClear()<CR>'
-	exe " menu  <silent> ".s:C_Root.'S&nippets.&show\ prototype(s)			<C-C>:call C_ProtoShow()<CR>'
+	exe " menu  <silent> ".s:Snippets.'.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("n")<CR>'
+	exe "vmenu  <silent> ".s:Snippets.'.&pick\ up\ prototype   	<C-C>:call C_ProtoPick("v")<CR>'
+	exe " menu  <silent> ".s:Snippets.'.&insert\ prototype(s)  	<C-C>:call C_ProtoInsert()<CR>'
+	exe " menu  <silent> ".s:Snippets.'.&clear\ prototype(s)			<C-C>:call C_ProtoClear()<CR>'
+	exe " menu  <silent> ".s:Snippets.'.&show\ prototype(s)			<C-C>:call C_ProtoShow()<CR>'
 
 	"
 	"===============================================================================================
@@ -579,298 +560,191 @@ function! C_InitMenus ()
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu  ".s:C_Root.'C&++.C&\+\+<Tab>C\/C\+\+          <Esc>'
-		exe "amenu  ".s:C_Root.'C&++.-Sep00-                     :'
+		exe "amenu  ".s:Cpp.'.C&\+\+<Tab>C\/C\+\+          <Esc>'
+		exe "amenu  ".s:Cpp.'.-Sep00-                     :'
 	endif
-	exe " noremenu ".s:C_Root.'C&++.c&in                 <Esc><Esc>ocin<Tab>>> ;<Esc>i'
-	exe " noremenu ".s:C_Root.'C&++.cout\ &variable      <Esc><Esc>ocout<Tab><<  << endl;<Esc>2F<hi'
-	exe " noremenu ".s:C_Root.'C&++.cout\ &string        <Esc><Esc>ocout<Tab><< "\n";<Esc>2F"a'
-	exe " noremenu ".s:C_Root.'C&++.<<\ &\"\"            i<< "" <Left><Left>'
-	"
-	exe "inoremenu ".s:C_Root.'C&++.c&in                 cin<Tab>>> ;<Esc>i'
-	exe "inoremenu ".s:C_Root.'C&++.cout\ &variable      cout<Tab><<  << endl;<Esc>2F<hi'
-	exe "inoremenu ".s:C_Root.'C&++.cout\ &string        cout<Tab><< "\n";<Esc>2F"a'
-	exe "inoremenu ".s:C_Root.'C&++.<<\ &\"\"            << "" <Left><Left>'
+	exe "anoremenu ".s:Cpp.'.c&in                 <Esc><Esc>:call C_InsertTemplate("cpp.cin")<CR>'
+	exe "anoremenu ".s:Cpp.'.cout\ &variable      <Esc><Esc>:call C_InsertTemplate("cpp.cout-variabe")<CR>'
+	exe "anoremenu ".s:Cpp.'.cout\ &string        <Esc><Esc>:call C_InsertTemplate("cpp.cout-string")<CR>'
+	exe "anoremenu ".s:Cpp.'.<<\ &\"\"            <Esc><Esc>:call C_InsertTemplate("cpp.cout-operator")<CR>'
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.&output\ manipulators.output\ manip\.<Tab>C\/C\+\+              <Esc>'
-	exe "amenu ".s:C_Root.'C&++.&output\ manipulators.-Sep0-                     :'
+	exe "amenu ".s:Cpp.'.&output\ manipulators.output\ manip\.<Tab>C\/C\+\+              <Esc>'
+	exe "amenu ".s:Cpp.'.&output\ manipulators.-Sep0-                     :'
 	"
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &boolalpha           i<< boolalpha<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &dec                 i<< dec<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &endl                i<< endl<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &fixed               i<< fixed<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ fl&ush               i<< flush<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &hex                 i<< hex<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &internal            i<< internal<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &left                i<< left<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &oct                 i<< oct<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &right               i<< right<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ s&cientific          i<< scientific<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &setbase\(\ \)       i<< setbase(10) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ se&tfill\(\ \)       i<< setfill() <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ setiosfla&g\(\ \)    i<< setiosflags() <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&precision\(\ \)  i<< setprecision(6) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&w\(\ \)          i<< setw(0) <Left><Left>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showb&ase            i<< showbase<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpoi&nt           i<< showpoint<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpos\ \(&1\)      i<< showpos<Space>'
-	exe " noremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ uppercase\ \(&2\)    i<< uppercase<Space>'
-	"                                
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &boolalpha           << boolalpha<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &dec                 << dec<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &endl                << endl<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &fixed               << fixed<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ fl&ush               << flush<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &hex                 << hex<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &internal            << internal<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &left                << left<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ o&ct                 << oct<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &right               << right<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ s&cientific          << scientific<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ &setbase\(\ \)       << setbase(10) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ se&tfill\(\ \)       << setfill() <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ setiosfla&g\(\ \)    << setiosflags() <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&precision\(\ \)  << setprecision(6) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ set&w\(\ \)          << setw(0) <Left><Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showb&ase            << showbase<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpoi&nt           << showpoint<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ showpos\ \(&1\)      << showpos<Space>'
-	exe "inoremenu ".s:C_Root.'C&++.&output\ manipulators.\<\<\ uppercase\ \(&2\)    << uppercase<Space>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &boolalpha           <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-boolalpha")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &dec                 <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-dec")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &endl                <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-endl")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &fixed               <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-fixed")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ fl&ush               <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-flush")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &hex                 <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-hex")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &internal            <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-internal")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &left                <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-left")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &oct                 <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-oct")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &right               <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-right")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ s&cientific          <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-scientific")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ &setbase\(\ \)       <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-setbase")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ se&tfill\(\ \)       <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-setfill")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ setiosfla&g\(\ \)    <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-setiosflags")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ set&precision\(\ \)  <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-setprecision")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ set&w\(\ \)          <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-setw")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ showb&ase            <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-showbase")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ showpoi&nt           <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-showpoint")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ showpos\ \(&1\)      <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-showpos")<CR>'
+	exe "anoremenu ".s:Cpp.'.&output\ manipulators.\<\<\ uppercase\ \(&2\)    <Esc><Esc>:call C_InsertTemplate("cpp.output-manipulator-uppercase")<CR>'
 	"
 	"----- Submenu : C++ : ios flag bits  -------------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.ios\ flags<Tab>C\/C\+\+        <Esc>'
-	exe "amenu ".s:C_Root.'C&++.ios\ flag&bits.-Sep0-               :'
+	exe "amenu ".s:Cpp.'.ios\ flag&bits.ios\ flags<Tab>C\/C\+\+        <Esc>'
+	exe "amenu ".s:Cpp.'.ios\ flag&bits.-Sep0-               :'
 	"
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&adjustfield      iios::adjustfield'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::bas&efield        iios::basefield'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&boolalpha        iios::boolalpha'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&dec              iios::dec'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&fixed            iios::fixed'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::floa&tfield       iios::floatfield'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&hex              iios::hex'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&internal         iios::internal'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&left             iios::left'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&oct              iios::oct'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&right            iios::right'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::s&cientific       iios::scientific'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::sho&wbase         iios::showbase'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::showpoint\ \(&1\) iios::showpoint'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::show&pos          iios::showpos'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&skipws           iios::skipws'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::u&nitbuf          iios::unitbuf'
-	exe " noremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&uppercase        iios::uppercase'
-	"
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&adjustfield      ios::adjustfield'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::bas&efield        ios::basefield'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&boolalpha        ios::boolalpha'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&dec              ios::dec'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&fixed            ios::fixed'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::floa&tfield       ios::floatfield'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&hex              ios::hex'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&internal         ios::internal'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&left             ios::left'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&oct              ios::oct'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&right            ios::right'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::s&cientific       ios::scientific'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::sho&wbase         ios::showbase'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::showpoint\ \(&1\) ios::showpoint'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::show&pos          ios::showpos'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&skipws           ios::skipws'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::u&nitbuf          ios::unitbuf'
-	exe "inoremenu ".s:C_Root.'C&++.ios\ flag&bits.ios::&uppercase        ios::uppercase'
+	call C_CIosFlagMenus ( s:Cpp.'.ios\ flag&bits', s:Cpp_IosFlagBits )
 	"
 	"----- Submenu : C++   library  (algorithm - locale) ----------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).alg\.\.loc<Tab>C\/C\+\+   <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).-Sep0-          :'
-	"
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&algorithm      <Esc><Esc>o#include<Tab><algorithm>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&bitset         <Esc><Esc>o#include<Tab><bitset>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&complex        <Esc><Esc>o#include<Tab><complex>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&deque          <Esc><Esc>o#include<Tab><deque>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&exception      <Esc><Esc>o#include<Tab><exception>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&fstream        <Esc><Esc>o#include<Tab><fstream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).f&unctional     <Esc><Esc>o#include<Tab><functional>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iomani&p        <Esc><Esc>o#include<Tab><iomanip>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&ios            <Esc><Esc>o#include<Tab><ios>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iosf&wd         <Esc><Esc>o#include<Tab><iosfwd>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).io&stream       <Esc><Esc>o#include<Tab><iostream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).istrea&m        <Esc><Esc>o#include<Tab><istream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).iterato&r       <Esc><Esc>o#include<Tab><iterator>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).&limits         <Esc><Esc>o#include<Tab><limits>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).lis&t           <Esc><Esc>o#include<Tab><list>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <alg\.\.loc>\ \(&1\).l&ocale         <Esc><Esc>o#include<Tab><locale>'
+	exe "amenu ".s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\).alg\.\.loc<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\).-Sep0-          :'
+	call C_CIncludeMenus ( s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\)', s:Cpp_StandardLibs1 )
 	"
 	"----- Submenu : C++   library  (map - vector) ----------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).map\.\.vec<Tab>C\/C\+\+   <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).-Sep0-          :'
-
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&map            <Esc><Esc>o#include<Tab><map>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).memor&y         <Esc><Esc>o#include<Tab><memory>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&new            <Esc><Esc>o#include<Tab><new>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).numeri&c        <Esc><Esc>o#include<Tab><numeric>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&ostream        <Esc><Esc>o#include<Tab><ostream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&queue          <Esc><Esc>o#include<Tab><queue>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&set            <Esc><Esc>o#include<Tab><set>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).sst&ream        <Esc><Esc>o#include<Tab><sstream>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).st&ack          <Esc><Esc>o#include<Tab><stack>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).stde&xcept      <Esc><Esc>o#include<Tab><stdexcept>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).stream&buf      <Esc><Esc>o#include<Tab><streambuf>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).str&ing         <Esc><Esc>o#include<Tab><string>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&typeinfo       <Esc><Esc>o#include<Tab><typeinfo>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&utility        <Esc><Esc>o#include<Tab><utility>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).&valarray       <Esc><Esc>o#include<Tab><valarray>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <map\.\.vec>\ \(&2\).v&ector         <Esc><Esc>o#include<Tab><vector>'
+	exe "amenu ".s:Cpp.'.#include\ <map\.\.vec>\ \(&2\).map\.\.vec<Tab>C\/C\+\+   <Esc>'
+	exe "amenu ".s:Cpp.'.#include\ <map\.\.vec>\ \(&2\).-Sep0-          :'
+	call C_CIncludeMenus ( s:Cpp.'.#include\ <map\.\.vec>\ \(&2\)', s:Cpp_StandardLibs2 )
 	"
 	"----- Submenu : C     library  (cassert - ctime) -------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cX<Tab>C\/C\+\+ <Esc>'
-	exe "amenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).-Sep0-        :'
-	"
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&assert      <Esc><Esc>o#include<Tab><cassert>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&ctype       <Esc><Esc>o#include<Tab><cctype>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&errno       <Esc><Esc>o#include<Tab><cerrno>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&float       <Esc><Esc>o#include<Tab><cfloat>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&limits      <Esc><Esc>o#include<Tab><climits>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cl&ocale      <Esc><Esc>o#include<Tab><clocale>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&math        <Esc><Esc>o#include<Tab><cmath>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cset&jmp      <Esc><Esc>o#include<Tab><csetjmp>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cs&ignal      <Esc><Esc>o#include<Tab><csignal>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cstdar&g      <Esc><Esc>o#include<Tab><cstdarg>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cst&ddef      <Esc><Esc>o#include<Tab><cstddef>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&stdio       <Esc><Esc>o#include<Tab><cstdio>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cstdli&b      <Esc><Esc>o#include<Tab><cstdlib>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).cst&ring      <Esc><Esc>o#include<Tab><cstring>'
-	exe "anoremenu ".s:C_Root.'C&++.#include\ <cX>\ \(&3\).c&time        <Esc><Esc>o#include<Tab><ctime>'
+	exe "amenu ".s:Cpp.'.#include\ <cX>\ \(&3\).cX<Tab>C\/C\+\+ <Esc>'
+	exe "amenu ".s:Cpp.'.#include\ <cX>\ \(&3\).-Sep0-        :'
+	call C_CIncludeMenus ( s:Cpp.'.#include\ <cX>\ \(&3\)', s:Cpp_StandardLibs3 )
 	"
 	"----- End Submenu : C     library  (cassert - ctime) ---------------------------------------------
 	"
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP2-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.&method\ implement\.          <Esc><Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.-SEP2-                        :'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.&class                        <Esc><Esc>:call C_InsertTemplate("cpp.class")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.class\ (w\.\ &new)            <Esc><Esc>:call C_InsertTemplate("cpp.class-using-new")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP3-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.tem&pl\.\ method\ impl\.      <Esc><Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.&templ\.\ class               <Esc><Esc>:call C_InsertTemplate("cpp.template-class")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.templ\.\ class\ (w\.\ ne&w)   <Esc><Esc>:call C_InsertTemplate("cpp.template-class-using-new")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.&class                        <Esc><Esc>:call C_InsertTemplate("cpp.class-definition")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.class\ (w\.\ &new)            <Esc><Esc>:call C_InsertTemplate("cpp.class-using-new-definition")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.&templ\.\ class               <Esc><Esc>:call C_InsertTemplate("cpp.template-class-definition")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.templ\.\ class\ (w\.\ ne&w)   <Esc><Esc>:call C_InsertTemplate("cpp.template-class-using-new-definition")<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP31-                       :'
-	exe "amenu <silent> ".s:C_Root.'C&++.templ\.\ &function            <Esc><Esc>:call C_InsertTemplate("cpp.template-function")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.&error\ class                 <Esc><Esc>:call C_InsertTemplate("cpp.error-class")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP4-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.operator\ &<<                 <Esc><Esc>:call C_InsertTemplate("cpp.operator-in")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.operator\ &>>                 <Esc><Esc>:call C_InsertTemplate("cpp.operator-out")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP5-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.tr&y\ \.\.\ catch             <Esc><Esc>:call C_InsertTemplate("cpp.try-catch")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'C&++.tr&y\ \.\.\ catch             <Esc><Esc>:call C_InsertTemplate("cpp.try-catch", "v")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_InsertTemplate("cpp.catch")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'C&++.catc&h                        <Esc><Esc>:call C_InsertTemplate("cpp.catch", "v")<CR>'
+	"
+	"----- Submenu : C++ : IMPLEMENTATION  -------------------------------------------------------
+	"
+	exe "amenu ".s:Cpp.'.IM&PLEMENTATION.IMPLEMENT\.<Tab>C\/C\+\+              <Esc>'
+	exe "amenu ".s:Cpp.'.IM&PLEMENTATION.-Sep0-                     :'
+	"
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&class             					<Esc><Esc>:call C_InsertTemplate("cpp.class-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.class\ (w\.\ &new)     			<Esc><Esc>:call C_InsertTemplate("cpp.class-using-new-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&method                   	<Esc><Esc>:call C_InsertTemplate("cpp.method-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&accessor                		<Esc><Esc>:call C_InsertTemplate("cpp.accessor-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.-SEP21-                   	:'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&templ\.\ class           	<Esc><Esc>:call C_InsertTemplate("cpp.template-class-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ class\ (w\.\ ne&w) <Esc><Esc>:call C_InsertTemplate("cpp.template-class-using-new-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ m&ethod\ impl\.  	<Esc><Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ a&ccessor         	<Esc><Esc>:call C_InsertTemplate("cpp.template-accessor-implementation")<CR>'
+	"
+	"----- End Submenu : C++ : IMPLEMENTATION  -------------------------------------------------------
+	"
+	exe "amenu <silent> ".s:Cpp.'.-SEP31-                       :'
+	exe "amenu <silent> ".s:Cpp.'.templ\.\ &function            <Esc><Esc>:call C_InsertTemplate("cpp.template-function")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.&error\ class                 <Esc><Esc>:call C_InsertTemplate("cpp.error-class")<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_InsertTemplate("cpp.catch-points")<CR>'
-	exe "vmenu <silent> ".s:C_Root.'C&++.catch\(&\.\.\.\)              <Esc><Esc>:call C_InsertTemplate("cpp.catch-points", "v")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.-SEP4-                        :'
+	exe "amenu <silent> ".s:Cpp.'.operator\ &<<                 <Esc><Esc>:call C_InsertTemplate("cpp.operator-in")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.operator\ &>>                 <Esc><Esc>:call C_InsertTemplate("cpp.operator-out")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.-SEP5-                        :'
+	exe "amenu <silent> ".s:Cpp.'.tr&y\ \.\.\ catch             <Esc><Esc>:call C_InsertTemplate("cpp.try-catch")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.tr&y\ \.\.\ catch             <Esc><Esc>:call C_InsertTemplate("cpp.try-catch", "v")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.catc&h                        <Esc><Esc>:call C_InsertTemplate("cpp.catch")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.catc&h                        <Esc><Esc>:call C_InsertTemplate("cpp.catch", "v")<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP6-                        :'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ input\ file\ \ \(&4\)   <Esc><Esc>:call C_InsertTemplate("cpp.open-input-file")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.open\ output\ file\ \(&5\)    <Esc><Esc>:call C_InsertTemplate("cpp.open-output-file")<CR>'
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP7-                        :'
+	exe "amenu <silent> ".s:Cpp.'.catch\(&\.\.\.\)              <Esc><Esc>:call C_InsertTemplate("cpp.catch-points")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.catch\(&\.\.\.\)              <Esc><Esc>:call C_InsertTemplate("cpp.catch-points", "v")<CR>'
 
-	exe " menu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       <Esc><Esc>ousing namespace std;<CR>'
-	exe " menu <silent> ".s:C_Root.'C&++.usin&g\ namespace\ ;          <Esc><Esc>ousing namespace ;<Esc>$i'
-	exe "amenu <silent> ".s:C_Root.'C&++.namespace\ &\{\ \}            <Esc><Esc>:call C_InsertTemplate("cpp.namespace")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.-SEP6-                        :'
+	exe "amenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)   <Esc><Esc>:call C_InsertTemplate("cpp.open-input-file")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)    <Esc><Esc>:call C_InsertTemplate("cpp.open-output-file")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.-SEP7-                        :'
 
-	exe "imenu <silent> ".s:C_Root.'C&++.&using\ namespace\ std;       using namespace std;<CR>'
-	exe "imenu <silent> ".s:C_Root.'C&++.usin&g\ namespace\ ;          using namespace ;<Esc>$i'
-	exe "vmenu <silent> ".s:C_Root.'C&++.namespace\ &\{\ \}            <Esc><Esc>:call C_InsertTemplate("cpp.namespace", "v")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.&using\ namespace\ std;       <Esc><Esc>:call C_InsertTemplate("cpp.namespace-std")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.usin&g\ namespace\ ;          <Esc><Esc>:call C_InsertTemplate("cpp.namespace")<CR>'
 
-	exe "amenu <silent> ".s:C_Root.'C&++.-SEP8-              :'
+	exe "amenu <silent> ".s:Cpp.'.namespace\ &\{\ \}            <Esc><Esc>:call C_InsertTemplate("cpp.namespace-block")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.namespace\ &\{\ \}            <Esc><Esc>:call C_InsertTemplate("cpp.namespace-block", "v")<CR>'
+
+	exe "amenu <silent> ".s:Cpp.'.-SEP8-              :'
 	"
 	"----- Submenu : RTTI  ----------------------------------------------------------------------------
 	"
-	exe "amenu ".s:C_Root.'C&++.&RTTI.RTTI<Tab>C\/C\+\+          <Esc>'
-	exe "amenu ".s:C_Root.'C&++.&RTTI.-Sep0-                 :'
+	exe "amenu ".s:Cpp.'.&RTTI.RTTI<Tab>C\/C\+\+          <Esc>'
+	exe "amenu ".s:Cpp.'.&RTTI.-Sep0-                 :'
 	"
-	exe " noremenu ".s:C_Root.'C&++.&RTTI.&typeid                atypeid()<Esc>hr(a'
-	exe " noremenu ".s:C_Root.'C&++.&RTTI.&static_cast           astatic_cast<>()<Left>'
-	exe " noremenu ".s:C_Root.'C&++.&RTTI.&const_cast            aconst_cast<>()<Left>'
-	exe " noremenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      areinterpret_cast<>()<Left>'
-	exe " noremenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          adynamic_cast<>()<Left>'
-	"
-	exe "vnoremenu ".s:C_Root.'C&++.&RTTI.&typeid                stypeid()<Esc>hr(p'
-	exe "vnoremenu ".s:C_Root.'C&++.&RTTI.&static_cast           sstatic_cast<>()<Esc>P'
-	exe "vnoremenu ".s:C_Root.'C&++.&RTTI.&const_cast            sconst_cast<>()<Esc>P'
-	exe "vnoremenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      sreinterpret_cast<>()<Esc>P'
-	exe "vnoremenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          sdynamic_cast<>()<Esc>P'
-	"
-	exe "inoremenu ".s:C_Root.'C&++.&RTTI.&typeid                typeid()<Esc>hr(a'
-	exe "inoremenu ".s:C_Root.'C&++.&RTTI.&static_cast           static_cast<>()<Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&RTTI.&const_cast            const_cast<>()<Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&RTTI.&reinterpret_cast      reinterpret_cast<>()<Left>'
-	exe "inoremenu ".s:C_Root.'C&++.&RTTI.&dynamic_cast          dynamic_cast<>()<Left>'
+	exe "anoremenu ".s:Cpp.'.&RTTI.&typeid                <Esc><Esc>:call C_InsertTemplate("cpp.rtti-typeid")<CR>'
+	exe "anoremenu ".s:Cpp.'.&RTTI.&static_cast           <Esc><Esc>:call C_InsertTemplate("cpp.rtti-static-cast")<CR>'
+	exe "anoremenu ".s:Cpp.'.&RTTI.&const_cast            <Esc><Esc>:call C_InsertTemplate("cpp.rtti-const-cast")<CR>'
+	exe "anoremenu ".s:Cpp.'.&RTTI.&reinterpret_cast      <Esc><Esc>:call C_InsertTemplate("cpp.rtti-reinterpret-cast")<CR>'
+	exe "anoremenu ".s:Cpp.'.&RTTI.&dynamic_cast          <Esc><Esc>:call C_InsertTemplate("cpp.rtti-dynamic-cast")<CR>'
 	"
 	"----- End Submenu : RTTI  ------------------------------------------------------------------------
 	"
-	exe "amenu  <silent>".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>:call C_InsertTemplate("cpp.extern")<CR>'
-	exe "vmenu  <silent>".s:C_Root.'C&++.e&xtern\ \"C\"\ \{\ \}       <Esc><Esc>:call C_InsertTemplate("cpp.extern", "v")<CR>'
+	exe "amenu  <silent>".s:Cpp.'.e&xtern\ \"C\"\ \{\ \}  <Esc><Esc>:call C_InsertTemplate("cpp.extern")<CR>'
+	exe "vmenu  <silent>".s:Cpp.'.e&xtern\ \"C\"\ \{\ \}  <Esc><Esc>:call C_InsertTemplate("cpp.extern", "v")<CR>'
 	"
 	"===============================================================================================
 	"----- Menu : run  ----- --------------------------------------------------   {{{2
 	"===============================================================================================
 	"
 	if s:C_MenuHeader == 'yes'
-		exe "amenu  ".s:C_Root.'&Run.&Run<Tab>C\/C\+\+       <Esc>'
-		exe "amenu  ".s:C_Root.'&Run.-Sep00-                 :'
+		exe "amenu  ".s:Run.'.&Run<Tab>C\/C\+\+       <Esc>'
+		exe "amenu  ".s:Run.'.-Sep00-                 :'
 	endif
 	"
-	exe "amenu  <silent>  ".s:C_Root.'&Run.save\ and\ &compile<Tab>\<A-F9\>    <C-C>:call C_Compile()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.&link<Tab>\<F9\>                    <C-C>:call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.&run<Tab>\<C-F9\>                   <C-C>:call C_Run()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ &arg\.<Tab>\<S-F9\>    <C-C>:call C_Arguments()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP0-                              :'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.&make                               <C-C>:call C_Make()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ ar&g\.\ for\ make      <C-C>:call C_MakeArguments()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP1-                              :'
+	exe "amenu  <silent>  ".s:Run.'.save\ and\ &compile<Tab>\<A-F9\>    <C-C>:call C_Compile()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.&link<Tab>\<F9\>                    <C-C>:call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.&run<Tab>\<C-F9\>                   <C-C>:call C_Run()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ &arg\.<Tab>\<S-F9\>    <C-C>:call C_Arguments()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.-SEP0-                              :'
+	exe "amenu  <silent>  ".s:Run.'.&make                               <C-C>:call C_Make()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make      <C-C>:call C_MakeArguments()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.-SEP1-                              :'
 	if s:C_SplintIsExecutable==1
-		exe "amenu  <silent>  ".s:C_Root.'&Run.s&plint                             <C-C>:call C_SplintCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-		exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ arg\.\ for\ spl&int    <C-C>:call C_SplintArguments()<CR>'
-		exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP2-                              :'
+		exe "amenu  <silent>  ".s:Run.'.s&plint                           <C-C>:call C_SplintCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int  <C-C>:call C_SplintArguments()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.-SEP2-                            :'
 	endif
 	"
 	if s:C_CodeCheckIsExecutable==1
-		exe "amenu  <silent>  ".s:C_Root.'&Run.CodeChec&k                          <C-C>:call C_CodeCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-		exe "amenu  <silent>  ".s:C_Root.'&Run.cmd\.\ line\ arg\.\ for\ Cod&eCheck <C-C>:call C_CodeCheckArguments()<CR>'
-		exe "amenu  <silent>  ".s:C_Root.'&Run.-SEP3-                              :'
+		exe "amenu  <silent>  ".s:Run.'.CodeChec&k                          <C-C>:call C_CodeCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck <C-C>:call C_CodeCheckArguments()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.-SEP3-                              :'
 	endif
 	"
-	exe "amenu            ".s:C_Root.'&Run.in&dent                             <C-C>:call C_Indent("a")<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "vmenu            ".s:C_Root.'&Run.in&dent                             <C-C>:call C_Indent("v")<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu            ".s:Run.'.in&dent                             <C-C>:call C_Indent("a")<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "vmenu            ".s:Run.'.in&dent                             <C-C>:call C_Indent("v")<CR>:redraw<CR>:call C_HlMessage()<CR>'
 	if	s:MSWIN
-		exe "amenu  <silent>  ".s:C_Root.'&Run.&hardcopy\ to\ printer              <C-C>:call C_Hardcopy("n")<CR>'
-		exe "vmenu  <silent>  ".s:C_Root.'&Run.&hardcopy\ to\ printer              <C-C>:call C_Hardcopy("v")<CR>'
+		exe "amenu  <silent>  ".s:Run.'.&hardcopy\ to\ printer            <C-C>:call C_Hardcopy("n")<CR>'
+		exe "vmenu  <silent>  ".s:Run.'.&hardcopy\ to\ printer            <C-C>:call C_Hardcopy("v")<CR>'
 	else
-		exe "amenu  <silent>  ".s:C_Root.'&Run.&hardcopy\ to\ FILENAME\.ps         <C-C>:call C_Hardcopy("n")<CR>'
-		exe "vmenu  <silent>  ".s:C_Root.'&Run.&hardcopy\ to\ FILENAME\.ps         <C-C>:call C_Hardcopy("v")<CR>'
+		exe "amenu  <silent>  ".s:Run.'.&hardcopy\ to\ FILENAME\.ps       <C-C>:call C_Hardcopy("n")<CR>'
+		exe "vmenu  <silent>  ".s:Run.'.&hardcopy\ to\ FILENAME\.ps       <C-C>:call C_Hardcopy("v")<CR>'
 	endif
-	exe "imenu  <silent>  ".s:C_Root.'&Run.-SEP4-                              :'
+	exe "imenu  <silent>  ".s:Run.'.-SEP4-                              :'
 
-	exe "amenu  <silent>  ".s:C_Root.'&Run.rebuild\ &templates                   <C-C>:call C_RebuildTemplates()<CR>'
-	exe "amenu  <silent>  ".s:C_Root.'&Run.&settings                             <C-C>:call C_Settings()<CR>'
-	exe "imenu  <silent>  ".s:C_Root.'&Run.-SEP5-                                :'
+	exe "amenu  <silent>  ".s:Run.'.rebuild\ &templates                 <C-C>:call C_RebuildTemplates()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.&settings                           <C-C>:call C_Settings()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.-SEP5-                              :'
 
 	if	!s:MSWIN
-		exe "amenu  <silent>  ".s:C_Root.'&Run.&xterm\ size                             <C-C>:call C_XtermSize()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.&xterm\ size                      <C-C>:call C_XtermSize()<CR>'
 	endif
 	if s:C_OutputGvim == "vim" 
-		exe "amenu  <silent>  ".s:C_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+		exe "amenu  <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm      <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 	else
 		if s:C_OutputGvim == "buffer" 
-			exe "amenu  <silent>  ".s:C_Root.'&Run.&output:\ BUFFER->xterm->vim        <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+			exe "amenu  <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim    <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		else
-			exe "amenu  <silent>  ".s:C_Root.'&Run.&output:\ XTERM->vim->buffer          <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+			exe "amenu  <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer    <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		endif
 	endif
 	"
@@ -887,6 +761,73 @@ endfunction    " ----------  end of function  C_InitMenus  ----------
 "===============================================================================================
 "----- Menu Functions --------------------------------------------------------------------------
 "===============================================================================================
+"
+let s:C_StandardLibs       = [
+  \ '&assert\.h' , '&ctype\.h' ,   '&errno\.h' , 
+  \ '&float\.h' ,  '&limits\.h' ,  'l&ocale\.h' ,
+  \ '&math\.h' ,   'set&jmp\.h' ,  's&ignal\.h' ,
+  \ 'stdar&g\.h' , 'st&ddef\.h' ,  '&stdio\.h' , 
+  \ 'stdli&b\.h' , 'st&ring\.h' ,  '&time\.h' ,  
+  \ ]
+"
+let s:C_C99Libs       = [
+  \ '&complex\.h', '&fenv\.h',    '&inttypes\.h',
+  \ 'is&o646\.h',  '&stdbool\.h', 's&tdint\.h',  
+  \ 'tg&math\.h',  '&wchar\.h',   'wct&ype\.h',  
+  \ ]
+"
+let s:Cpp_StandardLibs1       = [
+  \ '&algorithm', '&bitset',  '&complex',    '&deque',     
+  \ '&exception', '&fstream', 'f&unctional', 'iomani&p',   
+  \ '&ios',       'iosf&wd',  'io&stream',   'istrea&m',   
+  \ 'iterato&r',  '&limits',  'lis&t',       'l&ocale',    
+  \ ]
+"
+let s:Cpp_StandardLibs2       = [
+  \ '&map',      'memor&y',    '&new',       'numeri&c',  
+  \ '&ostream',  '&queue',     '&set',       'sst&ream',  
+  \ 'st&ack',    'stde&xcept', 'stream&buf', 'str&ing',   
+  \ '&typeinfo', '&utility',   '&valarray',  'v&ector',   
+  \ ]
+"
+let s:Cpp_StandardLibs3       = [
+  \ 'c&assert', 'c&ctype',  'c&errno',  'c&float', 
+  \ 'c&limits', 'cl&ocale', 'c&math',   'cset&jmp',
+  \ 'cs&ignal', 'cstdar&g', 'cst&ddef', 'c&stdio', 
+  \ 'cstdli&b', 'cst&ring', 'c&time',  
+  \ ]
+
+let s:Cpp_IosFlagBits       = [
+	\	'ios::&adjustfield', 'ios::bas&efield',           'ios::&boolalpha',
+	\	'ios::&dec',         'ios::&fixed',               'ios::floa&tfield',
+	\	'ios::&hex',         'ios::&internal',            'ios::&left',
+	\	'ios::&oct',         'ios::&right',               'ios::s&cientific',
+	\	'ios::sho&wbase',    'ios::showpoint\ \(&1\)',    'ios::show&pos',
+	\	'ios::&skipws',      'ios::u&nitbuf',             'ios::&uppercase',
+  \ ]
+
+"------------------------------------------------------------------------------
+"  C_CIncludeMenus: generate the C/C++-standard library menu entries   {{{1
+"------------------------------------------------------------------------------
+function! C_CIncludeMenus ( menupath, liblist )
+	for item in a:liblist
+		let replacement	= substitute( item, '[&\\]*', '','g' )
+		exe "anoremenu  ".a:menupath.'.'.item.'     <Esc><Esc>o#include<Tab><'.replacement.'>'
+	endfor
+	return
+endfunction    " ----------  end of function C_CIncludeMenus  ----------
+
+"------------------------------------------------------------------------------
+"  C_CIosFlagMenus: generate the C++ ios flags menu entries   {{{1
+"------------------------------------------------------------------------------
+function! C_CIosFlagMenus ( menupath, flaglist )
+	for item in a:flaglist
+		let replacement	= substitute( item, '[^[:alpha:]:]', '','g' )
+		exe " noremenu ".a:menupath.'.'.item.'     i'.replacement
+		exe "inoremenu ".a:menupath.'.'.item.'      '.replacement
+	endfor
+	return
+endfunction    " ----------  end of function C_CIosFlagMenus  ----------
 "
 "------------------------------------------------------------------------------
 "  C_Input: Input after a highlighted prompt     {{{1
@@ -1060,13 +1001,6 @@ function! C_MultiLineEndComments ( )
 		exe "normal ".diff."k"
 	end
 endfunction		" ---------- end of function  C_MultiLineEndComments  ----------
-"
-"------------------------------------------------------------------------------
-"  C_CommentSpecial : special comments    {{{1
-"------------------------------------------------------------------------------
-function! C_CommentSpecial (special)
-  	put = '	'.s:C_Com1.' '.a:special.' '.s:C_Com2
-endfunction    " ----------  end of function C_CommentSpecial ----------
 "
 "------------------------------------------------------------------------------
 "  C_Comment_C_SectionAll: Section Comments    {{{1
@@ -1840,18 +1774,18 @@ function! C_Toggle_Gvim_Xterm ()
 
 	if s:C_OutputGvim == "vim"
 		if has("gui_running")
-			exe "aunmenu  <silent>  ".s:C_Root.'&Run.&output:\ VIM->buffer->xterm'
-			exe "amenu    <silent>  ".s:C_Root.'&Run.&output:\ BUFFER->xterm->vim              <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+			exe "aunmenu  <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm'
+			exe "amenu    <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim              <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		endif
 		let	s:C_OutputGvim	= "buffer"
 	else
 		if s:C_OutputGvim == "buffer"
 			if has("gui_running")
-				exe "aunmenu  <silent>  ".s:C_Root.'&Run.&output:\ BUFFER->xterm->vim'
+				exe "aunmenu  <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim'
 				if (!s:MSWIN) 
-					exe "amenu    <silent>  ".s:C_Root.'&Run.&output:\ XTERM->vim->buffer             <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer             <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				else
-					exe "amenu    <silent>  ".s:C_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				endif
 			endif
 			if (!s:MSWIN) && (s:C_Display != '')
@@ -1862,8 +1796,8 @@ function! C_Toggle_Gvim_Xterm ()
 		else
 			" ---------- output : xterm -> gvim
 			if has("gui_running")
-				exe "aunmenu  <silent>  ".s:C_Root.'&Run.&output:\ XTERM->vim->buffer'
-				exe "amenu    <silent>  ".s:C_Root.'&Run.&output:\ VIM->buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+				exe "aunmenu  <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer'
+				exe "amenu    <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm            <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 			endif
 			let	s:C_OutputGvim	= "vim"
 		endif
@@ -2381,7 +2315,15 @@ function! C_InsertTemplate ( key, ... )
 			let val   = substitute( val, '\n$', '', '' )
 			let pos1  = line(".")
 			let pos2  = pos1 + count( split(val,'\zs'), "\n" ) 
-			exe "normal a".val
+			" assign to the unnamed register "" :
+			let @"=val
+			normal p
+			" reformat only multiline inserts
+			if pos2-pos1 > 0
+				exe ":".pos1
+				let ins	= pos2-pos1+1
+				exe "normal ".ins."=="
+			end
 		endif
 		"
 	else
@@ -2400,6 +2342,28 @@ function! C_InsertTemplate ( key, ... )
 				echomsg 'SPLIT missing in template '.a:key
 			endif
 
+			"
+			" 'visual' and mode 'insert': 
+			"   <part0><marked area><part1>
+			" part0 and part1 can consist of several lines
+			"
+			if mode == 'insert'
+				let pos1  = line(".")
+				let pos2  = pos1
+				let	string= @*
+				let replacement	= part[0].string.part[1]
+				" remove trailing '\n'
+				let replacement   = substitute( replacement, '\n$', '', '' )
+				exe ':s/'.string.'/'.replacement.'/'
+			endif
+
+			"
+			" 'visual' and mode 'below': 
+			"   <part0>
+			"   <marked area>
+			"   <part1>
+			" part0 and part1 can consist of several lines
+			"
 			if mode == 'below'
 
 				:'<put! =part[0]

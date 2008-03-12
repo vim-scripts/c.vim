@@ -1,12 +1,91 @@
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+$
+== cpp.cin ==
+cin	>> <CURSOR>;
+$
+== cpp.cout-variabe ==
+cout	<< <CURSOR> << endl;
+$
+== cpp.cout-string ==
+cout	<< "<CURSOR>\n";
+$
+== cpp.cout-operator == insert ==
+<< "<CURSOR>" 
+$
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.output-manipulator-boolalpha       == insert ==
+<< boolalpha <CURSOR>
+== cpp.output-manipulator-dec             == insert ==
+<< dec <CURSOR>
+== cpp.output-manipulator-endl            == insert ==
+<< endl <CURSOR>
+== cpp.output-manipulator-fixed           == insert ==
+<< fixed <CURSOR>
+== cpp.output-manipulator-flush           == insert ==
+<< flush <CURSOR>
+== cpp.output-manipulator-hex             == insert ==
+<< hex <CURSOR>
+== cpp.output-manipulator-internal        == insert ==
+<< internal <CURSOR>
+== cpp.output-manipulator-left            == insert ==
+<< left <CURSOR>
+== cpp.output-manipulator-oct             == insert ==
+<< oct <CURSOR>
+== cpp.output-manipulator-right           == insert ==
+<< right <CURSOR>
+== cpp.output-manipulator-scientific      == insert ==
+<< scientific <CURSOR>
+== cpp.output-manipulator-setbase         == insert ==
+<< setbase(10<CURSOR>) 
+== cpp.output-manipulator-setfill         == insert ==
+<< setfill(<CURSOR>) 
+== cpp.output-manipulator-setiosflag      == insert ==
+<< setiosflags(<CURSOR>) 
+== cpp.output-manipulator-setprecision    == insert ==
+<< setprecision(6<CURSOR>) 
+== cpp.output-manipulator-setw            == insert ==
+<< setw(0<CURSOR>) 
+== cpp.output-manipulator-showbase        == insert ==
+<< showbase <CURSOR>
+== cpp.output-manipulator-showpoint       == insert ==
+<< showpoint <CURSOR>
+== cpp.output-manipulator-showpos         == insert ==
+<< showpos <CURSOR>
+== cpp.output-manipulator-uppercase       == insert ==
+<< uppercase <CURSOR>
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.method-implementation ==
 <CURSOR>void
 |?CLASSNAME|::|?METHODNAME| (  )
 {
 	return ;
 }		// -----  end of method |CLASSNAME|::|METHODNAME|  -----
+
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== cpp.class ==
+== cpp.accessor-implementation ==
+//--------------------------------------------------------------------------------------
+//       Class:  |?CLASSNAME|
+//      Method:  get_|?ATTRIBUTE|
+//--------------------------------------------------------------------------------------
+inline <CURSOR>int
+|CLASSNAME|::get_|ATTRIBUTE| (  )
+{
+	return |ATTRIBUTE|;
+}		// -----  end of method |CLASSNAME|::get_|ATTRIBUTE|  -----
+
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  set_|ATTRIBUTE|
+//--------------------------------------------------------------------------------------
+inline void
+|CLASSNAME|::set_|ATTRIBUTE| ( int value )
+{
+	|ATTRIBUTE|	= value;
+	return ;
+}		// -----  end of method |CLASSNAME|::set_|ATTRIBUTE|  -----
+
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.class-definition ==
 // =====================================================================================
 //        Class:  |?CLASSNAME:c|
 //  Description:  <CURSOR>
@@ -33,8 +112,10 @@ class |CLASSNAME|
 
 }; // -----  end of class  |CLASSNAME|  -----
 
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.class-implementation ==
 //--------------------------------------------------------------------------------------
-//       Class:  |CLASSNAME|
+//       Class:  |?CLASSNAME|
 //      Method:  |CLASSNAME|
 // Description:  constructor
 //--------------------------------------------------------------------------------------
@@ -43,7 +124,7 @@ class |CLASSNAME|
 }  // -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  -----
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== cpp.class-using-new ==
+== cpp.class-using-new-definition ==
 // =====================================================================================
 //        Class:  |?CLASSNAME:c|
 //  Description:  <CURSOR>
@@ -73,8 +154,10 @@ class |CLASSNAME|
 
 }; // -----  end of class  |CLASSNAME|  -----
 
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.class-using-new-implementation ==
 //--------------------------------------------------------------------------------------
-//       Class:  |CLASSNAME|
+//       Class:  |?CLASSNAME|
 //      Method:  |CLASSNAME|
 // Description:  constructor
 //--------------------------------------------------------------------------------------
@@ -121,10 +204,10 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // =====================================================================================
 class |CLASSNAME|
 {
-  public:              |CLASSNAME| ( char *msg ):message(msg)  { }
-              virtual ~|CLASSNAME| ( )                         { }
-              virtual const char* what ( ) const throw ( )    { return message; }
-  protected:  char  *message;
+  public:     |CLASSNAME| ( string msg = "|CLASSNAME|" ):message(msg)  { }
+              virtual ~|CLASSNAME| ( )  { }
+              virtual string what ( ) const throw ( )  { return message; }
+  protected:  string  message;
 }; // ----------  end of class  |CLASSNAME|  ----------
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,7 +218,29 @@ void<CURSOR> |?CLASSNAME|<T>::|?METHODNAME| (  )
 	return ;
 }		// -----  end of method |CLASSNAME|<T>::|METHODNAME|  -----
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== cpp.template-class ==
+== cpp.template-accessor-implementation ==
+//--------------------------------------------------------------------------------------
+//       Class:  |?CLASSNAME|
+//      Method:  get_|?ATTRIBUTE|
+//--------------------------------------------------------------------------------------
+template < class T >
+inline  <CURSOR>int |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
+{
+	return |ATTRIBUTE|;
+}		// -----  end of method |CLASSNAME|<T>::get_|ATTRIBUTE|  -----
+
+//--------------------------------------------------------------------------------------
+//       Class:  |CLASSNAME|
+//      Method:  set_|ATTRIBUTE|
+//--------------------------------------------------------------------------------------
+template < class T >
+inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( int value )
+{
+	|ATTRIBUTE|	= value;
+	return ;
+}		// -----  end of method |CLASSNAME|<T>::set_|ATTRIBUTE|  -----
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.template-class-definition ==
 // =====================================================================================
 //        Class:  |?CLASSNAME:c|
 //  Description:  <CURSOR>
@@ -164,8 +269,10 @@ class |CLASSNAME|
 
 }; // -----  end of template class  |CLASSNAME|  -----
 
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.template-class-implementation ==
 //--------------------------------------------------------------------------------------
-//       Class:  |CLASSNAME|
+//       Class:  |?CLASSNAME|
 //      Method:  |CLASSNAME|
 // Description:  constructor
 //--------------------------------------------------------------------------------------
@@ -175,7 +282,7 @@ template < class T >
 }  // -----  end of constructor of template class |CLASSNAME|  -----
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== cpp.template-class-using-new ==
+== cpp.template-class-using-new-definition ==
 // =====================================================================================
 //        Class:  |?CLASSNAME:c|
 //  Description:  <CURSOR>
@@ -208,8 +315,10 @@ class |CLASSNAME|
 
 }; // -----  end of template class  |CLASSNAME|  -----
 
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.template-class-using-new-implementation ==
 //--------------------------------------------------------------------------------------
-//       Class:  |CLASSNAME|
+//       Class:  |?CLASSNAME|
 //      Method:  |CLASSNAME|
 // Description:  constructor
 //--------------------------------------------------------------------------------------
@@ -322,8 +431,27 @@ if (!ofs) {
 
 ofs.close ();		// close ofstream
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.namespace-std ==
+using namespace std;
 == cpp.namespace ==
+using namespace |?NAMESPACE|;
+== cpp.namespace-block ==
 namespace |?NAMESPACE|
 {<CURSOR>
 <SPLIT>}		// -----  end of |NAMESPACE|  name  -----
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== cpp.rtti-typeid == insert ==
+typeid(<CURSOR>)
+$
+== cpp.rtti-static-cast == insert ==
+static_cast<>(<CURSOR>)
+$
+== cpp.rtti-const-cast == insert ==
+const_cast<>(<CURSOR>)
+$
+== cpp.rtti-reinterpret-cast == insert ==
+reinterpret_cast<>(<CURSOR>)
+$
+== cpp.rtti-dynamic-cast == insert ==
+dynamic_cast<>(<CURSOR>)
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

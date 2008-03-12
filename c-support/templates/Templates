@@ -3,11 +3,11 @@ $ =============================================================
 $ ========== USER MACROS ======================================
 $ =============================================================
 $
-|AUTHOR|    = first_name last_name
-|AUTHORREF| = fl
-|EMAIL|     = fl@my-company.com
-|COMPANY|   = my-company
-|COPYRIGHT| = Copyright (c) |YEAR| |AUTHOR|
+|AUTHOR|    = Dr. Fritz Mehner 
+|AUTHORREF| = mn
+|EMAIL|     = mehner@fh-swf.de
+|COMPANY|   = FH Südwestfalen, Iserlohn
+|COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
 $
 $ =============================================================
 $ ========== FILE INCLUDES ====================================

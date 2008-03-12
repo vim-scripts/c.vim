@@ -35,16 +35,16 @@ while ( <CURSOR> ) {
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == statements.switch ==
 switch ( <CURSOR> ) {
-	case :	
+	case 1:	
 		<SPLIT>break;
 
-	case :	
+	case 2:	
 		break;
 
-	case :	
+	case 3:	
 		break;
 
-	case :	
+	case 4:	
 		break;
 
 	default:	
