@@ -1,4 +1,12 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.1
+=======================================================================================
++ Definition and implementation of classes have now different templates and menu entries.
++ Accessor methods (get/set) can be generated.
++ New templates: everything other than language keywords comes from a template 
+  (and is user changeable).
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.0.5
 =======================================================================================
 + Bugfix: on a few systems doubling of path components in the run command (F9).

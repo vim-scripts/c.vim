@@ -422,9 +422,9 @@ operator >> ( istream & is, |?CLASSNAME| & obj )
 }		/* -----  end of function operator >>  ----- */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.try-catch ==
-try {<CURSOR>
+try {
 <SPLIT>}
-catch ( const &ExceptObj ) {		/* handle exception: */
+catch ( const <CURSOR> &ExceptObj ) {		/* handle exception: */
 }
 catch (...) {		/* handle exception: unspezified */
 }
@@ -478,17 +478,17 @@ namespace |?NAMESPACE|
 <SPLIT>}		/* -----  end of |NAMESPACE|  name  ----- */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.rtti-typeid == insert ==
-typeid(<CURSOR>)
+typeid(<CURSOR><SPLIT>)
 $
 == cpp.rtti-static-cast == insert ==
-static_cast<>(<CURSOR>)
+static_cast<>(<CURSOR><SPLIT>)
 $
 == cpp.rtti-const-cast == insert ==
-const_cast<>(<CURSOR>)
+const_cast<>(<CURSOR><SPLIT>)
 $
 == cpp.rtti-reinterpret-cast == insert ==
-reinterpret_cast<>(<CURSOR>)
+reinterpret_cast<>(<CURSOR><SPLIT>)
 $
 == cpp.rtti-dynamic-cast == insert ==
-dynamic_cast<>(<CURSOR>)
+dynamic_cast<>(<CURSOR><SPLIT>)
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

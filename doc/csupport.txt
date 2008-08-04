@@ -1,17 +1,17 @@
-*csupport.txt*                  C/C++ Support                   March 05 2008
+*csupport.txt*                  C/C++ Support                   July 23 2008
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.1
+                              Plugin version 5.2
                         for Vim version 6.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
 C/C++-IDE for Vim/gVim. It is written to considerably speed up writing code in
 a consistent style.  This is done by inserting complete statements,idioms, code
 snippets, templates, and comments.  Syntax checking, compiling,  running a
-program, running a code checker or indent can be done with a keystroke.  
+program, running a code checker or indent can be done with a keystroke.
 
 
- 1.    Usage                                    |csupport-usage-gvim|        
+ 1.    Usage                                    |csupport-usage-gvim|
  1.1    Menu 'Comments'                         |csupport-comm|
  1.1.1   Append aligned comments                |csupport-comm-aligned|
  1.1.2   Adjust end-of-line comments            |csupport-comm-realign|
@@ -51,33 +51,33 @@ program, running a code checker or indent can be done with a keystroke.
  1.8    Help                                    |csupport-help|
 
  2.    Usage without GUI                        |csupport-usage-vim|
- 3.    Hotkeys                                  |csupport-hotkeys|           
- 4.    Customization and configuration          |csupport-custom|     
+ 3.    Hotkeys                                  |csupport-hotkeys|
+ 4.    Customization and configuration          |csupport-custom|
  4.1    Global variables                        |csupport-custom-glob-vars|
  4.2    The root menu                           |csupport-custom-root-menu|
  4.3     System-wide installation               |csupport-system-wide|
- 5.    Template files and tags                  |csupport-templates|    
- 5.1    Template files                          |csupport-templates-files|    
+ 5.    Template files and tags                  |csupport-templates|
+ 5.1    Template files                          |csupport-templates-files|
  5.2    Macros                                  |csupport-templates-macros|
  5.3    Templates                               |csupport-templates-names|
  5.3.1  Template names                          |csupport-templates-names|
  5.3.2  Template definition                     |csupport-templates-definition|
  5.3.3  Template expansion                      |csupport-templates-expansion|
- 6.    C/C++ Dictionaries                       |csupport-dictionary|        
- 7.    Extend taglist.vim for make and qmake    |csupport-taglist|     
- 8.    Syntax based folding                     |csupport-folding|     
+ 6.    C/C++ Dictionaries                       |csupport-dictionary|
+ 7.    Extend taglist.vim for make and qmake    |csupport-taglist|
+ 8.    Syntax based folding                     |csupport-folding|
  9.    Windows particularities                  |csupport-windows|
 10.    Troubleshooting                          |csupport-troubleshooting|
-11.    Release Notes /Change Log                |csupport-release-notes|     
+11.    Release Notes /Change Log                |csupport-release-notes|
 
-       How to add this help file to Vim's help  |add-local-help|             
+       How to add this help file to Vim's help  |add-local-help|
 
 
 ==============================================================================
 1.  USAGE WITH GUI  (gVim)                               *csupport-usage-gvim*
 ==============================================================================
 
-If the root menu 'C/C++' is not visible call it with the item "Load C Support" 
+If the root menu 'C/C++' is not visible call it with the item "Load C Support"
 from the standard Tools-menu.
 The item "Load C Support" can also be used to unload the C/C++-root menu.
 
@@ -92,7 +92,7 @@ requirements (see|csupport-templates|).
 1.1.1  APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES    *csupport-comm-aligned*
 
 In NORMAL MODE the menu items 'end-of-line comment' will append an comment to
-the current line. 
+the current line.
 In VISUAL MODE these item will append aligned comments to all marked lines.
 Marking the first 4 lines
 
@@ -119,7 +119,7 @@ be changed by setting a global variable in the file ~/.vimrc , e.g. :
 
   let g:C_LineEndCommColDefault    = 45
 
-The starting column can also be set by the menu item 
+The starting column can also be set by the menu item
 'Comments->set end-of-line com. col' . Just position the cursor in an
 arbitrary column (column number is shown in the Vim status line) and choose
 this menu item.  This setting is buffer related.
@@ -177,7 +177,7 @@ multiline comment
 //xxxxxxxx
 
 The menu items works also for a single line. A single line needs not to be
-marked. 
+marked.
 
 ------------------------------------------------------------------------------
 
@@ -195,7 +195,7 @@ are marked
   //  printf ("\n");
   //
 
-  /* 
+  /*
    *  printf ("\n");
    */
 
@@ -216,13 +216,13 @@ The first 2 lines are only a part of a C-comment and remain unchanged.
 A C-comment can start with /* , /** or /*! .
 
 The menu item works also for a single line with a leading // . A single line
-needs not to be marked. 
+needs not to be marked.
 
 ------------------------------------------------------------------------------
 
 1.1.5  FRAME COMMENTS, FILE HEADER, ...                  *csupport-comm-frame*
 
-Frame comments, file header comments and function, methods, class descriptions 
+Frame comments, file header comments and function, methods, class descriptions
 are read as templates from the appropriate files (see |csupport-templates|).
 
 ------------------------------------------------------------------------------
@@ -269,9 +269,9 @@ if (  )
 
 1.2.2  VISUAL MODE.                                *csupport-stat-visual-mode*
 
-STATEMENTS WITH BLOCKS AND CASE LABEL.  
+STATEMENTS WITH BLOCKS AND CASE LABEL.
 --------------------------------------
-The highlighted area 
+The highlighted area
 
 xxxxx
 xxxxx
@@ -324,7 +324,7 @@ For 'switch' and 'case' see |csupport-stat-switch| and |csupport-stat-case|.
 The whole statement will be indented after insertion.
 
 
-STATEMENTS WITHOUT BLOCKS.  
+STATEMENTS WITHOUT BLOCKS.
 --------------------------
 One of the following statements can be inserted:
 
@@ -345,13 +345,13 @@ One of the following statements can be inserted:
 
 1.3.1  NORMAL MODE, INSERT MODE.                   *csupport-prep-normal-mode*
 
-The preprocessor statements will be inserted and properly indented. 
+The preprocessor statements will be inserted and properly indented.
 
 1.3.2  VISUAL MODE.                                *csupport-prep-visual-mode*
 
 STATEMENTS WITH BLOCKS
 ----------------------
-The highlighted area 
+The highlighted area
 
 xxxxx
 xxxxx
@@ -392,7 +392,7 @@ can be surrounded by one of the following statements:
   +----------------------------------------------------------+
 
 The macro name for an include guard (e.g. INC_TEST above) will be derived as a
-suggestion from the file name.  
+suggestion from the file name.
 
 1.3.3  BLOCK OUT CODE WITH #if 0 ... #endif                *csupport-prep-if0*
 
@@ -426,7 +426,7 @@ constructs will be untouched.
 
 1.4.1  ENTRY 'function'
 
-NORMAL MODE, INSERT MODE: 
+NORMAL MODE, INSERT MODE:
 The name of the function is asked for and the following lines (for function
 name "f") will be inserted:
 
@@ -436,32 +436,32 @@ name "f") will be inserted:
     return ;
   }        /* ----------  end of function f  ---------- */
 
-VISUAL MODE: 
+VISUAL MODE:
 Main or [static] function: the highlighted lines will go inside the new
-function or main. 
+function or main.
 for-loops: the highlighted lines will be set in braces.
 
 1.4.2  ENTRY 'open input file'
 
 The item 'open input file' will create the statements to open and close an
-input file (e.g. with the file pointer 'infile'). 
+input file (e.g. with the file pointer 'infile').
 
 1.4.3  ENTRY 'open output file'
 
 The item 'open output file' will create the statements to open and close an
-output file (e.g. with the file pointer 'outfile'). 
+output file (e.g. with the file pointer 'outfile').
 
 ------------------------------------------------------------------------------
 1.5  MENU 'Snippets'                                       *csupport-snippets*
 ------------------------------------------------------------------------------
 
-1.5.1  CODE SNIPPETS                                    
+1.5.1  CODE SNIPPETS
 
 Code snippets are pieces of code which are kept in separate files in a special
 directory (e.g. a few lines of code or a complete template for a Makefile).
 File names are used to identify the snippets.  The snippet directory will be
 created during the installation  ( $HOME/.vim/codesnippets-c is the default).
-Snippets are managed with the 3 items 
+Snippets are managed with the 3 items
 
    C/C++ -> Snippets -> read  code snippet
    C/C++ -> Snippets -> write code snippet
@@ -469,8 +469,8 @@ Snippets are managed with the 3 items
 
 from the Snippets submenu.
 
-CREATING A NEW SNIPPET  
-When nothing is marked, "write code snippet" will write the whole buffer 
+CREATING A NEW SNIPPET
+When nothing is marked, "write code snippet" will write the whole buffer
 to a snippet file, otherwise the marked area will be written to a file.
 
 INSERT A SNIPPET
@@ -489,7 +489,7 @@ add the file extension "ni" or "noindent" to the snippet file name, e.g.
 
 1.5.2   PICKING UP PROTOTYPES                                 *csupport-proto*
 
-PICK UP PROTOTYPES.  
+PICK UP PROTOTYPES.
 To make a prototype from a function head mark the function head and choose
 'Snippets -> pick up prototype'. From the first six lines of
 
@@ -507,9 +507,9 @@ the prototype
 
   void print_double_array ( double array[], int n, int columns, char* arrayname );
 
-is produced and put in an internal buffer. 
-- Leading and trailing whitespaces are removed. 
-- All inner whitespaces are squeezed. 
+is produced and put in an internal buffer.
+- Leading and trailing whitespaces are removed.
+- All inner whitespaces are squeezed.
 - All comments will be discarded.
 - Trailing parts of the function body (e.g a '{' ) will also be removed.
 - The class name and the scope resolution operator will be removed (C++ method
@@ -532,19 +532,19 @@ result in the prototype
 Folding may help picking up prototypes (see |csupport-folding|).
 
 
-INSERT PROTOTYPES  
+INSERT PROTOTYPES
 With 'Snippets -> insert prototype(s)' all picked up prototypes currently in
 the buffer will be inserted below the cursor.
 The prototype buffer will be cleared after insertion.
 
 
-DISCARD PROTOTYPES  
+DISCARD PROTOTYPES
 The prototype buffer can be cleared with 'Snippets -> clear prototype(s)' .
 
 
-SHOW PROTOTYPES  
-The list of gathered prototypes can be shown with 
-'Snippets -> show prototype(s)'. The number and the filename are shown, e.g. 
+SHOW PROTOTYPES
+The list of gathered prototypes can be shown with
+'Snippets -> show prototype(s)'. The number and the filename are shown, e.g.
 
   (1) matrix.c #  double** calloc_double_matrix ( int rows, int columns );
   (2) matrix.c #  void free_double_matrix ( double **m );
@@ -552,7 +552,7 @@ The list of gathered prototypes can be shown with
 
 
 REMARK. Generating prototypes this way is nice in a small project. You may
-want to use an extractor like cextract or something else. 
+want to use an extractor like cextract or something else.
 
 
 ------------------------------------------------------------------------------
@@ -591,7 +591,7 @@ The menu item 'method implement.' asks for a method name. If this item is
 called the first time you will see just an scope resolution operator.  If you
 specify the scope this is used the next time you call this item.  If you use
 one of the menu items to generate a class (see |csupport-templates|) the
-scope will be extracted and used for the next method.  
+scope will be extracted and used for the next method.
 
 ------------------------------------------------------------------------------
 1.7  MENU 'Run'                                                 *csupport-run*
@@ -609,7 +609,7 @@ options (see |csupport-custom-glob-vars|).
 An error window will be opened if the compiler reports errors and/or warnings.
 Quickfix commands can now be used to jump to an error location.
 
-Consider using maps like 
+Consider using maps like
   map  <silent> <F7>    <Esc>:cp<CR>
   map  <silent> <F8>    <Esc>:cn<CR>
 in your ~/.vimrc file to jump over the error locations and make navigation
@@ -638,7 +638,7 @@ The item 'command line arguments' calls an input dialog which asks for command
 line arguments. These arguments are forwarded to the program which is run by
 the 'run' item. The arguments are kept until you change them.
 
-The arguments belong to the current buffer (that is, each buffer can have its 
+The arguments belong to the current buffer (that is, each buffer can have its
 own arguments).
 If the buffer gets a new name with "save as" the arguments will now belong to
 the buffer with the new name.
@@ -676,7 +676,7 @@ navigation see tip under 'SAVE AND COMPILE' |csupport-run-buffer|.
 
 Splint has many options. Presumably the best way is to keep the options in an
 option file (~/.splintrc). For a quick try you can use the menu item
-'Run->cmd. line arg. for splint' to specify some buffer related options.  
+'Run->cmd. line arg. for splint' to specify some buffer related options.
 
 When vim is started this plugin will check whether splint is executable. If
 not, the menu item will *NOT' be visible.
@@ -694,7 +694,7 @@ Quickfix commands can now be used to jump to an error location.  For easier
 navigation see tip under 'SAVE AND COMPILE' |csupport-run-buffer|.
 
 CodeCheck has many options.  For a quick try you can use the menu item
-'Run->cmd. line arg. for CodeCheck' to specify some buffer related options.  
+'Run->cmd. line arg. for CodeCheck' to specify some buffer related options.
 
 CodeCheck will be run with default options (see |csupport-custom-glob-vars|).
 The default options can be overwritten by  placing a global variable in
@@ -729,10 +729,10 @@ On a Windows system a printer dialog is displayed.
 
 The print header contains date and time for the current locale. The definition
 used is
- 
+
   let s:C_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 
-The current locale can be overwritten by changing the language, e.g. 
+The current locale can be overwritten by changing the language, e.g.
 
   :language C
 
@@ -740,7 +740,7 @@ or by setting a global variable in the file ~/.vimrc , e.g. :
 
   let g:C_Printheader = "%<%f%h%m%<  %=%{strftime('%x %X')}     SEITE %N"
 
-See :h printheader and :h strftime()  for more details. 
+See :h printheader and :h strftime()  for more details.
 
 
 1.7.9  REBUILD TEMPLATES                              *csupport-run-templates*
@@ -752,7 +752,7 @@ template files and rebuilds all templates.
 1.7.10  XTERM SIZE                                        *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
-menu item. The default is 80 columns with 24 lines.  
+menu item. The default is 80 columns with 24 lines.
 This feature is not available under Windows.
 
 
@@ -762,7 +762,7 @@ Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
     This is for interactive programs with little input and output.
 (2) Run the program and direct the output into a window with name "C-Output".
-    The buffer and its content will disappear when the window is closed and 
+    The buffer and its content will disappear when the window is closed and
     reused otherwise.
     This is for non-interactive programs with little to very much output.
     You have unlimited line length, regex search, navigation, ...
@@ -771,7 +771,7 @@ Running a program can be done in one of three ways:
 
 The output method can be chosen from the menu item 'Run->output: ...'.
 This menu has three states:
- 
+
   output: VIM->buffer->xterm
   output: BUFFER->xterm->vim
   output: XTERM->vim->buffer
@@ -804,14 +804,13 @@ mappings are also described in the document c-hot-keys.pdf (reference card,
 part of this package).
 Hint: Typing speed matters. The combination of a leader ('\') and the
 following character(s) will only be recognized for a short time.
-The insert mode mappings start with ` (backtick).  
+The insert mode mappings start with ` (backtick).
 
 Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
-  -- Load / Unload C/C++ Support ----------------------------------------
+  -- Help ---------------------------------------------------------------
 
-  \lcs      Load C/C++ Support Menus            (n, GUI only)
-  \ucs      Unload C/C++ Support Menus          (n, GUI only)
+  \h        show plugin help                    (n,i)
 
   -- Comments -----------------------------------------------------------
 
@@ -855,7 +854,11 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \pin      #ifndef #else #endif                (n,v,i)
   \pind     #ifndef #def #endif                 (n,v,i)
   \pi0      #if 0 #endif                        (n,v,i)
-  \pr0      remove #if 0 #endif                 (n) 
+  \pr0      remove #if 0 #endif                 (n,i)
+  \pe       #error                              (n,i)
+  \pl       #line                               (n,i)
+  \pp       #pragma                             (n,i)
+
   -- Idioms -------------------------------------------------------------
 
   \if       function                            (n,v,i)
@@ -877,13 +880,16 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Snippets -----------------------------------------------------------
 
-  \nr       read code snippet                   (n)
-  \nw       write code snippet                  (n,v)
-  \ne       edit code snippet                   (n)
-  \np       pick up prototype                   (n,v)
-  \ni       insert prototype(s)                 (n)
-  \nc       clear  prototype(s)                 (n)
-  \ns       show   prototype(s)                 (n)
+  \nr       read code snippet                   (n,i)
+  \nw       write code snippet                  (n,v,i)
+  \ne       edit code snippet                   (n,i)
+  \np       pick up prototype                   (n,v,i)
+  \ni       insert prototype(s)                 (n,i)
+  \nc       clear  prototype(s)                 (n,i)
+  \ns       show   prototype(s)                 (n,i)
+  \ntl      edit local templates                (n,i)
+  \ntg      edit global templates               (n,i)
+  \ntr      rebuild templates                   (n,i)
 
   -- C++ ----------------------------------------------------------------
 
@@ -909,22 +915,26 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Run ----------------------------------------------------------------
 
-  \rc       save and compile                    (n)
-  \rl       link                                (n)
-  \rr       run                                 (n)
-  \ra       set comand line arguments           (n)
-  \rm       run make                            (n)
-  \rg       cmd. line arg. for make             (n)
-  \rp       run splint                          (n)
-  \ri       cmd. line arg. for splint           (n)
-  \rk       run CodeCheck (TM)                  (n)
-  \re       cmd. line arg. for CodeCheck (TM)   (n)
-  \rd       run indent                          (n,v)
-  \rh       hardcopy buffer                     (n,v)
-  \rs       show plugin settings                (n)
+  \rc       save and compile                    (n,i)
+  \rl       link                                (n,i)
+  \rr       run                                 (n,i)
+  \ra       set comand line arguments           (n,i)
+  \rm       run make                            (n,i)
+  \rg       cmd. line arg. for make             (n,i)
+  \rp       run splint                          (n,i)
+  \ri       cmd. line arg. for splint           (n,i)
+  \rk       run CodeCheck (TM)                  (n,i)
+  \re       cmd. line arg. for CodeCheck (TM)   (n,i)
+  \rd       run indent                          (n,v,i)
+  \rh       hardcopy buffer                     (n,v,i)
+  \rs       show plugin settings                (n,i)
   \rx       set xterm size                      (n, only Linux/UNIX & GUI)
-  \ro       change output destination           (n)
-  \rt       rebuild templates                   (n)
+  \ro       change output destination           (n,i)
+
+  -- Load / Unload C/C++ Support ----------------------------------------
+
+  \lcs      Load C/C++ Support Menus            (n, GUI only)
+  \ucs      Unload C/C++ Support Menus          (n, GUI only)
 
 The hotkeys are defined in the file type plugin c.vim (part of this csupport
 plugin package) and described in the document c-hot-keys.pdf
@@ -933,7 +943,7 @@ plugin package) and described in the document c-hot-keys.pdf
 3.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
 
-The following hotkeys are defined in normal, visual and insert mode: 
+The following hotkeys are defined in normal, visual and insert mode:
 
        F9   compile and link
    Alt-F9   write buffer and compile
@@ -944,7 +954,7 @@ The following hotkeys are defined in normal, visual and insert mode:
 
 Shift-F2 can be used to switch between source files and header files if the
 plugin a.vim is present.  To suppress the creation of a new header file when
-switching from a source file the file ~/.vimrc should contain a line  
+switching from a source file the file ~/.vimrc should contain a line
 
   let g:alternateNoDefaultAlternate = 1
 
@@ -979,21 +989,21 @@ Several global variables are checked by the script to customize it:
   g:C_XtermDefaults         "-fa courier -fs 12 -geometry 80x24"
   g:C_Printheader           "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 
-  Linux/UNIX: 
+  Linux/UNIX:
    g:C_ObjExtension         ".o"
    g:C_ExeExtension         ""
-   g:C_CCompiler            "gcc"            
-   g:C_CplusCompiler        "g++"            
+   g:C_CCompiler            "gcc"
+   g:C_CplusCompiler        "g++"
   Windows:
    g:C_ObjExtension         ".obj"
    g:C_ExeExtension         ".exe"
-   g:C_CCompiler            "gcc.exe"            
-   g:C_CplusCompiler        "g++.exe"            
+   g:C_CCompiler            "gcc.exe"
+   g:C_CplusCompiler        "g++.exe"
   g:C_CFlags                "-Wall -g -O0 -c"
-  g:C_LFlags                "-Wall -g -O0"   
-  g:C_Libs                  "-lm"            
+  g:C_LFlags                "-Wall -g -O0"
+  g:C_Libs                  "-lm"
   g:C_LineEndCommColDefault 49
-  g:C_CExtension            "c"              
+  g:C_CExtension            "c"
   g:C_TypeOfH               "cpp"
 
   g:C_CodeCheckExeName      "check"
@@ -1009,18 +1019,18 @@ The variable plugin_dir will automatically be set to one of the following values
           g:C_LocalTemplateFile  : Sets the local template file  (see|csupport-templates|)
           g:C_TemplateOverwrittenMsg : message if template is overwritten
 
-2. group: g:C_CodeSnippets       : The name of the code snippet directory 
+2. group: g:C_CodeSnippets       : The name of the code snippet directory
                                    (see |csupport-snippets|).
-          g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for 
+          g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
                                    word completion (see also |csupport-dictionary|)
           g:C_Root               : the name of the root menu of this plugin
           g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
           g:C_MenuHeader         : Switch the submenu header on/off.
-          g:C_OutputGvim         : when program is running output goes to the vim 
+          g:C_OutputGvim         : when program is running output goes to the vim
                                    command line ("vim"), to a buffer ("buffer") or to
                                    an xterm ("xterm").
           g:C_XtermDefaults      : the xterm defaults
-          g:C_Printheader        : hardcopy: definition of the page header 
+          g:C_Printheader        : hardcopy: definition of the page header
 
 3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
           g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
@@ -1032,12 +1042,12 @@ The variable plugin_dir will automatically be set to one of the following values
           g:C_Libs                   : Libraries to link with.
           g:C_ObjExtension           : C/C+ file extension for objects
                                        (leading point required if not empty)
-          g:C_ExeExtension           : C/C+ file extension for executables 
+          g:C_ExeExtension           : C/C+ file extension for executables
                                        (leading point required if not empty)
           g:C_LineEndCommColDefault  : Default starting column for end-of-line comments.
           g:C_CodeCheckExeName       : The name of the CodeCheck (TM) executable
                                        (the default is 'check')
-          g:C_CodeCheckOptions       : Default options for CodeCheck (TM) 
+          g:C_CodeCheckOptions       : Default options for CodeCheck (TM)
                                        (see |csupport-run-codecheck|).
 
 To override the default add appropriate assignments to ~/.vimrc .
@@ -1048,7 +1058,7 @@ To override the default add appropriate assignments to ~/.vimrc .
 
 The variable g:C_Root, if set (in ~/.vimrc or in ~/.gvimrc), gives the name of
 the single Vim root menu item in which the C/C++ submenus will be put.  The
-default is 
+default is
                   '&C\/C\+\+.'
 Note the terminating dot. A single root menu can be used if the screen is
 limited or several plugins are used in parallel.
@@ -1085,7 +1095,7 @@ As *** USER *** :
 
 Create your private snippet directory:
 
-  mkdir --parents  ~/.vim/c-support/codesnippets 
+  mkdir --parents  ~/.vim/c-support/codesnippets
 
 You may want to copy the snippets comming with this plugin (in
 $VIM/vimfiles/c-support/codesnippets) into the new directory or to set a
@@ -1093,7 +1103,7 @@ link to the global directory.
 
 Create your private template directory:
 
-  mkdir --parents  ~/.vim/c-support/template 
+  mkdir --parents  ~/.vim/c-support/template
 
 Create a private template file 'Templates' in this directory to overwrite some
 macros, e.g.
@@ -1137,7 +1147,7 @@ could look like this:
   $ ========== USER MACROS ======================================
   $ =============================================================
   $
- *|AUTHOR|*    = Dr. Fritz Mehner 
+ *|AUTHOR|*    = Dr. Fritz Mehner
  *|AUTHORREF|* = mn
  *|EMAIL|*     = mehner@fh-swf.de
  *|COMPANY|*   = FH Südwestfalen, Iserlohn
@@ -1181,8 +1191,8 @@ personalize templates.
 *|COMPANY|*         ""
 *|PROJECT|*         ""
 *|COPYRIGHTHOLDER|* ""
-*|includefile|*     "" 
-                   
+*|includefile|*     ""
+
 *|BASENAME|*        filename without path and suffix
 *|DATE|*            the preferred date representation for the current locale
                     without the time
@@ -1216,9 +1226,9 @@ no longer recognized.
  ----------------------------------------------------------------------------
 The format for *|DATE|* ,*|TIME|* , and*|YEAR|* can be set by the user. The
 defaults are
-    *|DATE|*        '%x'    
-    *|TIME|*        '%X'    
-    *|YEAR|*        '%Y'        
+    *|DATE|*        '%x'
+    *|TIME|*        '%X'
+    *|YEAR|*        '%Y'
 See the manual page of the C function strftime() for the format.  The accepted
 format depends on your system, thus this is not portable!  The maximum length
 of the result is 80 characters.
@@ -1390,7 +1400,7 @@ The templatename is one of the above template identifiers. The position
 attribute is optional. Possible attribute values are:
 
   above     insert the template before the current line
-  append    append the template to the current line 
+  append    append the template to the current line
   below     insert the template below the current line
   insert    insert the template at the cursor position
   start     insert the template before the first line of the buffer
@@ -1398,10 +1408,10 @@ attribute is optional. Possible attribute values are:
 An example:
 
   == comment.function ==
-  /* 
+  /*
    * ===  FUNCTION  =======================================================
    *         Name:  <CURSOR>
-   *  Description:  
+   *  Description:
    * ======================================================================
    */
 
@@ -1486,11 +1496,11 @@ Legalization means:
 6.  C/C++ DICTIONARY                                     *csupport-dictionary*
 ==============================================================================
 
-The files  
+The files
 
- c-c++-keywords.list 
- k+r.list  
- stl_index.list  
+ c-c++-keywords.list
+ k+r.list
+ stl_index.list
 
 are a part of this plugin and can be used (together with your own lists) as
 dictionaries for automatic word completion.  This feature is enabled by
@@ -1511,27 +1521,26 @@ If you want to use an additional list MyC.list put the following lines into
         \                   PLUGIN_DIR.'/c-support/wordlists/k+r.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/stl_index.list,'.
         \                   PLUGIN_DIR.'/c-support/wordlists/MyC.list'
-  
-When in file ~/.vimrc the name PLUGIN_DIR has to be replaced by $HOME or 
+
+When in file ~/.vimrc the name PLUGIN_DIR has to be replaced by $HOME or
 $VIM (see above). Whitespaces in the pathnames have to be escaped with a
 backslash.
 The right side is a comma separated list of files. Note the point at the end
-of the first line (string concatenation) and the backslash in front of the 
-second line (continuation line). 
+of the first line (string concatenation) and the backslash in front of the
+second line (continuation line).
 You can use Vim's dictionary feature CTRL-X, CTRL-K (and CTRL-P, CTRL-N).
 
-
 ==============================================================================
-7.  EXTEND taglist.vim FOR make AND qmake                   *csupport-taglist*     
+7.  EXTEND taglist.vim FOR make AND qmake                   *csupport-taglist*
 ==============================================================================
 
 The use of the Vim plugin taglist.vim (Author: Yegappan Lakshmanan) is highly
-recommended. It uses the program ctags which generates tag files for 3 dozen 
+recommended. It uses the program ctags which generates tag files for 3 dozen
 languages (Exuberant Ctags, Darren Hiebert, http://ctags.sourceforge.net).
-With the following extensions the list of targets in a makefile can be shown 
+With the following extensions the list of targets in a makefile can be shown
 in the taglist window.
 
-1) Append the file customization.ctags to the file $HOME/.ctags .  
+1) Append the file customization.ctags to the file $HOME/.ctags .
 
 2) Add the following lines (from customization.vimrc) to $HOME/.vimrc :
 
@@ -1543,10 +1552,10 @@ in the taglist window.
   "-------------------------------------------------------------------
    noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
   inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
-  
+
   let tlist_make_settings  = 'make;m:makros;t:targets'
   let tlist_qmake_settings = 'qmake;t:SystemVariables'
-  
+
   if has("autocmd")
     " ----------  qmake : set file type for *.pro  ----------
     autocmd BufNewFile,BufRead *.pro  set filetype=qmake
@@ -1557,7 +1566,7 @@ in the taglist window.
 The two maps will toggle the taglist window (hotkey F11) in all editing modes.
 The two assignments define the headings for the (q)make sections in the
 taglist window.  The autocmd set the file type 'qmake' for the filename
-extension 'pro' (ctags needs this). 
+extension 'pro' (ctags needs this).
 
 ==============================================================================
 8.  SYNTAX BASED FOLDING                                    *csupport-folding*
@@ -1581,13 +1590,13 @@ The plugin should go into the directory structure below the local
 installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
 Windows.
 The values of the two variables can be found from inside Vim:
-   :echo $VIM 
+   :echo $VIM
 or
    :echo $HOME
 
 Configuration files:
 
-  LINUX/UNIX :   $HOME/.vimrc  and  $HOME/.gvimrc 
+  LINUX/UNIX :   $HOME/.vimrc  and  $HOME/.gvimrc
   Windows    :   $VIM/_vimrc   and  $VIM/_gvimrc
 
 Compiler settings:
@@ -1607,7 +1616,7 @@ directory):
   - Was the archive extracted into the right directory?
 
 * How can I see what was loaded?
-  - Use ':scriptnames' from the Vim command line. 
+  - Use ':scriptnames' from the Vim command line.
 
 * No main menu item.
   - Loading of plugin files must be enabled. If not use
@@ -1617,7 +1626,7 @@ directory):
 
 * Most key mappings do not work.
   - They are defined in a filetype plugin in '$HOME/.vim/ftplugin/'. Use ':filetype'
-    to check if filetype plugins are enabled. If not, add the line 
+    to check if filetype plugins are enabled. If not, add the line
       filetype plugin on
     to the file '~/.vimrc'.
 
@@ -1626,7 +1635,7 @@ directory):
     Under KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.
     The key settings can usually be redefined.
 
-* Splint and/or CodeCheck menu item not visible. 
+* Splint and/or CodeCheck menu item not visible.
   - The program is not installed or not found (path not set) or not executable.
 
 ==============================================================================

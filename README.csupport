@@ -1,4 +1,4 @@
-README for c.vim (Version 5.1) / March 05 2008
+README for c.vim (Version 5.2) / August 02 2008
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,12 +90,12 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.1
+  RELEASE NOTES FOR VERSION 5.2
 =======================================================================================
-+ Definition and implementation of classes have now different templates and menu entries.
-+ Accessor methods (get/set) can be generated.
-+ New templates: everything other than language keywords comes from a template 
-  (and is user changeable).
++ Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.
++ Template files (local/global) can be opened from the snippet menu.
++ Three new preprocessor statements.
++ v-mode for RTTI-entries.
 
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
