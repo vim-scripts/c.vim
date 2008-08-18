@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.46 2008/07/29 08:59:57 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.48 2008/08/08 18:59:37 mehner Exp $
 "        
 "------------------------------------------------------------------------------
 " 
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.2"  							" version number of this script; do not change
+let g:C_Version= "5.2.1"  							" version number of this script; do not change
 "        
 "###############################################################################################
 "
@@ -496,8 +496,8 @@ function! C_InitMenus ()
 	exe "amenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)       :call C_CodeFor("down", "a")<CR>a'
 	exe "vmenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  , "v")<CR>'
 	exe "vmenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down", "v")<CR>'
-	exe "imenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  )<CR>'
-	exe "imenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down")<CR>'
+	exe "imenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  , "a")<CR>'
+	exe "imenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down", "a")<CR>'
 	
 	exe "amenu          ".s:Idioms.'.-SEP2-                      :'
 	exe "amenu <silent> ".s:Idioms.'.&enum                            :call C_InsertTemplate("idioms.enum")<CR>'
@@ -794,19 +794,19 @@ function! C_InitMenus ()
 
 	exe "amenu <silent> ".s:Cpp.'.-SEP6-                        :'
 	exe "amenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)        :call C_InsertTemplate("cpp.open-input-file")<CR>'
-	exe "amenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)         :call C_InsertTemplate("cpp.open-output-file")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)   <Esc>:call C_InsertTemplate("cpp.open-input-file")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)         :call C_InsertTemplate("cpp.open-output-file")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)    <Esc>:call C_InsertTemplate("cpp.open-output-file")<CR>'
 	exe "amenu <silent> ".s:Cpp.'.-SEP7-                        :'
 
 	exe "amenu <silent> ".s:Cpp.'.&using\ namespace\ std;            :call C_InsertTemplate("cpp.namespace-std")<CR>'
-	exe "amenu <silent> ".s:Cpp.'.usin&g\ namespace\ ;               :call C_InsertTemplate("cpp.namespace")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.&using\ namespace\ std;       <Esc>:call C_InsertTemplate("cpp.namespace-std")<CR>'
-	exe "imenu <silent> ".s:Cpp.'.usin&g\ namespace\ ;          <Esc>:call C_InsertTemplate("cpp.namespace")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.usin&g\ namespace\ xxx;            :call C_InsertTemplate("cpp.namespace")<CR>'
+	exe "imenu <silent> ".s:Cpp.'.usin&g\ namespace\ xxx;       <Esc>:call C_InsertTemplate("cpp.namespace")<CR>'
 
-	exe "amenu <silent> ".s:Cpp.'.namespace\ &\{\ \}                 :call C_InsertTemplate("cpp.namespace-block")<CR>'
-	exe "imenu <silent> ".s:Cpp.'.namespace\ &\{\ \}            <Esc>:call C_InsertTemplate("cpp.namespace-block")<CR>'
-	exe "vmenu <silent> ".s:Cpp.'.namespace\ &\{\ \}            <Esc>:call C_InsertTemplate("cpp.namespace-block", "v")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.namespace\ xxx\ &\{\ \}            :call C_InsertTemplate("cpp.namespace-block")<CR>'
+	exe "imenu <silent> ".s:Cpp.'.namespace\ xxx\ &\{\ \}       <Esc>:call C_InsertTemplate("cpp.namespace-block")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.namespace\ xxx\ &\{\ \}       <Esc>:call C_InsertTemplate("cpp.namespace-block", "v")<CR>'
 
 	exe "amenu <silent> ".s:Cpp.'.-SEP8-              :'
 	"
@@ -1423,7 +1423,7 @@ function! C_CodeSnippet(mode)
 		" read snippet file, put content below current line and indent
 		" 
 		if a:mode == "r"
-			if has("gui_running")
+			if has("browse")
 				let	l:snippetfile=browse(0,"read a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("read snippet ", s:C_CodeSnippets, "file" )
@@ -1446,7 +1446,7 @@ function! C_CodeSnippet(mode)
 		" update current buffer / split window / edit snippet file
 		" 
 		if a:mode == "e"
-			if has("gui_running")
+			if has("browse")
 				let	l:snippetfile	= browse(0,"edit a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", s:C_CodeSnippets, "file" )
@@ -1459,7 +1459,7 @@ function! C_CodeSnippet(mode)
 		" write whole buffer into snippet file 
 		" 
 		if a:mode == "w" || a:mode == "wv"
-			if has("gui_running")
+			if has("browse")
 				let	l:snippetfile	= browse(0,"edit a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", s:C_CodeSnippets, "file" )
@@ -2347,7 +2347,14 @@ function! C_EditTemplates ( type )
 	if a:type == 'global'
 		if s:installation == 'system'
 			if filereadable( s:C_GlobalTemplateFile )
-				:execute "update! | split | edit ".s:C_GlobalTemplateFile
+				if has("browse")
+					let	l:templatefile	= browse(0,"edit a template file",s:C_GlobalTemplateDir,"")
+				else
+					let	l:templatefile	= input("edit a template file", s:C_GlobalTemplateDir, "file" )
+				end
+				if l:templatefile != ""
+					:execute "update! | split | edit ".l:templatefile
+				endif
 			else
 				echomsg "global template file not readable"
 			endif
@@ -2359,13 +2366,27 @@ function! C_EditTemplates ( type )
 	if a:type == 'local'
 		if s:installation == 'system'
 			if filereadable( s:C_LocalTemplateFile )
-				:execute "update! | split | edit ".s:C_LocalTemplateFile
+				if has("browse")
+					let	l:templatefile	= browse(0,"edit a template file",s:C_LocalTemplateDir,"")
+				else
+					let	l:templatefile=input("edit a template file", s:C_LocalTemplateDir, "file" )
+				end
+				if l:templatefile != ""
+					:execute "update! | split | edit ".l:templatefile
+				endif
 			else
 				echomsg "local template file not readable"
 			endif
 		else
 			if filereadable( s:C_GlobalTemplateFile )
-				:execute "update! | split | edit ".s:C_GlobalTemplateFile
+				if has("browse")
+					let	l:templatefile	= browse(0,"edit a template file",s:C_GlobalTemplateDir,"")
+				else
+					let	l:templatefile	= input("edit a template file", s:C_GlobalTemplateDir, "file" )
+				end
+				if l:templatefile != ""
+					:execute "update! | split | edit ".l:templatefile
+				endif
 			else
 				echomsg "local template file not readable"
 			endif

@@ -1,4 +1,4 @@
-README for c.vim (Version 5.2) / August 02 2008
+README for c.vim (Version 5.2.1) / August 07 2008
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -77,7 +77,7 @@ and look at csupport help with
 
   :help csupport 
 
-or use the 'help' entry in the root menu of this plug-in.
+or use the 'help' item in the root menu of this plug-in.
 
              +-----------------------------------------------+
              | +-------------------------------------------+ |
@@ -90,12 +90,11 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.2
+  RELEASE NOTES FOR VERSION 5.2.1
 =======================================================================================
-+ Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.
-+ Template files (local/global) can be opened from the snippet menu.
-+ Three new preprocessor statements.
-+ v-mode for RTTI-entries.
++ Bugfix: stray characters whith three dialogs
++ Bugfix: Missing parameter in 2 internal function calls
++ Menu items 'Snippets->edit local/global templates' start an file browser (convenience).
 
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
@@ -155,7 +154,7 @@ rc/costumization.vimrc       Additional settings I use in .vimrc :  incremental 
 (2) gVim. Use tear off menus.
 
 (3) Try 'Focus under mouse' as window behavior (No mouse click when the mouse pointer 
-    is back from the menu entry).
+    is back from the menu item).
 
 (4) Use Emulate3Buttons "on" (X11) even for a 3-button mouse. Pressing left and right
     button at the same time without moving your fingers is faster then moving a finger

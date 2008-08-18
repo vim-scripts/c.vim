@@ -3,7 +3,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim (version 5.2)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.26 2008/07/29 18:10:33 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.27 2008/08/07 14:57:48 mehner Exp $
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -236,9 +236,9 @@ vnoremap    <buffer>  <silent>  <Leader>np    <Esc>:call C_ProtoPick("v")<CR>
  noremap    <buffer>  <silent>  <Leader>nc         :call C_ProtoClear()<CR>
  noremap    <buffer>  <silent>  <Leader>ns         :call C_ProtoShow()<CR>
 "
- noremap    <buffer>  <silent>  <Leader>ntl        :call C_EditTemplates("local")<CR>'
- noremap    <buffer>  <silent>  <Leader>ntg        :call C_EditTemplates("global")<CR>'
- noremap    <buffer>  <silent>  <Leader>ntr        :call C_RebuildTemplates()<CR>'
+ noremap    <buffer>  <silent>  <Leader>ntl        :call C_EditTemplates("local")<CR>
+ noremap    <buffer>  <silent>  <Leader>ntg        :call C_EditTemplates("global")<CR>
+ noremap    <buffer>  <silent>  <Leader>ntr        :call C_RebuildTemplates()<CR>
 "
 " ---------- C++ menu ----------------------------------------------------
 "

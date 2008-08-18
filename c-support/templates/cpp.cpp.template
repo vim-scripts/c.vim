@@ -436,9 +436,8 @@ using namespace std;
 == cpp.namespace ==
 using namespace |?NAMESPACE|;
 == cpp.namespace-block ==
-namespace |?NAMESPACE|
-{<CURSOR>
-<SPLIT>}		// -----  end of |NAMESPACE|  name  -----
+namespace |?NAMESPACE| {<CURSOR>
+<SPLIT>}		// -----  end of namespace |NAMESPACE|  -----
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.rtti-typeid == insert ==
 typeid(<CURSOR><SPLIT>)
