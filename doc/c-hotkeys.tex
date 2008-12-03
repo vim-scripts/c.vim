@@ -1,0 +1,271 @@
+%%=====================================================================================
+%%
+%%         File:  c-hotkeys.tex
+%%
+%%  Description:  c-support.vim : Key mappings for Vim without GUI.
+%%                
+%%                
+%%       Author:  Dr.-Ing. Fritz Mehner
+%%        Email:  mehner@fh-swf.de
+%%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
+%%      Version:  1.0
+%%      Created:  10.11.2006
+%%     Revision:  $Id: c-hotkeys.tex,v 1.17 2008/11/09 12:19:45 mehner Exp $
+%%                
+%%        Notes:  
+%%                
+%%=====================================================================================
+
+\documentclass[oneside,10pt,a4paper,DIV24]{scrartcl}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{lastpage}
+
+\setlength\parindent{0pt}
+
+\newcommand{\Pluginversion}{5.3}
+\newcommand{\ReleaseDate}{November 2008}
+
+%%----------------------------------------------------------------------
+%%  luximono : Type1-font
+%%  Makes keyword stand out by using semibold letters.
+%%----------------------------------------------------------------------
+\usepackage[scaled]{luximono}
+
+%%----------------------------------------------------------------------
+%%  fancyhdr
+%%----------------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyfoot[L]{\small \ReleaseDate}
+\fancyfoot[C]{}
+\fancyfoot[R]{\small \textbf{Page \thepage{} / \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.0pt}
+
+%%----------------------------------------------------------------------
+%%  hyperref
+%%----------------------------------------------------------------------
+\usepackage[ps2pdf]{hyperref}
+\hypersetup{pdfauthor={Dr.-Ing. Fritz Mehner, FH Südwestfalen, Iserlohn, Germany}}
+\hypersetup{pdfkeywords={Vim, C/C++}}
+\hypersetup{pdfsubject={Vim-plugin,  c-support.vim, hot keys}}
+\hypersetup{pdftitle={Vim-plugin,  c-support.vim, hot keys}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  START OF DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}%
+\twocolumn
+%
+%%======================================================================
+%%  title
+%%======================================================================
+\begin{center}
+\textbf{\textsc{\small{Vim-Plugin}}}\\
+\textbf{\LARGE{c-support.vim}}\\
+\textbf{\textsc{\small{Version \Pluginversion}}}\\
+\textbf{\textsc{\Huge{Hot keys}}}\\ 
+Key mappings for Vim with and without GUI.\\
+%Plugin: http://vim.sourceforge.net\\
+%\vspace{2.0mm}
+{\normalsize (i)} insert mode, {\normalsize (n)} normal mode, {\normalsize (v)} visual mode\\
+%\vspace{1.0mm}
+%
+%%======================================================================
+%%  table, left part
+%%======================================================================
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{14mm}|p{58mm}|}
+%%----------------------------------------------------------------------
+%%  show plugin help
+%%----------------------------------------------------------------------
+%\hline 
+%\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}\\
+\hline \verb'\hm'   & show manual   \hfill (n,i)\\
+\hline \verb'\hp'   & help (plugin) \hfill (n,i)\\
+\hline 
+%%----------------------------------------------------------------------
+%%  menu comments
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{C}omments}} \\
+\hline \verb'\cl' & end-of-line comment                     \hfill (n,v,i)\\
+\hline \verb'\cj' & adjust end-of-line comment              \hfill (n,v,i)\\
+\hline \verb'\cs' & set end-of-line comment column          \hfill (n)    \\
+\hline \verb'\c*' & code $\Rightarrow$ comment \verb'/* */' \hfill (n,v)  \\
+\hline \verb'\c/ \cc' & code $\Rightarrow$ comment \verb'//'\hfill (n,v)  \\
+\hline \verb'\co' & comment $\Rightarrow$ code              \hfill (n,v)  \\
+
+\hline \verb'\cfr'& frame comment                           \hfill (n,i)\\
+\hline \verb'\cfu'& function comment                        \hfill (n,i)\\
+\hline \verb'\cme'& method description                      \hfill (n,i)\\
+\hline \verb'\ccl'& class description                       \hfill (n,i)\\
+\hline \verb'\cd' & date                                    \hfill (n,i)\\
+\hline \verb'\ct' & date \& time                            \hfill (n,i)\\
+\hline 
+%%----------------------------------------------------------------------
+%%  menu statements
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{S}tatements}} \\
+\hline \verb'\sd'  & \verb'do { } while'        \hfill (n,v,i)\\
+\hline \verb'\sf'  & \verb'for'                 \hfill (n,i)\\
+\hline \verb'\sfo' & \verb'for { }'             \hfill (n,v,i)\\
+\hline \verb'\si'  & \verb'if'                  \hfill (n,i)\\
+\hline \verb'\sif' & \verb'if { }'              \hfill (n,v,i)\\
+\hline \verb'\sie' & \verb'if else'             \hfill (n,v,i)\\
+\hline \verb'\sife'& \verb'if { } else { }'     \hfill (n,v,i)\\
+\hline \verb'\sw'  & \verb'while'               \hfill (n,i)\\
+\hline \verb'\swh' & \verb'while { }'           \hfill (n,v,i)\\
+\hline \verb'\ss'  & \verb'switch'              \hfill (n,v,i)\\
+\hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
+\hline \verb'\s{'  & \verb'{ }'                 \hfill (n,v,i)\\
+\hline
+%%----------------------------------------------------------------------
+%%  preprocessor menu
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{P}reprocessor}}   \\
+\hline \verb'\p<'   & \verb$#include<...>$         \hfill (n,i)\\
+\hline \verb'\p"'   & \verb$#include"..."$         \hfill (n,i)\\
+\hline \verb'\pd'   & \verb'#define'               \hfill (n,i)\\
+\hline \verb'\pu'   & \verb'#undef'                \hfill (n,i)\\
+\hline \verb'\pie'  & \verb'#if #else #endif'      \hfill (n,v,i)\\
+\hline \verb'\pid'  & \verb'#ifdef #else #endif'   \hfill (n,v,i)\\
+\hline \verb'\pin'  & \verb'#ifndef #else #endif'  \hfill (n,v,i)\\
+\hline \verb'\pind' & \verb'#ifndef #def #endif'   \hfill (n,v,i)\\
+\hline \verb'\pi0'  & \verb'#if 0 #endif'          \hfill (n,v,i)\\
+\hline \verb'\pr0'  & remove \verb'#if 0 #endif'   \hfill (n,i)\\
+\hline \verb'\pe'   & \verb'#error '               \hfill (n,i)\\
+\hline \verb'\pl'   & \verb'#line  '               \hfill (n,i)\\
+\hline \verb'\pp'   & \verb'#pragma'               \hfill (n,i)\\
+\hline
+%%----------------------------------------------------------------------
+%%  snippet menu
+%%----------------------------------------------------------------------
+\hline 
+\multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}} \\
+\hline \verb'\nr'  & read code snippet         \hfill (n)\\
+\hline \verb'\nw'  & write code snippet        \hfill (n,v)\\
+\hline \verb'\ne'  & edit code snippet         \hfill (n)\\
+\hline \verb'\np'  & pick up prototype         \hfill (n,v)\\
+\hline \verb'\ni'  & insert prototype(s)       \hfill (n)\\
+\hline \verb'\nc'  & clear  prototype(s)       \hfill (n)\\
+\hline \verb'\ns'  & show   prototype(s)       \hfill (n)\\
+%
+\hline \verb'\ntl' & edit local templates      \hfill (n)\\
+\hline \verb'\ntg' & edit global templates     \hfill (n)\\
+\hline \verb'\ntr' & rebuild templates         \hfill (n)\\
+\hline
+\end{tabular} \\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+
+\newpage 
+%%======================================================================
+%%  table, right part
+%%======================================================================
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{l}
+   \\ [1.0ex]               %% offset
+\end{tabular} \\ 
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{14mm}|p{58mm}|}
+%%----------------------------------------------------------------------
+%%  idioms menu
+%%----------------------------------------------------------------------
+\hline 
+\multicolumn{2}{|r|}{\textsl{\textbf{I}dioms}}   \\
+\hline \verb'\if'  & function                         \hfill (n,v,i)\\
+\hline \verb'\isf' & static function                  \hfill (n,v,i)\\
+\hline \verb'\im'  & \verb'main()'                    \hfill (n,v,i)\\
+\hline \verb'\i0'  & \verb'for( x=0; x<n; x+=1 )'     \hfill (n,v,i)\\
+\hline \verb'\in'  & \verb'for( x=n-1; x>=0; x-=1 )'  \hfill (n,v,i)\\
+\hline \verb'\ie'  & \verb'enum'   + \verb'typedef'   \hfill (n,v,i)\\
+\hline \verb'\is'  & \verb'struct' + \verb'typedef'   \hfill (n,v,i)\\
+\hline \verb'\iu'  & \verb'union'  + \verb'typedef'   \hfill (n,v,i)\\
+\hline \verb'\ip'  & \verb'printf()'                  \hfill (n,i)\\
+\hline \verb'\isc' & \verb'scanf()'                   \hfill (n,i)\\
+\hline \verb'\ica' & \verb'p=calloc()'                \hfill (n,i)\\
+\hline \verb'\ima' & \verb'p=malloc()'                \hfill (n,i)\\
+\hline \verb'\isi' & \verb'sizeof()'                  \hfill (n,v,i)\\
+\hline \verb'\ias' & \verb'assert()'                  \hfill (n,v,i)\\
+\hline \verb'\ii'  & open input file                  \hfill (n,v,i)\\
+\hline \verb'\io'  & open output file                 \hfill (n,v,i)\\
+\hline
+%%----------------------------------------------------------------------
+%%  C++ menu
+%%----------------------------------------------------------------------
+\hline 
+\multicolumn{2}{|r|}{\textsl{C\textbf{+}+}} \\
+\hline \verb'\+c'  & class                                    \hfill (n,i)\\
+\hline \verb'\+cn' & class (using \verb'new')                 \hfill (n,i)\\
+\hline 
+\hline \verb'\+ci'  & class  implementation             			\hfill (n,i)\\
+\hline \verb'\+cni' & class (using \verb'new') implementation \hfill (n,i)\\
+\hline \verb'\+mi'  & method implementation             			\hfill (n,i)\\
+\hline \verb'\+ai'  & accessor implementation            			\hfill (n,i)\\
+\hline 
+\hline \verb'\+tc' & template class                           \hfill (n,i)\\
+\hline \verb'\+tcn'& template class (using \verb'new')        \hfill (n,i)\\
+\hline 
+\hline \verb'\+tci' & template class  implementation          \hfill (n,i)\\
+\hline \verb'\+tcni'& template class (using \verb'new') impl. \hfill (n,i)\\
+\hline \verb'\+tmi' & template method implementation          \hfill (n,i)\\
+\hline \verb'\+tai' & template accessor implementation        \hfill (n,i)\\
+\hline 
+\hline \verb'\+tf' & template function                        \hfill (n,i)\\
+\hline \verb'\+ec' & error class                              \hfill (n,i)\\
+\hline \verb'\+tr' & \verb'try' \dots \verb'catch'            \hfill (n,v,i)\\
+\hline \verb'\+ca' & \verb'catch'                             \hfill (n,v,i)\\
+\hline \verb'\+c.' & \verb'catch(...)'                        \hfill (n,v,i)\\
+\hline 
+%%----------------------------------------------------------------------
+%%  run menu
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{\textbf{R}un}} \\
+\hline \verb'\rc'  & save and compile                        \hfill (n,i)\\
+\hline \verb'\rl'  & link                                    \hfill (n,i)\\
+\hline \verb'\rr'  & run                                     \hfill (n,i)\\
+\hline \verb'\ra'  & set comand line arguments               \hfill (n,i)\\
+\hline \verb'\rm'  & run \texttt{make}                       \hfill (n,i)\\
+\hline \verb'\rg'  & cmd.\ line arg.\ for \texttt{make}      \hfill (n,i)\\
+%
+\hline 
+\hline \verb'\rp'  & run \texttt{splint}\footnotemark[1]     \hfill (n,i)\\
+\hline \verb'\ri'  & cmd.\ line arg.\ for \texttt{splint}    \hfill (n,i)\\
+%
+\hline \verb'\rk'  & run \texttt{CodeCheck}\footnotemark[2]  \hfill (n,i)\\
+\hline \verb'\re'  & cmd.\ line arg.\ for \texttt{CodeCheck} \hfill (n,i)\\
+%
+\hline 
+\hline \verb'\rd'  & run \texttt{indent}         \hfill (n,i,v)\\
+\hline \verb'\rh'  & hardcopy buffer             \hfill (n,i,v)\\
+\hline \verb'\rs'  & show plugin settings        \hfill (n,i)\\
+\hline \verb'\rx'  & set xterm size              \hfill (n,i, only Unix \& GUI)\\
+\hline \verb'\ro'  & change output destination   \hfill (n,i)\\
+\hline
+%
+%%----------------------------------------------------------------------
+%%  load / unload menu entry
+%%----------------------------------------------------------------------
+\hline
+\multicolumn{2}{|r|}{\textsl{Menu(s)}}\\
+\hline \verb'\lcs'  & Load    Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline \verb'\ucs'  & Unload  Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline
+\end{tabular} \\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
+\footnotetext[1]{%
+\textbf{splint} must be installed ({www.splint.org}).}
+\footnotetext[2]{%
+\textbf{CodeCheck}  must be installed. CodeCheck$^{TM}$ is a product of Abraxas Software, Inc. }
+%
+\end{center}
+\end{document}

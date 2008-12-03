@@ -1,4 +1,4 @@
-README for c.vim (Version 5.2.1) / August 07 2008
+README for c.vim (Version 5.3) / November 28 2008
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,12 +90,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.2.1
+  RELEASE NOTES FOR VERSION 5.3
 =======================================================================================
-+ Bugfix: stray characters whith three dialogs
-+ Bugfix: Missing parameter in 2 internal function calls
-+ Menu items 'Snippets->edit local/global templates' start an file browser (convenience).
-
++ Insertions work properly when foldfolding is used.
++ Menu items Idioms->for(...) : type declaration for loop variable possible (tab completion).
++ Specification of command line arguments (Run->cmd. line arg.): filename completion active.
++ New main menu item 'show manual' (hotkey \hm): read manual for word under cursor. 
++ One hotkey renamed: \h -> \hp (help plugin)
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

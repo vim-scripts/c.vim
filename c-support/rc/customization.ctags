@@ -1,5 +1,5 @@
 
---regex-make=/^([^:# \t]+)[ \t]*[:]{1,2}/\1/t,targets/
+--regex-make=/^([^:# \t]+)[ \t]*:($|[^=]+)/\1/t,targets/
 
 --langdef=qmake
 --langmap=qmake:+.pro

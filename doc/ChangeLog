@@ -1,4 +1,11 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.2.1
+=======================================================================================
++ Bugfix: stray characters whith three dialogs
++ Bugfix: Missing parameter in 2 internal function calls
++ Menu items 'Snippets->edit local/global templates' start an file browser (convenience).
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.2
 =======================================================================================
 + Superfluous control characters for mode switching (menus, hotkeys) removed. Caused beeps.

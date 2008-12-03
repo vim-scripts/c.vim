@@ -1,15 +1,14 @@
-*csupport.txt*                  C/C++ Support                   July 23 2008
+*csupport.txt*                  C/C++ Support                December 01 2008
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.2
-                        for Vim version 6.0 and above
+                              Plugin version 5.3
+                        for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
 C/C++-IDE for Vim/gVim. It is written to considerably speed up writing code in
 a consistent style.  This is done by inserting complete statements,idioms, code
 snippets, templates, and comments.  Syntax checking, compiling,  running a
 program, running a code checker or indent can be done with a keystroke.
-
 
  1.    Usage                                    |csupport-usage-gvim|
  1.1    Menu 'Comments'                         |csupport-comm|
@@ -29,6 +28,10 @@ program, running a code checker or indent can be done with a keystroke.
  1.3.2   Visual mode.                           |csupport-prep-visual-mode|
  1.3.3   Block out code with #if 0 .. #endif    |csupport-prep-if0|
  1.4    Menu 'Idioms'                           |csupport-idioms|
+ 1.4.1   Item 'function'                        |csupport-idioms-function|
+ 1.4.2   for-loop control                       |csupport-idioms-for-loop|
+ 1.4.3   Item 'open input file'                 |csupport-idioms-input|
+ 1.4.4   Item 'open output file'                |csupport-idioms-output|
  1.5    Menu 'Snippets'                         |csupport-snippets|
  1.5.1   Code snippets                          |csupport-snippets|
  1.5.2   Picking up prototypes                  |csupport-proto|
@@ -65,7 +68,7 @@ program, running a code checker or indent can be done with a keystroke.
  5.3.3  Template expansion                      |csupport-templates-expansion|
  6.    C/C++ Dictionaries                       |csupport-dictionary|
  7.    Extend taglist.vim for make and qmake    |csupport-taglist|
- 8.    Syntax based folding                     |csupport-folding|
+ 8.    Folding                                  |csupport-folding|
  9.    Windows particularities                  |csupport-windows|
 10.    Troubleshooting                          |csupport-troubleshooting|
 11.    Release Notes /Change Log                |csupport-release-notes|
@@ -319,8 +322,6 @@ can be surrounded by one of the following statements:
   |      }                                                   |
   +----------------------------+-----------------------------+
 
-For 'switch' and 'case' see |csupport-stat-switch| and |csupport-stat-case|.
-
 The whole statement will be indented after insertion.
 
 
@@ -424,7 +425,7 @@ constructs will be untouched.
 1.4  MENU 'Idioms'                                           *csupport-idioms*
 ------------------------------------------------------------------------------
 
-1.4.1  ENTRY 'function'
+1.4.1  Item 'function'                              *csupport-idioms-function*
 
 NORMAL MODE, INSERT MODE:
 The name of the function is asked for and the following lines (for function
@@ -441,12 +442,43 @@ Main or [static] function: the highlighted lines will go inside the new
 function or main.
 for-loops: the highlighted lines will be set in braces.
 
-1.4.2  ENTRY 'open input file'
+1.4.2  for-loop control                             *csupport-idioms-for-loop*
+
+The menu items 'for( x=0; ... )' and 'for( x=n-1; ... )' can be used to write
+the control statement for a for-loop countig upward or downward. These items
+start an input dialog
+
+ [TYPE (expand)] VARIABLE [START [END [INCR.]]] :
+
+asking for at least the name of the loop variable. The other parameters are
+optional. The type is restricted the following integral data types:
+
+   char
+   int
+   long int
+   long
+   short int
+   short
+   size_t
+   unsigned char
+   unsigned int
+   unsigned long int
+   unsigned long
+   unsigned short int
+   unsigned short
+   unsigned
+
+One of these types can be specified by typing it completely or by typing zero
+or more characters of its name and completing them to the full name by using
+the tab key (tab completion). If the start of the type name is ambiguous (e.g.
+'uns') a list of completion candidates is provided to choose from.
+
+1.4.3  Item 'open input file'                          *csupport-idioms-input*
 
 The item 'open input file' will create the statements to open and close an
 input file (e.g. with the file pointer 'infile').
 
-1.4.3  ENTRY 'open output file'
+1.4.4  Item 'open output file'                        *csupport-idioms-output*
 
 The item 'open output file' will create the statements to open and close an
 output file (e.g. with the file pointer 'outfile').
@@ -637,6 +669,12 @@ executed first.
 The item 'command line arguments' calls an input dialog which asks for command
 line arguments. These arguments are forwarded to the program which is run by
 the 'run' item. The arguments are kept until you change them.
+For the first and only the first argument file name expansion will work (use
+the Tab-key). Only the first string of the input can be expanded due to a
+restriction of the Vim input function. To expand two or more filenames
+specify them in reverse order: type the first characters of the last filename
+and expand them. Go to the start of the input and type the beginning of the
+last but one filename and expand it.
 
 The arguments belong to the current buffer (that is, each buffer can have its
 own arguments).
@@ -649,7 +687,7 @@ The command line arguments can be followed by pipes and redirections:
 
 Caveat: If you look for the current arguments by calling this menu item again
 be sure to leave it with a CR (not Esc !). Due to a limitation of an internal
-Vim function CR will keep the arguments, Esc with discard them.
+Vim function CR will keep the arguments, Esc will discard them.
 
 
 1.7.3  RUN make                                            *csupport-run-make*
@@ -790,10 +828,21 @@ See 'xterm -help' for more options. Xterms are not available under Windows.
 ------------------------------------------------------------------------------
 1.8  'help'                                                    *csupport-help*
 ------------------------------------------------------------------------------
-
-The root menu item 'help' shows this plugin help in a help window.  The help
-tags must have been generated with
+Plugin help
+-----------
+The root menu item 'help (plugin)' shows this plugin help in a help window.
+The help tags must have been generated with
   :helptags ~/.vim/doc
+The hotkey is \hp (for "help plugin").
+
+Displaying a manual
+-------------------
+The root menu item 'show maual' shows the manual for the word under the
+cursor. If there is more than one manual a selection list will be presented.
+If there is no word under the cursor you can type in a name.  An interface to
+the on-line reference manuals must be installed (usually man(1) for
+Linux/Unix, see|csupport-custom-glob-vars|).
+The hotkey is \hm (for "help manual").
 
 ==============================================================================
 2.  USAGE WITHOUT GUI  (Vim)                              *csupport-usage-vim*
@@ -810,7 +859,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Help ---------------------------------------------------------------
 
-  \h        show plugin help                    (n,i)
+  \hm       show manual for word under the cursor (n,i)
+  \hp       show plugin help                      (n,i)
 
   -- Comments -----------------------------------------------------------
 
@@ -939,6 +989,17 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 The hotkeys are defined in the file type plugin c.vim (part of this csupport
 plugin package) and described in the document c-hot-keys.pdf
 
+Changing the default map leader '\'
+-----------------------------------
+The map leader can be changed by the user by setting a global variable in the
+file .vimrc 
+
+ let g:C_MapLeader  = ','
+
+The map leader is now a comma. The 'line end comment' command is now defined
+as ',cl'. This setting will be used as a so called local leader and influences
+only files with filetype 'c' and 'cpp'.
+
 ==============================================================================
 3.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
@@ -988,17 +1049,20 @@ Several global variables are checked by the script to customize it:
   g:C_OutputGvim            "vim"
   g:C_XtermDefaults         "-fa courier -fs 12 -geometry 80x24"
   g:C_Printheader           "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
+  g:C_MapLeader             '\'
 
   Linux/UNIX:
    g:C_ObjExtension         ".o"
    g:C_ExeExtension         ""
    g:C_CCompiler            "gcc"
    g:C_CplusCompiler        "g++"
+   g:C_Man                  "man"
   Windows:
    g:C_ObjExtension         ".obj"
    g:C_ExeExtension         ".exe"
    g:C_CCompiler            "gcc.exe"
    g:C_CplusCompiler        "g++.exe"
+   g:C_Man                  "man.exe"
   g:C_CFlags                "-Wall -g -O0 -c"
   g:C_LFlags                "-Wall -g -O0"
   g:C_Libs                  "-lm"
@@ -1031,12 +1095,13 @@ The variable plugin_dir will automatically be set to one of the following values
                                    an xterm ("xterm").
           g:C_XtermDefaults      : the xterm defaults
           g:C_Printheader        : hardcopy: definition of the page header
+          g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
 
 3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
           g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
-                                       (see |csupport-comm-style|)
           g:C_CCompiler              : The name of the C compiler.
           g:C_CplusCompiler          : The name of the C++ compiler.
+          g:C_Man                    : The name of the man utility.
           g:C_CFlags                 : Compiler flags used for a compilation.
           g:C_LFlags                 : Compiler flags used for linkage.
           g:C_Libs                   : Libraries to link with.
@@ -1569,18 +1634,33 @@ taglist window.  The autocmd set the file type 'qmake' for the filename
 extension 'pro' (ctags needs this).
 
 ==============================================================================
-8.  SYNTAX BASED FOLDING                                    *csupport-folding*
+8.  FOLDING                                                 *csupport-folding*
 ==============================================================================
 
-Syntax based folding can be enabled by adding the following lines to the file
-'~/.vim/syntax/c.vim':
+This plugin can be used together with folding.
 
-  syn region cBlock start="{" end="}" transparent fold
-  set foldmethod=syntax
-  " initially all folds open:
-  set foldlevel=999
+There are a few peculiarities when the cursor is on a closed fold before
+inserting a template:
 
-You may have to create this file first. See |folding| for more information.
+Normal mode
+-----------
+Inserting blocks of complete lines below and above a fold (e.g. frame
+comments) and inserting at the top of a buffer (e.g. file description) works
+as usual.
+Insertions which go to the end of a line (e.g. end-of-line comments) and
+insertions which go to the cursor position (e.g. 'sizeof()') will be suppressed
+and a warning will be shown.
+
+Visual mode
+-----------
+A range of lines containing closed folds can be surrounded by constructs which
+have a visual mode, e.g. a for-loop: 
+
+    for ( ; ; ) {
+  +---  4 lines: {------------------------------------------------------------
+    }
+
+See |folding| for more information on folding.
 
 ==============================================================================
 9.  WINDOWS PARTICULARITIES                                 *csupport-windows*

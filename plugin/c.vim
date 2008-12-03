@@ -1,21 +1,21 @@
 "###############################################################################################
-"  
+"
 "       Filename:  c.vim
-"  
-"    Description:  C/C++-IDE. Write programs by inserting complete statements, 
+"
+"    Description:  C/C++-IDE. Write programs by inserting complete statements,
 "                  comments, idioms, code snippets, templates and comments.
 "                  Compile, link and run one-file-programs without a makefile.
 "                  See also help file csupport.txt .
-"  
+"
 "   GVIM Version:  7.0+
-"  
-"  Configuration:  There are some personal details which should be configured 
+"
+"  Configuration:  There are some personal details which should be configured
 "                   (see the files README.csupport and csupport.txt).
-"  
+"
 "         Author:  Dr.-Ing. Fritz Mehner, FH Südwestfalen, 58644 Iserlohn, Germany
 "          Email:  mehner@fh-swf.de
-"  
-"        Version:  see variable  g:C_Version  below 
+"
+"        Version:  see variable  g:C_Version  below
 "        Created:  04.11.2000
 "        License:  Copyright (c) 2000-2008, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
@@ -27,32 +27,32 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.48 2008/08/08 18:59:37 mehner Exp $
-"        
+"       Revision:  $Id: c.vim,v 1.62 2008/12/01 17:24:19 mehner Exp $
+"
 "------------------------------------------------------------------------------
-" 
+"
 if v:version < 700
   echohl WarningMsg | echo 'The plugin c-support.vim needs Vim version >= 7 .'| echohl None
   finish
 endif
 "
-" Prevent duplicate loading: 
-" 
+" Prevent duplicate loading:
+"
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.2.1"  							" version number of this script; do not change
-"        
+let g:C_Version= "5.3"  							" version number of this script; do not change
+"
 "###############################################################################################
 "
 "  Global variables (with default values) which can be overridden.
-"          
+"
 " Platform specific items:  {{{1
 " - root directory
 " - characters that must be escaped for filenames
-" 
+"
 let	s:MSWIN =		has("win16") || has("win32") || has("win64") || has("win95")
-" 
+"
 if	s:MSWIN
 	"
   let s:escfilename      = ''
@@ -71,7 +71,7 @@ else
 	" user / system wide installation (Linux/Unix)
 	"
 	if match( expand("<sfile>"), $VIM ) >= 0
-		" system wide installation 
+		" system wide installation
 		let s:plugin_dir  = $VIM.'/vimfiles/'
 		let s:installation	= 'system'
 	else
@@ -88,7 +88,7 @@ endif
 "  Use of dictionaries  {{{1
 "  Key word completion is enabled by the filetype plugin 'c.vim'
 "  g:C_Dictionary_File  must be global
-"          
+"
 if !exists("g:C_Dictionary_File")
   let g:C_Dictionary_File = s:plugin_dir.'c-support/wordlists/c-c++-keywords.list,'.
         \                   s:plugin_dir.'c-support/wordlists/k+r.list,'.
@@ -102,11 +102,13 @@ if	s:MSWIN
 	let s:C_CplusCompiler       = 'g++.exe'  " the C++ compiler
 	let s:C_ExeExtension        = '.exe'     " file extension for executables (leading point required)
 	let s:C_ObjExtension        = '.obj'     " file extension for objects (leading point required)
-else                          
+	let s:C_Man                 = 'man.exe'  " the manual program
+else
 	let s:C_CCompiler           = 'gcc'      " the C   compiler
 	let s:C_CplusCompiler       = 'g++'      " the C++ compiler
 	let s:C_ExeExtension        = ''         " file extension for executables (leading point required)
 	let s:C_ObjExtension        = '.o'       " file extension for objects (leading point required)
+	let s:C_Man                 = 'man'      " the manual program
 endif
 "
 let s:C_CExtension     				= 'c'                    " C file extension; everything else is C++
@@ -138,7 +140,7 @@ let s:C_FormatYear						= '%Y'
 "------------------------------------------------------------------------------
 "
 "  Look for global variables (if any), to override the defaults.
-"  
+"
 function! C_CheckGlobal ( name )
   if exists('g:'.a:name)
     exe 'let s:'.a:name.'  = g:'.a:name
@@ -163,6 +165,7 @@ call C_CheckGlobal('C_Libs                   ')
 call C_CheckGlobal('C_LineEndCommColDefault  ')
 call C_CheckGlobal('C_LoadMenus              ')
 call C_CheckGlobal('C_LocalTemplateFile      ')
+call C_CheckGlobal('C_Man                    ')
 call C_CheckGlobal('C_MenuHeader             ')
 call C_CheckGlobal('C_ObjExtension           ')
 call C_CheckGlobal('C_OutputGvim             ')
@@ -175,8 +178,8 @@ call C_CheckGlobal('C_XtermDefaults          ')
 "----- some variables for internal use only -----------------------------------
 "
 "
-" set default geometry if not specified 
-" 
+" set default geometry if not specified
+"
 if match( s:C_XtermDefaults, "-geometry\\s\\+\\d\\+x\\d\\+" ) < 0
 	let s:C_XtermDefaults	= s:C_XtermDefaults." -geometry 80x24"
 endif
@@ -193,12 +196,12 @@ let s:C_If0_Counter   = 0
 let s:C_If0_Txt		 		= "If0Label_"
 "
 let s:C_SplintIsExecutable	= 0
-if executable( "splint" ) 
+if executable( "splint" )
 	let s:C_SplintIsExecutable	= 1
 endif
 "
 let s:C_CodeCheckIsExecutable	= 0
-if executable( s:C_CodeCheckExeName ) 
+if executable( s:C_CodeCheckExeName )
 	let s:C_CodeCheckIsExecutable	= 1
 endif
 "
@@ -221,18 +224,37 @@ let s:C_TemplateLineRegex			.= ']\+\)\s*==\s*\([a-z]\+\s*==\)\?'
 "
 let s:C_ExpansionCounter       = {}
 let s:C_Template               = {}
-let s:C_Macro                  = {'|AUTHOR|'         : 'first name surname', 
+let s:C_Macro                  = {'|AUTHOR|'         : 'first name surname',
 											\						'|AUTHORREF|'      : '',
 											\						'|EMAIL|'          : '',
 											\						'|COMPANY|'        : '',
 											\						'|PROJECT|'        : '',
-											\						'|COPYRIGHTHOLDER|': '' 
+											\						'|COPYRIGHTHOLDER|': ''
 											\						}
-let	s:C_MacroFlag								= {	':l' : 'lowercase'			, 
-											\							':u' : 'uppercase'			, 
-											\							':c' : 'capitalize'		, 
-											\							':L' : 'legalize name'	, 
+let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
+											\							':u' : 'uppercase'			,
+											\							':c' : 'capitalize'		,
+											\							':L' : 'legalize name'	,
 											\						}
+
+let s:C_ForTypes     = [
+    \ 'char '              ,
+    \ 'int '               ,
+    \ 'long int '          ,
+    \ 'long '              ,
+    \ 'short int '         ,
+    \ 'short '             ,
+    \ 'size_t '            ,
+    \ 'unsigned char '     ,
+    \ 'unsigned int '      ,
+    \ 'unsigned long int ' ,
+    \ 'unsigned long '     ,
+    \ 'unsigned short int ', 
+    \ 'unsigned short '    , 
+    \ 'unsigned '          , 
+    \ ]
+
+let s:MsgInsNotAvail	= "insertion not available for a fold" 
 
 "------------------------------------------------------------------------------
 "  C : C_InitMenus                              {{{1
@@ -277,7 +299,7 @@ function! C_InitMenus ()
 	exe "vmenu <silent> ".s:Comments.'.ad&just\ end-of-line\ com\.     :call C_AdjustLineEndComm("v")<CR>'
 
 	exe "amenu <silent> ".s:Comments.'.&set\ end-of-line\ com\.\ col\. :call C_GetLineEndCommCol()<CR>'
-	
+
 	exe "amenu  ".s:Comments.'.-SEP10-                              :'
 	exe "amenu <silent> ".s:Comments.'.code\ ->\ comment\ \/&*\ *\/   		 :call C_CodeComment("a","yes")<CR>:nohlsearch<CR>j'
 	exe "vmenu <silent> ".s:Comments.'.code\ ->\ comment\ \/&*\ *\/  	<Esc>:call C_CodeComment("v","yes")<CR>:nohlsearch<CR>j'
@@ -285,7 +307,7 @@ function! C_InitMenus ()
 	exe "vmenu <silent> ".s:Comments.'.code\ ->\ comment\ &\/\/       <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j'
 	exe "amenu <silent> ".s:Comments.'.c&omment\ ->\ code                  :call C_CommentCode("a")<CR>:nohlsearch<CR>'
 	exe "vmenu <silent> ".s:Comments.'.c&omment\ ->\ code                  :call C_CommentCode("v")<CR>:nohlsearch<CR>'
-	
+
 	exe "amenu          ".s:Comments.'.-SEP0-                  :'
 	exe "amenu <silent> ".s:Comments.'.&frame\ comment         :call C_InsertTemplate("comment.frame")<CR>'
 	exe "amenu <silent> ".s:Comments.'.f&unction\ description  :call C_InsertTemplate("comment.function")<CR>'
@@ -407,10 +429,10 @@ function! C_InitMenus ()
 	"
 	exe "amenu  ".s:Comments.'.-SEP9-                     :'
 	"
-	exe " menu  ".s:Comments.'.&date                             a<C-R>=C_InsertDateAndTime("d")<CR>'
-	exe "imenu  ".s:Comments.'.&date                              <C-R>=C_InsertDateAndTime("d")<CR>'
-	exe " menu  ".s:Comments.'.date\ &time                       a<C-R>=C_InsertDateAndTime("dt")<CR>'
-	exe "imenu  ".s:Comments.'.date\ &time                        <C-R>=C_InsertDateAndTime("dt")<CR>'
+	exe " menu  ".s:Comments.'.&date                             <Esc>:call C_InsertDateAndTime("d")<CR>'
+	exe "imenu  ".s:Comments.'.&date                             <Esc>:call C_InsertDateAndTime("d")<CR>a'
+	exe " menu  ".s:Comments.'.date\ &time                       <Esc>:call C_InsertDateAndTime("dt")<CR>'
+	exe "imenu  ".s:Comments.'.date\ &time                       <Esc>:call C_InsertDateAndTime("dt")<CR>a'
 
 	exe "amenu  ".s:Comments.'.-SEP12-                    :'
 	exe "amenu <silent> ".s:Comments.'.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    :call C_CommentCppToC()<CR>'
@@ -492,13 +514,13 @@ function! C_InitMenus ()
 	exe "imenu <silent> ".s:Idioms.'.&main                       <Esc>:call C_InsertTemplate("idioms.main")<CR>'
 
 	exe "amenu          ".s:Idioms.'.-SEP1-                      :'
-	exe "amenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)          :call C_CodeFor("up"  , "a")<CR>a'
-	exe "amenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)       :call C_CodeFor("down", "a")<CR>a'
+	exe "amenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)          :call C_CodeFor("up"  , "a")<CR>'
+	exe "amenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)       :call C_CodeFor("down", "a")<CR>'
 	exe "vmenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  , "v")<CR>'
 	exe "vmenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down", "v")<CR>'
-	exe "imenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  , "a")<CR>'
-	exe "imenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down", "a")<CR>'
-	
+	exe "imenu          ".s:Idioms.'.for(x=&0;\ x<n;\ x\+=1)     <Esc>:call C_CodeFor("up"  , "a")<CR>i'
+	exe "imenu          ".s:Idioms.'.for(x=&n-1;\ x>=0;\ x\-=1)  <Esc>:call C_CodeFor("down", "a")<CR>i'
+
 	exe "amenu          ".s:Idioms.'.-SEP2-                      :'
 	exe "amenu <silent> ".s:Idioms.'.&enum                            :call C_InsertTemplate("idioms.enum")<CR>'
 	exe "amenu <silent> ".s:Idioms.'.&struct                          :call C_InsertTemplate("idioms.struct")<CR>'
@@ -542,7 +564,7 @@ function! C_InitMenus ()
 	exe "amenu <silent> ".s:Idioms.'.fprintf                          :call C_InsertTemplate("idioms.fprintf")<CR>'
 	exe "imenu <silent> ".s:Idioms.'.fscanf                      <Esc>:call C_InsertTemplate("idioms.fscanf")<CR>'
 	exe "imenu <silent> ".s:Idioms.'.fprintf                     <Esc>:call C_InsertTemplate("idioms.fprintf")<CR>'
-	"                                      
+	"
 	"===============================================================================================
 	"----- Menu : C-Preprocessor ----------------------------------------------   {{{2
 	"===============================================================================================
@@ -852,7 +874,7 @@ function! C_InitMenus ()
 	exe "amenu  <silent>  ".s:Run.'.&link<Tab>\<F9\>                         :call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.&run<Tab>\<C-F9\>                        :call C_Run()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ &arg\.<Tab>\<S-F9\>         :call C_Arguments()<CR>'
-	exe "amenu  <silent>  ".s:Run.'.-SEP0-                            :'     
+	exe "amenu  <silent>  ".s:Run.'.-SEP0-                            :'
 	exe "amenu  <silent>  ".s:Run.'.&make                                    :call C_Make()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make           :call C_MakeArguments()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.-SEP1-                            :'
@@ -901,11 +923,11 @@ function! C_InitMenus ()
 		exe "amenu  <silent>  ".s:Run.'.&xterm\ size                           :call C_XtermSize()<CR>'
 		exe "imenu  <silent>  ".s:Run.'.&xterm\ size                      <C-C>:call C_XtermSize()<CR>'
 	endif
-	if s:C_OutputGvim == "vim" 
+	if s:C_OutputGvim == "vim"
 		exe "amenu  <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm           :call C_Toggle_Gvim_Xterm()<CR><CR>'
 		exe "imenu  <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm      <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 	else
-		if s:C_OutputGvim == "buffer" 
+		if s:C_OutputGvim == "buffer"
 			exe "amenu  <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim         :call C_Toggle_Gvim_Xterm()<CR><CR>'
 			exe "imenu  <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim    <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		else
@@ -921,6 +943,8 @@ function! C_InitMenus ()
 	if s:C_Root != ""
 		exe " menu  <silent>  ".s:C_Root.'&help\ \(plugin\)          :call C_HelpCsupport()<CR>'
 		exe "imenu  <silent>  ".s:C_Root.'&help\ \(plugin\)     <C-C>:call C_HelpCsupport()<CR>'
+		exe " menu  <silent>  ".s:C_Root.'show\ &manual   		       :call C_Help("m")<CR>'
+		exe "imenu  <silent>  ".s:C_Root.'show\ &manual 		    <C-C>:call C_Help("m")<CR>'
 	endif
 
 endfunction    " ----------  end of function  C_InitMenus  ----------
@@ -930,38 +954,38 @@ endfunction    " ----------  end of function  C_InitMenus  ----------
 "===============================================================================================
 "
 let s:C_StandardLibs       = [
-  \ '&assert\.h' , '&ctype\.h' ,   '&errno\.h' , 
+  \ '&assert\.h' , '&ctype\.h' ,   '&errno\.h' ,
   \ '&float\.h' ,  '&limits\.h' ,  'l&ocale\.h' ,
   \ '&math\.h' ,   'set&jmp\.h' ,  's&ignal\.h' ,
-  \ 'stdar&g\.h' , 'st&ddef\.h' ,  '&stdio\.h' , 
-  \ 'stdli&b\.h' , 'st&ring\.h' ,  '&time\.h' ,  
+  \ 'stdar&g\.h' , 'st&ddef\.h' ,  '&stdio\.h' ,
+  \ 'stdli&b\.h' , 'st&ring\.h' ,  '&time\.h' ,
   \ ]
 "
 let s:C_C99Libs       = [
   \ '&complex\.h', '&fenv\.h',    '&inttypes\.h',
-  \ 'is&o646\.h',  '&stdbool\.h', 's&tdint\.h',  
-  \ 'tg&math\.h',  '&wchar\.h',   'wct&ype\.h',  
+  \ 'is&o646\.h',  '&stdbool\.h', 's&tdint\.h',
+  \ 'tg&math\.h',  '&wchar\.h',   'wct&ype\.h',
   \ ]
 "
 let s:Cpp_StandardLibs1       = [
-  \ '&algorithm', '&bitset',  '&complex',    '&deque',     
-  \ '&exception', '&fstream', 'f&unctional', 'iomani&p',   
-  \ '&ios',       'iosf&wd',  'io&stream',   'istrea&m',   
-  \ 'iterato&r',  '&limits',  'lis&t',       'l&ocale',    
+  \ '&algorithm', '&bitset',  '&complex',    '&deque',
+  \ '&exception', '&fstream', 'f&unctional', 'iomani&p',
+  \ '&ios',       'iosf&wd',  'io&stream',   'istrea&m',
+  \ 'iterato&r',  '&limits',  'lis&t',       'l&ocale',
   \ ]
 "
 let s:Cpp_StandardLibs2       = [
-  \ '&map',      'memor&y',    '&new',       'numeri&c',  
-  \ '&ostream',  '&queue',     '&set',       'sst&ream',  
-  \ 'st&ack',    'stde&xcept', 'stream&buf', 'str&ing',   
-  \ '&typeinfo', '&utility',   '&valarray',  'v&ector',   
+  \ '&map',      'memor&y',    '&new',       'numeri&c',
+  \ '&ostream',  '&queue',     '&set',       'sst&ream',
+  \ 'st&ack',    'stde&xcept', 'stream&buf', 'str&ing',
+  \ '&typeinfo', '&utility',   '&valarray',  'v&ector',
   \ ]
 "
 let s:Cpp_StandardLibs3       = [
-  \ 'c&assert', 'c&ctype',  'c&errno',  'c&float', 
+  \ 'c&assert', 'c&ctype',  'c&errno',  'c&float',
   \ 'c&limits', 'cl&ocale', 'c&math',   'cset&jmp',
-  \ 'cs&ignal', 'cstdar&g', 'cst&ddef', 'c&stdio', 
-  \ 'cstdli&b', 'cst&ring', 'c&time',  
+  \ 'cs&ignal', 'cstdar&g', 'cst&ddef', 'c&stdio',
+  \ 'cstdli&b', 'cst&ring', 'c&time',
   \ ]
 
 let s:Cpp_IosFlagBits       = [
@@ -1000,10 +1024,14 @@ endfunction    " ----------  end of function C_CIosFlagMenus  ----------
 "------------------------------------------------------------------------------
 "  C_Input: Input after a highlighted prompt     {{{1
 "------------------------------------------------------------------------------
-function! C_Input ( promp, text )
+function! C_Input ( promp, text, ... )
 	echohl Search																					" highlight prompt
 	call inputsave()																			" preserve typeahead
-	let	retval=input( a:promp, a:text )										" read input
+	if a:0 == 0
+		let retval	=input( a:promp, a:text )
+	else
+		let retval	=input( a:promp, a:text, a:1 )
+	endif
 	call inputrestore()																		" restore typeahead
 	echohl None																						" reset highlighting
 	let retval  = substitute( retval, '^\s\+', "", "" )		" remove leading whitespaces
@@ -1040,11 +1068,11 @@ function! C_AdjustLineEndComm ( mode ) range
 		let	line= getline(".")
 		" look for a C comment
 		let idx1	= 1 + match( line, '\s*\/\*.\{-}\*\/' )
-		let idx2	= 1 + match( line, '\/\*.\{-}\*\/' )
-		if idx2 == 0					
+		let idx2	= 1 + match( line,    '\/\*.\{-}\*\/' )
+		if idx2 == 0
 			" look for a C++ comment
 			let idx1	= 1 + match( line, '\s*\/\/.*$' )
-			let idx2	= 1 + match( line, '\/\/.*$' )
+			let idx2	= 1 + match( line,    '\/\/.*$' )
 		endif
 
 		let	ln	= line(".")
@@ -1053,7 +1081,7 @@ function! C_AdjustLineEndComm ( mode ) range
 		call setpos(".", [ 0, ln, idx2, 0 ] )
 		let vpos2	= virtcol(".")
 
-		if   ! (   vpos2 == b:C_LineEndCommentColumn 
+		if   ! (   vpos2 == b:C_LineEndCommentColumn
 					\	|| vpos1 > b:C_LineEndCommentColumn
 					\	|| idx2  == 0 )
 
@@ -1091,7 +1119,7 @@ function! C_GetLineEndCommCol ()
 	if actcol+1 == virtcol("$")
 		let	b:C_LineEndCommentColumn	= C_Input( 'start line-end comment at virtual column : ', actcol )
 	else
-		let	b:C_LineEndCommentColumn	= virtcol(".") 
+		let	b:C_LineEndCommentColumn	= virtcol(".")
 	endif
   echomsg "line end comments will start at column  ".b:C_LineEndCommentColumn
 endfunction		" ---------- end of function  C_GetLineEndCommCol  ----------
@@ -1130,8 +1158,8 @@ function! C_MultiLineEndComments ( )
 	let pos1	= line("'>")
 	"
 	" ----- trim whitespaces -----
-  exe pos0.','.pos1.'s/\s*$//'  
-	" 
+  exe pos0.','.pos1.'s/\s*$//'
+	"
 	" ----- find the longest line -----
 	let	maxlength		= 0
 	let	linenumber	= pos0
@@ -1167,7 +1195,7 @@ function! C_MultiLineEndComments ( )
 	normal a
 	if pos1-pos0 > 0
 		exe "normal ".diff."k"
-	end
+	endif
 endfunction		" ---------- end of function  C_MultiLineEndComments  ----------
 "
 "------------------------------------------------------------------------------
@@ -1214,16 +1242,16 @@ endfunction    " ----------  end of function C_Comment_H_SectionAll ----------
 function! C_CodeComment( mode, style )
 
 	if a:mode=="a"
-		if a:style == 'yes' 
+		if a:style == 'yes'
 			silent exe ":s#^#/\* #"
 			silent put = ' */'
 		else
 			silent exe ":s#^#//#"
 		endif
 	endif
-	
+
 	if a:mode=="v"
-		if a:style == 'yes' 
+		if a:style == 'yes'
 			silent exe ":'<,'>s/^/ \* /"
 			silent exe ":'< s'^ '\/'"
 			silent exe ":'>"
@@ -1245,9 +1273,9 @@ function! C_RemoveCComment( start, end )
 	if a:end-a:start<1
 		return 0										" lines removed
 	endif
-	" 
+	"
 	" Is the C-comment complete ? Get length.
-	" 
+	"
 	let check				= getline(	a:start ) =~ s:C_StartMultilineComment
 	let	linenumber	= a:start+1
 	while linenumber < a:end && getline(	linenumber ) !~ '^\s*\*\/'
@@ -1257,7 +1285,7 @@ function! C_RemoveCComment( start, end )
 	let check = check && getline(	linenumber ) =~ '^\s*\*\/'
 	"
 	" remove a complete comment
-	" 
+	"
 	if check
 		exe "silent :".a:start.'   s/'.s:C_StartMultilineComment.'//'
 		let	linenumber1	= a:start+1
@@ -1285,7 +1313,7 @@ function! C_CommentCode(mode)
 	endif
 
 	let	removed	= 0
-	" 
+	"
 	let	linenumber=pos1
 	while linenumber <= pos2
 		" Do we have a C++ comment ?
@@ -1358,17 +1386,20 @@ function! C_PPIf0 (mode)
 		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
 		let zz= zz."\n#endif     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n\n"
 		put =zz
-		if v:version >= 700
-			normal 4k
-		endif
+		normal 4k
 	endif
 
 	if a:mode=='v'
-		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
-		:'<put! =zz
+		let	pos1	= line("'<")
+		let	pos2	= line("'>")
 		let zz=      "#endif     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n\n"
-		:'>put  =zz
-		:normal '<
+		exe ":".pos2."put =zz"
+		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
+		exe ":".pos1."put! =zz"
+		"
+		if  &foldenable && foldclosed(".")
+			normal zv
+		endif
 	endif
 
 endfunction    " ----------  end of function C_PPIf0 ----------
@@ -1377,7 +1408,12 @@ endfunction    " ----------  end of function C_PPIf0 ----------
 "  C_PPIf0Remove : remove  #if 0 .. #endif        {{{1
 "------------------------------------------------------------------------------
 function! C_PPIf0Remove ()
-
+	"
+	" cursor on fold: open fold first
+	if  &foldenable && foldclosed(".")
+		normal zv
+	endif
+	"
 	let frstline	= searchpair( '^\s*#if\s\+0', '', '^\s*#endif\>.\+\<If0Label_', 'bn' )
   if frstline<=0
 		echohl WarningMsg | echo 'no  #if 0 ... #endif  found or cursor not inside such a directive'| echohl None
@@ -1397,7 +1433,7 @@ function! C_PPIf0Remove ()
 
   silent exe ':'.lastline.','.lastline.'d'
 	silent exe ':'.frstline.','.frstline.'d'
-	
+
 endfunction    " ----------  end of function C_PPIf0Remove ----------
 "
 "-------------------------------------------------------------------------------
@@ -1408,7 +1444,7 @@ endfunction    " ----------  end of function C_PPIf0Remove ----------
 "-------------------------------------------------------------------------------
 function! C_LegalizeName ( name )
 	let identifier = substitute(     a:name, '\s\+',  '_', 'g' )
-	let identifier = substitute( identifier, '\W\+',  '_', 'g' ) 
+	let identifier = substitute( identifier, '\W\+',  '_', 'g' )
 	let identifier = substitute( identifier, '_\+', '_', 'g' )
 	return identifier
 endfunction    " ----------  end of function C_LegalizeName  ----------
@@ -1421,13 +1457,13 @@ function! C_CodeSnippet(mode)
 	if isdirectory(s:C_CodeSnippets)
 		"
 		" read snippet file, put content below current line and indent
-		" 
+		"
 		if a:mode == "r"
 			if has("browse")
 				let	l:snippetfile=browse(0,"read a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("read snippet ", s:C_CodeSnippets, "file" )
-			end
+			endif
 			if filereadable(l:snippetfile)
 				let	linesread= line("$")
 				let l:old_cpoptions	= &cpoptions " Prevent the alternate buffer from being set to this files
@@ -1435,7 +1471,7 @@ function! C_CodeSnippet(mode)
 				:execute "read ".l:snippetfile
 				let &cpoptions	= l:old_cpoptions		" restore previous options
 				let	linesread= line("$")-linesread-1
-				if linesread>=0 && match( l:snippetfile, '\.\(ni\|noindent\)$' ) < 0 
+				if linesread>=0 && match( l:snippetfile, '\.\(ni\|noindent\)$' ) < 0
 				endif
 			endif
 			if line(".")==2 && getline(1)=~"^$"
@@ -1444,26 +1480,26 @@ function! C_CodeSnippet(mode)
 		endif
 		"
 		" update current buffer / split window / edit snippet file
-		" 
+		"
 		if a:mode == "e"
 			if has("browse")
 				let	l:snippetfile	= browse(0,"edit a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", s:C_CodeSnippets, "file" )
-			end
+			endif
 			if l:snippetfile != ""
 				:execute "update! | split | edit ".l:snippetfile
 			endif
 		endif
 		"
-		" write whole buffer into snippet file 
-		" 
+		" write whole buffer into snippet file
+		"
 		if a:mode == "w" || a:mode == "wv"
 			if has("browse")
 				let	l:snippetfile	= browse(0,"edit a code snippet",s:C_CodeSnippets,"")
 			else
 				let	l:snippetfile=input("edit snippet ", s:C_CodeSnippets, "file" )
-			end
+			endif
 			if l:snippetfile != ""
 				if filereadable(l:snippetfile)
 					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
@@ -1474,7 +1510,7 @@ function! C_CodeSnippet(mode)
 					:execute ":write! ".l:snippetfile
 				else
 					:execute ":*write! ".l:snippetfile
-				end
+				endif
 			endif
 		endif
 
@@ -1484,94 +1520,124 @@ function! C_CodeSnippet(mode)
 endfunction    " ----------  end of function C_CodeSnippets  ----------
 "
 "------------------------------------------------------------------------------
+"  C_help : builtin completion    {{{1
+"------------------------------------------------------------------------------
+function!	C_ForTypeComplete ( ArgLead, CmdLine, CursorPos )
+	"
+	" show all types
+	if a:ArgLead == ''
+		return s:C_ForTypes
+	endif
+	"
+	" show types beginning with a:ArgLead
+	let	expansions	= []
+	for item in s:C_ForTypes
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_ForTypeComplete  ----------
+"
+"------------------------------------------------------------------------------
 "  C_CodeFor : for (idiom)       {{{1
 "------------------------------------------------------------------------------
 function! C_CodeFor( direction, mode )
-	if a:direction=="up"
-		let	string	= C_Input( " loop var. [ start [ end [ incr. ]]] : ", "" )
+	"
+	if a:direction == 'up'
+		let	string	= 'INCR.'
 	else
-		let	string	= C_Input( " loop var. [ start [ end [ decr. ]]] : ", "" )
+		let	string	= 'DECR.'
 	endif
-	let	pos		= 0
-	let	jmp		= 0
-	if string != ""
-		"
-		" use internal formatting to avoid conficts when using == below
-		let	equalprg_save	= &equalprg
-		set equalprg= 
-		"
-		" loop variable
-		let loopvar		= matchstr( string, '\S\+\s*', pos )
-		let pos				= pos + strlen(loopvar)
-		let loopvar		= substitute( loopvar, '\s*$', "", "" )
-		" 
-		" start value
-		let startval	= matchstr( string, '\S\+\s*', pos )
-		let pos				= pos + strlen(startval)
-		let startval	= substitute( startval, '\s*$', "", "" )
-
-		" end value
-		let endval	= matchstr( string, '\S\+\s*', pos )
-		let pos				= pos + strlen(endval)
-		let endval	= substitute( endval, '\s*$', "", "" )
-
-		" increment
-		let incval	= matchstr( string, '\S\+\s*', pos )
-		let pos			= pos + strlen(incval)
-		let incval	= substitute( incval, '\s*$', "", "" )
-
-		if incval==""
-			let incval	= '1'
-			let	jmp		= 10
+	let	string	= C_Input( '[TYPE (expand)] VARIABLE [START [END ['.string.']]] : ', '', 'customlist,C_ForTypeComplete' )
+	if string == ''
+		return
+	endif
+	"
+	let part		= ['']
+	let nextindex	= -1
+	for item in s:C_ForTypes
+		let nextindex	= matchend( string, '^'.item )
+		if nextindex >= 0
+			let part[0]	= item
+			let	string	= strpart( string, nextindex-1 )
 		endif
+	endfor
+	let part	= part + split( string )
 
-		if a:direction=="up"
-			if endval==""
-				let endval	= 'n'
-				let	jmp		= 7
-			endif
-			if startval==""
-				let startval	= '0'
-				let	jmp		= 4
-			endif
-			let zz= "for ( ".loopvar." = ".startval."; ".loopvar." < ".endval."; ".loopvar." += ".incval." )" 
+	if len( part ) 	> 5
+    echohl WarningMsg | echomsg "for loop construction : to many arguments " | echohl None
+		return
+	endif
+
+	let missing	= 0
+	while len(part) < 5
+		let part	= part + ['']
+		let missing	= missing+1
+	endwhile
+
+	let [ loopvar_type, loopvar, startval, endval, incval ]	= part
+
+	if incval==''
+		let incval	= '1'
+	endif
+
+	if a:direction == 'up'
+		if endval == ''
+			let endval	= 'n'
+		endif
+		if startval == ''
+			let startval	= '0'
+		endif
+		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' < '.endval.'; '.loopvar.' += '.incval.' )'
+	else
+		if endval == ''
+			let endval	= '0'
+		endif
+		if startval == ''
+			let startval	= 'n-1'
+		endif
+		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' >= '.endval.'; '.loopvar.' -= '.incval.' )'
+	endif
+	"
+	" use internal formatting to avoid conficts when using == below
+	let	equalprg_save	= &equalprg
+	set equalprg=
+
+	" ----- normal mode ----------------
+	if a:mode=='a'
+		put =zz
+		normal 2==
+	endif
+	" ----- visual mode ----------------
+	if a:mode=='v'
+		let	pos1	= line("'<")
+		let	pos2	= line("'>")
+		let	zz	= zz.' {'
+		let zz2=    '}'
+		exe ":".pos2."put =zz2"
+		exe ":".pos1."put! =zz"
+		:exe 'normal ='.(pos2-pos1+2).'+'
+	endif
+	"
+	" restore formatter programm
+	let &equalprg	= equalprg_save
+	"
+	" position the cursor
+	"
+	normal ^
+	if missing == 1
+		let match	= search( '\<'.incval.'\>' )
+	else
+		if missing == 2
+			let match	= search( '\<'.endval.'\>' )
 		else
-			if endval==""
-				let endval	= '0'
-				let	jmp		= 7
-			endif
-			if startval==""
-				let startval	= 'n-1'
-				let	jmp		= 4
-			endif
-			let zz= "for ( ".loopvar." = ".startval."; ".loopvar." >= ".endval."; ".loopvar." -= ".incval." )" 
-		endif
-
-		" ----- normal mode ----------------
-		if a:mode=="a" 
-			put =zz
-			normal 2==
-			if jmp!=0
-				exe "normal ".jmp."Wh"
-			else
-				exe 'normal $'
+			if missing == 3
+				let match	= search( '\<'.startval.'\>' )
 			endif
 		endif
-
-		" ----- visual mode ----------------
-		if a:mode=="v" 
-			let	zz	= zz." {"
-			:'<put! =zz
-			let zz=    "}"
-			:'>put =zz
-			:'<-1
-			:exe "normal =".(line("'>")-line(".")+3)."+"
-		endif
-		"
-		" restore formatter programm
-		let &equalprg	= equalprg_save
-		"
 	endif
+	"
 endfunction    " ----------  end of function C_CodeFor ----------
 "
 "------------------------------------------------------------------------------
@@ -1611,7 +1677,7 @@ function! C_ProtoPick (mode)
 	endwhile
 	"
 	let prototyp  = substitute( prototyp, '^\s\+', "", "" )					" remove leading whitespaces
-	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments 
+	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments
 	let prototyp  = substitute( prototyp, '\s\+', " ", "g" )				" squeeze whitespaces
 	let prototyp  = substitute( prototyp, '\s\+$', "", "" )					" remove trailing whitespaces
 	"
@@ -1625,7 +1691,7 @@ function! C_ProtoPick (mode)
 	"
 	" remove the scope res. operator
 	"
-	let part1		  = substitute( part1, '<\s*\w\+\s*>', "", "g" )	
+	let part1		  = substitute( part1, '<\s*\w\+\s*>', "", "g" )
 	let part1   	= substitute( part1, '\<std\s*::', 'std##', 'g' )	" remove the scope res. operator
 	let part1   	= substitute( part1, '\<\h\w*\s*::', '', 'g' )		" remove the scope res. operator
 	let part1   	= substitute( part1, '\<std##', 'std::', 'g' )		" remove the scope res. operator
@@ -1633,7 +1699,7 @@ function! C_ProtoPick (mode)
 	"
 	" remove trailing parts of the function body; add semicolon
 	"
-	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" ) 
+	let prototyp	= substitute( prototyp, '\s*{.*$', "", "" )
 	let prototyp	= prototyp.";\n"
 	"
 	" bookkeeping
@@ -1653,7 +1719,7 @@ function! C_ProtoInsert ()
 	"
 	" use internal formatting to avoid conficts when using == below
 	let	equalprg_save	= &equalprg
-	set equalprg= 
+	set equalprg=
 	"
 	if s:C_PrototypeCounter > 0
 		for protytype in s:C_Prototype
@@ -1725,8 +1791,8 @@ function! C_Compile ()
 
 	" update : write source file if necessary
 	exe	":update"
-	
-	" compilation if object does not exist or object exists and is older then the source	
+
+	" compilation if object does not exist or object exists and is older then the source
 	if !filereadable(Obj) || (filereadable(Obj) && (getftime(Obj) < getftime(Sou)))
 		" &makeprg can be a string containing blanks
 		let makeprg_saved='"'.&makeprg.'"'
@@ -1735,7 +1801,7 @@ function! C_Compile ()
 		else
 			exe		"setlocal makeprg=".s:C_CplusCompiler
 		endif
-		" 
+		"
 		" COMPILATION
 		"
 		if s:MSWIN
@@ -1744,13 +1810,13 @@ function! C_Compile ()
 			exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
-		" 
-		" open error window if necessary 
+		"
+		" open error window if necessary
 		exe	":botright cwindow"
 	else
 		let s:C_HlMessage = " '".Obj."' is up to date "
 	endif
-	
+
 endfunction    " ----------  end of function C_Compile ----------
 "
 "------------------------------------------------------------------------------
@@ -1771,7 +1837,7 @@ function! C_Link ()
 	let	Exe		= expand("%:p:r").s:C_ExeExtension	" name of the executable
 	let ObjEsc= escape( Obj, s:escfilename )
 	let ExeEsc= escape( Exe, s:escfilename )
-	
+
 	" no linkage if:
 	"   executable exists
 	"   object exists
@@ -1787,7 +1853,7 @@ function! C_Link ()
 		let s:C_HlMessage = " '".Exe."' is up to date "
 		return
 	endif
-	
+
 	" linkage if:
 	"   object exists
 	"   source exists
@@ -1800,14 +1866,14 @@ function! C_Link ()
 		else
 			exe		"setlocal makeprg=".s:C_CplusCompiler
 		endif
-		let v:statusmsg="" 
+		let v:statusmsg=""
 		if s:MSWIN
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o \"".ExeEsc."\" \"".ObjEsc."\""
 		else
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o ".ExeEsc." ".ObjEsc
 		endif
 		if v:statusmsg != ""
-			let s:C_HlMessage = v:statusmsg 
+			let s:C_HlMessage = v:statusmsg
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
 	endif
@@ -1848,7 +1914,7 @@ function! C_Run ()
 		else
 			echomsg "file ".Exe." does not exist / is not executable"
 		endif
-	
+
 	endif
 	"
 	"==============================================================================
@@ -1862,9 +1928,9 @@ function! C_Run ()
 		if l:currentbuffer ==  bufname("%")
 			"
 			"
-			if bufloaded(s:C_OutputBufferName) != 0 && bufwinnr(s:C_OutputBufferNumber)!=-1 
+			if bufloaded(s:C_OutputBufferName) != 0 && bufwinnr(s:C_OutputBufferNumber)!=-1
 				exe bufwinnr(s:C_OutputBufferNumber) . "wincmd w"
-				" buffer number may have changed, e.g. after a 'save as' 
+				" buffer number may have changed, e.g. after a 'save as'
 				if bufnr("%") != s:C_OutputBufferNumber
 					let s:C_OutputBufferNumber	= bufnr(s:C_OutputBufferName)
 					exe ":bn ".s:C_OutputBufferNumber
@@ -1879,7 +1945,7 @@ function! C_Run ()
 				setlocal tabstop=8
 			endif
 			"
-			" run programm 
+			" run programm
 			"
 			setlocal	modifiable
 			if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
@@ -1892,7 +1958,7 @@ function! C_Run ()
 			setlocal	nomodifiable
 			"
 			if winheight(winnr()) >= line("$")
-				exe bufwinnr(l:currentbuffernr) . "wincmd w" 
+				exe bufwinnr(l:currentbuffernr) . "wincmd w"
 			endif
 			"
 		endif
@@ -1924,14 +1990,14 @@ function! C_Arguments ()
 	let	Exe		  = expand("%:r").s:C_ExeExtension
   if Exe == ""
 		redraw
-		echohl WarningMsg | echo " no file name " | echohl None
+		echohl WarningMsg | echo "no file name " | echohl None
 		return
   endif
 	let	prompt	= 'command line arguments for "'.Exe.'" : '
 	if exists("b:C_CmdLineArgs")
-		let	b:C_CmdLineArgs= C_Input( prompt, b:C_CmdLineArgs )
+		let	b:C_CmdLineArgs= C_Input( prompt, b:C_CmdLineArgs, 'file' )
 	else
-		let	b:C_CmdLineArgs= C_Input( prompt , "" )
+		let	b:C_CmdLineArgs= C_Input( prompt , "", 'file' )
 	endif
 endfunction    " ----------  end of function C_Arguments ----------
 "
@@ -1951,9 +2017,9 @@ function! C_Toggle_Gvim_Xterm ()
 		if s:C_OutputGvim == "buffer"
 			if has("gui_running")
 				exe "aunmenu  <silent>  ".s:Run.'.&output:\ BUFFER->xterm->vim'
-				if (!s:MSWIN) 
-					exe "amenu    <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer             :call C_Toggle_Gvim_Xterm()<CR><CR>'
-					exe "imenu    <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer        <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+				if (!s:MSWIN)
+					exe "amenu    <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer            :call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "imenu    <silent>  ".s:Run.'.&output:\ XTERM->vim->buffer       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				else
 					exe "amenu    <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm            :call C_Toggle_Gvim_Xterm()<CR><CR>'
 					exe "imenu    <silent>  ".s:Run.'.&output:\ VIM->buffer->xterm       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
@@ -1963,7 +2029,7 @@ function! C_Toggle_Gvim_Xterm ()
 				let	s:C_OutputGvim	= "xterm"
 			else
 				let	s:C_OutputGvim	= "vim"
-			end
+			endif
 		else
 			" ---------- output : xterm -> gvim
 			if has("gui_running")
@@ -2001,7 +2067,7 @@ endfunction    " ----------  end of function C_XtermSize ----------
 let s:C_MakeCmdLineArgs   = ""     " command line arguments for Run-make; initially empty
 
 function! C_MakeArguments ()
-	let	s:C_MakeCmdLineArgs= C_Input("make command line arguments : ",s:C_MakeCmdLineArgs)
+	let	s:C_MakeCmdLineArgs= C_Input("make command line arguments : ",s:C_MakeCmdLineArgs )
 endfunction    " ----------  end of function C_MakeArguments ----------
 "
 function! C_Make()
@@ -2041,7 +2107,7 @@ function! C_SplintCheck ()
 		return
 	endif
 	let s:C_HlMessage = ""
-	exe	":cclose"	
+	exe	":cclose"
 	silent exe	":update"
 	let makeprg_saved='"'.&makeprg.'"'
 	" Windows seems to need this:
@@ -2049,7 +2115,7 @@ function! C_SplintCheck ()
 		:compiler splint
 	endif
 	:setlocal makeprg=splint
-	"	
+	"
 	let l:arguments  = exists("b:C_SplintCmdLineArgs") ? b:C_SplintCmdLineArgs : ' '
 	silent exe	"make ".l:arguments." ".escape(l:currentbuffer,s:escfilename)
 	exe	"setlocal makeprg=".makeprg_saved
@@ -2092,16 +2158,16 @@ function! C_CodeCheck ()
 		return
 	endif
 	let s:C_HlMessage = ""
-	exe	":cclose"	
+	exe	":cclose"
 	silent exe	":update"
 	let makeprg_saved='"'.&makeprg.'"'
 	exe	"setlocal makeprg=".s:C_CodeCheckExeName
-	" 
+	"
 	" match the splint error messages (quickfix commands)
 	" ignore any lines that didn't match one of the patterns
 	"
 	:setlocal errorformat=%f(%l)%m
-	"	
+	"
 	let l:arguments  = exists("b:C_CodeCheckCmdLineArgs") ? b:C_CodeCheckCmdLineArgs : ""
 	if l:arguments == ""
 		let l:arguments	=	s:C_CodeCheckOptions
@@ -2123,7 +2189,7 @@ endfunction    " ----------  end of function C_CodeCheck ----------
 "------------------------------------------------------------------------------
 "
 function! C_Indent ( mode )
-	if !executable("indent") 
+	if !executable("indent")
 		let s:C_HlMessage	= ' indent is not executable or not installed! '
 		return
 	endif
@@ -2166,7 +2232,7 @@ endfunction    " ----------  end of function C_Indent ----------
 "  C_HlMessage : indent message     {{{1
 "------------------------------------------------------------------------------
 function! C_HlMessage ()
-	echohl Search 
+	echohl Search
 	echo s:C_HlMessage
 	echohl None
 endfunction    " ----------  end of function C_HlMessage ----------
@@ -2237,10 +2303,10 @@ endfunction    " ----------  end of function C_Settings ----------
 "    other : print PostScript to file
 "------------------------------------------------------------------------------
 function! C_Hardcopy (arg1)
-	let Sou	= expand("%")	
+	let Sou	= expand("%")
   if Sou == ""
 		redraw
-		echohl WarningMsg | echo " no file name " | echohl None
+		echohl WarningMsg | echo "no file name " | echohl None
 		return
   endif
 	let	Sou		= escape(Sou,s:escfilename)		" name of the file in the current buffer
@@ -2248,14 +2314,14 @@ function! C_Hardcopy (arg1)
 	exe  ':set printheader='.s:C_Printheader
 	" ----- normal mode ----------------
 	if a:arg1=="n"
-		silent exe	"hardcopy > ".Sou.".ps"		
+		silent exe	"hardcopy > ".Sou.".ps"
 		if	!s:MSWIN
 			echo "file \"".Sou."\" printed to \"".Sou.".ps\""
 		endif
 	endif
 	" ----- visual mode ----------------
 	if a:arg1=="v"
-		silent exe	"*hardcopy > ".Sou.".ps"		
+		silent exe	"*hardcopy > ".Sou.".ps"
 		if	!s:MSWIN
 			echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
 		endif
@@ -2274,6 +2340,105 @@ function! C_HelpCsupport ()
 		:help csupport
 	endtry
 endfunction    " ----------  end of function C_HelpCsupport ----------
+"
+"------------------------------------------------------------------------------
+"  C_Help : lookup word under the cursor or ask    {{{1
+"------------------------------------------------------------------------------
+"
+let s:C_DocBufferName       = "C_HELP"
+let s:C_DocHelpBufferNumber = -1
+"
+function! C_Help( type )
+
+	let cuc		= getline(".")[col(".") - 1]		" character under the cursor
+	let	item	= expand("<cword>")							" word under the cursor
+	if cuc == '' || item == "" || match( item, cuc ) == -1
+		let	item=C_Input('name of the manual page : ', '' )
+	endif
+
+	if item == ""
+		return
+	endif
+	"------------------------------------------------------------------------------
+	"  replace buffer content with bash help text
+	"------------------------------------------------------------------------------
+	"
+	" jump to an already open bash help window or create one
+	"
+	if bufloaded(s:C_DocBufferName) != 0 && bufwinnr(s:C_DocHelpBufferNumber) != -1
+		exe bufwinnr(s:C_DocHelpBufferNumber) . "wincmd w"
+		" buffer number may have changed, e.g. after a 'save as'
+		if bufnr("%") != s:C_DocHelpBufferNumber
+			let s:C_DocHelpBufferNumber=bufnr(s:C_OutputBufferName)
+			exe ":bn ".s:C_DocHelpBufferNumber
+		endif
+	else
+		exe ":new ".s:C_DocBufferName
+		let s:C_DocHelpBufferNumber=bufnr("%")
+		setlocal buftype=nofile
+		setlocal noswapfile
+		setlocal bufhidden=delete
+		setlocal filetype=sh		" allows repeated use of <S-F1>
+		setlocal syntax=OFF
+	endif
+	setlocal	modifiable
+	"
+	if a:type == 'm' 
+		"
+		" Is there more than one manual ?
+		"
+		let manpages	= system( s:C_Man.' -k '.item )
+		if v:shell_error
+			echomsg	"Shell command '".s:C_Man." -k ".item."' failed."
+			:close
+			return
+		endif
+		let	catalogs	= split( manpages, '\n', )
+		let	manual		= {}
+		"
+		" Select manuals where the name exactly matches
+		"
+		for line in catalogs
+			if line =~ '^'.item.'\s\+(' 
+				let	itempart	= split( line, '\s\+' )
+				let	catalog		= itempart[1][1:-2]
+				if match( catalog, '.p$' ) == -1
+					let	manual[catalog]	= catalog
+				endif
+			endif
+		endfor
+		"
+		" Build a selection list if there are more than one manual
+		"
+		let	catalog	= ""
+		if len(keys(manual)) > 1
+			for key in keys(manual)
+				echo ' '.item.'  '.key
+			endfor
+			let defaultcatalog	= ''
+			if has_key( manual, '3' )
+				let defaultcatalog	= '3'
+			else
+				if has_key( manual, '2' )
+					let defaultcatalog	= '2'
+				endif
+			endif
+			let	catalog	= input( 'select manual section (<Enter> cancels) : ', defaultcatalog )
+			if ! has_key( manual, catalog )
+				:close
+				:redraw
+				echomsg	"no appropriate manual section '".catalog."'"
+				return
+			endif
+		endif
+
+		set filetype=man
+		silent exe ":%!".s:C_Man." ".catalog." ".item
+
+	endif
+
+	setlocal nomodifiable
+endfunction		" ---------- end of function  C_Help  ----------
 
 "------------------------------------------------------------------------------
 "  C_CreateGuiMenus     {{{1
@@ -2283,7 +2448,7 @@ let s:C_MenuVisible = 0								" state variable controlling the C-menus
 function! C_CreateGuiMenus ()
 	if s:C_MenuVisible != 1
 		aunmenu <silent> &Tools.Load\ C\ Support
-		amenu   <silent> 40.1000 &Tools.-SEP100- : 
+		amenu   <silent> 40.1000 &Tools.-SEP100- :
 		amenu   <silent> 40.1030 &Tools.Unload\ C\ Support <C-C>:call C_RemoveGuiMenus()<CR>
 		call C_InitMenus()
 		let s:C_MenuVisible = 1
@@ -2294,7 +2459,7 @@ endfunction    " ----------  end of function C_CreateGuiMenus  ----------
 "  C_ToolMenu     {{{1
 "------------------------------------------------------------------------------
 function! C_ToolMenu ()
-	amenu   <silent> 40.1000 &Tools.-SEP100- : 
+	amenu   <silent> 40.1000 &Tools.-SEP100- :
 	amenu   <silent> 40.1030 &Tools.Load\ C\ Support      :call C_CreateGuiMenus()<CR>
 	imenu   <silent> 40.1030 &Tools.Load\ C\ Support <C-C>:call C_CreateGuiMenus()<CR>
 endfunction    " ----------  end of function C_ToolMenu  ----------
@@ -2324,7 +2489,7 @@ function! C_RemoveGuiMenus ()
 endfunction    " ----------  end of function C_RemoveGuiMenus  ----------
 
 "------------------------------------------------------------------------------
-"  C_RebuildTemplates
+"  C_RebuildTemplates     {{{1
 "  rebuild commands and the menu from the (changed) template file
 "------------------------------------------------------------------------------
 function! C_RebuildTemplates ()
@@ -2334,13 +2499,13 @@ function! C_RebuildTemplates ()
     echomsg "templates rebuilt from '".s:C_GlobalTemplateFile."'"
 		"
 		if s:installation == 'system' && filereadable( s:C_LocalTemplateFile )
-			call C_ReadTemplates( s:C_LocalTemplateFile ) 
+			call C_ReadTemplates( s:C_LocalTemplateFile )
 			echomsg " and from '".s:C_LocalTemplateFile."'"
 		endif
 endfunction    " ----------  end of function C_RebuildTemplates  ----------
 
 "------------------------------------------------------------------------------
-"  C_EditTemplates
+"  C_EditTemplates     {{{1
 "------------------------------------------------------------------------------
 function! C_EditTemplates ( type )
 	"
@@ -2351,7 +2516,7 @@ function! C_EditTemplates ( type )
 					let	l:templatefile	= browse(0,"edit a template file",s:C_GlobalTemplateDir,"")
 				else
 					let	l:templatefile	= input("edit a template file", s:C_GlobalTemplateDir, "file" )
-				end
+				endif
 				if l:templatefile != ""
 					:execute "update! | split | edit ".l:templatefile
 				endif
@@ -2370,7 +2535,7 @@ function! C_EditTemplates ( type )
 					let	l:templatefile	= browse(0,"edit a template file",s:C_LocalTemplateDir,"")
 				else
 					let	l:templatefile=input("edit a template file", s:C_LocalTemplateDir, "file" )
-				end
+				endif
 				if l:templatefile != ""
 					:execute "update! | split | edit ".l:templatefile
 				endif
@@ -2383,7 +2548,7 @@ function! C_EditTemplates ( type )
 					let	l:templatefile	= browse(0,"edit a template file",s:C_GlobalTemplateDir,"")
 				else
 					let	l:templatefile	= input("edit a template file", s:C_GlobalTemplateDir, "file" )
-				end
+				endif
 				if l:templatefile != ""
 					:execute "update! | split | edit ".l:templatefile
 				endif
@@ -2396,7 +2561,7 @@ function! C_EditTemplates ( type )
 endfunction    " ----------  end of function C_EditTemplates  ----------
 "
 "------------------------------------------------------------------------------
-"  C_ReadTemplates
+"  C_ReadTemplates     {{{1
 "  read the template file(s), build the macro and the template dictionary
 "
 "------------------------------------------------------------------------------
@@ -2470,7 +2635,27 @@ function! C_ReadTemplates ( templatefile )
 endfunction    " ----------  end of function C_ReadTemplates  ----------
 
 "------------------------------------------------------------------------------
-"  C_InsertTemplate
+" C_OpenFold     {{{1
+" Open fold and go to the first or last line of this fold. 
+"------------------------------------------------------------------------------
+function! C_OpenFold ( mode )
+	if foldclosed(".") >= 0
+		" we are on a closed  fold: get end position, open fold, jump to the
+		" last line of the previously closed fold
+		let	foldstart	= foldclosed(".")
+		let	foldend		= foldclosedend(".")
+		normal zv
+		if a:mode == 'below'
+			exe ":".foldend
+		endif
+		if a:mode == 'start'
+			exe ":".foldstart
+		endif
+	endif
+endfunction    " ----------  end of function C_OpenFold  ----------
+
+"------------------------------------------------------------------------------
+"  C_InsertTemplate     {{{1
 "  insert a template from the template dictionary
 "  do macro expansion
 "------------------------------------------------------------------------------
@@ -2481,6 +2666,10 @@ function! C_InsertTemplate ( key, ... )
 		return
 	endif
 
+	if &foldenable 
+		let	foldmethod_save	= &foldmethod
+		set foldmethod=manual
+	endif
   "------------------------------------------------------------------------------
   "  insert the user macros
   "------------------------------------------------------------------------------
@@ -2488,7 +2677,7 @@ function! C_InsertTemplate ( key, ... )
 	" use internal formatting to avoid conficts when using == below
 	"
 	let	equalprg_save	= &equalprg
-	set equalprg= 
+	set equalprg=
 
   let mode  = s:C_Attribute[a:key]
 
@@ -2502,57 +2691,68 @@ function! C_InsertTemplate ( key, ... )
 		let val	= C_ExpandSingleMacro( val, '<SPLIT>', '' )
 
 		if mode == 'below'
+			call C_OpenFold('below')
 			let pos1  = line(".")+1
 			put  =val
 			let pos2  = line(".")
-			" proper indenting 
+			" proper indenting
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		endif
-
-		if mode == 'above'
+			"
+		elseif mode == 'above'
 			let pos1  = line(".")
 			put! =val
 			let pos2  = line(".")
-			" proper indenting 
+			" proper indenting
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		endif
-
-		if mode == 'start'
+			"
+		elseif mode == 'start'
 			normal gg
+			call C_OpenFold('start')
 			let pos1  = 1
 			put! =val
 			let pos2  = line(".")
-			" proper indenting 
+			" proper indenting
 			exe ":".pos1
 			let ins	= pos2-pos1+1
 			exe "normal ".ins."=="
-		endif
-
-		if mode == 'append'
-			let pos1  = line(".")
-			put =val
-			let pos2  = line(".")-1
-			exe ":".pos1
-			:join!
-		endif
-
-		if mode == 'insert'
-			let val   = substitute( val, '\n$', '', '' )
-			let pos1  = line(".")
-			let pos2  = pos1 + count( split(val,'\zs'), "\n" ) 
-			" assign to the unnamed register "" :
-			let @"=val
-			normal p
-			" reformat only multiline inserts
-			if pos2-pos1 > 0
+			"
+		elseif mode == 'append'
+			if &foldenable && foldclosed(".") >= 0
+				echohl WarningMsg | echomsg s:MsgInsNotAvail  | echohl None
+				exe "set foldmethod=".foldmethod_save
+				return
+			else
+				let pos1  = line(".")
+				put =val
+				let pos2  = line(".")-1
 				exe ":".pos1
-				let ins	= pos2-pos1+1
-				exe "normal ".ins."=="
-			end
+				:join!
+			endif
+			"
+		elseif mode == 'insert'
+			if &foldenable && foldclosed(".") >= 0
+				echohl WarningMsg | echomsg s:MsgInsNotAvail  | echohl None
+				exe "set foldmethod=".foldmethod_save
+				return
+			else
+				let val   = substitute( val, '\n$', '', '' )
+				let pos1  = line(".")
+				let pos2  = pos1 + count( split(val,'\zs'), "\n" )
+				" assign to the unnamed register "" :
+				let @"=val
+				normal p
+				" reformat only multiline inserts
+				if pos2-pos1 > 0
+					exe ":".pos1
+					let ins	= pos2-pos1+1
+					exe "normal ".ins."=="
+				endif
+			endif
+			"
 		endif
 		"
 	else
@@ -2572,7 +2772,7 @@ function! C_InsertTemplate ( key, ... )
 			endif
 
 			"
-			" 'visual' and mode 'insert': 
+			" 'visual' and mode 'insert':
 			"   <part0><marked area><part1>
 			" part0 and part1 can consist of several lines
 			"
@@ -2587,7 +2787,7 @@ function! C_InsertTemplate ( key, ... )
 			endif
 
 			"
-			" 'visual' and mode 'below': 
+			" 'visual' and mode 'below':
 			"   <part0>
 			"   <marked area>
 			"   <part1>
@@ -2601,7 +2801,7 @@ function! C_InsertTemplate ( key, ... )
 				let pos1  = line("'<") - len(split(part[0], '\n' ))
 				let pos2  = line("'>") + len(split(part[1], '\n' ))
 				""			echo part[0] part[1] pos1 pos2
-				"			" proper indenting 
+				"			" proper indenting
 				exe ":".pos1
 				let ins	= pos2-pos1+1
 				exe "normal ".ins."=="
@@ -2618,7 +2818,7 @@ function! C_InsertTemplate ( key, ... )
   "  position the cursor
   "------------------------------------------------------------------------------
   exe ":".pos1
-  let mtch = search( '<CURSOR>', "c", pos2 )
+  let mtch = search( '<CURSOR>', 'c', pos2 )
   if mtch != 0
     if  matchend( getline(mtch) ,'<CURSOR>') == match( getline(mtch) ,"$" )
       normal 8x
@@ -2634,10 +2834,16 @@ function! C_InsertTemplate ( key, ... )
 		endif
   endif
 
+	if &foldenable 
+		" restore folding method
+		exe "set foldmethod=".foldmethod_save
+		normal zv
+	endif
+
 endfunction    " ----------  end of function C_InsertTemplate  ----------
 
 "------------------------------------------------------------------------------
-"  C_ExpandUserMacros
+"  C_ExpandUserMacros     {{{1
 "------------------------------------------------------------------------------
 function! C_ExpandUserMacros ( key )
 
@@ -2649,12 +2855,12 @@ function! C_ExpandUserMacros ( key )
 	"  can be replaced, with e.g. |?DATE|
   "------------------------------------------------------------------------------
 	let	s:C_Macro['|BASENAME|']	= toupper(expand("%:t:r"))
-  let s:C_Macro['|DATE|']  		= C_InsertDateAndTime('d')
+  let s:C_Macro['|DATE|']  		= C_DateAndTime('d')
   let s:C_Macro['|FILENAME|'] = expand("%:t")
   let s:C_Macro['|PATH|']  		= expand("%:p:h")
   let s:C_Macro['|SUFFIX|'] 	= expand("%:e")
-  let s:C_Macro['|TIME|']  		= C_InsertDateAndTime('t')
-  let s:C_Macro['|YEAR|']  		= C_InsertDateAndTime('y')
+  let s:C_Macro['|TIME|']  		= C_DateAndTime('t')
+  let s:C_Macro['|YEAR|']  		= C_DateAndTime('y')
 
   "------------------------------------------------------------------------------
   "  look for replacements
@@ -2702,7 +2908,7 @@ function! C_ExpandUserMacros ( key )
 		if match[1] != ''
 			let macroname	= '|'.match[1].'|'
 
-			if has_key( s:C_Macro, macroname ) 
+			if has_key( s:C_Macro, macroname )
 				"-------------------------------------------------------------------------------
 				"   check for recursion
 				"-------------------------------------------------------------------------------
@@ -2733,88 +2939,104 @@ function! C_ExpandUserMacros ( key )
 endfunction    " ----------  end of function C_ExpandUserMacros  ----------
 
 "------------------------------------------------------------------------------
-"  C_ApplyFlag
+"  C_ApplyFlag     {{{1
 "------------------------------------------------------------------------------
 function! C_ApplyFlag ( val, flag )
 	"
 	" l : lowercase
 	if a:flag == ':l'
 		return  tolower(a:val)
-	end
+	endif
 	"
 	" u : uppercase
 	if a:flag == ':u'
 		return  toupper(a:val)
-	end
+	endif
 	"
 	" c : capitalize
 	if a:flag == ':c'
 		return  toupper(a:val[0]).a:val[1:]
-	end
+	endif
 	"
 	" L : legalized name
 	if a:flag == ':L'
 		return  C_LegalizeName(a:val)
-	end
+	endif
 	"
 	" flag not valid
-	return a:val			
+	return a:val
 endfunction    " ----------  end of function C_ApplyFlag  ----------
 "
 "------------------------------------------------------------------------------
-"  C_ExpandSingleMacro
+"  C_ExpandSingleMacro     {{{1
 "------------------------------------------------------------------------------
 function! C_ExpandSingleMacro ( val, macroname, replacement )
   return substitute( a:val, escape(a:macroname, '$' ), a:replacement, "g" )
 endfunction    " ----------  end of function C_ExpandSingleMacro  ----------
 
 "------------------------------------------------------------------------------
-"  C_SetSmallCommentStyle
+"  C_SetSmallCommentStyle     {{{1
 "------------------------------------------------------------------------------
 function! C_SetSmallCommentStyle ()
-	if has_key( s:C_Template, 'comment.end-of-line-comment' ) 
+	if has_key( s:C_Template, 'comment.end-of-line-comment' )
 		if match( s:C_Template['comment.end-of-line-comment'], '^\s*/\*' ) != -1
-			let s:C_Com1          = '/*'     " C-style : comment start 
+			let s:C_Com1          = '/*'     " C-style : comment start
 			let s:C_Com2          = '*/'     " C-style : comment end
 		else
-			let s:C_Com1          = '//'     " C++style : comment start 
+			let s:C_Com1          = '//'     " C++style : comment start
 			let s:C_Com2          = ''       " C++style : comment end
 		endif
 	endif
 endfunction    " ----------  end of function C_SetSmallCommentStyle  ----------
 
 "------------------------------------------------------------------------------
-"  C_InsertMacroValue
+"  C_InsertMacroValue     {{{1
 "------------------------------------------------------------------------------
 function! C_InsertMacroValue ( key )
+	if &foldenable && foldclosed(".") >= 0
+		echohl WarningMsg | echomsg s:MsgInsNotAvail  | echohl None
+		return
+	endif
 	if col(".") > 1
 		exe 'normal a'.s:C_Macro['|'.a:key.'|']
 	else
 		exe 'normal i'.s:C_Macro['|'.a:key.'|']
-	end
+	endif
 endfunction    " ----------  end of function C_InsertMacroValue  ----------
 
 "------------------------------------------------------------------------------
-"  date and time
+"  insert date and time     {{{1
 "------------------------------------------------------------------------------
 function! C_InsertDateAndTime ( format )
-	if a:format == 'd'
-		return strftime( s:C_FormatDate )
-	end
-	if a:format == 't'
-		return strftime( s:C_FormatTime )
-	end
-	if a:format == 'dt'
-		return strftime( s:C_FormatDate ).' '.strftime( s:C_FormatTime )
-	end
-	if a:format == 'y'
-		return strftime( s:C_FormatYear )
-	end
+	if &foldenable && foldclosed(".") >= 0
+		echohl WarningMsg | echomsg s:MsgInsNotAvail  | echohl None
+		return ""
+	endif
+	if col(".") > 1
+		exe 'normal a'.C_DateAndTime(a:format)
+	else
+		exe 'normal i'.C_DateAndTime(a:format)
+	endif
 endfunction    " ----------  end of function C_InsertDateAndTime  ----------
 
 "------------------------------------------------------------------------------
+"  generate date and time     {{{1
+"------------------------------------------------------------------------------
+function! C_DateAndTime ( format )
+	if a:format == 'd'
+		return strftime( s:C_FormatDate )
+	elseif a:format == 't'
+		return strftime( s:C_FormatTime )
+	elseif a:format == 'dt'
+		return strftime( s:C_FormatDate ).' '.strftime( s:C_FormatTime )
+	elseif a:format == 'y'
+		return strftime( s:C_FormatYear )
+	endif
+endfunction    " ----------  end of function C_DateAndTime  ----------
+
+"------------------------------------------------------------------------------
 "  show / hide the c-support menus
-"  define key mappings (gVim only) 
+"  define key mappings (gVim only)
 "------------------------------------------------------------------------------
 "
 if has("gui_running")
@@ -2838,12 +3060,12 @@ if has("autocmd")
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
-	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') | 
+	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
 				\     call C_InsertTemplate("comment.file-description") | endif
 	"
 	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
 	"
-	if s:C_TypeOfH=='c' 
+	if s:C_TypeOfH=='c'
 		autocmd BufNewFile,BufEnter  *.h  :set filetype=c
 	endif
 	"
@@ -2854,7 +3076,7 @@ if has("autocmd")
 	"
 	" Wrap error descriptions in the quickfix window.
 	"
-	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak 
+	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak
 	"
 endif " has("autocmd")
 "
@@ -2863,9 +3085,9 @@ endif " has("autocmd")
 "------------------------------------------------------------------------------
 call C_ReadTemplates(s:C_GlobalTemplateFile)
 if s:installation == 'system' && filereadable( s:C_LocalTemplateFile )
-	call C_ReadTemplates( s:C_LocalTemplateFile ) 
+	call C_ReadTemplates( s:C_LocalTemplateFile )
 endif
 
 "
 "=====================================================================================
-" vim: tabstop=2 shiftwidth=2 foldmethod=marker 
+" vim: tabstop=2 shiftwidth=2 foldmethod=marker

@@ -1,7 +1,7 @@
-#=======================================================================================
+#===============================================================================
 #
 #     Filename: Makefile
-#  Description: 
+#  Description:
 #
 #        Usage: make              (generate executable                      )
 #               make clean        (remove objects, executable, prerequisits )
@@ -9,71 +9,95 @@
 #               make zip          (generate compressed archive              )
 #
 #      Version: 1.0
-#      Created: 
+#      Created:
 #     Revision: ---
 #
-#       Author: 
-#      Company: 
-#        Email: 
+#       Author:
+#      Company:
+#        Email:
 #
-#        Notes: C   extension   :  c 
-#               C++ extensions  :  cc cpp C 
+#        Notes: This is a GNU make (gmake) makefile.
+#               C   extension   :  c
+#               C++ extensions  :  cc cpp C
 #               C and C++ sources can be mixed.
 #               Prerequisites are generated automatically; makedepend is not
 #               needed (see documentation for GNU make Version 3.80, July 2002,
 #               section 4.13). The utility sed is used.
-#               
-#============================================== makefile template version 1.6 ==========
+#========================================== makefile template version 1.8 ======
 
-# ------------  name of the executable  ------------------------------------------------
-EXECUTABLE      = main
+# DEBUG can be set to YES to include debugging info, or NO otherwise
+DEBUG          := YES
 
-# ------------  list of all source files  ----------------------------------------------
-SOURCES         = main.c
+# PROFILE can be set to YES to include profiling info, or NO otherwise
+PROFILE        := NO
 
-# ------------  compiler  --------------------------------------------------------------
-CC              = gcc
-CXX             = g++
+# ------------  name of the executable  ----------------------------------------
+EXECUTABLE      := main
 
-# ------------  compiler flags  --------------------------------------------------------
-CFLAGS          = -Wall -O0 -g      # Do not optimize. Produce debugging information.
+# ------------  list of all source files  --------------------------------------
+SOURCES         := main.c 
 
-# ------------  linker-Flags  ----------------------------------------------------------
-LFLAGS          = -g
+# ------------  compiler  ------------------------------------------------------
+CC              := gcc
+CXX             := g++
 
-# ------------  additional system include directories  ---------------------------------
-GLOBAL_INC_DIR  = 
+# ------------  compiler flags  ------------------------------------------------
+DEBUG_CFLAGS    := -Wall -ansi -pedantic -O0 -g
+RELEASE_CFLAGS  := -Wall -ansi -pedantic -O3
 
-# ------------  private include directories  -------------------------------------------
+# ------------  linker flags  --------------------------------------------------
+DEBUG_LDFLAGS    := -g
+RELEASE_LDFLAGS  :=
+
+ifeq (YES, ${DEBUG})
+  CFLAGS       := ${DEBUG_CFLAGS}
+  CXXFLAGS     := ${DEBUG_CXXFLAGS}
+  LDFLAGS      := ${DEBUG_LDFLAGS}
+else
+  CFLAGS       := ${RELEASE_CFLAGS}
+  CXXFLAGS     := ${RELEASE_CXXFLAGS}
+  LDFLAGS      := ${RELEASE_LDFLAGS}
+endif
+
+ifeq (YES, ${PROFILE})
+  CFLAGS       := ${CFLAGS}   -pg -O3
+  CXXFLAGS     := ${CXXFLAGS} -pg -O3
+  LDFLAGS      := ${LDFLAGS}  -pg
+endif
+
+# ------------  additional system include directories  -------------------------
+GLOBAL_INC_DIR  =
+
+# ------------  private include directories  -----------------------------------
 LOCAL_INC_DIR   = $(HOME)/include
 
-# ------------  system libraries  (e.g. -lm )  -----------------------------------------
-SYS_LIBS        = -lm  
+# ------------  system libraries  (e.g. -lm )  ---------------------------------
+SYS_LIBS        = -lm
 
-# ------------  additional system library directories  ---------------------------------
-GLOBAL_LIB_DIR  = 
+# ------------  additional system library directories  -------------------------
+GLOBAL_LIB_DIR  =
 
-# ------------  additional system libraries  -------------------------------------------
-GLOBAL_LIBS     = 
+# ------------  additional system libraries  -----------------------------------
+GLOBAL_LIBS     =
 
-# ------------  private library directories  -------------------------------------------
+# ------------  private library directories  -----------------------------------
 LOCAL_LIB_DIR   = $(HOME)/lib
 
-# ------------  private libraries  (e.g. libxyz.a )  -----------------------------------
-LOCAL_LIBS      = 
+# ------------  private libraries  (e.g. libxyz.a )  ---------------------------
+LOCAL_LIBS      =
 
-# ------------  archive generation -----------------------------------------------------
+# ------------  archive generation ---------------------------------------------
 TARBALL_EXCLUDE = *.{o,gz,zip}
 ZIP_EXCLUDE     = *.{o,gz,zip}
 
-# ------------  run executable out of this Makefile  (yes/no)  -------------------------
-# ------------  cmd line parameters for this executable  -------------------------------
+# ------------  run executable out of this Makefile  (yes/no)  -----------------
+# ------------  cmd line parameters for this executable  -----------------------
 EXE_START       = no
-EXE_CMDLINE     = 
+EXE_CMDLINE     =
 
-#=======================================================================================
+#===============================================================================
 # The following statements usually need not to be changed
-#=======================================================================================
+#===============================================================================
 
 C_SOURCES       = $(filter     %.c, $(SOURCES))
 CPP_SOURCES     = $(filter-out %.c, $(SOURCES))
@@ -82,28 +106,28 @@ ALL_LIB_DIR     = $(addprefix -L, $(LOCAL_LIB_DIR) $(GLOBAL_LIB_DIR))
 GLOBAL_LIBSS    = $(addprefix $(GLOBAL_LIB_DIR)/, $(GLOBAL_LIBS))
 LOCAL_LIBSS     = $(addprefix $(LOCAL_LIB_DIR)/, $(LOCAL_LIBS))
 ALL_CFLAGS      = $(CFLAGS) $(ALL_INC_DIR)
-ALL_LFLAGS      = $(LFLAGS) $(ALL_LIB_DIR)
+ALL_LFLAGS      = $(LDFLAGS) $(ALL_LIB_DIR)
 BASENAMES       = $(basename $(SOURCES))
 
-# ------------  generate the names of the object files  --------------------------------
+# ------------  generate the names of the object files  ------------------------
 OBJECTS         = $(addsuffix .o,$(BASENAMES))
 
-# ------------  generate the names of the hidden prerequisite files  -------------------
+# ------------  generate the names of the hidden prerequisite files  -----------
 PREREQUISITES   = $(addprefix .,$(addsuffix .d,$(BASENAMES)))
 
-# ------------  make the executable  ---------------------------------------------------
+# ------------  make the executable (the default goal)  ------------------------
 $(EXECUTABLE):	$(OBJECTS)
 ifeq ($(strip $(CPP_SOURCES)),)
 								$(CC)  $(ALL_LFLAGS) -o $(EXECUTABLE) $(OBJECTS) $(LOCAL_LIBSS) $(GLOBAL_LIBSS) $(SYS_LIBS)
-else                                                                           
+else
 								$(CXX) $(ALL_LFLAGS) -o $(EXECUTABLE) $(OBJECTS) $(LOCAL_LIBSS) $(GLOBAL_LIBSS) $(SYS_LIBS)
 endif
 ifeq ($(EXE_START),yes)
 								./$(EXECUTABLE) $(EXE_CMDLINE)
 endif
 
-# ------------  include the automatically generated prerequisites  ---------------------
-# ------------  if target is not clean, tarball or zip             ---------------------
+# ------------  include the automatically generated prerequisites  -------------
+# ------------  if target is not clean, tarball or zip             -------------
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),tarball)
 ifneq ($(MAKECMDGOALS),zip)
@@ -112,54 +136,54 @@ endif
 endif
 endif
 
-# ------------  make the objects  ------------------------------------------------------
-%.o:						%.c
-								$(CC)  -c $(ALL_CFLAGS) $< 
+# ------------  make the objects  ----------------------------------------------
+%.o:		%.c
+				$(CC)  -c $(ALL_CFLAGS) $<
 
-%.o:						%.cc
-								$(CXX) -c $(ALL_CFLAGS) $< 
+%.o:		%.cc
+				$(CXX) -c $(ALL_CFLAGS) $<
 
-%.o:						%.cpp
-								$(CXX) -c $(ALL_CFLAGS) $< 
+%.o:		%.cpp
+				$(CXX) -c $(ALL_CFLAGS) $<
 
-%.o:						%.C
-								$(CXX) -c $(ALL_CFLAGS) $< 
+%.o:		%.C
+				$(CXX) -c $(ALL_CFLAGS) $<
 
-# ------------  make the prerequisites  ------------------------------------------------
+# ------------  make the prerequisites  ----------------------------------------
 #
-.%.d:           %.c
-								@$(make-prerequisite-c)
+.%.d:   %.c
+				@$(make-prerequisite-c)
 
-.%.d:						%.cc
-								@$(make-prerequisite-cplusplus)
+.%.d:		%.cc
+				@$(make-prerequisite-cplusplus)
 
-.%.d:						%.cpp
-								@$(make-prerequisite-cplusplus)
+.%.d:		%.cpp
+				@$(make-prerequisite-cplusplus)
 
-.%.d:						%.C
-								@$(make-prerequisite-cplusplus)
+.%.d:		%.C
+				@$(make-prerequisite-cplusplus)
 
 #  canned command sequences
 #  echoing of the sed command is suppressed by the leading @
 
 define	make-prerequisite-c
-							@$(CC)   -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
-							sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
-							rm -f $@.$$$$; 
+				@$(CC)   -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
+				sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
+				rm -f $@.$$$$;
 endef
 
 define	make-prerequisite-cplusplus
-							@$(CXX)  -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
-							sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
-							rm -f $@.$$$$; 
+				@$(CXX)  -MM $(ALL_CFLAGS) $< > $@.$$$$;            \
+				sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' < $@.$$$$ > $@; \
+				rm -f $@.$$$$;
 endef
 
-# ------------  remove generated files  ------------------------------------------------
-# ------------  remove hidden backup files  --------------------------------------------
+# ------------  remove generated files  ----------------------------------------
+# ------------  remove hidden backup files  ------------------------------------
 clean:
-								rm  --force  $(EXECUTABLE) $(OBJECTS) $(PREREQUISITES) *~
+								-rm  --force  $(EXECUTABLE) $(OBJECTS) $(PREREQUISITES) *~
 
-# ------------ tarball generation ------------------------------------------------------
+# ------------ tarball generation ----------------------------------------------
 tarball:
 					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
 					rm --force $$lokaldir.tar.gz;               \
@@ -169,10 +193,12 @@ tarball:
 					    --verbose                               \
 					    --file  $$lokaldir.tar.gz *
 
-# ------------ zip ---------------------------------------------------------------------
+# ------------ zip -------------------------------------------------------------
 zip:
 					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
 					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE)
 
-# ======================================================================================
-# vim: set tabstop=2: set shiftwidth=2: 
+.PHONY: clean tarball zip
+
+# ==============================================================================
+# vim: set tabstop=2: set shiftwidth=2:
