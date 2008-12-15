@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                December 01 2008
+*csupport.txt*                  C/C++ Support                December 10 2008
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.3
+                              Plugin version 5.4
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -868,7 +868,6 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cj       adjust end-of-line comment(s)       (n,v,i)
   \cs       set end-of-line comment column      (n)
   \c*       code -> comment /* */               (n,v)
-  \c/       code -> comment //                  (n,v)
   \cc       code -> comment //                  (n,v)
   \co       comment -> code                     (n,v)
   \cfr      frame comment                       (n,i)
@@ -943,6 +942,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- C++ ----------------------------------------------------------------
 
+  \+co      cout	<<  << endl;                  (n,i)
   \+c       class                               (n,i)
   \+cn      class (using new)                   (n,i)
   \+ci      class implementation                (n,i)
@@ -1368,8 +1368,7 @@ modes are also hard coded (see|csupport-templates-definition|for the use of
   cpp.class-using-new-definition                             normal
   cpp.class-using-new-implementation                         normal
   cpp.cout-operator                                          normal
-  cpp.cout-string                                            normal
-  cpp.cout-variabe                                           normal
+  cpp.cout                                                   normal
   cpp.error-class                                            normal
   cpp.extern                                                 normal, visual
   cpp.method-implementation                                  normal

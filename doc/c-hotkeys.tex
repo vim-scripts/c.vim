@@ -10,24 +10,25 @@
 %%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.17 2008/11/09 12:19:45 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.18 2008/12/14 11:15:56 mehner Exp $
 %%                
 %%        Notes:  
 %%                
 %%=====================================================================================
 
-\documentclass[oneside,10pt,a4paper,DIV24]{scrartcl}
+\documentclass[oneside,10pt,landscape,DIV16]{scrartcl}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{times}
 \usepackage{lastpage}
+\usepackage{multicol}
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.3}
-\newcommand{\ReleaseDate}{November 2008}
+\newcommand{\Pluginversion}{5.4}
+\newcommand{\ReleaseDate}{Dezember 2008}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -58,7 +59,8 @@
 %%  START OF DOCUMENT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}%
-\twocolumn
+
+\begin{multicols}{3}
 %
 %%======================================================================
 %%  title
@@ -69,22 +71,22 @@
 \textbf{\textsc{\small{Version \Pluginversion}}}\\
 \textbf{\textsc{\Huge{Hot keys}}}\\ 
 Key mappings for Vim with and without GUI.\\
-%Plugin: http://vim.sourceforge.net\\
-%\vspace{2.0mm}
+Plugin: http://vim.sourceforge.net\\
+\vspace{2.0mm}
 {\normalsize (i)} insert mode, {\normalsize (n)} normal mode, {\normalsize (v)} visual mode\\
-%\vspace{1.0mm}
+\vspace{3.0mm}
 %
 %%======================================================================
 %%  table, left part
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{14mm}|p{58mm}|}
+\begin{tabular}[]{|p{11mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  show plugin help
 %%----------------------------------------------------------------------
-%\hline 
-%\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}\\
-\hline \verb'\hm'   & show manual   \hfill (n,i)\\
+\hline 
+\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}\\
+%\hline \verb'\hm'   & show manual   \hfill (n,i)\\
 \hline \verb'\hp'   & help (plugin) \hfill (n,i)\\
 \hline 
 %%----------------------------------------------------------------------
@@ -96,7 +98,7 @@ Key mappings for Vim with and without GUI.\\
 \hline \verb'\cj' & adjust end-of-line comment              \hfill (n,v,i)\\
 \hline \verb'\cs' & set end-of-line comment column          \hfill (n)    \\
 \hline \verb'\c*' & code $\Rightarrow$ comment \verb'/* */' \hfill (n,v)  \\
-\hline \verb'\c/ \cc' & code $\Rightarrow$ comment \verb'//'\hfill (n,v)  \\
+\hline \verb'\cc' & code $\Rightarrow$ comment \verb'//'    \hfill (n,v)  \\
 \hline \verb'\co' & comment $\Rightarrow$ code              \hfill (n,v)  \\
 
 \hline \verb'\cfr'& frame comment                           \hfill (n,i)\\
@@ -124,6 +126,15 @@ Key mappings for Vim with and without GUI.\\
 \hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
 \hline \verb'\s{'  & \verb'{ }'                 \hfill (n,v,i)\\
 \hline
+\end{tabular}\\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
+%%======================================================================
+%%  table, middle part
+%%======================================================================
+%
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{11mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  preprocessor menu
 %%----------------------------------------------------------------------
@@ -158,23 +169,8 @@ Key mappings for Vim with and without GUI.\\
 %
 \hline \verb'\ntl' & edit local templates      \hfill (n)\\
 \hline \verb'\ntg' & edit global templates     \hfill (n)\\
-\hline \verb'\ntr' & rebuild templates         \hfill (n)\\
+\hline \verb'\ntr' & reread the templates      \hfill (n)\\
 \hline
-\end{tabular} \\
-%%~~~~~ TABULAR :  end  ~~~~~~~~~~
-
-\newpage 
-%%======================================================================
-%%  table, right part
-%%======================================================================
-%%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{l}
-   \\ [1.0ex]               %% offset
-\end{tabular} \\ 
-%%~~~~~ TABULAR :  end  ~~~~~~~~~~
-%
-%%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{14mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  idioms menu
 %%----------------------------------------------------------------------
@@ -197,32 +193,38 @@ Key mappings for Vim with and without GUI.\\
 \hline \verb'\ii'  & open input file                  \hfill (n,v,i)\\
 \hline \verb'\io'  & open output file                 \hfill (n,v,i)\\
 \hline
+\end{tabular} \\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+
+%%======================================================================
+%%  table, right part
+%%======================================================================
+%
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{11mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  C++ menu
 %%----------------------------------------------------------------------
 \hline 
 \multicolumn{2}{|r|}{\textsl{C\textbf{+}+}} \\
-\hline \verb'\+c'  & class                                    \hfill (n,i)\\
-\hline \verb'\+cn' & class (using \verb'new')                 \hfill (n,i)\\
-\hline 
-\hline \verb'\+ci'  & class  implementation             			\hfill (n,i)\\
+\hline \verb'\+co'  & \verb'cout << << endl; '                \hfill (n,i)\\
+\hline \verb'\+c'   & class                                   \hfill (n,i)\\
+\hline \verb'\+cn'  & class (using \verb'new')                \hfill (n,i)\\
+\hline \verb'\+ci'  & class  implementation                   \hfill (n,i)\\
 \hline \verb'\+cni' & class (using \verb'new') implementation \hfill (n,i)\\
-\hline \verb'\+mi'  & method implementation             			\hfill (n,i)\\
-\hline \verb'\+ai'  & accessor implementation            			\hfill (n,i)\\
-\hline 
-\hline \verb'\+tc' & template class                           \hfill (n,i)\\
-\hline \verb'\+tcn'& template class (using \verb'new')        \hfill (n,i)\\
-\hline 
+\hline \verb'\+mi'  & method implementation                   \hfill (n,i)\\
+\hline \verb'\+ai'  & accessor implementation                 \hfill (n,i)\\
+\hline \verb'\+tc'  & template class                          \hfill (n,i)\\
+\hline \verb'\+tcn' & template class (using \verb'new')       \hfill (n,i)\\
 \hline \verb'\+tci' & template class  implementation          \hfill (n,i)\\
 \hline \verb'\+tcni'& template class (using \verb'new') impl. \hfill (n,i)\\
 \hline \verb'\+tmi' & template method implementation          \hfill (n,i)\\
 \hline \verb'\+tai' & template accessor implementation        \hfill (n,i)\\
-\hline 
-\hline \verb'\+tf' & template function                        \hfill (n,i)\\
-\hline \verb'\+ec' & error class                              \hfill (n,i)\\
-\hline \verb'\+tr' & \verb'try' \dots \verb'catch'            \hfill (n,v,i)\\
-\hline \verb'\+ca' & \verb'catch'                             \hfill (n,v,i)\\
-\hline \verb'\+c.' & \verb'catch(...)'                        \hfill (n,v,i)\\
+\hline \verb'\+tf'  & template function                       \hfill (n,i)\\
+\hline \verb'\+ec'  & error class                             \hfill (n,i)\\
+\hline \verb'\+tr'  & \verb'try' \dots \verb'catch'           \hfill (n,v,i)\\
+\hline \verb'\+ca'  & \verb'catch'                            \hfill (n,v,i)\\
+\hline \verb'\+c.'  & \verb'catch(...)'                       \hfill (n,v,i)\\
 \hline 
 %%----------------------------------------------------------------------
 %%  run menu
@@ -236,14 +238,12 @@ Key mappings for Vim with and without GUI.\\
 \hline \verb'\rm'  & run \texttt{make}                       \hfill (n,i)\\
 \hline \verb'\rg'  & cmd.\ line arg.\ for \texttt{make}      \hfill (n,i)\\
 %
-\hline 
-\hline \verb'\rp'  & run \texttt{splint}\footnotemark[1]     \hfill (n,i)\\
+\hline \verb'\rp'  & run \texttt{splint}$^1$     \hfill (n,i)\\
 \hline \verb'\ri'  & cmd.\ line arg.\ for \texttt{splint}    \hfill (n,i)\\
 %
-\hline \verb'\rk'  & run \texttt{CodeCheck}\footnotemark[2]  \hfill (n,i)\\
+\hline \verb'\rk'  & run \texttt{CodeCheck}$^2$  \hfill (n,i)\\
 \hline \verb'\re'  & cmd.\ line arg.\ for \texttt{CodeCheck} \hfill (n,i)\\
 %
-\hline 
 \hline \verb'\rd'  & run \texttt{indent}         \hfill (n,i,v)\\
 \hline \verb'\rh'  & hardcopy buffer             \hfill (n,i,v)\\
 \hline \verb'\rs'  & show plugin settings        \hfill (n,i)\\
@@ -261,11 +261,14 @@ Key mappings for Vim with and without GUI.\\
 \hline
 \end{tabular} \\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
-%
-\footnotetext[1]{%
-\textbf{splint} must be installed ({www.splint.org}).}
-\footnotetext[2]{%
-\textbf{CodeCheck}  must be installed. CodeCheck$^{TM}$ is a product of Abraxas Software, Inc. }
+\vspace{3mm}
+\begin{minipage}[b]{69mm}
+\footnotesize{%
+$^1$ {www.splint.org}\\
+$^2$ \textbf{CodeCheck}$^{TM}$ is a product of Abraxas Software, Inc.
+}%
+\end{minipage}%
 %
 \end{center}
+\end{multicols}
 \end{document}

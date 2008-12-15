@@ -1,4 +1,13 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.3
+=======================================================================================
++ Insertions work properly when folding is used.
++ Menu items Idioms->for(...) : type declaration for loop variable possible (tab completion).
++ Specification of command line arguments (Run->cmd. line arg.): filename completion active.
++ New main menu item 'show manual' (hotkey \hm): read manual for word under cursor. 
++ One hotkey renamed: \h -> \hp (help plugin)
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.2.1
 =======================================================================================
 + Bugfix: stray characters whith three dialogs

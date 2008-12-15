@@ -3,7 +3,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim (version 5.3)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.32 2008/11/28 08:44:37 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.33 2008/12/10 18:57:44 mehner Exp $
 "
 " This will enable keyword completion for C and C++
 " using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
@@ -64,8 +64,8 @@ inoremap    <buffer>  <silent>  <LocalLeader>cj    <Esc>:call C_AdjustLineEndCom
 
  noremap    <buffer>  <silent>  <LocalLeader>c*         :call C_CodeComment("a","yes")<CR>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <LocalLeader>c*    <Esc>:call C_CodeComment("v","yes")<CR>:nohlsearch<CR>j
- noremap    <buffer>  <silent>  <LocalLeader>c/         :call C_CodeComment("a","no")<CR>:nohlsearch<CR>j
-vnoremap    <buffer>  <silent>  <LocalLeader>c/    <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j
+"" noremap    <buffer>  <silent>  <LocalLeader>c/         :call C_CodeComment("a","no")<CR>:nohlsearch<CR>j
+"vnoremap    <buffer>  <silent>  <LocalLeader>c/    <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j
 
  noremap    <buffer>  <silent>  <LocalLeader>cc         :call C_CodeComment("a","no")<CR>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <LocalLeader>cc    <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j
@@ -244,9 +244,12 @@ vnoremap    <buffer>  <silent>  <LocalLeader>np    <Esc>:call C_ProtoPick("v")<C
 "
  noremap    <buffer>  <silent>  <LocalLeader>ntl        :call C_EditTemplates("local")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>ntg        :call C_EditTemplates("global")<CR>
- noremap    <buffer>  <silent>  <LocalLeader>ntr        :call C_RebuildTemplates()<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>ntr        :call C_RereadTemplates()<CR>
 "
 " ---------- C++ menu ----------------------------------------------------
+"
+ noremap    <buffer>  <silent>  <LocalLeader>+co        :call C_InsertTemplate("cpp.cout")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>+co   <Esc>:call C_InsertTemplate("cpp.cout")<CR>
 "
  noremap    <buffer>  <silent>  <LocalLeader>+c         :call C_InsertTemplate("cpp.class-definition")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>+c    <Esc>:call C_InsertTemplate("cpp.class-definition")<CR>

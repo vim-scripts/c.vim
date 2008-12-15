@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.62 2008/12/01 17:24:19 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.64 2008/12/15 13:03:57 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.3"  							" version number of this script; do not change
+let g:C_Version= "5.4"  							" version number of this script; do not change
 "
 "###############################################################################################
 "
@@ -405,7 +405,6 @@ function! C_InitMenus ()
 	exe "imenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ &long\ (L)             <Esc>$:call C_InsertTemplate("comment.special-constant-type-is-long")<CR>'
 	exe "imenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ &unsigned\ (U)         <Esc>$:call C_InsertTemplate("comment.special-constant-type-is-unsigned")<CR>'
 	exe "imenu  ".s:Comments.'.&special\ comm\..constant\ type\ is\ unsigned\ l&ong\ (UL)  <Esc>$:call C_InsertTemplate("comment.special-constant-type-is-unsigned-long")<CR>'
-
 	"
 	"----- Submenu : C-Comments : Tags  ----------------------------------------------------------
 	"
@@ -655,10 +654,10 @@ function! C_InitMenus ()
 	exe " menu  <silent> ".s:Snippets.'.-SEP2-									     :'
 	exe "amenu  <silent>  ".s:Snippets.'.edit\ &local\ templates          :call C_EditTemplates("local")<CR>'
 	exe "amenu  <silent>  ".s:Snippets.'.edit\ &global\ templates         :call C_EditTemplates("global")<CR>'
-	exe "amenu  <silent>  ".s:Snippets.'.rebuild\ &templates              :call C_RebuildTemplates()<CR>'
+	exe "amenu  <silent>  ".s:Snippets.'.reread\ &templates               :call C_RereadTemplates()<CR>'
 	exe "imenu  <silent>  ".s:Snippets.'.edit\ &local\ templates     <C-C>:call C_EditTemplates("local")<CR>'
 	exe "imenu  <silent>  ".s:Snippets.'.edit\ &global\ templates    <C-C>:call C_EditTemplates("global")<CR>'
-	exe "imenu  <silent>  ".s:Snippets.'.rebuild\ &templates         <C-C>:call C_RebuildTemplates()<CR>'
+	exe "imenu  <silent>  ".s:Snippets.'.reread\ &templates          <C-C>:call C_RereadTemplates()<CR>'
 	"
 	"===============================================================================================
 	"----- Menu : C++ ---------------------------------------------------------   {{{2
@@ -669,12 +668,10 @@ function! C_InitMenus ()
 		exe "amenu  ".s:Cpp.'.-Sep00-                     <Nop>'
 	endif
 	exe "anoremenu ".s:Cpp.'.c&in                      :call C_InsertTemplate("cpp.cin")<CR>'
-	exe "anoremenu ".s:Cpp.'.cout\ &variable           :call C_InsertTemplate("cpp.cout-variabe")<CR>'
-	exe "anoremenu ".s:Cpp.'.cout\ &string             :call C_InsertTemplate("cpp.cout-string")<CR>'
+	exe "anoremenu ".s:Cpp.'.c&out                     :call C_InsertTemplate("cpp.cout")<CR>'
 	exe "anoremenu ".s:Cpp.'.<<\ &\"\"                 :call C_InsertTemplate("cpp.cout-operator")<CR>'
 	exe "inoremenu ".s:Cpp.'.c&in                 <Esc>:call C_InsertTemplate("cpp.cin")<CR>'
-	exe "inoremenu ".s:Cpp.'.cout\ &variable      <Esc>:call C_InsertTemplate("cpp.cout-variabe")<CR>'
-	exe "inoremenu ".s:Cpp.'.cout\ &string        <Esc>:call C_InsertTemplate("cpp.cout-string")<CR>'
+	exe "inoremenu ".s:Cpp.'.c&out                <Esc>:call C_InsertTemplate("cpp.cout")<CR>'
 	exe "inoremenu ".s:Cpp.'.<<\ &\"\"            <Esc>:call C_InsertTemplate("cpp.cout-operator")<CR>'
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
@@ -1812,6 +1809,7 @@ function! C_Compile ()
 		exe	"setlocal makeprg=".makeprg_saved
 		"
 		" open error window if necessary
+		:redraw!
 		exe	":botright cwindow"
 	else
 		let s:C_HlMessage = " '".Obj."' is up to date "
@@ -2489,10 +2487,10 @@ function! C_RemoveGuiMenus ()
 endfunction    " ----------  end of function C_RemoveGuiMenus  ----------
 
 "------------------------------------------------------------------------------
-"  C_RebuildTemplates     {{{1
+"  C_RereadTemplates     {{{1
 "  rebuild commands and the menu from the (changed) template file
 "------------------------------------------------------------------------------
-function! C_RebuildTemplates ()
+function! C_RereadTemplates ()
     let s:C_Template     = {}
     let s:C_FileVisited  = []
     call C_ReadTemplates(s:C_GlobalTemplateFile)
@@ -2502,7 +2500,7 @@ function! C_RebuildTemplates ()
 			call C_ReadTemplates( s:C_LocalTemplateFile )
 			echomsg " and from '".s:C_LocalTemplateFile."'"
 		endif
-endfunction    " ----------  end of function C_RebuildTemplates  ----------
+endfunction    " ----------  end of function C_RereadTemplates  ----------
 
 "------------------------------------------------------------------------------
 "  C_EditTemplates     {{{1
@@ -2740,13 +2738,14 @@ function! C_InsertTemplate ( key, ... )
 				return
 			else
 				let val   = substitute( val, '\n$', '', '' )
+				let currentline	= getline( "." )
 				let pos1  = line(".")
 				let pos2  = pos1 + count( split(val,'\zs'), "\n" )
 				" assign to the unnamed register "" :
 				let @"=val
 				normal p
-				" reformat only multiline inserts
-				if pos2-pos1 > 0
+				" reformat only multiline inserts and previously empty lines
+				if pos2-pos1 > 0 || currentline =~ ''
 					exe ":".pos1
 					let ins	= pos2-pos1+1
 					exe "normal ".ins."=="

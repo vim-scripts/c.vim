@@ -1,4 +1,4 @@
-README for c.vim (Version 5.3) / November 28 2008
+README for c.vim (Version 5.4) / December 10 2008
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -90,13 +90,12 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 =======================================================================================
-  RELEASE NOTES FOR VERSION 5.3
+  RELEASE NOTES FOR VERSION 5.4
 =======================================================================================
-+ Insertions work properly when foldfolding is used.
-+ Menu items Idioms->for(...) : type declaration for loop variable possible (tab completion).
-+ Specification of command line arguments (Run->cmd. line arg.): filename completion active.
-+ New main menu item 'show manual' (hotkey \hm): read manual for word under cursor. 
-+ One hotkey renamed: \h -> \hp (help plugin)
++ New hotkey \+co inserts ' cout	<<  << endl;'
++ New menu item C++-menu: 'cout' replaces 'cout variable' and 'cout string'.
++ Hotkey \c/ removed ( \cc does the same).
++ Bugfix: after an unsuccessful compilation screen sometimes garbled.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 =======================================================================================

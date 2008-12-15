@@ -3,11 +3,8 @@ $
 == cpp.cin ==
 cin	>> <CURSOR>;
 $
-== cpp.cout-variabe ==
+== cpp.cout ==
 cout	<< <CURSOR> << endl;
-$
-== cpp.cout-string ==
-cout	<< "<CURSOR>\n";
 $
 == cpp.cout-operator == insert ==
 << "<CURSOR>" 
