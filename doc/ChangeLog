@@ -1,4 +1,12 @@
 =======================================================================================
+  RELEASE NOTES FOR VERSION 5.4
+=======================================================================================
++ New hotkey \+co inserts ' cout <<  << endl;'
++ New menu item C++-menu: 'cout' replaces 'cout variable' and 'cout string'.
++ Hotkey \c/ removed ( \cc does the same).
++ Bugfix: after an unsuccessful compilation screen sometimes garbled.
+
+=======================================================================================
   RELEASE NOTES FOR VERSION 5.3
 =======================================================================================
 + Insertions work properly when folding is used.

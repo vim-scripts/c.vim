@@ -1,13 +1,13 @@
+" ------------------------------------------------------------------------------
+"
 " Vim filetype plugin file
 "
 "   Language :  C / C++
-"     Plugin :  c.vim (version 5.3)
+"     Plugin :  c.vim (version 5.5)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.33 2008/12/10 18:57:44 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.37 2009/02/04 16:59:25 mehner Exp $
 "
-" This will enable keyword completion for C and C++
-" using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
-" -----------------------------------------------------------------
+" ------------------------------------------------------------------------------
 "
 " Only do this when not done yet for this buffer
 " 
@@ -19,10 +19,12 @@ let b:did_C_ftplugin = 1
 " ---------- Do we have a mapleader other than '\' ? ------------
 "
 if exists("g:C_MapLeader")
-	let maplocalleader	= g:C_MapLeader
+  let maplocalleader  = g:C_MapLeader
 endif    
 "
 " ---------- C/C++ dictionary -----------------------------------
+" This will enable keyword completion for C and C++
+" using Vim's dictionary feature |i_CTRL-X_CTRL-K|.
 " 
 if exists("g:C_Dictionary_File")
     silent! exec 'setlocal dictionary+='.g:C_Dictionary_File
@@ -41,17 +43,20 @@ imap  <buffer>  <silent>  <A-F9>  <C-C>:call C_Compile()<CR>:redraw<CR>:call C_H
  map  <buffer>  <silent>    <F9>       :call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>
 imap  <buffer>  <silent>    <F9>  <C-C>:call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>
 "
-" <C-C> seems to be essential here:
  map  <buffer>  <silent>  <C-F9>       :call C_Run()<CR>
 imap  <buffer>  <silent>  <C-F9>  <C-C>:call C_Run()<CR>
 "
  map  <buffer>  <silent>  <S-F9>       :call C_Arguments()<CR>
 imap  <buffer>  <silent>  <S-F9>  <C-C>:call C_Arguments()<CR>
 "
-" alternate file plugin
+" ---------- alternate file plugin (a.vim) ----------------------
+"
+if exists("loaded_alternateFile")
+ map  <buffer>  <silent>  <S-F2>       :A<CR>
+imap  <buffer>  <silent>  <S-F2>  <C-C>:A<CR>
+endif
 "
 " ---------- KEY MAPPINGS : MENU ENTRIES -------------------------------------
-"
 " ---------- comments menu  ------------------------------------------------
 "
  noremap    <buffer>  <silent>  <LocalLeader>cl         :call C_LineEndComment()<CR>
@@ -64,8 +69,6 @@ inoremap    <buffer>  <silent>  <LocalLeader>cj    <Esc>:call C_AdjustLineEndCom
 
  noremap    <buffer>  <silent>  <LocalLeader>c*         :call C_CodeComment("a","yes")<CR>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <LocalLeader>c*    <Esc>:call C_CodeComment("v","yes")<CR>:nohlsearch<CR>j
-"" noremap    <buffer>  <silent>  <LocalLeader>c/         :call C_CodeComment("a","no")<CR>:nohlsearch<CR>j
-"vnoremap    <buffer>  <silent>  <LocalLeader>c/    <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j
 
  noremap    <buffer>  <silent>  <LocalLeader>cc         :call C_CodeComment("a","no")<CR>:nohlsearch<CR>j
 vnoremap    <buffer>  <silent>  <LocalLeader>cc    <Esc>:call C_CodeComment("v","no")<CR>:nohlsearch<CR>j
@@ -84,8 +87,10 @@ inoremap    <buffer>  <silent>  <LocalLeader>ccl   <Esc>:call C_InsertTemplate("
 
  noremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call C_InsertDateAndTime('d')<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call C_InsertDateAndTime('d')<CR>a
+vnoremap    <buffer>  <silent>  <LocalLeader>cd   s<Esc>:call C_InsertDateAndTime('d')<CR>a
  noremap    <buffer>  <silent>  <LocalLeader>ct    <Esc>:call C_InsertDateAndTime('dt')<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>ct    <Esc>:call C_InsertDateAndTime('dt')<CR>a
+vnoremap    <buffer>  <silent>  <LocalLeader>ct   s<Esc>:call C_InsertDateAndTime('dt')<CR>a
 "
 " ---------- statements menu  ------------------------------------------------
 "
@@ -209,8 +214,8 @@ inoremap    <buffer>  <silent>  <LocalLeader>ip    <Esc>:call C_InsertTemplate("
  noremap    <buffer>  <silent>  <LocalLeader>isc        :call C_InsertTemplate("idioms.scanf")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>isc   <Esc>:call C_InsertTemplate("idioms.scanf")<CR>
 "
- noremap    <buffer>  <silent>  <LocalLeader>ica        :call C_InsertTemplate("idioms.calloc")
-inoremap    <buffer>  <silent>  <LocalLeader>ica   <Esc>:call C_InsertTemplate("idioms.calloc")
+ noremap    <buffer>  <silent>  <LocalLeader>ica        :call C_InsertTemplate("idioms.calloc")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>ica   <Esc>:call C_InsertTemplate("idioms.calloc")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>ima        :call C_InsertTemplate("idioms.malloc")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>ima   <Esc>:call C_InsertTemplate("idioms.malloc")<CR>
 "
@@ -349,3 +354,25 @@ imap    <buffer>  <silent>  <LocalLeader>hp    <C-C>:call C_HelpCsupport()<CR>
  map    <buffer>  <silent>  <LocalLeader>hm         :call C_Help("m")<CR>
 imap    <buffer>  <silent>  <LocalLeader>hm    <C-C>:call C_Help("m")<CR>
 "
+"-------------------------------------------------------------------------------
+" additional mapping : complete a classical C comment: '/*' => '/* | */'
+"-------------------------------------------------------------------------------
+inoremap  <buffer>  /*       /*<Space><Space>*/<Left><Left><Left>
+vnoremap  <buffer>  /*      s/*<Space><Space>*/<Left><Left><Left><Esc>p
+"
+"-------------------------------------------------------------------------------
+" additional mapping : complete a classical C multi-line comment: 
+"                      '/*<CR>' =>  /*
+"                                    * |
+"                                    */
+"-------------------------------------------------------------------------------
+inoremap  <buffer>  /*<CR>  /*<CR><CR>/<Esc>kA<Space>
+"
+"-------------------------------------------------------------------------------
+" additional mapping : {<CR> always opens a block
+"-------------------------------------------------------------------------------
+inoremap  <buffer>  {<CR>  {<CR>}<Esc>O
+vnoremap  <buffer>  {<CR> s{<CR>}<Esc>P=iB
+"
+nmap    <buffer>  <silent>  <C-j>    i<C-R>=C_JumpForward()<CR>
+imap    <buffer>  <silent>  <C-j>    <C-R>=C_JumpForward()<CR>

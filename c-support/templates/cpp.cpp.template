@@ -52,8 +52,8 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 << uppercase <CURSOR>
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.method-implementation ==
-<CURSOR>void
-|?CLASSNAME|::|?METHODNAME| (  )
+void<CURSOR>
+|?CLASSNAME|::|?METHODNAME| ( <+argument list+> )
 {
 	return ;
 }		// -----  end of method |CLASSNAME|::|METHODNAME|  -----
@@ -64,7 +64,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //       Class:  |?CLASSNAME|
 //      Method:  get_|?ATTRIBUTE|
 //--------------------------------------------------------------------------------------
-inline <CURSOR>int
+inline int<CURSOR>
 |CLASSNAME|::get_|ATTRIBUTE| (  )
 {
 	return |ATTRIBUTE|;
@@ -75,7 +75,7 @@ inline <CURSOR>int
 //      Method:  set_|ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 inline void
-|CLASSNAME|::set_|ATTRIBUTE| ( int value )
+|CLASSNAME|::set_|ATTRIBUTE| ( <+argument list+> )
 {
 	|ATTRIBUTE|	= value;
 	return ;
@@ -115,7 +115,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Description:  constructor
 //--------------------------------------------------------------------------------------
 |CLASSNAME|::|CLASSNAME| ()
-{
+{<CURSOR>
 }  // -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  -----
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,7 +158,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 // Description:  constructor
 //--------------------------------------------------------------------------------------
 |CLASSNAME|::|CLASSNAME| ()
-{
+{<CURSOR>
 }  // -----  end of method |CLASSNAME|::|CLASSNAME|  (constructor)  -----
 
 //--------------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ class |CLASSNAME|
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.template-method-implementation ==
 template < class T >
-void<CURSOR> |?CLASSNAME|<T>::|?METHODNAME| (  )
+void<CURSOR> |?CLASSNAME|<T>::|?METHODNAME| ( <+argument list+> )
 {
 	return ;
 }		// -----  end of method |CLASSNAME|<T>::|METHODNAME|  -----
@@ -220,7 +220,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //      Method:  get_|?ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 template < class T >
-inline  <CURSOR>int |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
+inline  int<CURSOR> |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
 {
 	return |ATTRIBUTE|;
 }		// -----  end of method |CLASSNAME|<T>::get_|ATTRIBUTE|  -----
@@ -230,7 +230,7 @@ inline  <CURSOR>int |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
 //      Method:  set_|ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 template < class T >
-inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( int value )
+inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( <+argument list+> )
 {
 	|ATTRIBUTE|	= value;
 	return ;
@@ -272,7 +272,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //--------------------------------------------------------------------------------------
 template < class T >
 |CLASSNAME| <T>:: |CLASSNAME| ()
-{
+{<CURSOR>
 }  // -----  end of constructor of template class |CLASSNAME|  -----
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -326,7 +326,7 @@ template < class T >
 //--------------------------------------------------------------------------------------
 template < class T >
 |CLASSNAME|<T>::|CLASSNAME| ( const |CLASSNAME| &other )
-{
+{<CURSOR>
 }  // -----  end of copy constructor of template class |CLASSNAME|  -----
 
 //--------------------------------------------------------------------------------------
@@ -355,7 +355,7 @@ const |CLASSNAME|<T>& |CLASSNAME|<T>::operator = ( const |CLASSNAME| &other )
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.template-function ==
 template <class T>
-<CURSOR>void |?TEMPALTE_FUNCTION_NAME| ( T param )
+void<CURSOR> |?TEMPALTE_FUNCTION_NAME| ( <+argument list+> )
 {
 	return ;
 }		// -----  end of template function |?TEMPALTE_FUNCTION_NAME|  -----
@@ -406,8 +406,7 @@ if (!ifs) {
 	cerr << "\nERROR : failed to open input  file " << ifs_file_name << endl;
 	exit (EXIT_FAILURE);
 }
-
-
+<SPLIT>{-continue here-}
 ifs.close ();                                 // close ifstream
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.open-output-file ==
@@ -419,8 +418,7 @@ if (!ofs) {
 	cerr << "\nERROR : failed to open output file " << ofs_file_name << endl;
 	exit (EXIT_FAILURE);
 }
-
-
+<SPLIT>{-continue here-}
 ofs.close ();                                 // close ofstream
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.namespace-std ==

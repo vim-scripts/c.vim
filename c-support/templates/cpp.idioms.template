@@ -1,16 +1,16 @@
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.function ==
 void<CURSOR>
-|?FUNCTION_NAME| (  )
+|?FUNCTION_NAME| ( <+argument list+> )
 {
-<SPLIT>	return ;
+<SPLIT>	return <+return value+>;
 }		// -----  end of function |FUNCTION_NAME|  -----
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.function-static ==
 static void<CURSOR>
-|?FUNCTION_NAME| (  )
+|?FUNCTION_NAME| ( <+argument list+> )
 {
-<SPLIT>	return ;
+<SPLIT>	return <+return value+>;
 }		// -----  end of static function |FUNCTION_NAME|  -----
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.main ==
@@ -38,7 +38,7 @@ printf ( "<CURSOR>\n" );
 scanf ( "<CURSOR>", & );
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.calloc ==
-|?POINTER|	= (<CURSOR>TYPE*)calloc ( (size_t)(COUNT), sizeof(TYPE) );
+|?POINTER|	= (<CURSOR><+TYPE+>*)calloc ( (size_t)(<+COUNT+>), sizeof(<+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -48,7 +48,7 @@ free (|POINTER|);
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.malloc ==
-|?POINTER|	= (<CURSOR>TYPE*)malloc ( sizeof(TYPE) );
+|?POINTER|	= (<CURSOR><+TYPE+>*)malloc ( sizeof(<+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -72,7 +72,7 @@ if ( |FILEPOINTER| == NULL ) {
 			|FILEPOINTER|_file_name, strerror(errno) );
 	exit (EXIT_FAILURE);
 }
-<SPLIT>
+<SPLIT>{-continue here-}
 if( fclose(|FILEPOINTER|) == EOF ) {			// close input file
 	fprintf ( stderr, "couldn't close file '%s'; %s\n",
 			|FILEPOINTER|_file_name, strerror(errno) );
@@ -90,7 +90,7 @@ if ( |FILEPOINTER| == NULL ) {
 			|FILEPOINTER|_file_name, strerror(errno) );
 	exit (EXIT_FAILURE);
 }
-<SPLIT>
+<SPLIT>{-continue here-}
 if( fclose(|FILEPOINTER|) == EOF ) {			// close output file
 	fprintf ( stderr, "couldn't close file '%s'; %s\n",
 			|FILEPOINTER|_file_name, strerror(errno) );

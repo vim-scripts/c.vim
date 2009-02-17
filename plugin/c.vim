@@ -17,7 +17,7 @@
 "
 "        Version:  see variable  g:C_Version  below
 "        Created:  04.11.2000
-"        License:  Copyright (c) 2000-2008, Fritz Mehner
+"        License:  Copyright (c) 2000-2009, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
 "                  modify it under the terms of the GNU General Public License as
 "                  published by the Free Software Foundation, version 2 of the
@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.64 2008/12/15 13:03:57 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.73 2009/02/17 19:01:56 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.4"  							" version number of this script; do not change
+let g:C_Version= "5.5"  							" version number of this script; do not change
 "
 "###############################################################################################
 "
@@ -136,6 +136,7 @@ let s:C_TemplateOverwrittenMsg= 'yes'
 let s:C_FormatDate						= '%x'
 let s:C_FormatTime						= '%X'
 let s:C_FormatYear						= '%Y'
+let s:C_SourceCodeExtensions  = 'c cc cp cxx cpp CPP c++ C i ii'
 "
 "------------------------------------------------------------------------------
 "
@@ -171,6 +172,7 @@ call C_CheckGlobal('C_ObjExtension           ')
 call C_CheckGlobal('C_OutputGvim             ')
 call C_CheckGlobal('C_Printheader            ')
 call C_CheckGlobal('C_Root                   ')
+call C_CheckGlobal('C_SourceCodeExtensions   ')
 call C_CheckGlobal('C_TemplateOverwrittenMsg ')
 call C_CheckGlobal('C_TypeOfH                ')
 call C_CheckGlobal('C_XtermDefaults          ')
@@ -215,21 +217,28 @@ let s:C_FileVisited            = []
 "
 let s:C_MacroNameRegex         = '\([a-zA-Z][a-zA-Z0-9_]*\)'
 let s:C_MacroLineRegex				 = '^\s*|'.s:C_MacroNameRegex.'|\s*=\s*\(.*\)'
+let s:C_MacroCommentRegex			 = '^\$'
 let s:C_ExpansionRegex				 = '|?'.s:C_MacroNameRegex.'\(:\a\)\?|'
 let s:C_NonExpansionRegex			 = '|'.s:C_MacroNameRegex.'\(:\a\)\?|'
 "
 let s:C_TemplateNameDelimiter  = '-+_,\. '
 let s:C_TemplateLineRegex			 = '^==\s*\([a-zA-Z][0-9a-zA-Z'.s:C_TemplateNameDelimiter
 let s:C_TemplateLineRegex			.= ']\+\)\s*==\s*\([a-z]\+\s*==\)\?'
+let s:C_TemplateIf						 = '^==\s*IF\s\+|STYLE|\s\+IS\s\+'.s:C_MacroNameRegex.'\s*=='
+let s:C_TemplateEndif					 = '^==\s*ENDIF\s*=='
 "
 let s:C_ExpansionCounter       = {}
+let s:C_TJT										 = '[ 0-9a-zA-Z_]*'
+let s:C_TemplateJumpTarget1    = '<+'.s:C_TJT.'+>\|{+'.s:C_TJT.'+}'
+let s:C_TemplateJumpTarget2    = '<-'.s:C_TJT.'->\|{-'.s:C_TJT.'-}'
 let s:C_Template               = {}
 let s:C_Macro                  = {'|AUTHOR|'         : 'first name surname',
 											\						'|AUTHORREF|'      : '',
 											\						'|EMAIL|'          : '',
 											\						'|COMPANY|'        : '',
 											\						'|PROJECT|'        : '',
-											\						'|COPYRIGHTHOLDER|': ''
+											\						'|COPYRIGHTHOLDER|': '',
+											\						'|STYLE|'          : ''
 											\						}
 let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
 											\							':u' : 'uppercase'			,
@@ -255,6 +264,12 @@ let s:C_ForTypes     = [
     \ ]
 
 let s:MsgInsNotAvail	= "insertion not available for a fold" 
+
+"------------------------------------------------------------------------------
+
+let s:C_SourceCodeExtensionsList	= split( s:C_SourceCodeExtensions, '\s\+' )
+
+"------------------------------------------------------------------------------
 
 "------------------------------------------------------------------------------
 "  C : C_InitMenus                              {{{1
@@ -308,15 +323,16 @@ function! C_InitMenus ()
 	exe "amenu <silent> ".s:Comments.'.c&omment\ ->\ code                  :call C_CommentCode("a")<CR>:nohlsearch<CR>'
 	exe "vmenu <silent> ".s:Comments.'.c&omment\ ->\ code                  :call C_CommentCode("v")<CR>:nohlsearch<CR>'
 
-	exe "amenu          ".s:Comments.'.-SEP0-                  :'
-	exe "amenu <silent> ".s:Comments.'.&frame\ comment         :call C_InsertTemplate("comment.frame")<CR>'
-	exe "amenu <silent> ".s:Comments.'.f&unction\ description  :call C_InsertTemplate("comment.function")<CR>'
-	exe "amenu          ".s:Comments.'.-SEP1-                  :'
-	exe "amenu <silent> ".s:Comments.'.&method\ description    :call C_InsertTemplate("comment.method")<CR>'
-	exe "amenu <silent> ".s:Comments.'.cl&ass\ description     :call C_InsertTemplate("comment.class")<CR>'
-	exe "amenu          ".s:Comments.'.-SEP2-                  :'
-	exe "amenu <silent> ".s:Comments.'.file\ description       :call C_InsertTemplate("comment.file-description")<CR>'
-	exe "amenu          ".s:Comments.'.-SEP3-                  :'
+	exe "amenu          ".s:Comments.'.-SEP0-                        :'
+	exe "amenu <silent> ".s:Comments.'.&frame\ comment               :call C_InsertTemplate("comment.frame")<CR>'
+	exe "amenu <silent> ".s:Comments.'.f&unction\ description        :call C_InsertTemplate("comment.function")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP1-                        :'
+	exe "amenu <silent> ".s:Comments.'.&method\ description          :call C_InsertTemplate("comment.method")<CR>'
+	exe "amenu <silent> ".s:Comments.'.cl&ass\ description           :call C_InsertTemplate("comment.class")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP2-                        :'
+	exe "amenu <silent> ".s:Comments.'.file\ description\ \(impl\.\) :call C_InsertTemplate("comment.file-description")<CR>'
+	exe "amenu <silent> ".s:Comments.'.file\ description\ \(header\) :call C_InsertTemplate("comment.file-description-header")<CR>'
+	exe "amenu          ".s:Comments.'.-SEP3-                        :'
 	"
 	"----- Submenu : C-Comments : file sections  -------------------------------------------------------------
 	"
@@ -425,13 +441,22 @@ function! C_InitMenus ()
 	exe "inoremenu  ".s:Comments.'.ta&gs\ (plugin).&EMAIL            <Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
 	exe "inoremenu  ".s:Comments.'.ta&gs\ (plugin).&PROJECT          <Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
 	"
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).&AUTHOR          s<Esc>:call C_InsertMacroValue("AUTHOR")<CR>a'
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).AUTHOR&REF       s<Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).&COMPANY         s<Esc>:call C_InsertMacroValue("COMPANY")<CR>a'
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER s<Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).&EMAIL           s<Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
+	exe "vnoremenu  ".s:Comments.'.ta&gs\ (plugin).&PROJECT         s<Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
+	"
 	"
 	exe "amenu  ".s:Comments.'.-SEP9-                     :'
 	"
 	exe " menu  ".s:Comments.'.&date                             <Esc>:call C_InsertDateAndTime("d")<CR>'
 	exe "imenu  ".s:Comments.'.&date                             <Esc>:call C_InsertDateAndTime("d")<CR>a'
+	exe "vmenu  ".s:Comments.'.&date                            s<Esc>:call C_InsertDateAndTime("d")<CR>a'
 	exe " menu  ".s:Comments.'.date\ &time                       <Esc>:call C_InsertDateAndTime("dt")<CR>'
 	exe "imenu  ".s:Comments.'.date\ &time                       <Esc>:call C_InsertDateAndTime("dt")<CR>a'
+	exe "vmenu  ".s:Comments.'.date\ &time                      s<Esc>:call C_InsertDateAndTime("dt")<CR>a'
 
 	exe "amenu  ".s:Comments.'.-SEP12-                    :'
 	exe "amenu <silent> ".s:Comments.'.\/\/\ xxx\ \ \ \ \ &->\ \ \/*\ xxx\ *\/    :call C_CommentCppToC()<CR>'
@@ -773,7 +798,7 @@ function! C_InitMenus ()
 	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.-SEP21-                   	:'
 	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&templ\.\ class           	     :call C_InsertTemplate("cpp.template-class-implementation")<CR>'
 	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ class\ (w\.\ ne&w)      :call C_InsertTemplate("cpp.template-class-using-new-implementation")<CR>'
-	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ m&ethod\ impl\.  	     :call C_InsertTemplate("cpp.template-method-implementation")<CR>'
+	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ m&ethod          	     :call C_InsertTemplate("cpp.template-method-implementation")<CR>'
 	exe "amenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ a&ccessor         	     :call C_InsertTemplate("cpp.template-accessor-implementation")<CR>'
 	"
 	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&class             					<Esc>:call C_InsertTemplate("cpp.class-implementation")<CR>'
@@ -783,7 +808,7 @@ function! C_InitMenus ()
 	"
 	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.&templ\.\ class           	<Esc>:call C_InsertTemplate("cpp.template-class-implementation")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ class\ (w\.\ ne&w) <Esc>:call C_InsertTemplate("cpp.template-class-using-new-implementation")<CR>'
-	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ m&ethod\ impl\.  	<Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>'
+	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ m&ethod          	<Esc>:call C_InsertTemplate("cpp.template-method-implementation")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.IM&PLEMENTATION.templ\.\ a&ccessor         	<Esc>:call C_InsertTemplate("cpp.template-accessor-implementation")<CR>'
 	"
 	"----- End Submenu : C++ : IMPLEMENTATION  -------------------------------------------------------
@@ -814,8 +839,10 @@ function! C_InitMenus ()
 	exe "amenu <silent> ".s:Cpp.'.-SEP6-                        :'
 	exe "amenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)        :call C_InsertTemplate("cpp.open-input-file")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)   <Esc>:call C_InsertTemplate("cpp.open-input-file")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.open\ input\ file\ \ \(&4\)   <Esc>:call C_InsertTemplate("cpp.open-input-file", "v")<CR>'
 	exe "amenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)         :call C_InsertTemplate("cpp.open-output-file")<CR>'
 	exe "imenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)    <Esc>:call C_InsertTemplate("cpp.open-output-file")<CR>'
+	exe "vmenu <silent> ".s:Cpp.'.open\ output\ file\ \(&5\)    <Esc>:call C_InsertTemplate("cpp.open-output-file", "v")<CR>'
 	exe "amenu <silent> ".s:Cpp.'.-SEP7-                        :'
 
 	exe "amenu <silent> ".s:Cpp.'.&using\ namespace\ std;            :call C_InsertTemplate("cpp.namespace-std")<CR>'
@@ -938,8 +965,8 @@ function! C_InitMenus ()
 	"===============================================================================================
 	"
 	if s:C_Root != ""
-		exe " menu  <silent>  ".s:C_Root.'&help\ \(plugin\)          :call C_HelpCsupport()<CR>'
-		exe "imenu  <silent>  ".s:C_Root.'&help\ \(plugin\)     <C-C>:call C_HelpCsupport()<CR>'
+		exe " menu  <silent>  ".s:C_Root.'&help\ (C-Support)          :call C_HelpCsupport()<CR>'
+		exe "imenu  <silent>  ".s:C_Root.'&help\ (C-Support)     <C-C>:call C_HelpCsupport()<CR>'
 		exe " menu  <silent>  ".s:C_Root.'show\ &manual   		       :call C_Help("m")<CR>'
 		exe "imenu  <silent>  ".s:C_Root.'show\ &manual 		    <C-C>:call C_Help("m")<CR>'
 	endif
@@ -1024,7 +1051,7 @@ endfunction    " ----------  end of function C_CIosFlagMenus  ----------
 function! C_Input ( promp, text, ... )
 	echohl Search																					" highlight prompt
 	call inputsave()																			" preserve typeahead
-	if a:0 == 0
+	if a:0 == 0 || a:1 == ''
 		let retval	=input( a:promp, a:text )
 	else
 		let retval	=input( a:promp, a:text, a:1 )
@@ -1114,7 +1141,10 @@ endfunction		" ---------- end of function  C_AdjustLineEndComm  ----------
 function! C_GetLineEndCommCol ()
 	let actcol	= virtcol(".")
 	if actcol+1 == virtcol("$")
-		let	b:C_LineEndCommentColumn	= C_Input( 'start line-end comment at virtual column : ', actcol )
+		let	b:C_LineEndCommentColumn	= ''
+		while match( b:C_LineEndCommentColumn, '^\s*\d\+\s*$' ) < 0
+			let b:C_LineEndCommentColumn = C_Input( 'start line-end comment at virtual column : ', actcol, '' )
+		endwhile
 	else
 		let	b:C_LineEndCommentColumn	= virtcol(".")
 	endif
@@ -1705,7 +1735,10 @@ function! C_ProtoPick (mode)
 	let s:C_Prototype        += [prototyp]
 	let s:C_PrototypeShow    += ["(".s:C_PrototypeCounter.") ".bufname("%")." #  ".prototyp]
 	"
-	echo	s:C_PrototypeCounter.' prototype(s)'
+	echon	s:C_PrototypeCounter.' prototype'
+	if s:C_PrototypeCounter > 1
+		echon	's'
+	endif
 	"
 endfunction    " ---------  end of function C_ProtoPick  ----------
 "
@@ -1741,8 +1774,12 @@ function! C_ProtoClear ()
 	if s:C_PrototypeCounter > 0
 		let s:C_Prototype        = []
 		let s:C_PrototypeShow    = []
+		if s:C_PrototypeCounter == 1
+			echo	s:C_PrototypeCounter.' prototype deleted'
+		else
+			echo	s:C_PrototypeCounter.' prototypes deleted'
+		endif
 		let s:C_PrototypeCounter = 0
-		echo 'prototypes deleted'
 	else
 		echo "currently no prototypes available"
 	endif
@@ -2246,6 +2283,7 @@ function! C_Settings ()
 	let txt = txt.'                  company :  "'.s:C_Macro['|COMPANY|']."\"\n"
 	let txt = txt.'                  project :  "'.s:C_Macro['|PROJECT|']."\"\n"
 	let txt = txt.'         copyright holder :  "'.s:C_Macro['|COPYRIGHTHOLDER|']."\"\n"
+	let txt = txt.'           template style :  "'.s:C_Macro['|STYLE|']."\"\n"
 	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
 	let txt = txt.'         C file extension :  "'.s:C_CExtension.'"  (everything else is C++)'."\n"
 	let txt = txt.'    extension for objects :  "'.s:C_ObjExtension."\"\n"
@@ -2580,13 +2618,34 @@ function! C_ReadTemplates ( templatefile )
   "------------------------------------------------------------------------------
 
   let item  = ''
+	let	skipline	= 0
   for line in readfile( a:templatefile )
 		" if not a comment :
-    if line !~ '^\$'
+    if line !~ s:C_MacroCommentRegex
+      "
+			" IF
+      "
+      let string  = matchlist( line, s:C_TemplateIf )
+      if !empty(string) 
+				if s:C_Macro['|STYLE|'] != string[1]
+					let	skipline	= 1
+				endif
+			endif
+			"
+			" ENDIF
+      "
+      let string  = matchlist( line, s:C_TemplateEndif )
+      if !empty(string)
+				let	skipline	= 0
+				continue
+			endif
+			"
+      if skipline == 1
+				continue
+			endif
       "
       " macros and file includes
       "
-
       let string  = matchlist( line, s:C_MacroLineRegex )
       if !empty(string) && skipmacros == 0
         let key = '|'.string[1].'|'
@@ -2604,7 +2663,7 @@ function! C_ReadTemplates ( templatefile )
         continue                                            " next line
       endif
       "
-      " template header
+      " single template header
       "
       let name  = matchstr( line, s:C_TemplateLineRegex )
       "
@@ -2627,7 +2686,8 @@ function! C_ReadTemplates ( templatefile )
         endif
       endif
     endif
-  endfor
+		"
+  endfor	" ---------  read line  ---------
 
 	call C_SetSmallCommentStyle()
 endfunction    " ----------  end of function C_ReadTemplates  ----------
@@ -2760,6 +2820,7 @@ function! C_InsertTemplate ( key, ... )
 		"
 		if  a:1 == 'v'
 			let val = C_ExpandUserMacros (a:key)
+			let val	= C_ExpandSingleMacro( val, s:C_TemplateJumpTarget2, '' )
 			if val	== ""
 				return
 			endif
@@ -2816,14 +2877,16 @@ function! C_InsertTemplate ( key, ... )
   "------------------------------------------------------------------------------
   "  position the cursor
   "------------------------------------------------------------------------------
+	let	cursorpresent	= 0
   exe ":".pos1
   let mtch = search( '<CURSOR>', 'c', pos2 )
   if mtch != 0
+		let	cursorpresent	= 1
     if  matchend( getline(mtch) ,'<CURSOR>') == match( getline(mtch) ,"$" )
-      normal 8x
+			normal 8x
       :startinsert!
     else
-      normal 8x
+			normal 8x
       :startinsert
     endif
 	else
@@ -2833,6 +2896,12 @@ function! C_InsertTemplate ( key, ... )
 		endif
   endif
 
+  "------------------------------------------------------------------------------
+  "  marked words
+  "------------------------------------------------------------------------------
+	" define a pattern to highlight
+	exe 'match Search /'.s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2.'/'
+
 	if &foldenable 
 		" restore folding method
 		exe "set foldmethod=".foldmethod_save
@@ -2840,6 +2909,17 @@ function! C_InsertTemplate ( key, ... )
 	endif
 
 endfunction    " ----------  end of function C_InsertTemplate  ----------
+
+"------------------------------------------------------------------------------
+"  C_JumpForward     {{{1
+"------------------------------------------------------------------------------
+function! C_JumpForward ()
+  let match	= search( s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, 'c' )
+	if match > 0
+		call setline( match, substitute( getline('.'), s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, '', '' ) )
+	endif
+	return ''
+endfunction    " ----------  end of function C_JumpForward  ----------
 
 "------------------------------------------------------------------------------
 "  C_ExpandUserMacros     {{{1
@@ -2992,6 +3072,11 @@ endfunction    " ----------  end of function C_SetSmallCommentStyle  ----------
 "  C_InsertMacroValue     {{{1
 "------------------------------------------------------------------------------
 function! C_InsertMacroValue ( key )
+	if s:C_Macro['|'.a:key.'|'] == ''
+		echomsg 'the tag |'.a:key.'| is empty'
+		return
+	endif
+	"
 	if &foldenable && foldclosed(".") >= 0
 		echohl WarningMsg | echomsg s:MsgInsNotAvail  | echohl None
 		return
@@ -3052,15 +3137,29 @@ if has("gui_running")
 endif
 
 "------------------------------------------------------------------------------
+"  check for header or implementation file     {{{1
+"------------------------------------------------------------------------------
+function! C_InsertTemplateWrapper ()
+	if index( s:C_SourceCodeExtensionsList, expand('%:e') ) >= 0 
+		call C_InsertTemplate("comment.file-description")
+	else
+		call C_InsertTemplate("comment.file-description-header")
+	endif
+endfunction    " ----------  end of function C_InsertTemplateWrapper  ----------
+
+"------------------------------------------------------------------------------
 "  Automated header insertion
 "  Local settings for the quickfix window
 "------------------------------------------------------------------------------
+
 if has("autocmd")
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
+"	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
+"				\     call C_InsertTemplate("comment.file-description") | endif
 	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
-				\     call C_InsertTemplate("comment.file-description") | endif
+				\     call C_InsertTemplateWrapper() | endif
 	"
 	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
 	"

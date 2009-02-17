@@ -15,21 +15,21 @@ $-------------------------------------------------------------------------
 #if  |?CONDITION:u|
 <CURSOR><SPLIT>
 #else      /* -----  not |CONDITION|  ----- */
-
+<+ELSE PART+>
 #endif     /* -----  not |CONDITION|  ----- */
 $-------------------------------------------------------------------------
 == preprocessor.ifdef-else-endif ==
 #ifdef  |?CONDITION:u|
 <CURSOR><SPLIT>
 #else      /* -----  not |CONDITION|  ----- */
-
+<+ELSE PART+>
 #endif     /* -----  not |CONDITION|  ----- */
 $-------------------------------------------------------------------------
 == preprocessor.ifndef-else-endif ==
 #ifndef  |?CONDITION:u|
 <CURSOR><SPLIT>
 #else      /* -----  not |CONDITION|  ----- */
-
+<+ELSE PART+>
 #endif     /* -----  not |CONDITION|  ----- */
 $-------------------------------------------------------------------------
 == preprocessor.ifndef-def-endif ==
