@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.73 2009/02/17 19:01:56 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.78 2009/03/30 18:44:37 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.5"  							" version number of this script; do not change
+let g:C_Version= "5.6"  							" version number of this script; do not change
 "
 "###############################################################################################
 "
@@ -132,6 +132,7 @@ let s:C_GlobalTemplateDir     = fnamemodify( s:C_GlobalTemplateFile, ":p:h" ).'/
 let s:C_LocalTemplateFile     = $HOME.'/.vim/c-support/templates/Templates'
 let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 let s:C_TemplateOverwrittenMsg= 'yes'
+let s:C_Ctrl_j								 = 'on'
 "
 let s:C_FormatDate						= '%x'
 let s:C_FormatTime						= '%X'
@@ -148,6 +149,7 @@ function! C_CheckGlobal ( name )
   endif
 endfunction    " ----------  end of function C_CheckGlobal ----------
 "
+call C_CheckGlobal('C_Ctrl_j                 ')
 call C_CheckGlobal('C_CCompiler              ')
 call C_CheckGlobal('C_CExtension             ')
 call C_CheckGlobal('C_CFlags                 ')
@@ -498,6 +500,10 @@ function! C_InitMenus ()
 	exe "amenu <silent>".s:Statements.'.if\ \{\ \}\ e&lse\ \{\ \}        :call C_InsertTemplate("statements.if-block-else")<CR>'
 	exe "vmenu <silent>".s:Statements.'.if\ \{\ \}\ e&lse\ \{\ \}   <Esc>:call C_InsertTemplate("statements.if-block-else", "v")<CR>'
 	exe "imenu <silent>".s:Statements.'.if\ \{\ \}\ e&lse\ \{\ \}   <Esc>:call C_InsertTemplate("statements.if-block-else")<CR>'
+	"
+	exe "amenu <silent>".s:Statements.'.&else\ \{\ \}                    :call C_InsertTemplate("statements.else-block")<CR>'
+	exe "vmenu <silent>".s:Statements.'.&else\ \{\ \}               <Esc>:call C_InsertTemplate("statements.else-block", "v")<CR>'
+	exe "imenu <silent>".s:Statements.'.&else\ \{\ \}               <Esc>:call C_InsertTemplate("statements.else-block")<CR>'
 	"
 	exe "amenu <silent>".s:Statements.'.&while                           :call C_InsertTemplate("statements.while")<CR>'
 	exe "imenu <silent>".s:Statements.'.&while                      <Esc>:call C_InsertTemplate("statements.while")<CR>'
@@ -2658,7 +2664,7 @@ function! C_ReadTemplates ( templatefile )
 					let path   = fnamemodify( a:templatefile, ":p:h" )
           call C_ReadTemplates( path.'/'.val )    " recursive call
         else
-          let s:C_Macro[key] = val
+          let s:C_Macro[key] = escape( val, '&' )
         endif
         continue                                            " next line
       endif
@@ -2825,12 +2831,16 @@ function! C_InsertTemplate ( key, ... )
 				return
 			endif
 
-			let part	= split( val, '<SPLIT>' )
+			if match( val, '<SPLIT>\s*\n' ) >= 0
+				let part	= split( val, '<SPLIT>\s*\n' )
+			else
+				let part	= split( val, '<SPLIT>' )
+			endif
+
 			if len(part) < 2
 				let part	= [ "" ] + part
 				echomsg 'SPLIT missing in template '.a:key
 			endif
-
 			"
 			" 'visual' and mode 'insert':
 			"   <part0><marked area><part1>
@@ -2845,7 +2855,6 @@ function! C_InsertTemplate ( key, ... )
 				let replacement   = substitute( replacement, '\n$', '', '' )
 				exe ':s/'.string.'/'.replacement.'/'
 			endif
-
 			"
 			" 'visual' and mode 'below':
 			"   <part0>
@@ -2866,9 +2875,8 @@ function! C_InsertTemplate ( key, ... )
 				let ins	= pos2-pos1+1
 				exe "normal ".ins."=="
 			endif
-
 			"
-		endif
+		endif		" ---------- end visual mode
 	endif
 
 	" restore formatter programm
@@ -2877,18 +2885,21 @@ function! C_InsertTemplate ( key, ... )
   "------------------------------------------------------------------------------
   "  position the cursor
   "------------------------------------------------------------------------------
-	let	cursorpresent	= 0
   exe ":".pos1
   let mtch = search( '<CURSOR>', 'c', pos2 )
-  if mtch != 0
-		let	cursorpresent	= 1
-    if  matchend( getline(mtch) ,'<CURSOR>') == match( getline(mtch) ,"$" )
-			normal 8x
-      :startinsert!
-    else
-			normal 8x
-      :startinsert
-    endif
+	if mtch != 0
+		let line	= getline(mtch)
+		if line =~ '<CURSOR>$'
+			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+			if  a:0 != 0 && a:1 == 'v' && getline(".") =~ '^\s*$'
+				normal J
+			else
+				:startinsert!
+			endif
+		else
+			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+			:startinsert
+		endif
 	else
 		" to the end of the block; needed for repeated inserts
 		if mode == 'below'
@@ -2900,7 +2911,7 @@ function! C_InsertTemplate ( key, ... )
   "  marked words
   "------------------------------------------------------------------------------
 	" define a pattern to highlight
-	exe 'match Search /'.s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2.'/'
+	call C_HighlightJumpTargets ()
 
 	if &foldenable 
 		" restore folding method
@@ -2911,15 +2922,29 @@ function! C_InsertTemplate ( key, ... )
 endfunction    " ----------  end of function C_InsertTemplate  ----------
 
 "------------------------------------------------------------------------------
-"  C_JumpForward     {{{1
+"  C_JumpCtrlJ     {{{1
 "------------------------------------------------------------------------------
-function! C_JumpForward ()
+function! C_HighlightJumpTargets ()
+	if s:C_Ctrl_j == 'on'
+		exe 'match Search /'.s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2.'/'
+	endif
+endfunction    " ----------  end of function C_HighlightJumpTargets  ----------
+
+"------------------------------------------------------------------------------
+"  C_JumpCtrlJ     {{{1
+"------------------------------------------------------------------------------
+function! C_JumpCtrlJ ()
   let match	= search( s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, 'c' )
 	if match > 0
+		" remove the target
 		call setline( match, substitute( getline('.'), s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, '', '' ) )
+	else
+		" try to jump behind parenthesis or strings 
+		call search( "[\]})\"'`]", 'W' )
+		normal l
 	endif
 	return ''
-endfunction    " ----------  end of function C_JumpForward  ----------
+endfunction    " ----------  end of function C_JumpCtrlJ  ----------
 
 "------------------------------------------------------------------------------
 "  C_ExpandUserMacros     {{{1
@@ -2940,6 +2965,13 @@ function! C_ExpandUserMacros ( key )
   let s:C_Macro['|SUFFIX|'] 	= expand("%:e")
   let s:C_Macro['|TIME|']  		= C_DateAndTime('t')
   let s:C_Macro['|YEAR|']  		= C_DateAndTime('y')
+
+  "------------------------------------------------------------------------------
+  "  delete jump targets if mapping for C-j is off
+  "------------------------------------------------------------------------------
+	if s:C_Ctrl_j == 'off'
+		let template	= substitute( template, s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, '', 'g' )
+	endif
 
   "------------------------------------------------------------------------------
   "  look for replacements
@@ -3156,8 +3188,6 @@ if has("autocmd")
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
-"	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
-"				\     call C_InsertTemplate("comment.file-description") | endif
 	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
 				\     call C_InsertTemplateWrapper() | endif
 	"
@@ -3175,6 +3205,9 @@ if has("autocmd")
 	" Wrap error descriptions in the quickfix window.
 	"
 	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak
+	"
+	exe 'autocmd BufRead *.'.join( split( s:C_SourceCodeExtensions, '\s\+'), '\|*.' )
+				\     .' call C_HighlightJumpTargets()'
 	"
 endif " has("autocmd")
 "

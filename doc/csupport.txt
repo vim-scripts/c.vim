@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support               February 07 2009
+*csupport.txt*                  C/C++ Support                   April 06 2009
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.5
+                              Plugin version 5.6
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -54,7 +54,7 @@ keystroke.
  1.7.10  Xterm size                             |csupport-run-xterm|
  1.7.11  Output redirection                     |csupport-run-output|
  1.8    Help                                    |csupport-help|
-
+ 
  2.    Usage without GUI                        |csupport-usage-vim|
  3.    Hotkeys                                  |csupport-hotkeys|
  4.    Customization and configuration          |csupport-custom|
@@ -70,6 +70,7 @@ keystroke.
  5.3.2  Template definition                     |csupport-templates-definition|
  5.3.3  Template expansion                      |csupport-templates-expansion|
  5.3.4  The macros <+text+> etc.                |csupport-templates-jump|
+ 5.3.5  Command Ctrl-j                          |csupport-Ctrl-j|
  5.4    Switching between template sets         |csupport-templates-sets|
  6.    C/C++ Dictionaries                       |csupport-dictionary|
  7.    Extend ctags                             |csupport-ctags|
@@ -77,12 +78,12 @@ keystroke.
  7.2   Templates                                |csupport-ctags-templates|
  8.    Folding                                  |csupport-folding|
  9     Additional Mappings                      |csupport-ad-mappings|
-10.    Windows particularities                  |csupport-windows|
-11.    Additional tips                          |csupport-tips|
-12.    Troubleshooting                          |csupport-troubleshooting|
-13.    Release Notes /Change Log                |csupport-release-notes|
+ 10.   Windows particularities                  |csupport-windows|
+ 11.   Additional tips                          |csupport-tips|
+ 12.   Troubleshooting                          |csupport-troubleshooting|
+ 13.   Release Notes /Change Log                |csupport-release-notes|
 
-       How to add this help file to Vim's help  |add-local-help|
+      How to add this help file to Vim's help  |add-local-help|
 
 
 ==============================================================================
@@ -922,11 +923,12 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \sif      if { }                              (n,v,i)
   \sie      if else                             (n,v,i)
   \sife     if { } else { }                     (n,v,i)
+  \se       else { }                            (n,v,i)
   \sw       while                               (n,i)
   \swh      while { }                           (n,v,i)
   \ss       switch                              (n,v,i)
   \sc       case                                (n,i)
-  \s{       { }                                 (n,v,i)
+  \s{ \sb   { }                                 (n,v,i)
 
   -- Preprocessor -------------------------------------------------------
 
@@ -1085,6 +1087,7 @@ Several global variables are checked by the script to customize it:
   g:C_GlobalTemplateFile     plugin_dir.'c-support/templates/Templates'
   g:C_LocalTemplateFile      $HOME.'/.vim/c-support/templates/Templates'
   g:C_TemplateOverwrittenMsg 'yes'
+  g:C_Ctrl_j                 'on'
 
   g:C_CodeSnippets           plugin_dir."/c-support/codesnippets/"
   g:C_Dictionary_File        ""
@@ -1124,42 +1127,43 @@ The variable plugin_dir will automatically be set to one of the following values
 
   ----------------------------------------------------------------------------
 
-1. group: g:C_GlobalTemplateFile : Sets the master template file (see|csupport-templates|)
-          g:C_LocalTemplateFile  : Sets the local template file  (see|csupport-templates|)
-          g:C_TemplateOverwrittenMsg : message if template is overwritten
+ 1. group: g:C_GlobalTemplateFile : Sets the master template file (see|csupport-templates|)
+           g:C_LocalTemplateFile  : Sets the local template file  (see|csupport-templates|)
+           g:C_TemplateOverwrittenMsg : message if template is overwritten
+           g:C_Ctrl_j                 : hotkey Ctrl-j  'on'/'off' (see|csupport-Ctrl-j|)
 
-2. group: g:C_CodeSnippets       : The name of the code snippet directory
+ 2. group: g:C_CodeSnippets       : The name of the code snippet directory
                                    (see |csupport-snippets|).
-          g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
-                                   word completion (see also |csupport-dictionary|)
-          g:C_Root               : the name of the root menu of this plugin
-          g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
-          g:C_MenuHeader         : Switch the submenu header on/off.
-          g:C_OutputGvim         : when program is running output goes to the vim
-                                   command line ("vim"), to a buffer ("buffer") or to
-                                   an xterm ("xterm").
-          g:C_XtermDefaults      : the xterm defaults
-          g:C_Printheader        : hardcopy: definition of the page header
-          g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
-
-3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
-          g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
-          g:C_SourceCodeExtensions   : filename extensions for C/C++
-                                       implementation files
-          g:C_CCompiler              : The name of the C compiler.
-          g:C_CplusCompiler          : The name of the C++ compiler.
-          g:C_Man                    : The name of the man utility.
-          g:C_CFlags                 : Compiler flags used for a compilation.
-          g:C_LFlags                 : Compiler flags used for linkage.
-          g:C_Libs                   : Libraries to link with.
-          g:C_ObjExtension           : C/C+ file extension for objects
-                                       (leading point required if not empty)
-          g:C_ExeExtension           : C/C+ file extension for executables
-                                       (leading point required if not empty)
-          g:C_LineEndCommColDefault  : Default starting column for end-of-line comments.
-          g:C_CodeCheckExeName       : The name of the CodeCheck (TM) executable
-                                       (the default is 'check')
-          g:C_CodeCheckOptions       : Default options for CodeCheck (TM)
+           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
+                                    word completion (see also |csupport-dictionary|)
+           g:C_Root               : the name of the root menu of this plugin
+           g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
+           g:C_MenuHeader         : Switch the submenu header on/off.
+           g:C_OutputGvim         : when program is running output goes to the vim
+                                    command line ("vim"), to a buffer ("buffer") or to
+                                    an xterm ("xterm").
+           g:C_XtermDefaults      : the xterm defaults
+           g:C_Printheader        : hardcopy: definition of the page header
+           g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
+ 
+ 3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
+           g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
+           g:C_SourceCodeExtensions   : filename extensions for C/C++
+                                        implementation files
+           g:C_CCompiler              : The name of the C compiler.
+           g:C_CplusCompiler          : The name of the C++ compiler.
+           g:C_Man                    : The name of the man utility.
+           g:C_CFlags                 : Compiler flags used for a compilation.
+           g:C_LFlags                 : Compiler flags used for linkage.
+           g:C_Libs                   : Libraries to link with.
+           g:C_ObjExtension           : C/C+ file extension for objects
+                                        (leading point required if not empty)
+           g:C_ExeExtension           : C/C+ file extension for executables
+                                        (leading point required if not empty)
+           g:C_LineEndCommColDefault  : Default starting column for end-of-line comments.
+           g:C_CodeCheckExeName       : The name of the CodeCheck (TM) executable
+                                        (the default is 'check')
+           g:C_CodeCheckOptions       : Default options for CodeCheck (TM)
                                        (see |csupport-run-codecheck|).
 
 To override the default add appropriate assignments to ~/.vimrc .
@@ -1337,9 +1341,9 @@ need to have all user defined macros in the master file.
 When the first template definition is found (see below) macro definitions are
 no longer recognized.
 
- ----------------------------------------------------------------------------
-5.2.1  USER DEFINED FORMATS FOR DATE AND TIME       *csupport-templates-date*
- ----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+5.2.1  USER DEFINED FORMATS FOR DATE AND TIME        *csupport-templates-date*
+------------------------------------------------------------------------------
 The format for *|DATE|* ,*|TIME|* , and*|YEAR|* can be set by the user. The
 defaults are
     *|DATE|*        '%x'
@@ -1623,8 +1627,8 @@ can be composed from letters (uppercase and lowercase), digits, underscores
 and blanks. After the insertion of an template these jump targets will be
 highlighted. 
 
-Command Ctrl-j                                               *csupport-Ctrl-j*
---------------
+5.3.5  Command Ctrl-j                                        *csupport-Ctrl-j*
+
 Use the command Ctrl-j to jump to the next target. The target will be removed
 and the mode will switched to insertion. Ctrl-j works in normal and in insert
 mode.
@@ -1663,6 +1667,18 @@ indentation will be correct.
  }
  <SPLIT>{-continue here-}
  ifs.close ();    /* close ifstream         */
+
+How to switch the mapping for Ctrl-j off
+----------------------------------------
+The original meaning of Ctrl-j is 'move [n] lines downward' (see |CTRL-j|).
+If you are accustomed to use the deafult and don't like these jump targets you
+can switch them off.  Put the following line in the file .vimrc :
+
+  let g:C_Ctrl_j   = 'off'
+
+The default value of g:C_Ctrl_j is 'on'. You do not have to change the
+template files. All jump targets will be removed before a template will be
+inserted. 
 
 ==============================================================================
 5.4  SWITCHING BETWEEN TEMPLATE SETS                 *csupport-templates-sets*
@@ -1773,9 +1789,9 @@ languages (Exuberant Ctags, Darren Hiebert, http://ctags.sourceforge.net).
 With the following extensions the list of targets in a makefile can be shown
 in the taglist window.
 
-1) Append the file customization.ctags to the file $HOME/.ctags .
+ 1) Append the file customization.ctags to the file $HOME/.ctags .
 
-2) Add the following lines (from customization.vimrc) to $HOME/.vimrc :
+ 2) Add the following lines (from customization.vimrc) to $HOME/.vimrc :
 
   "
   "-------------------------------------------------------------------
@@ -1794,7 +1810,7 @@ in the taglist window.
     autocmd BufNewFile,BufRead *.pro  set filetype=qmake
   endif " has("autocmd")
 
-3) restart vim/gvim
+ 3) restart vim/gvim
 
 The two maps will toggle the taglist window (hotkey F11) in all editing modes.
 The two assignments define the headings for the (q)make sections in the

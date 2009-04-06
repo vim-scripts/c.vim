@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.20 2009/02/04 20:23:13 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.22 2009/04/06 17:31:24 mehner Exp $
 %%                
 %%        Notes:  
 %%                
@@ -27,8 +27,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.5}
-\newcommand{\ReleaseDate}{February 2009}
+\newcommand{\Pluginversion}{5.6}
+\newcommand{\ReleaseDate}{ April 2009}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -80,7 +80,7 @@ Plugin: http://vim.sourceforge.net\\
 %%  table, left part
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
+\begin{tabular}[]{|p{13mm}|p{56mm}|}
 %%----------------------------------------------------------------------
 %%  show plugin help
 %%----------------------------------------------------------------------
@@ -120,11 +120,12 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\sif' & \verb'if { }'              \hfill (n,v,i)\\
 \hline \verb'\sie' & \verb'if else'             \hfill (n,v,i)\\
 \hline \verb'\sife'& \verb'if { } else { }'     \hfill (n,v,i)\\
+\hline \verb'\se'  & \verb'else { }'            \hfill (n,v,i)\\
 \hline \verb'\sw'  & \verb'while'               \hfill (n,i)\\
 \hline \verb'\swh' & \verb'while { }'           \hfill (n,v,i)\\
 \hline \verb'\ss'  & \verb'switch'              \hfill (n,v,i)\\
 \hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
-\hline \verb'\s{'  & \verb'{ }'                 \hfill (n,v,i)\\
+\hline \verb'\s{ \sb'  & \verb'{ }'                 \hfill (n,v,i)\\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~

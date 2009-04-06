@@ -45,6 +45,7 @@ if ( |POINTER|==NULL ) {
 }
 
 free (|POINTER|);
+|POINTER|	= NULL;
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.malloc ==
@@ -55,6 +56,7 @@ if ( |POINTER|==NULL ) {
 }
 
 free (|POINTER|);
+|POINTER|	= NULL;
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.sizeof == insert ==

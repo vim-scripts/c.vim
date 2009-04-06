@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim (version 5.5)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.37 2009/02/04 16:59:25 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.40 2009/03/25 14:26:56 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -120,6 +120,10 @@ inoremap    <buffer>  <silent>  <LocalLeader>sie   <Esc>:call C_InsertTemplate("
 vnoremap    <buffer>  <silent>  <LocalLeader>sife  <Esc>:call C_InsertTemplate("statements.if-block-else", "v")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>sife  <Esc>:call C_InsertTemplate("statements.if-block-else")<CR>
 
+ noremap    <buffer>  <silent>  <LocalLeader>se         :call C_InsertTemplate("statements.else-block")<CR>
+vnoremap    <buffer>  <silent>  <LocalLeader>se    <Esc>:call C_InsertTemplate("statements.else-block", "v")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>se    <Esc>:call C_InsertTemplate("statements.else-block")<CR>
+
  noremap    <buffer>  <silent>  <LocalLeader>sw         :call C_InsertTemplate("statements.while")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>sw    <Esc>:call C_InsertTemplate("statements.while")<CR>
 
@@ -137,6 +141,10 @@ inoremap    <buffer>  <silent>  <LocalLeader>sc    <Esc>:call C_InsertTemplate("
  noremap    <buffer>  <silent>  <LocalLeader>s{         :call C_InsertTemplate("statements.block")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>s{    <Esc>:call C_InsertTemplate("statements.block", "v")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>s{    <Esc>:call C_InsertTemplate("statements.block")<CR>
+
+ noremap    <buffer>  <silent>  <LocalLeader>sb         :call C_InsertTemplate("statements.block")<CR>
+vnoremap    <buffer>  <silent>  <LocalLeader>sb    <Esc>:call C_InsertTemplate("statements.block", "v")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>sb    <Esc>:call C_InsertTemplate("statements.block")<CR>
 "
 " ---------- preprocessor menu  ----------------------------------------------
 "
@@ -374,5 +382,5 @@ inoremap  <buffer>  /*<CR>  /*<CR><CR>/<Esc>kA<Space>
 inoremap  <buffer>  {<CR>  {<CR>}<Esc>O
 vnoremap  <buffer>  {<CR> s{<CR>}<Esc>P=iB
 "
-nmap    <buffer>  <silent>  <C-j>    i<C-R>=C_JumpForward()<CR>
-imap    <buffer>  <silent>  <C-j>    <C-R>=C_JumpForward()<CR>
+nmap    <buffer>  <silent>  <C-j>    i<C-R>=C_JumpCtrlJ()<CR>
+imap    <buffer>  <silent>  <C-j>    <C-R>=C_JumpCtrlJ()<CR>

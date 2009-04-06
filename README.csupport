@@ -1,4 +1,4 @@
-README for c.vim (Version 5.5) / February 04 2009
+README for c.vim (Version 5.6) / April 06 2009
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -92,18 +92,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.5
+  RELEASE NOTES FOR VERSION 5.6
 ================================================================================
-+ Additional plugin-tags (jump targets in templates): <+text+>, <-text->.
-+ Additional mapping Ctrl-j : jump to these new targets.
-+ Template-file: additional macro |STYLE| and IF-ENDIF-construct to easily
-  choose between sets of templates.
-+ Additional mapping: auto-complete classical C comment (also multi-line).
-+ Additional mapping: auto-complete open block starting with {<CR> .
-+ Visual mode for date and time insertion (menu 'Comments').
-+ Visual mode for tags (submenu 'Comments->tags (plugin)').
-+ Bugfix: hotkey \ica not working
-+ Bugfix: hotkey Shift-F2 for the alternate-plugin disappeared. 
++ Jump targets (templates) and mapping Ctrl-j can be switched off.
++ Yet unused jump targets will be highlighted after a file is opened.
++ Statements menu: else block (key mapping \se).
++ Handling of <SPLIT> improved (templates).
++ Minor improvements.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 

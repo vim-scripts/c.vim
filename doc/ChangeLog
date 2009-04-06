@@ -1,3 +1,17 @@
+================================================================================
+  RELEASE NOTES FOR VERSION 5.5
+================================================================================
++ Additional plugin-tags (jump targets in templates): <+text+>, <-text->.
++ Additional mapping Ctrl-j : jump to these new targets.
++ Template-file: additional macro |STYLE| and IF-ENDIF-construct to easily
+  choose between sets of templates.
++ Additional mapping: auto-complete classical C comment (also multi-line).
++ Additional mapping: auto-complete open block starting with {<CR> .
++ Visual mode for date and time insertion (menu 'Comments').
++ Visual mode for tags (submenu 'Comments->tags (plugin)').
++ Bugfix: hotkey \ica not working
++ Bugfix: hotkey Shift-F2 for the alternate-plugin disappeared. 
+
 =======================================================================================
   RELEASE NOTES FOR VERSION 5.4
 =======================================================================================
