@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                   April 06 2009
+*csupport.txt*                  C/C++ Support                   April 23 2009
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.6
+                              Plugin version 5.7
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -18,10 +18,11 @@ keystroke.
  1.1.3   Code to comment                        |csupport-code-to-comm|
  1.1.4   Comment to code                        |csupport-comm-to-code|
  1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
- 1.1.6   KEYWORD + comment                      |csupport-comm-keywords|
- 1.1.7   Tags (plugin)                          |csupport-comm-tags|
- 1.1.8   Date and date+time                     |csupport-comm-date|
- 1.1.9   C to C++ comments and vice versa       |csupport-comm-c-cpp|
+ 1.1.6   File section comments         ..       |csupport-comm-sections|
+ 1.1.7   Keyword comment, special comment       |csupport-comm-keyword|
+ 1.1.8   Tags (plugin)                          |csupport-comm-tags|
+ 1.1.9   Date and date+time                     |csupport-comm-date|
+ 1.1.10  C to C++ comments and vice versa       |csupport-comm-c-cpp|
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
@@ -164,6 +165,21 @@ comments in the marked block will be aligned:
                        char*        a_name      /*  */
                        )                        /*  */
 
+The realignment will not be done for comments with nothing else than leading
+whitespaces. These commnents are usually captions:
+
+  max = other.max;                    /* the maximum value */
+  len = other.len;                         /* the length        */
+  /* ===== the next section ===== */
+  pos = (x+y+z)/3.0;             /* the next position */
+
+After the alignment we have:
+
+  max = other.max;                              /* the maximum value */
+  len = other.len;                              /* the length        */
+  /* ===== the next section ===== */
+  pos = (x+y+z)/3.0;                            /* the next position */
+
 ------------------------------------------------------------------------------
 
 1.1.3  CODE TO COMMENT                                 *csupport-code-to-comm*
@@ -258,14 +274,66 @@ A new file named 'test.XYZ' will now be considered a C implementation file.
 
 ------------------------------------------------------------------------------
 
-1.1.6  KEYWORD+comment                                *csupport-comm-keywords*
+1.1.6  FILE SECTION COMMENTS                          *csupport-comm-sections*
 
-Preliminary comments to document (and find again) places where works will be
-resumed shortly. Usually not meant for the final documentation.
+File section comments can be uses to separate typical C- and H-file sections
+with comments of similar appearance, e.g.
+
+/* #####   HEADER FILE INCLUDES   ################################################### */
+
+/* #####   MACROS  -  LOCAL TO THIS SOURCE FILE   ################################### */
+
+/* #####   TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ######################### */
+
+These section comments can also be inserted using the hotkey \ccs for C/C++
+files, or \chs for H-files. These hotkeys will start the command
+'CFileSectionList' or 'HFileSectionList'  on the command line:
+
+ :CFileSectionList 
+ :HFileSectionList 
+
+Now type a <Tab> to start the selection menu to choose from.
 
 ------------------------------------------------------------------------------
 
-1.1.7  TAGS (PLUGIN)                                      *csupport-comm-tags*
+1.1.7  KEYWORD COMMENT, SPECIAL COMMENT                *csupport-comm-keyword*
+
+Keword comments are end-of-line comments:
+
+ /* :<keyword>:<date+time>:<author reference>: <arbitrary comment text> */
+
+Keywords are 
+
+ BUG COMPILER TODO TRICKY WARNING WORKAROUND user-defined-keyword
+
+These are preliminary comments to document places where works will be resumed
+shortly. They are usually not meant for the final documentation.  These
+comments are easily found by searching for the keyword.
+The keyword comments can also be inserted using the hotkey \ckc . This hotkey
+starts the command 'KeywordCommentList' on the command line:
+
+ :KeywordCommentList
+
+Now type a <Tab> to start the selection menu to choose from.
+
+Special comments are occasionally used to mark special features of a code
+construct (e.g. a fall through cases in a switch statement, an empty loop):
+
+ /* EMPTY */
+ /* NOT REACHED */
+ /* REMAINS TO BE IMPLEMENTED */
+  ....
+
+The special comments can also be inserted using the hotkey \csc . This hotkey
+starts the command 'SpecialCommentList' on the command line:
+
+ :SpecialCommentList
+
+Now type a <Tab> to start the selection menu to choose from.
+
+------------------------------------------------------------------------------
+
+1.1.8  TAGS (PLUGIN)                                      *csupport-comm-tags*
 
 The submenu 'tags (plugin)' let you insert the predefined macros from the
 template system (see|csupport-templates-macros|). In visual mode the marked
@@ -273,7 +341,7 @@ string will be replaced by the macro.
 
 ------------------------------------------------------------------------------
 
-1.1.8  DATE AND DATE+TIME                                 *csupport-comm-date*
+1.1.9  DATE AND DATE+TIME                                 *csupport-comm-date*
 
 The format for 'date' and 'date time' can be defined by the user (see
 |csupport-templates-date|). In visual mode the marked string will be replaced
@@ -281,7 +349,7 @@ by the macro (e.g. to update date and time).
 
 ------------------------------------------------------------------------------
 
-1.1.9  C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
+1.1.10 C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
 
 The menu item '// xxx -> /* xxx */' changes a C++ comment into an C comment.
 This is done for the current line in normal or insert mode and for a marked
@@ -911,6 +979,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cfu      function comment                    (n,i)
   \cme      method description                  (n,i)
   \ccl      class description                   (n,i)
+  \ccs      C/C++-file section  (tab. compl.)   (n,i)
+  \chs      H-file section      (tab. compl.)   (n,i)
+  \ckc      keyword comment     (tab. compl.)   (n,i)
+  \csc      special comment     (tab. compl.)   (n,i)
   \cd       date                                (n,v,i)
   \ct       date \& time                        (n,v,i)
 
@@ -1667,6 +1739,13 @@ indentation will be correct.
  }
  <SPLIT>{-continue here-}
  ifs.close ();    /* close ifstream         */
+
+Extra feature of Ctrl-j
+-----------------------
+If none of the above described targets is left Ctrl-j can be used to jump
+behind closing brackets, parenthesis, braces,  or string terminators ('"`).
+This handy feature works in most cases.
+
 
 How to switch the mapping for Ctrl-j off
 ----------------------------------------

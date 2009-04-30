@@ -1,4 +1,13 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.6
+================================================================================
++ Jump targets (templates) and mapping Ctrl-j can be switched off.
++ Yet unused jump targets will be highlighted after a file is opened.
++ Statements menu: else block (key mapping \se).
++ Handling of <SPLIT> improved (templates).
++ Minor improvements.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.5
 ================================================================================
 + Additional plugin-tags (jump targets in templates): <+text+>, <-text->.

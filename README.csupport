@@ -1,4 +1,4 @@
-README for c.vim (Version 5.6) / April 06 2009
+README for c.vim (Version 5.7) / April 28 2009
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -92,13 +92,11 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.6
+  RELEASE NOTES FOR VERSION 5.7
 ================================================================================
-+ Jump targets (templates) and mapping Ctrl-j can be switched off.
-+ Yet unused jump targets will be highlighted after a file is opened.
-+ Statements menu: else block (key mapping \se).
-+ Handling of <SPLIT> improved (templates).
-+ Minor improvements.
++ 4 new hotkeys : insert file section comments (C/C++/H), special comments,
+  keyword comments.
++ Adjusting end-of-line comment adjustment improved.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 

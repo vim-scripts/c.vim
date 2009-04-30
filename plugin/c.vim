@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.78 2009/03/30 18:44:37 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.81 2009/04/30 15:00:22 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.6"  							" version number of this script; do not change
+let g:C_Version= "5.7"  							" version number of this script; do not change
 "
 "###############################################################################################
 "
@@ -379,24 +379,24 @@ function! C_InitMenus ()
 	"
 	"----- Submenu : C-Comments : keyword comments  ----------------------------------------------------------
 	"
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..keyw\.+comm\.<Tab>C\/C\+\+   <Nop>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..-Sep0-            						<Nop>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..keyw\.+comm\.<Tab>C\/C\+\+   <Nop>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..-Sep0-            						<Nop>'
 "
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&BUG\:               $:call C_InsertTemplate("comment.keyword-bug")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&COMPILER\:          $:call C_InsertTemplate("comment.keyword-compiler")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&TODO\:              $:call C_InsertTemplate("comment.keyword-todo")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:T&RICKY\:            $:call C_InsertTemplate("comment.keyword-tricky")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&WARNING\:           $:call C_InsertTemplate("comment.keyword-warning")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:W&ORKAROUND\:        $:call C_InsertTemplate("comment.keyword-workaround")<CR>'
-	exe "amenu  ".s:Comments.'.&KEYWORD+comm\..\:&new\ keyword\:      $:call C_InsertTemplate("comment.keyword-keyword")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:&BUG\:               $:call C_InsertTemplate("comment.keyword-bug")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:&COMPILER\:          $:call C_InsertTemplate("comment.keyword-compiler")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:&TODO\:              $:call C_InsertTemplate("comment.keyword-todo")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:T&RICKY\:            $:call C_InsertTemplate("comment.keyword-tricky")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:&WARNING\:           $:call C_InsertTemplate("comment.keyword-warning")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:W&ORKAROUND\:        $:call C_InsertTemplate("comment.keyword-workaround")<CR>'
+	exe "amenu  ".s:Comments.'.&keyword\ comm\..\:&new\ keyword\:      $:call C_InsertTemplate("comment.keyword-keyword")<CR>'
 "
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:&BUG\:          <Esc>$:call C_InsertTemplate("comment.keyword-bug")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:&COMPILER\:     <Esc>$:call C_InsertTemplate("comment.keyword-compiler")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:&TODO\:         <Esc>$:call C_InsertTemplate("comment.keyword-todo")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:T&RICKY\:       <Esc>$:call C_InsertTemplate("comment.keyword-tricky")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:&WARNING\:      <Esc>$:call C_InsertTemplate("comment.keyword-warning")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:W&ORKAROUND\:   <Esc>$:call C_InsertTemplate("comment.keyword-workaround")<CR>'
-	exe "imenu  ".s:Comments.'.&KEYWORD+comm\..\:&new\ keyword\: <Esc>$:call C_InsertTemplate("comment.keyword-keyword")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:&BUG\:          <Esc>$:call C_InsertTemplate("comment.keyword-bug")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:&COMPILER\:     <Esc>$:call C_InsertTemplate("comment.keyword-compiler")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:&TODO\:         <Esc>$:call C_InsertTemplate("comment.keyword-todo")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:T&RICKY\:       <Esc>$:call C_InsertTemplate("comment.keyword-tricky")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:&WARNING\:      <Esc>$:call C_InsertTemplate("comment.keyword-warning")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:W&ORKAROUND\:   <Esc>$:call C_InsertTemplate("comment.keyword-workaround")<CR>'
+	exe "imenu  ".s:Comments.'.&keyword\ comm\..\:&new\ keyword\: <Esc>$:call C_InsertTemplate("comment.keyword-keyword")<CR>'
 	"
 	"----- Submenu : C-Comments : special comments  ----------------------------------------------------------
 	"
@@ -1096,13 +1096,21 @@ function! C_AdjustLineEndComm ( mode ) range
 
 	while linenumber <= pos1
 		let	line= getline(".")
-		" look for a C comment
-		let idx1	= 1 + match( line, '\s*\/\*.\{-}\*\/' )
-		let idx2	= 1 + match( line,    '\/\*.\{-}\*\/' )
-		if idx2 == 0
-			" look for a C++ comment
-			let idx1	= 1 + match( line, '\s*\/\/.*$' )
-			let idx2	= 1 + match( line,    '\/\/.*$' )
+
+		if     match( line, '^\s*\/\*.\{-}\*\/' ) == 0
+			\ || match( line, '^\s*\/\/.*$' ) == 0
+			" comment with leading whitespaces
+			let idx1	= 0
+			let idx2	= 0
+		else
+			" look for a C comment
+			let idx1	= 1 + match( line, '\s*\/\*.\{-}\*\/' )
+			let idx2	= 1 + match( line,    '\/\*.\{-}\*\/' )
+			if idx2 == 0
+				" look for a C++ comment
+				let idx1	= 1 + match( line, '\s*\/\/.*$' )
+				let idx2	= 1 + match( line,    '\/\/.*$' )
+			endif
 		endif
 
 		let	ln	= line(".")
@@ -2922,7 +2930,7 @@ function! C_InsertTemplate ( key, ... )
 endfunction    " ----------  end of function C_InsertTemplate  ----------
 
 "------------------------------------------------------------------------------
-"  C_JumpCtrlJ     {{{1
+"  C_HighlightJumpTargets
 "------------------------------------------------------------------------------
 function! C_HighlightJumpTargets ()
 	if s:C_Ctrl_j == 'on'
@@ -3151,6 +3159,224 @@ function! C_DateAndTime ( format )
 endfunction    " ----------  end of function C_DateAndTime  ----------
 
 "------------------------------------------------------------------------------
+"  check for header or implementation file     {{{1
+"------------------------------------------------------------------------------
+function! C_InsertTemplateWrapper ()
+	if index( s:C_SourceCodeExtensionsList, expand('%:e') ) >= 0 
+		call C_InsertTemplate("comment.file-description")
+	else
+		call C_InsertTemplate("comment.file-description-header")
+	endif
+endfunction    " ----------  end of function C_InsertTemplateWrapper  ----------
+
+"
+"-------------------------------------------------------------------------------
+"   Comment : C/C++ File Sections             {{{1
+"-------------------------------------------------------------------------------
+let s:CFileSectionOrdered	= [ 
+	\ "Header\ File\ Includes", 
+	\ "Local\ Macros"					, 
+	\ "Local\ Type\ Def\."		, 
+	\ "Local\ Data\ Types"		, 
+	\ "Local\ Variables"			, 
+	\ "Local\ Prototypes"			, 
+	\ "Exp\.\ Function\ Def\.", 
+	\ "Local\ Function\ Def\.", 
+	\ "Local\ Class\ Def\."		, 
+	\ "Exp\.\ Class\ Impl\."	, 
+	\ "Local\ Class\ Impl\."	, 
+	\ "All\ sections,\ C"		  ,
+	\ "All\ sections,\ C++"	  ,
+	\ ]
+
+let s:CFileSection	= { 
+	\ "Header\ File\ Includes" : "file-section-cpp-header-includes"               , 
+	\ "Local\ Macros"					 : "file-section-cpp-macros"                        , 
+	\ "Local\ Type\ Def\."		 : "file-section-cpp-typedefs"                      , 
+	\ "Local\ Data\ Types"		 : "file-section-cpp-data-types"                    , 
+	\ "Local\ Variables"			 : "file-section-cpp-local-variables"               , 
+	\ "Local\ Prototypes"			 : "file-section-cpp-prototypes"                    , 
+	\ "Exp\.\ Function\ Def\." : "file-section-cpp-function-defs-exported"        , 
+	\ "Local\ Function\ Def\." : "file-section-cpp-function-defs-local"           , 
+	\ "Local\ Class\ Def\."		 : "file-section-cpp-class-defs"                    , 
+	\ "Exp\.\ Class\ Impl\."	 : "file-section-cpp-class-implementations-exported", 
+	\ "Local\ Class\ Impl\."	 : "file-section-cpp-class-implementations-local"   , 
+	\ "All\ sections,\ C"			 : "c",
+	\ "All\ sections,\ C++"		 : "cpp",
+	\ }
+
+function!	C_CFileSectionList ( ArgLead, CmdLine, CursorPos )
+	"
+	" show all types
+	if a:ArgLead == ''
+		return s:CFileSectionOrdered
+	endif
+	"
+	" show types beginning with a:ArgLead
+	let	expansions	= []
+	for item in keys(s:CFileSection)
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_CFileSectionList  ----------
+
+function! C_CFileSectionListInsert ( arg )
+	if has_key( s:CFileSection, a:arg )
+		if s:CFileSection[a:arg] == 'c' || s:CFileSection[a:arg] == 'cpp'
+			call C_Comment_C_SectionAll( 'comment.'.s:CFileSection[a:arg] )
+			return 
+		endif
+		call C_InsertTemplate( 'comment.'.s:CFileSection[a:arg] )
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_CFileSectionListInsert  ----------
+"
+"-------------------------------------------------------------------------------
+"   Comment : H File Sections             {{{1
+"-------------------------------------------------------------------------------
+let s:HFileSectionOrdered	= [ 
+	\	"Header\ File\ Includes"   ,
+	\	"Exported\ Macros"         ,
+	\	"Exported\ Type\ Def\."    ,
+	\	"Exported\ Data\ Types"    ,
+	\	"Exported\ Variables"      ,
+	\	"Exported\ Funct\.\ Decl\.",
+	\	"Exported\ Class\ Def\."   ,
+	\	"All\ sections,\ C"        ,
+	\	"All\ sections,\ C++"      ,
+	\ ]
+
+let s:HFileSection	= { 
+	\	"Header\ File\ Includes"    : "file-section-hpp-header-includes"               ,
+	\	"Exported\ Macros"          : "file-section-hpp-macros"                        ,
+	\	"Exported\ Type\ Def\."     : "file-section-hpp-exported-typedefs"             ,
+	\	"Exported\ Data\ Types"     : "file-section-hpp-exported-data-types"           ,
+	\	"Exported\ Variables"       : "file-section-hpp-exported-variables"            ,
+	\	"Exported\ Funct\.\ Decl\." : "file-section-hpp-exported-function-declarations",
+	\	"Exported\ Class\ Def\."    : "file-section-hpp-exported-class-defs"           ,
+	\	"All\ sections,\ C"         : "c"                                              ,
+	\	"All\ sections,\ C++"       : "cpp"                                            ,
+	\ }
+
+function!	C_HFileSectionList ( ArgLead, CmdLine, CursorPos )
+	"
+	" show all types
+	if a:ArgLead == ''
+		return s:HFileSectionOrdered
+	endif
+	"
+	" show types beginning with a:ArgLead
+	let	expansions	= []
+	for item in keys(s:HFileSection)
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_HFileSectionList  ----------
+
+function! C_HFileSectionListInsert ( arg )
+	if has_key( s:HFileSection, a:arg )
+		if s:HFileSection[a:arg] == 'c' || s:HFileSection[a:arg] == 'cpp'
+			call C_Comment_C_SectionAll( 'comment.'.s:HFileSection[a:arg] )
+			return 
+		endif
+		call C_InsertTemplate( 'comment.'.s:HFileSection[a:arg] )
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_HFileSectionListInsert  ----------
+"
+"-------------------------------------------------------------------------------
+"   Comment : Keyword Comments             {{{1
+"-------------------------------------------------------------------------------
+let s:KeywordComment	= { 
+	\	'\:BUG\:'          : 'keyword-bug',
+	\	'\:COMPILER\:'     : 'keyword-compiler',
+	\	'\:TODO\:'         : 'keyword-todo',
+	\	'\:TRICKY\:'       : 'keyword-tricky',
+	\	'\:WARNING\:'      : 'keyword-warning',
+	\	'\:WORKAROUND\:'   : 'keyword-workaround',
+	\	'\:new\ keyword\:' : 'keyword-keyword',
+	\ }
+
+function!	C_KeywordCommentList ( ArgLead, CmdLine, CursorPos )
+	"
+	" show all types
+	if a:ArgLead == ''
+		return sort(keys(s:KeywordComment))
+	endif
+	"
+	" show types beginning with a:ArgLead
+	let	expansions	= []
+	for item in keys(s:KeywordComment)
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_KeywordCommentList  ----------
+
+function! C_KeywordCommentListInsert ( arg )
+	if has_key( s:KeywordComment, a:arg )
+		if s:KeywordComment[a:arg] == 'c' || s:KeywordComment[a:arg] == 'cpp'
+			call C_Comment_C_SectionAll( 'comment.'.s:KeywordComment[a:arg] )
+			return 
+		endif
+		call C_InsertTemplate( 'comment.'.s:KeywordComment[a:arg] )
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_KeywordCommentListInsert  ----------
+"
+"-------------------------------------------------------------------------------
+"   Comment : Special Comments             {{{1
+"-------------------------------------------------------------------------------
+let s:SpecialComment	= { 
+	\	'EMPTY'                                    : 'special-empty' ,
+	\	'FALL\ THROUGH'                            : 'special-fall-through' ,
+	\	'IMPL\.\ TYPE\ CONV'                       : 'special-implicit-type-conversion")' ,
+	\	'NO\ RETURN'                               : 'special-no-return' ,
+	\	'NOT\ REACHED'                             : 'special-not-reached' ,
+	\	'TO\ BE\ IMPL\.'                           : 'special-remains-to-be-implemented' ,
+	\	'constant\ type\ is\ long\ (L)'            : 'special-constant-type-is-long' ,
+	\	'constant\ type\ is\ unsigned\ (U)'        : 'special-constant-type-is-unsigned' ,
+	\	'constant\ type\ is\ unsigned\ long\ (UL)' : 'special-constant-type-is-unsigned-long' ,
+	\ }
+
+function!	C_SpecialCommentList ( ArgLead, CmdLine, CursorPos )
+	"
+	" show all types
+	if a:ArgLead == ''
+		return sort(keys(s:SpecialComment))
+	endif
+	"
+	" show types beginning with a:ArgLead
+	let	expansions	= []
+	for item in keys(s:SpecialComment)
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_SpecialCommentList  ----------
+
+function! C_SpecialCommentListInsert ( arg )
+	if has_key( s:SpecialComment, a:arg )
+		if s:SpecialComment[a:arg] == 'c' || s:SpecialComment[a:arg] == 'cpp'
+			call C_Comment_C_SectionAll( 'comment.'.s:SpecialComment[a:arg] )
+			return 
+		endif
+		call C_InsertTemplate( 'comment.'.s:SpecialComment[a:arg] )
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_SpecialCommentListInsert  ----------
+
+"------------------------------------------------------------------------------
 "  show / hide the c-support menus
 "  define key mappings (gVim only)
 "------------------------------------------------------------------------------
@@ -3167,17 +3393,6 @@ if has("gui_running")
 	nmap  <unique>  <silent>  <Leader>ucs   :call C_RemoveGuiMenus()<CR>
 	"
 endif
-
-"------------------------------------------------------------------------------
-"  check for header or implementation file     {{{1
-"------------------------------------------------------------------------------
-function! C_InsertTemplateWrapper ()
-	if index( s:C_SourceCodeExtensionsList, expand('%:e') ) >= 0 
-		call C_InsertTemplate("comment.file-description")
-	else
-		call C_InsertTemplate("comment.file-description-header")
-	endif
-endfunction    " ----------  end of function C_InsertTemplateWrapper  ----------
 
 "------------------------------------------------------------------------------
 "  Automated header insertion

@@ -10,13 +10,13 @@
 %%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.22 2009/04/06 17:31:24 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.24 2009/04/23 19:01:22 mehner Exp $
 %%                
 %%        Notes:  
 %%                
 %%=====================================================================================
 
-\documentclass[oneside,10pt,landscape,DIV16]{scrartcl}
+\documentclass[oneside,10pt,landscape,DIV17]{scrartcl}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -27,7 +27,7 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.6}
+\newcommand{\Pluginversion}{5.7}
 \newcommand{\ReleaseDate}{ April 2009}
 
 %%----------------------------------------------------------------------
@@ -72,9 +72,9 @@
 \textbf{\textsc{\Huge{Hot keys}}}\\ 
 Key mappings for Vim with and without GUI.\\
 Plugin: http://vim.sourceforge.net\\
-\vspace{2.0mm}
+%\vspace{1.0mm}
 {\normalsize (i)} insert mode, {\normalsize (n)} normal mode, {\normalsize (v)} visual mode\\
-\vspace{3.0mm}
+\vspace{1.0mm}
 %
 %%======================================================================
 %%  table, left part
@@ -105,6 +105,12 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\cfu'& function comment                        \hfill (n,i)\\
 \hline \verb'\cme'& method description                      \hfill (n,i)\\
 \hline \verb'\ccl'& class description                       \hfill (n,i)\\
+
+\hline \verb'\ccs'& C/C++--file sections\hspace{3mm}\footnotesize{(tab compl.)}        \hfill \normalsize{(n,i)}\\
+\hline \verb'\chs'& H--file sections\hspace{10mm}\footnotesize{(tab compl.)}           \hfill \normalsize{(n,i)}\\
+\hline \verb'\ckc'& keyword comment\hspace{5mm}\footnotesize{(tab compl.)}             \hfill \normalsize{(n,i)}\\
+\hline \verb'\csc'& special comment\hspace{7,5mm}\footnotesize{(tab compl.)}           \hfill \normalsize{(n,i)}\\
+
 \hline \verb'\cd' & date                                    \hfill (n,v,i)\\
 \hline \verb'\ct' & date \& time                            \hfill (n,v,i)\\
 \hline 
@@ -262,7 +268,7 @@ Plugin: http://vim.sourceforge.net\\
 \hline
 \end{tabular} \\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
-\vspace{3mm}
+\vspace{1mm}
 \begin{minipage}[b]{69mm}
 \footnotesize{%
 $^1$ {www.splint.org}\\

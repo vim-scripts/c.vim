@@ -141,7 +141,7 @@ class |CLASSNAME|
 
     // ====================  OPERATORS     =======================================
 
-    const |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
+    |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
 
     // ====================  DATA MEMBERS  =======================================
   protected:
@@ -184,7 +184,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //      Method:  operator =
 // Description:  assignment operator
 //--------------------------------------------------------------------------------------
-const |CLASSNAME|&
+|CLASSNAME|&
 |CLASSNAME|::operator = ( const |CLASSNAME| &other )
 {
   if ( this != &other ) {
@@ -298,7 +298,7 @@ class |CLASSNAME|
 
 		// ====================  OPERATORS     =======================================
 
-    const |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
+    |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
 
     // ====================  DATA MEMBERS  =======================================
   protected:
@@ -345,7 +345,7 @@ template < class T >
 // Description:  assignment operator
 //--------------------------------------------------------------------------------------
 template < class T >
-const |CLASSNAME|<T>& |CLASSNAME|<T>::operator = ( const |CLASSNAME| &other )
+|CLASSNAME|<T>& |CLASSNAME|<T>::operator = ( const |CLASSNAME| &other )
 {
   if ( this != &other ) {
   }

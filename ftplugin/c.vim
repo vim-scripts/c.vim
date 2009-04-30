@@ -3,9 +3,9 @@
 " Vim filetype plugin file
 "
 "   Language :  C / C++
-"     Plugin :  c.vim (version 5.5)
+"     Plugin :  c.vim (version 5.7)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.40 2009/03/25 14:26:56 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.44 2009/04/30 15:00:22 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -56,6 +56,11 @@ if exists("loaded_alternateFile")
 imap  <buffer>  <silent>  <S-F2>  <C-C>:A<CR>
 endif
 "
+command! -nargs=1 -complete=customlist,C_CFileSectionList   	CFileSectionList   call C_CFileSectionListInsert (<f-args>)
+command! -nargs=1 -complete=customlist,C_HFileSectionList   	HFileSectionList   call C_HFileSectionListInsert (<f-args>)
+command! -nargs=1 -complete=customlist,C_KeywordCommentList   KeywordCommentList call C_KeywordCommentListInsert (<f-args>)
+command! -nargs=1 -complete=customlist,C_SpecialCommentList   SpecialCommentList call C_SpecialCommentListInsert (<f-args>)
+
 " ---------- KEY MAPPINGS : MENU ENTRIES -------------------------------------
 " ---------- comments menu  ------------------------------------------------
 "
@@ -92,6 +97,18 @@ vnoremap    <buffer>  <silent>  <LocalLeader>cd   s<Esc>:call C_InsertDateAndTim
 inoremap    <buffer>  <silent>  <LocalLeader>ct    <Esc>:call C_InsertDateAndTime('dt')<CR>a
 vnoremap    <buffer>  <silent>  <LocalLeader>ct   s<Esc>:call C_InsertDateAndTime('dt')<CR>a
 "
+" call the above defined commands:
+"
+ noremap    <buffer>            <LocalLeader>ccs   <Esc>:CFileSectionList<Space>
+ noremap    <buffer>            <LocalLeader>chs   <Esc>:HFileSectionList<Space>
+ noremap    <buffer>            <LocalLeader>ckc   <Esc>:KeywordCommentList<Space>
+ noremap    <buffer>            <LocalLeader>csc   <Esc>:SpecialCommentList<Space>
+"
+inoremap    <buffer>            <LocalLeader>ccs   <Esc>:CFileSectionList<Space>
+inoremap    <buffer>            <LocalLeader>chs   <Esc>:HFileSectionList<Space>
+inoremap    <buffer>            <LocalLeader>ckc   <Esc>:KeywordCommentList<Space>
+inoremap    <buffer>            <LocalLeader>csc   <Esc>:SpecialCommentList<Space>
+" 
 " ---------- statements menu  ------------------------------------------------
 "
  noremap    <buffer>  <silent>  <LocalLeader>sd         :call C_InsertTemplate("statements.do-while")<CR>
@@ -382,5 +399,7 @@ inoremap  <buffer>  /*<CR>  /*<CR><CR>/<Esc>kA<Space>
 inoremap  <buffer>  {<CR>  {<CR>}<Esc>O
 vnoremap  <buffer>  {<CR> s{<CR>}<Esc>P=iB
 "
-nmap    <buffer>  <silent>  <C-j>    i<C-R>=C_JumpCtrlJ()<CR>
-imap    <buffer>  <silent>  <C-j>    <C-R>=C_JumpCtrlJ()<CR>
+if !exists("g:C_Ctrl_j") || ( exists("g:C_Ctrl_j") && g:C_Ctrl_j != 'off' )
+	nmap    <buffer>  <silent>  <C-j>   i<C-R>=C_JumpCtrlJ()<CR>
+	imap    <buffer>  <silent>  <C-j>    <C-R>=C_JumpCtrlJ()<CR>
+endif
