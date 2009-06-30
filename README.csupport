@@ -1,4 +1,4 @@
-README for c.vim (Version 5.7) / April 28 2009
+README for c.vim (Version 5.8) / June 29 2009
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -92,11 +92,14 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.7
+  RELEASE NOTES FOR VERSION 5.8
 ================================================================================
-+ 4 new hotkeys : insert file section comments (C/C++/H), special comments,
-  keyword comments.
-+ Adjusting end-of-line comment adjustment improved.
++ Hotkeys are shown in the menus.
++ File browser for code snippets and templates choosable (2 global variables).
++ Two new hotkeys: include file description (implementation, header).
++ New menu item: namespace alias
++ Bugfix: wrapper script for use of a xterm could not handle parameters containing blanks.
++ Several minor improvements.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 
@@ -113,7 +116,7 @@ ftplugin/c.vim                 A file type plug-in. Define hotkeys, creates a
 
 plugin/c.vim                   The C/C++ plug-in for GVIM.
 
-c-support/scripts/wrapper.sh   The wrapper script for the use of an xterm.
+c-support/scripts/wrapper.sh   The wrapper script for the use of a xterm.
 c-support/templates/*          C-style and C++-style template files 
                                (see csupport.txt on how to adapt the templates).
 
@@ -124,7 +127,7 @@ c-support/wordlists/k+r.list            K&R-Book: Words from the table of conten
 c-support/wordlists/stl_index.list      STL: method and type names.
 
 
------------------------___   ---------------------------------------------------
+--------------------------   ---------------------------------------------------
                              The following files and extensions are for
                              convenience only.  c.vim will work without them.
                              ---------------------------------------------------

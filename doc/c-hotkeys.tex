@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.24 2009/04/23 19:01:22 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.25 2009/06/03 17:50:18 mehner Exp $
 %%                
 %%        Notes:  
 %%                
@@ -27,8 +27,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.7}
-\newcommand{\ReleaseDate}{ April 2009}
+\newcommand{\Pluginversion}{5.8}
+\newcommand{\ReleaseDate}{ June 2009}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -81,35 +81,27 @@ Plugin: http://vim.sourceforge.net\\
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
 \begin{tabular}[]{|p{13mm}|p{56mm}|}
-%%----------------------------------------------------------------------
-%%  show plugin help
-%%----------------------------------------------------------------------
-\hline 
-\multicolumn{2}{|r|}{\textsl{\textbf{H}elp}}\\
-%\hline \verb'\hm'   & show manual   \hfill (n,i)\\
-\hline \verb'\hp'   & help (plugin) \hfill (n,i)\\
-\hline 
-%%----------------------------------------------------------------------
-%%  menu comments
-%%----------------------------------------------------------------------
+%
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{C}omments}} \\
-\hline \verb'\cl' & end-of-line comment                     \hfill (n,v,i)\\
-\hline \verb'\cj' & adjust end-of-line comment              \hfill (n,v,i)\\
-\hline \verb'\cs' & set end-of-line comment column          \hfill (n)    \\
-\hline \verb'\c*' & code $\Rightarrow$ comment \verb'/* */' \hfill (n,v)  \\
-\hline \verb'\cc' & code $\Rightarrow$ comment \verb'//'    \hfill (n,v)  \\
-\hline \verb'\co' & comment $\Rightarrow$ code              \hfill (n,v)  \\
+\hline \verb'\cl'  & end-of-line comment                     \hfill (n,v,i)\\
+\hline \verb'\cj'  & adjust end-of-line comment              \hfill (n,v,i)\\
+\hline \verb'\cs'  & set end-of-line comment column          \hfill (n)    \\
+\hline \verb'\c*'  & code $\Rightarrow$ comment \verb'/* */' \hfill (n,v)  \\
+\hline \verb'\cc'  & code $\Rightarrow$ comment \verb'//'    \hfill (n,v)  \\
+\hline \verb'\co'  & comment $\Rightarrow$ code              \hfill (n,v)  \\
 
-\hline \verb'\cfr'& frame comment                           \hfill (n,i)\\
-\hline \verb'\cfu'& function comment                        \hfill (n,i)\\
-\hline \verb'\cme'& method description                      \hfill (n,i)\\
-\hline \verb'\ccl'& class description                       \hfill (n,i)\\
+\hline \verb'\cfr' & frame comment                           \hfill (n,i)\\
+\hline \verb'\cfu' & function comment                        \hfill (n,i)\\
+\hline \verb'\cme' & method description                      \hfill (n,i)\\
+\hline \verb'\ccl' & class description                       \hfill (n,i)\\
+\hline \verb'\cfdi'& file description (implementation)       \hfill (n,i)\\
+\hline \verb'\cfdh'& file description (header)               \hfill (n,i)\\
 
-\hline \verb'\ccs'& C/C++--file sections\hspace{3mm}\footnotesize{(tab compl.)}        \hfill \normalsize{(n,i)}\\
-\hline \verb'\chs'& H--file sections\hspace{10mm}\footnotesize{(tab compl.)}           \hfill \normalsize{(n,i)}\\
-\hline \verb'\ckc'& keyword comment\hspace{5mm}\footnotesize{(tab compl.)}             \hfill \normalsize{(n,i)}\\
-\hline \verb'\csc'& special comment\hspace{7,5mm}\footnotesize{(tab compl.)}           \hfill \normalsize{(n,i)}\\
+\hline \verb'\ccs'& C/C++--file sections\hspace{3mm}\footnotesize{(tab compl.)}    \hfill \normalsize{(n,i)}\\
+\hline \verb'\chs'& H--file sections\hspace{10mm}\footnotesize{(tab compl.)}       \hfill \normalsize{(n,i)}\\
+\hline \verb'\ckc'& keyword comment\hspace{5mm}\footnotesize{(tab compl.)}         \hfill \normalsize{(n,i)}\\
+\hline \verb'\csc'& special comment\hspace{7,5mm}\footnotesize{(tab compl.)}       \hfill \normalsize{(n,i)}\\
 
 \hline \verb'\cd' & date                                    \hfill (n,v,i)\\
 \hline \verb'\ct' & date \& time                            \hfill (n,v,i)\\
@@ -131,7 +123,7 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\swh' & \verb'while { }'           \hfill (n,v,i)\\
 \hline \verb'\ss'  & \verb'switch'              \hfill (n,v,i)\\
 \hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
-\hline \verb'\s{ \sb'  & \verb'{ }'                 \hfill (n,v,i)\\
+\hline \verb'\s{ \sb'  & \verb'{ }'             \hfill (n,v,i)\\
 \hline
 \end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
@@ -257,25 +249,32 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\rx'  & set xterm size              \hfill (n,i, only Unix \& GUI)\\
 \hline \verb'\ro'  & change output destination   \hfill (n,i)\\
 \hline
+\end{tabular}\\
 %
 %%----------------------------------------------------------------------
 %%  load / unload menu entry
 %%----------------------------------------------------------------------
+\begin{tabular}[]{|p{17mm}|p{52mm}|}
 \hline
-\multicolumn{2}{|r|}{\textsl{Menu(s)}}\\
-\hline \verb'\lcs'  & Load    Menus\hfill \scriptsize{(n \& GUI only)}\\
-\hline \verb'\ucs'  & Unload  Menus\hfill \scriptsize{(n \& GUI only)}\\
-\hline
-\end{tabular} \\
+%\multicolumn{2}{|r|}{\textsl{Menu(s)}}\\
+%%----------------------------------------------------------------------
+%%  show plugin help
+%%----------------------------------------------------------------------
+%\hline 
+\multicolumn{2}{|r|}{\textsl{\textbf{H}elp and Menus}}\\
+\hline \verb'\hm'   & show manual   \hfill (n,i)\\
+\hline \verb'\hp'   & help (c-support) \hfill (n,i)\\
+\hline \verb'\lcs \ucs'  & load / unload    Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline 
+\end{tabular}\\
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
-\vspace{1mm}
-\begin{minipage}[b]{69mm}
-\footnotesize{%
+\vspace{0.2mm}
+\begin{minipage}[b]{69mm}%
+\scriptsize{%
 $^1$ {www.splint.org}\\
 $^2$ \textbf{CodeCheck}$^{TM}$ is a product of Abraxas Software, Inc.
 }%
 \end{minipage}%
-%
 \end{center}
 \end{multicols}
 \end{document}

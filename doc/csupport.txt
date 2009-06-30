@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                   April 23 2009
+*csupport.txt*                  C/C++ Support                    June 3 2009
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.7
+                              Plugin version 5.8
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -38,6 +38,7 @@ keystroke.
  1.5    Menu 'Snippets'                         |csupport-snippets|
  1.5.1   Code snippets                          |csupport-snippets|
  1.5.2   Picking up prototypes                  |csupport-proto|
+ 1.5.3   Code templates                         |csupport-templates-menu|
  1.6    Menu 'C++'                              |csupport-c++|
  1.6.1   Normal mode, insert mode.              |csupport-c++-normal-mode|
  1.6.2   Visual mode.                           |csupport-c++-visual-mode|
@@ -623,6 +624,16 @@ add the file extension "ni" or "noindent" to the snippet file name, e.g.
 
   parameter_handling.c.noindent
 
+Snippet browser
+---------------
+Under a GUI a file requester will be put up. Without GUI the filename will be
+read from the command line. You can change this behavior by setting a global
+variable in your ~/.vimrc :
+
+ let g:C_GuiSnippetBrowser = 'commandline'
+
+The default value is 'gui'. 
+
 
 1.5.2   PICKING UP PROTOTYPES                                 *csupport-proto*
 
@@ -691,6 +702,34 @@ The list of gathered prototypes can be shown with
 REMARK. Generating prototypes this way is nice in a small project. You may
 want to use an extractor like cextract or something else.
 
+
+1.5.3  Code Templates                                *csupport-templates-menu*
+---------------------
+Nearly all menu entries insert code snippets or comments. All these stuff is
+taken from template files and can be changed by the user to meet his
+requirements (see|csupport-templates|on how to use the template system).
+
+The menu item 'edit local templates' opens the main template file in a local
+plugin installation. This is usually the file
+'~/.vim/c-support/templates/Templates'.  There may be dependent files
+loaded from the main file.  Now change whatever file you want, save it, and
+click on the menu item 'reread templates' to read in the file(s) and to
+rebuild the internal representation of the templates.
+
+The menu item 'edit global templates' opens the main template file in a
+system-wide plugin installation (see |csupport-system-wide|). This is
+usually the file '$VIM./vimfiles/c-support/templates/Templates'.
+
+Template browser
+----------------
+Under a GUI a file requester will be put up. Without GUI the filename will be
+read from the command line. You can change this behavior by setting a global
+variable in your ~/.vimrc :
+
+ let g:C_GuiTemplateBrowser = 'explorer'
+
+The default value is 'gui'. 'explorer' will start the file explorer
+(see help|:Explore|). To use the commandline asign 'commandline'.
 
 ------------------------------------------------------------------------------
 1.6  MENU 'C++'                                                 *csupport-c++*
@@ -979,6 +1018,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \cfu      function comment                    (n,i)
   \cme      method description                  (n,i)
   \ccl      class description                   (n,i)
+  \cfdi     file description (implementation)   (n,i)
+  \cfdh     file description (header)           (n,i)
   \ccs      C/C++-file section  (tab. compl.)   (n,i)
   \chs      H-file section      (tab. compl.)   (n,i)
   \ckc      keyword comment     (tab. compl.)   (n,i)
@@ -1169,6 +1210,8 @@ Several global variables are checked by the script to customize it:
   g:C_XtermDefaults          "-fa courier -fs 12 -geometry 80x24"
   g:C_Printheader            "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
   g:C_MapLeader              '\'
+  g:C_GuiSnippetBrowser      'gui'
+  g:C_GuiTemplateBrowser     'gui'
 
   Linux/UNIX:
    g:C_ObjExtension          ".o"
@@ -1217,6 +1260,8 @@ The variable plugin_dir will automatically be set to one of the following values
            g:C_XtermDefaults      : the xterm defaults
            g:C_Printheader        : hardcopy: definition of the page header
            g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
+           g:C_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
+           g:C_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
  
  3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
            g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)

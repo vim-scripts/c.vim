@@ -4,30 +4,27 @@
 #         USAGE:  ./wrapper.sh executable [cmd-line-args] 
 #   DESCRIPTION:  Wraps the execution of a programm or script.
 #                 Use with xterm: xterm -e wrapper.sh executable cmd-line-args
-#                 This script is used by several plugins:
-#                  bash-support.vim, c.vim and perl-support.vim
+#                 This script is used by the plugins c.vim 
 #       OPTIONS:  ---
-#  REQUIREMENTS:  which(1) - shows the full path of (shell) commands.
+#  REQUIREMENTS:  ---
 #          BUGS:  ---
 #         NOTES:  ---
 #        AUTHOR:  Dr.-Ing. Fritz Mehner (Mn), mehner@fh-swf.de
 #       COMPANY:  Fachhochschule Südwestfalen, Iserlohn
 #       CREATED:  23.11.2004 18:04:01 CET
-#      REVISION:  $Id: wrapper.sh,v 1.4 2008/08/02 16:36:34 mehner Exp $
+#      REVISION:  $Id: wrapper.sh,v 1.5 2009/06/03 17:47:06 mehner Exp $
 #===============================================================================
 
-command=${@}                             # the complete command line
-executable=${1}                          # name of the executable; may be quoted
-
-fullname=$(which $executable)
-[ $? -eq 0 ] && executable=$fullname
+executable="${1}"                               # name of the executable
 
 if [ ${#} -ge 1 ] && [ -x "$executable" ]
 then
-  shift
-  "$executable" ${@}
-  echo -e "> \"${command}\" returned ${?}"
+  "${@}"
+  returncode=$?
+  [ $returncode -ne 0 ] && printf "'${@}' returned ${returncode}\n"
 else
-  echo -e "\n  !! file \"${executable}\" does not exist or is not executable !!"
+  printf "\n  !! file \"${executable}\" does not exist or is not executable !!\n"
+  returncode=126                                # command invoked cannot execute
 fi
 read -p "  ... press return key ... " dummy
+exit $returncode

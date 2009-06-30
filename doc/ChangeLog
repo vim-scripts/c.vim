@@ -1,4 +1,11 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.7
+================================================================================
++ 4 new hotkeys : insert file section comments (C/C++/H), special comments,
+  keyword comments.
++ Adjusting end-of-line comment adjustment improved.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.6
 ================================================================================
 + Jump targets (templates) and mapping Ctrl-j can be switched off.

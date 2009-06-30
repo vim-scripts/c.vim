@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim (version 5.7)
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.44 2009/04/30 15:00:22 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.45 2009/06/03 17:49:39 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -84,11 +84,15 @@ vnoremap    <buffer>  <silent>  <LocalLeader>co    <Esc>:call C_CommentCode("v")
  noremap    <buffer>  <silent>  <LocalLeader>cfu        :call C_InsertTemplate("comment.function")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>cme        :call C_InsertTemplate("comment.method")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>ccl        :call C_InsertTemplate("comment.class")<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>cfdi       :call C_InsertTemplate("comment.file-description")<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>cfdh       :call C_InsertTemplate("comment.file-description-header")<CR>
 
 inoremap    <buffer>  <silent>  <LocalLeader>cfr   <Esc>:call C_InsertTemplate("comment.frame")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>cfu   <Esc>:call C_InsertTemplate("comment.function")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>cme   <Esc>:call C_InsertTemplate("comment.method")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>ccl   <Esc>:call C_InsertTemplate("comment.class")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>cfdi  <Esc>:call C_InsertTemplate("comment.file-description")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>cfdh  <Esc>:call C_InsertTemplate("comment.file-description-header")<CR>
 
  noremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call C_InsertDateAndTime('d')<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>cd    <Esc>:call C_InsertDateAndTime('d')<CR>a
