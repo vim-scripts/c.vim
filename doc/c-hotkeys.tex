@@ -10,13 +10,13 @@
 %%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.25 2009/06/03 17:50:18 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.28 2009/10/21 18:15:25 mehner Exp $
 %%                
 %%        Notes:  
 %%                
 %%=====================================================================================
 
-\documentclass[oneside,10pt,landscape,DIV17]{scrartcl}
+\documentclass[oneside,11pt,landscape,DIV16]{scrartcl}
 
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -24,11 +24,12 @@
 \usepackage{times}
 \usepackage{lastpage}
 \usepackage{multicol}
+\usepackage{setspace}
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.8}
-\newcommand{\ReleaseDate}{ June 2009}
+\newcommand{\Pluginversion}{5.9}
+\newcommand{\ReleaseDate}{ October 2009}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -42,7 +43,7 @@
 \usepackage{fancyhdr}
 \pagestyle{fancyplain}
 \fancyfoot[L]{\small \ReleaseDate}
-\fancyfoot[C]{}
+\fancyfoot[C]{c-support.vim}
 \fancyfoot[R]{\small \textbf{Page \thepage{} / \pageref{LastPage}}}
 \renewcommand{\headrulewidth}{0.0pt}
 
@@ -72,15 +73,15 @@
 \textbf{\textsc{\Huge{Hot keys}}}\\ 
 Key mappings for Vim with and without GUI.\\
 Plugin: http://vim.sourceforge.net\\
-%\vspace{1.0mm}
+\vspace{3.0mm}
 {\normalsize (i)} insert mode, {\normalsize (n)} normal mode, {\normalsize (v)} visual mode\\
-\vspace{1.0mm}
+\vspace{5.0mm}
 %
 %%======================================================================
 %%  table, left part
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{13mm}|p{56mm}|}
+\begin{tabular}[]{|p{10mm}|p{60mm}|}
 %
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{C}omments}} \\
@@ -106,6 +107,15 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\cd' & date                                    \hfill (n,v,i)\\
 \hline \verb'\ct' & date \& time                            \hfill (n,v,i)\\
 \hline 
+\end{tabular}\\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
+%%======================================================================
+%%  table, middle part
+%%======================================================================
+%
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{15mm}|p{55mm}|}
 %%----------------------------------------------------------------------
 %%  menu statements
 %%----------------------------------------------------------------------
@@ -125,20 +135,13 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
 \hline \verb'\s{ \sb'  & \verb'{ }'             \hfill (n,v,i)\\
 \hline
-\end{tabular}\\
-%%~~~~~ TABULAR :  end  ~~~~~~~~~~
-%
-%%======================================================================
-%%  table, middle part
-%%======================================================================
-%
-%%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  preprocessor menu
 %%----------------------------------------------------------------------
 \hline
 \multicolumn{2}{|r|}{\textsl{\textbf{P}reprocessor}}   \\
+\hline \verb'\ps'   & choose a Std. Lib. include    \hfill (n,i)\\
+\hline \verb'\pc'   & choose a C99 include         \hfill (n,i)\\
 \hline \verb'\p<'   & \verb$#include<...>$         \hfill (n,i)\\
 \hline \verb'\p"'   & \verb$#include"..."$         \hfill (n,i)\\
 \hline \verb'\pd'   & \verb'#define'               \hfill (n,i)\\
@@ -153,6 +156,15 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\pl'   & \verb'#line  '               \hfill (n,i)\\
 \hline \verb'\pp'   & \verb'#pragma'               \hfill (n,i)\\
 \hline
+\end{tabular} \\
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+
+%%======================================================================
+%%  table, right part
+%%======================================================================
+%
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{11mm}|p{60mm}|}
 %%----------------------------------------------------------------------
 %%  snippet menu
 %%----------------------------------------------------------------------
@@ -192,15 +204,14 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\ii'  & open input file                  \hfill (n,v,i)\\
 \hline \verb'\io'  & open output file                 \hfill (n,v,i)\\
 \hline
-\end{tabular} \\
-%%~~~~~ TABULAR :  end  ~~~~~~~~~~
-
+\end{tabular}\\
+%
 %%======================================================================
 %%  table, right part
 %%======================================================================
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{11mm}|p{58mm}|}
+\begin{tabular}[]{|p{12mm}|p{62mm}|}
 %%----------------------------------------------------------------------
 %%  C++ menu
 %%----------------------------------------------------------------------
@@ -249,12 +260,12 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\rx'  & set xterm size              \hfill (n,i, only Unix \& GUI)\\
 \hline \verb'\ro'  & change output destination   \hfill (n,i)\\
 \hline
-\end{tabular}\\
+\end{tabular}
 %
 %%----------------------------------------------------------------------
 %%  load / unload menu entry
 %%----------------------------------------------------------------------
-\begin{tabular}[]{|p{17mm}|p{52mm}|}
+\begin{tabular}[]{|p{12mm}|p{52mm}|}
 \hline
 %\multicolumn{2}{|r|}{\textsl{Menu(s)}}\\
 %%----------------------------------------------------------------------
@@ -264,17 +275,80 @@ Plugin: http://vim.sourceforge.net\\
 \multicolumn{2}{|r|}{\textsl{\textbf{H}elp and Menus}}\\
 \hline \verb'\hm'   & show manual   \hfill (n,i)\\
 \hline \verb'\hp'   & help (c-support) \hfill (n,i)\\
-\hline \verb'\lcs \ucs'  & load / unload    Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline \verb'\lcs'  & load    Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline \verb'\ucs'  & unload  Menus\hfill \scriptsize{(n \& GUI only)}\\
 \hline 
-\end{tabular}\\
+\end{tabular}
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
-\vspace{0.2mm}
-\begin{minipage}[b]{69mm}%
+%
+%
+\begin{minipage}[b]{66mm}%
+\vspace{10mm}
+%
+\begin{flushleft}
+%
+\textit{Ex commands:}
+\begin{description}
+%
+\item [CFileSection] 
+C/C++--file sections (same as \verb'\ccs')
+%
+\item [HFileSection]
+H--file sections (same as \verb'\chs')
+%
+\item [KeywordComment] 
+keyword comment (same as \verb'\ckc')
+%
+\item [SpecialComment] 
+special comment (same as \verb'\csc')
+%
+\item [IncludeStdLibrary] 
+standard library include (same as \verb'\ps')
+%
+\item [IncludeC99Library] 
+C99 include (same as \verb'\pc')
+%
+\end{description}
+%
+Use tab expansion to show the items to choose from.
+%
+\end{flushleft}
+%
+\end{minipage}\\
+%
+\begin{minipage}[b]{64mm}%
 \scriptsize{%
+\vspace{30mm}
+\hrulefill\\
 $^1$ {www.splint.org}\\
 $^2$ \textbf{CodeCheck}$^{TM}$ is a product of Abraxas Software, Inc.
 }%
+\end{minipage}\\
+%
+\begin{minipage}[b]{64mm}%
+
+\setlength{\fboxsep}{.25mm}
+%%----------------------------------------------------------------------
+%%  Additional Mappings
+%%----------------------------------------------------------------------
+\begin{spacing}{1.2}
+\begin{tabular}[]{|p{12mm}|p{56mm}|}
+\hline
+\multicolumn{2}{|r|}{\textsl{Additional Mappings}}\\
+\hline
+\hline \textbf{typing}   & \textbf{expansion}\\
+\hline \verb'/*'   		& \verb'/*  */'                          				            \hfill (i)\\
+\hline \verb'/*'   		& \verb'/* '\fbox{\small{(multiline) marked text}}\verb' */' 				\hfill (v)\\
+\hline \verb'/*<CR>'  & \verb'/*'\hfill (i)\newline\verb' * |'\newline\verb' */'\\
+\hline \verb'{<CR>'  	& \verb'{'\hfill (i)\newline\verb'  |'\newline\verb'}' 		\\
+\hline \verb'{<CR>'  	& \verb'{'\hfill (v)\newline\verb'  '\fbox{\small{(multiline) marked text}}\newline\verb'}'\\
+\hline 
+\end{tabular}
+\end{spacing}
+%%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%
 \end{minipage}%
+%
 \end{center}
 \end{multicols}
 \end{document}

@@ -1,4 +1,14 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.8
+================================================================================
++ Hotkeys are shown in the menus.
++ File browser for code snippets and templates choosable (2 global variables).
++ Two new hotkeys: include file description (implementation, header).
++ New menu item: namespace alias
++ Bugfix: wrapper script for use of a xterm could not handle parameters containing blanks.
++ Several minor improvements.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.7
 ================================================================================
 + 4 new hotkeys : insert file section comments (C/C++/H), special comments,

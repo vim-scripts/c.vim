@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                    June 3 2009
+*csupport.txt*                  C/C++ Support                 October 19 2009
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.8
+                              Plugin version 5.9
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -786,8 +786,8 @@ An error window will be opened if the compiler reports errors and/or warnings.
 Quickfix commands can now be used to jump to an error location.
 
 Consider using maps like
-  map  <silent> <F7>    <Esc>:cp<CR>
-  map  <silent> <F8>    <Esc>:cn<CR>
+  map  <silent> <F7>    <Esc>:cprevious<CR>
+  map  <silent> <F8>    <Esc>:cnext<CR>
 in your ~/.vimrc file to jump over the error locations and make navigation
 easier.  The error list and the error locations in your source buffer will be
 synchronized.
@@ -908,6 +908,9 @@ directory. See the indent manual for more information.
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
+The hardcopy goes to the current working directory.  If the buffer contains
+documentation or other material from non-writable directories the hardcopy
+goes to the HOME directory. The otput destination will be shown in a message.
 
 The print header contains date and time for the current locale. The definition
 used is
@@ -1045,6 +1048,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Preprocessor -------------------------------------------------------
 
+  \ps       choose a standard library include   (n,i)
+  \pc       choose a C99 include                (n,i)
   \p<       #include <>                         (n,i)
   \p"       #include ""                         (n,i)
   \pd       #define                             (n,i)
@@ -1789,7 +1794,8 @@ Extra feature of Ctrl-j
 -----------------------
 If none of the above described targets is left Ctrl-j can be used to jump
 behind closing brackets, parenthesis, braces,  or string terminators ('"`).
-This handy feature works in most cases.
+This feature is limited to the current line. Ctrl-j does not jump behind the
+last character in a line.
 
 
 How to switch the mapping for Ctrl-j off
@@ -1926,7 +1932,7 @@ in the taglist window.
    noremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
   inoremap <silent> <F11>  <Esc><Esc>:Tlist<CR>
 
-  let tlist_make_settings  = 'make;m:makros;t:targets'
+  let tlist_make_settings  = 'make;m:makros;t:targets;i:includes'
   let tlist_qmake_settings = 'qmake;t:SystemVariables'
 
   if has("autocmd")

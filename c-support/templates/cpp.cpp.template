@@ -100,10 +100,11 @@ class |CLASSNAME|
 
 		// ====================  OPERATORS     =======================================
 
-    // ====================  DATA MEMBERS  =======================================
   protected:
+    // ====================  DATA MEMBERS  =======================================
 
   private:
+    // ====================  DATA MEMBERS  =======================================
 
 }; // -----  end of class |CLASSNAME|  -----
 
@@ -143,10 +144,11 @@ class |CLASSNAME|
 
     |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
 
-    // ====================  DATA MEMBERS  =======================================
   protected:
+    // ====================  DATA MEMBERS  =======================================
 
   private:
+    // ====================  DATA MEMBERS  =======================================
 
 }; // -----  end of class |CLASSNAME|  -----
 
@@ -256,10 +258,11 @@ class |CLASSNAME|
 
 		// ====================  OPERATORS     =======================================
 
-    // ====================  DATA MEMBERS  =======================================
   protected:
+    // ====================  DATA MEMBERS  =======================================
 
   private:
+    // ====================  DATA MEMBERS  =======================================
 
 }; // -----  end of template class |CLASSNAME|  -----
 
@@ -300,10 +303,11 @@ class |CLASSNAME|
 
     |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
 
-    // ====================  DATA MEMBERS  =======================================
   protected:
+    // ====================  DATA MEMBERS  =======================================
 
   private:
+    // ====================  DATA MEMBERS  =======================================
 
 }; // -----  end of template class |CLASSNAME|  -----
 

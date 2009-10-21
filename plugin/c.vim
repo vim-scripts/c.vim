@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.87 2009/06/22 17:59:15 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.95 2009/10/19 13:01:35 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.8"  							" version number of this script; do not change
+let g:C_Version= "5.8.1"  							" version number of this script; do not change
 "
 "###############################################################################################
 "
@@ -313,8 +313,8 @@ function! C_InitMenus ()
 		exe "amenu  ".s:C_Root.'&Comments.&Comments<Tab>C\/C\+\+             <Nop>'
 		exe "amenu  ".s:C_Root.'&Comments.-Sep00-                            <Nop>'
 	endif
-	exe "amenu <silent> ".s:Comments.'.end-of-&line\ comment<Tab>\\cl           :call C_LineEndComment( )<CR>'
-	exe "vmenu <silent> ".s:Comments.'.end-of-&line\ comment<Tab>\\cl           <Esc>:call C_MultiLineEndComments( )<CR>'
+	exe "amenu <silent> ".s:Comments.'.end-of-&line\ comment<Tab>\\cl                :call C_LineEndComment( )<CR>'
+	exe "vmenu <silent> ".s:Comments.'.end-of-&line\ comment<Tab>\\cl           <Esc>:call C_MultiLineEndComments( )<CR>a'
 
 	exe "amenu <silent> ".s:Comments.'.ad&just\ end-of-line\ com\.<Tab>\\cj     :call C_AdjustLineEndComm("a")<CR>'
 	exe "vmenu <silent> ".s:Comments.'.ad&just\ end-of-line\ com\.<Tab>\\cj     :call C_AdjustLineEndComm("v")<CR>'
@@ -610,13 +610,13 @@ function! C_InitMenus ()
 	"
 	"----- Submenu : C-Idioms: standard library -------------------------------------------------------
 	"'
-	exe "amenu  ".s:Preprocessor.'.#include\ &Std\.Lib\..Std\.Lib\.<Tab>C\/C\+\+  <Nop>'
-	exe "amenu  ".s:Preprocessor.'.#include\ &Std\.Lib\..-Sep0-         					<Nop>'
-	call C_CIncludeMenus ( s:Preprocessor.'.#include\ &Std\.Lib\.', s:C_StandardLibs )
+	exe "amenu           ".s:Preprocessor.'.#include\ &Std\.Lib\.<Tab>\\ps.Std\.Lib\.<Tab>C\/C\+\+  <Nop>'
+	exe "amenu           ".s:Preprocessor.'.#include\ &Std\.Lib\.<Tab>\\ps.-Sep0-         					<Nop>'
+	call C_CIncludeMenus ( s:Preprocessor.'.#include\ &Std\.Lib\.<Tab>\\ps', s:C_StandardLibs )
 	"
-	exe "anoremenu  ".s:Preprocessor.'.#include\ C&99.C99<Tab>C\/C\+\+         		<Nop>'
-	exe "anoremenu  ".s:Preprocessor.'.#include\ C&99.-Sep0-                			<Nop>'
-	call C_CIncludeMenus ( s:Preprocessor.'.#include\ C&99', s:C_C99Libs )
+	exe "anoremenu       ".s:Preprocessor.'.#include\ C&99<Tab>\\pc.C99<Tab>C\/C\+\+         		<Nop>'
+	exe "anoremenu       ".s:Preprocessor.'.#include\ C&99<Tab>\\pc.-Sep0-                			<Nop>'
+	call C_CIncludeMenus ( s:Preprocessor.'.#include\ C&99<Tab>\\pc', s:C_C99Libs )
 	"
 	exe "amenu  ".s:Preprocessor.'.-SEP2-                        :'
 	exe "anoremenu  ".s:Preprocessor.'.#include\ &\<\.\.\.\><Tab>\\p<           :call C_InsertTemplate("preprocessor.include-global")<CR>'
@@ -701,10 +701,10 @@ function! C_InitMenus ()
 	endif
 	exe "anoremenu ".s:Cpp.'.c&in                      :call C_InsertTemplate("cpp.cin")<CR>'
 	exe "inoremenu ".s:Cpp.'.c&in                 <Esc>:call C_InsertTemplate("cpp.cin")<CR>'
-	exe "inoremenu ".s:Cpp.'.c&out<Tab>\\+co      <Esc>:call C_InsertTemplate("cpp.cout")<CR>'
 	exe "anoremenu ".s:Cpp.'.c&out<Tab>\\+co           :call C_InsertTemplate("cpp.cout")<CR>'
-	exe "inoremenu ".s:Cpp.'.<<\ &\"\"            <Esc>:call C_InsertTemplate("cpp.cout-operator")<CR>'
+	exe "inoremenu ".s:Cpp.'.c&out<Tab>\\+co      <Esc>:call C_InsertTemplate("cpp.cout")<CR>'
 	exe "anoremenu ".s:Cpp.'.<<\ &\"\"                 :call C_InsertTemplate("cpp.cout-operator")<CR>'
+	exe "inoremenu ".s:Cpp.'.<<\ &\"\"            <Esc>:call C_InsertTemplate("cpp.cout-operator")<CR>'
 	"
 	"----- Submenu : C++ : output manipulators  -------------------------------------------------------
 	"
@@ -1236,10 +1236,18 @@ function! C_MultiLineEndComments ( )
 	endwhile
 	"
 	" ----- back to the begin of the marked block -----
-	let diff	= pos1-pos0
-	normal a
-	if pos1-pos0 > 0
-		exe "normal ".diff."k"
+	stopinsert
+	normal '<$
+	if match( getline("."), '\/\/\s*$' ) < 0
+		if search( '\/\*', 'bcW', line(".") ) > 1
+			normal l
+		endif
+		let save_cursor = getpos(".")
+		if getline(".")[save_cursor[2]+1] == ' '
+			normal l
+		endif
+	else
+		normal $
 	endif
 endfunction		" ---------- end of function  C_MultiLineEndComments  ----------
 "
@@ -1831,6 +1839,8 @@ endfunction    " ---------  end of function C_EscapeBlanks  ----------
 "  The errorfile created by the compiler will now be read by gvim and
 "  the commands cl, cp, cn, ... can be used.
 "------------------------------------------------------------------------------
+let s:LastShellReturnCode	= 0			" for compile / link / run only
+
 function! C_Compile ()
 
 	let	l:currentbuffer	= bufname("%")
@@ -1856,15 +1866,19 @@ function! C_Compile ()
 		"
 		" COMPILATION
 		"
-		let v:statusmsg		= ''
+		let v:statusmsg = ''
+		let	s:LastShellReturnCode	= 0
 		if s:MSWIN
 			exe		"make ".s:C_CFlags." \"".SouEsc."\" -o \"".ObjEsc."\""
 		else
 			exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
-		if v:statusmsg != ""
-			let s:C_HlMessage = v:statusmsg
+		if v:statusmsg == ''
+			let s:C_HlMessage = "'".Obj."' : compilation successful"
+		endif
+		if v:shell_error != 0
+			let	s:LastShellReturnCode	= v:shell_error
 		endif
 		"
 		" open error window if necessary
@@ -1887,7 +1901,9 @@ endfunction    " ----------  end of function C_Compile ----------
 function! C_Link ()
 
 	call	C_Compile()
-	if v:statusmsg != ""
+	:redraw!
+	if s:LastShellReturnCode != 0
+		let	s:LastShellReturnCode	=  0
 		return
 	endif
 
@@ -1926,14 +1942,20 @@ function! C_Link ()
 		else
 			exe		"setlocal makeprg=".s:C_CplusCompiler
 		endif
-		let v:statusmsg=""
+		let	s:LastShellReturnCode	= 0
+		let v:statusmsg = ''
 		if s:MSWIN
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o \"".ExeEsc."\" \"".ObjEsc."\""
 		else
 			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o ".ExeEsc." ".ObjEsc
 		endif
-		if v:statusmsg != ""
-			let s:C_HlMessage = v:statusmsg
+		if v:statusmsg == ''
+			let s:C_HlMessage = "'".Exe."' : linking successful"
+		else
+			let s:C_HlMessage = "'".Exe."' : linking NOT successful"
+		endif
+		if v:shell_error != 0
+			let	s:LastShellReturnCode	= v:shell_error
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
 	endif
@@ -1946,9 +1968,11 @@ endfunction    " ----------  end of function C_Link ----------
 "
 let s:C_OutputBufferName   = "C-Output"
 let s:C_OutputBufferNumber = -1
+let s:C_RunMsg1						 ="' does not exist or is not executable or object/source older then executable"
 "
 function! C_Run ()
 "
+	let s:C_HlMessage = ""
 	let Sou  		= expand("%:p")														" name of the source file
 	let Obj  		= expand("%:p:r").s:C_ObjExtension				" name of the object file
 	let Exe  		= expand("%:p:r").s:C_ExeExtension				" name of the executable
@@ -1964,6 +1988,12 @@ function! C_Run ()
 	if s:C_OutputGvim == "vim"
 		"
 		silent call C_Link()
+		if s:LastShellReturnCode == 0
+			" clear the last linking message if any"
+			let s:C_HlMessage = ""
+			:redraw!
+			call C_HlMessage()
+		endif
 		"
 		if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
 			if s:MSWIN
@@ -1972,7 +2002,7 @@ function! C_Run ()
 				exe		"!".ExeEsc." ".l:arguments
 			endif
 		else
-			echomsg "file '".Exe."' does not exist / is not executable"
+			echomsg "file '".Exe.s:C_RunMsg1
 		endif
 
 	endif
@@ -2022,7 +2052,7 @@ function! C_Run ()
 			else
 				setlocal	nomodifiable
 				:close
-				echomsg "file '".Exe."' does not exist / is not executable"
+				echomsg "file '".Exe.s:C_RunMsg1
 			endif
 			"
 		endif
@@ -2043,10 +2073,13 @@ function! C_Run ()
 				:redraw!
 			endif
 		else
-			echomsg "file '".Exe."' does not exist / is not executable"
+			echomsg "file '".Exe.s:C_RunMsg1
 		endif
 	endif
 
+		if v:statusmsg == ''
+			let s:C_HlMessage = ""
+		endif
 endfunction    " ----------  end of function C_Run ----------
 "
 "------------------------------------------------------------------------------
@@ -2336,7 +2369,8 @@ function! C_Settings ()
 	endif
 	" ----- dictionaries ------------------------
 	if g:C_Dictionary_File != ""
-		let ausgabe= substitute( g:C_Dictionary_File, ",", ",\n                           + ", "g" )
+		let ausgabe= &dictionary
+		let ausgabe= substitute( ausgabe, ",", ",\n                           + ", "g" )
 		let txt = txt."       dictionary file(s) :  ".ausgabe."\n"
 	endif
 	let txt = txt.'     current output dest. :  '.s:C_OutputGvim."\n"
@@ -2369,32 +2403,38 @@ endfunction    " ----------  end of function C_Settings ----------
 "    MSWIN : a printer dialog is displayed
 "    other : print PostScript to file
 "------------------------------------------------------------------------------
-function! C_Hardcopy (arg1)
-	let Sou	= expand("%")
-  if Sou == ""
-		redraw
-		echohl WarningMsg | echo "no file name " | echohl None
-		return
+function! C_Hardcopy (mode)
+  let outfile = expand("%")
+  if outfile == ""
+    redraw
+    echohl WarningMsg | echo " no file name " | echohl None
+    return
   endif
-	let	Sou		= escape(Sou,s:escfilename)		" name of the file in the current buffer
-	let	old_printheader=&printheader
-	exe  ':set printheader='.s:C_Printheader
-	" ----- normal mode ----------------
-	if a:arg1=="n"
-		silent exe	"hardcopy > ".Sou.".ps"
-		if	!s:MSWIN
-			echo "file \"".Sou."\" printed to \"".Sou.".ps\""
-		endif
+	let outdir	= getcwd()
+	if filewritable(outdir) != 2
+		let outdir	= $HOME
 	endif
-	" ----- visual mode ----------------
-	if a:arg1=="v"
-		silent exe	"*hardcopy > ".Sou.".ps"
-		if	!s:MSWIN
-			echo "file \"".Sou."\" (lines ".line("'<")."-".line("'>").") printed to \"".Sou.".ps\""
-		endif
+	if  !s:MSWIN
+		let outdir	= outdir.'/'
 	endif
-	exe  ':set printheader='.escape( old_printheader, ' %' )
-endfunction    " ----------  end of function C_Hardcopy ----------
+  let old_printheader=&printheader
+  exe  ':set printheader='.s:C_Printheader
+  " ----- normal mode ----------------
+  if a:mode=="n"
+    silent exe  'hardcopy > '.outdir.outfile.'.ps'
+    if  !s:MSWIN
+      echo 'file "'.outfile.'" printed to "'.outdir.outfile.'.ps"'
+    endif
+  endif
+  " ----- visual mode ----------------
+  if a:mode=="v"
+    silent exe  "*hardcopy > ".outdir.outfile.".ps"
+    if  !s:MSWIN
+      echo 'file "'.outfile.'" (lines '.line("'<").'-'.line("'>").') printed to "'.outdir.outfile.'.ps"'
+    endif
+  endif
+  exe  ':set printheader='.escape( old_printheader, ' %' )
+endfunction   " ---------- end of function  C_Hardcopy  ----------
 "
 "------------------------------------------------------------------------------
 "  C_HelpCsupport : help csupport     {{{1
@@ -2955,8 +2995,10 @@ function! C_JumpCtrlJ ()
 		" remove the target
 		call setline( match, substitute( getline('.'), s:C_TemplateJumpTarget1.'\|'.s:C_TemplateJumpTarget2, '', '' ) )
 	else
-		" try to jump behind parenthesis or strings 
-		call search( "[\]})\"'`]", 'W' )
+		" try to jump behind parenthesis or strings in the current line 
+		if match( getline(".")[col(".") - 1], "[\]})\"'`]"  ) != 0
+			call search( "[\]})\"'`]", '', line(".") )
+		endif
 		normal l
 	endif
 	return ''
@@ -3383,6 +3425,72 @@ function! C_SpecialCommentListInsert ( arg )
 		echomsg "entry ".a:arg." does not exist"
 	endif
 endfunction    " ----------  end of function C_SpecialCommentListInsert  ----------
+
+"-------------------------------------------------------------------------------
+" preprocessor: Standard Library Includes
+"-------------------------------------------------------------------------------
+
+function! C_CleanDirNameList ( list )
+	let	result	= copy( a:list )
+	let	index		= 0
+	while index < len( result )
+		let result[index]	= substitute( result[index], '[&\\]', '', 'g' )
+		let index 				= index + 1
+	endwhile
+	return result
+endfunction    " ----------  end of function C_CleanDirNameList  ----------
+
+let	s:C_StandardLibsClean	= C_CleanDirNameList(s:C_StandardLibs)
+
+function! C_StdLibraryIncludesInsert ( arg )
+	if index( s:C_StandardLibsClean, a:arg ) >= 0
+		let	zz	= "#include\t<".a:arg.'>'
+		put =zz
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_StdLibraryIncludesInsert
+
+function!	C_StdLibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	" show all libs
+	if a:ArgLead == ''
+		return s:C_StandardLibsClean
+	endif
+	" show libs beginning with a:ArgLead
+	let	expansions	= []
+	for item in s:C_StandardLibsClean
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_StdLibraryIncludesList  ----------
+
+let	s:C_C99LibsClean	= C_CleanDirNameList(s:C_C99Libs)
+
+function! C_C99LibraryIncludesInsert ( arg )
+	if index( s:C_C99LibsClean, a:arg ) >= 0
+		let	zz	= "#include\t<".a:arg.'>'
+		put =zz
+	else
+		echomsg "entry ".a:arg." does not exist"
+	endif
+endfunction    " ----------  end of function C_C99LibraryIncludesInsert
+
+function!	C_C99LibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	" show all libs
+	if a:ArgLead == ''
+		return s:C_C99LibsClean
+	endif
+	" show libs beginning with a:ArgLead
+	let	expansions	= []
+	for item in s:C_C99LibsClean
+		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+			call add( expansions, item )
+		endif
+	endfor
+	return	expansions
+endfunction    " ----------  end of function C_C99LibraryIncludesList  ----------
 
 "------------------------------------------------------------------------------
 "  show / hide the c-support menus
