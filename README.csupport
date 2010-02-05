@@ -1,4 +1,4 @@
-README for c.vim (Version 5.9) / October 18 2009
+README for c.vim (Version 5.10) / February 05 2010
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -32,9 +32,11 @@ $VIM" from inside Vim).
 
       unzip cvim.zip
 
-    If you have already an older version of cvim and you have modified the
-    template files you may want to save your templates first or copy the files
-    from the archive by hand.
+    If you have already an older version of bash-support and you have modified
+    the template files you may want to save your templates first and suppress
+    overwriting them with
+
+      unzip cvim.zip  -x *Templates *.template
 
 (2) Loading of plugin files must be enabled. If not use
 
@@ -92,12 +94,16 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.9
+  RELEASE NOTES FOR VERSION 5.10
 ================================================================================
-+ Two additional hotkeys (+ ex commands) for preprocessor statements.
-+ Compile-link-run: improved error detection.
-+ Menu Run: hardcopy can print any buffer.
-+ Several minor improvements and bugfixes.
+- The plugin now handles different template styles without editing and
+  reloading the main template file.
+- The number of template styles is not limited. 
+- New hotkey and ex-command to switch template styles.
+- Template styles can automatically be related to file extensions.
+- indent(1) errors will be presented in a quickfix error window.
+- Comment alignment improved.
+- Minor improvements.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 
@@ -136,14 +142,14 @@ rc/customization.ctags       Additional settings I use in  .ctags to enable
                              navigation through makefiles ans qmake files with
                              the plug-in taglist.vim.
 
-rc/costumization.gvimrc      Additional settings I use in .gvimrc :
+rc/customization.gvimrc      Additional settings I use in .gvimrc :
                              hot keys, mouse settings, ...  The file is
                              commented. Append it to your .gvimrc if you like.
 
-rc/costumization.indent.pro  Additional settings I use in .indent.pro :
+rc/customization.indent.pro  Additional settings I use in .indent.pro :
                              See the indent manual.
 
-rc/costumization.vimrc       Additional settings I use in .vimrc :  incremental
+rc/customization.vimrc       Additional settings I use in .vimrc :  incremental
                              search, tabstop, hot keys, font, use of
                              dictionaries, ...  The file is commented. Append
                              it to your .vimrc if you like.

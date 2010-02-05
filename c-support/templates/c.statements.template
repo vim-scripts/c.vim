@@ -27,7 +27,7 @@ if ( <CURSOR> ) {
 <SPLIT><-IF PART->
 }
 else {
-<+ELSE PART+>
+<-ELSE PART->
 }
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == statements.else-block ==
@@ -44,16 +44,13 @@ while ( <CURSOR> ) {
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == statements.switch ==
 switch ( <CURSOR> ) {
-	case 1:	
+	case <-LABEL->:	
 		<SPLIT>break;
 
-	case 2:	
+	case <-LABEL->:	
 		break;
 
-	case 3:	
-		break;
-
-	case 4:	
+	case <-LABEL->:	
 		break;
 
 	default:	

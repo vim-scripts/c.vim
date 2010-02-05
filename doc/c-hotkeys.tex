@@ -7,10 +7,10 @@
 %%                
 %%       Author:  Dr.-Ing. Fritz Mehner
 %%        Email:  mehner@fh-swf.de
-%%    Copyright:  Copyright (C)  2006  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
+%%    Copyright:  Copyright (C)  2006-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.28 2009/10/21 18:15:25 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.33 2010/02/05 13:21:43 mehner Exp $
 %%                
 %%        Notes:  
 %%                
@@ -28,8 +28,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.9}
-\newcommand{\ReleaseDate}{ October 2009}
+\newcommand{\Pluginversion}{5.10}
+\newcommand{\ReleaseDate}{ February 2010}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -170,17 +170,18 @@ Plugin: http://vim.sourceforge.net\\
 %%----------------------------------------------------------------------
 \hline 
 \multicolumn{2}{|r|}{\textsl{S\textbf{n}ippet}} \\
-\hline \verb'\nr'  & read code snippet         \hfill (n)\\
-\hline \verb'\nw'  & write code snippet        \hfill (n,v)\\
-\hline \verb'\ne'  & edit code snippet         \hfill (n)\\
-\hline \verb'\np'  & pick up prototype         \hfill (n,v)\\
-\hline \verb'\ni'  & insert prototype(s)       \hfill (n)\\
-\hline \verb'\nc'  & clear  prototype(s)       \hfill (n)\\
-\hline \verb'\ns'  & show   prototype(s)       \hfill (n)\\
+\hline \verb'\nr'  & read code snippet         \hfill (n,i)\\
+\hline \verb'\nw'  & write code snippet        \hfill (n,v,i)\\
+\hline \verb'\ne'  & edit code snippet         \hfill (n,i)\\
+\hline \verb'\np'  & pick up prototype         \hfill (n,v,i)\\
+\hline \verb'\ni'  & insert prototype(s)       \hfill (n,i)\\
+\hline \verb'\nc'  & clear  prototype(s)       \hfill (n,i)\\
+\hline \verb'\ns'  & show   prototype(s)       \hfill (n,i)\\
 %
-\hline \verb'\ntl' & edit local templates      \hfill (n)\\
-\hline \verb'\ntg' & edit global templates     \hfill (n)\\
-\hline \verb'\ntr' & reread the templates      \hfill (n)\\
+\hline \verb'\ntl' & edit local templates      \hfill (n,i)\\
+\hline \verb'\ntg' & edit global templates     \hfill (n,i)\\
+\hline \verb'\ntr' & reread the templates      \hfill (n,i)\\
+\hline \verb'\nts' & change templates style    \hfill (n,i)\\
 \hline
 %%----------------------------------------------------------------------
 %%  idioms menu
@@ -219,6 +220,8 @@ Plugin: http://vim.sourceforge.net\\
 \multicolumn{2}{|r|}{\textsl{C\textbf{+}+}} \\
 \hline \verb'\+co'  & \verb'cout << << endl; '                \hfill (n,i)\\
 \hline \verb'\+c'   & class                                   \hfill (n,i)\\
+\hline \verb'\+ps'  & \verb$#include<...> STL$                \hfill (n,i)\\
+\hline \verb'\+pc'  & \verb$#include<c..> C$                  \hfill (n,i)\\
 \hline \verb'\+cn'  & class (using \verb'new')                \hfill (n,i)\\
 \hline \verb'\+ci'  & class  implementation                   \hfill (n,i)\\
 \hline \verb'\+cni' & class (using \verb'new') implementation \hfill (n,i)\\
@@ -254,7 +257,7 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\rk'  & run \texttt{CodeCheck}$^2$  \hfill (n,i)\\
 \hline \verb'\re'  & cmd.\ line arg.\ for \texttt{CodeCheck} \hfill (n,i)\\
 %
-\hline \verb'\rd'  & run \texttt{indent}         \hfill (n,i,v)\\
+\hline \verb'\rd'  & run \texttt{indent}         \hfill (n,i)\\
 \hline \verb'\rh'  & hardcopy buffer             \hfill (n,i,v)\\
 \hline \verb'\rs'  & show plugin settings        \hfill (n,i)\\
 \hline \verb'\rx'  & set xterm size              \hfill (n,i, only Unix \& GUI)\\
@@ -303,10 +306,19 @@ keyword comment (same as \verb'\ckc')
 special comment (same as \verb'\csc')
 %
 \item [IncludeStdLibrary] 
-standard library include (same as \verb'\ps')
+standard library includes (same as \verb'\ps')
 %
 \item [IncludeC99Library] 
-C99 include (same as \verb'\pc')
+C99 includes (same as \verb'\pc')
+%
+\item [IncludeCppLibrary] 
+STL includes (same as \verb'\+ps')
+%
+\item [IncludeCppCLibrary] 
+C includes (same as \verb'\+pc')
+%
+\item [CStyle] 
+C99 include (same as \verb'\nts')
 %
 \end{description}
 %
@@ -318,7 +330,7 @@ Use tab expansion to show the items to choose from.
 %
 \begin{minipage}[b]{64mm}%
 \scriptsize{%
-\vspace{30mm}
+\vspace{10mm}
 \hrulefill\\
 $^1$ {www.splint.org}\\
 $^2$ \textbf{CodeCheck}$^{TM}$ is a product of Abraxas Software, Inc.

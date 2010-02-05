@@ -138,8 +138,6 @@ class |CLASSNAME|
 
 		// ====================  MUTATORS      =======================================
 
-		// ====================  OPERATORS     =======================================
-
     // ====================  OPERATORS     =======================================
 
     |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator

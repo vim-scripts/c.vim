@@ -1,14 +1,26 @@
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.function ==
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  |?FUNCTION_NAME|
+ *  Description:  
+ * =====================================================================================
+ */
 void<CURSOR>
-|?FUNCTION_NAME| ( <+argument list+> )
+|FUNCTION_NAME| ( <+argument list+> )
 {
 <SPLIT>	return <+return value+>;
 }		/* -----  end of function |FUNCTION_NAME|  ----- */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.function-static ==
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  |?FUNCTION_NAME|
+ *  Description:  
+ * =====================================================================================
+ */
 static void<CURSOR>
-|?FUNCTION_NAME| ( <+argument list+> )
+|FUNCTION_NAME| ( <+argument list+> )
 {
 <SPLIT>	return <+return value+>;
 }		/* -----  end of static function |FUNCTION_NAME|  ----- */
@@ -16,6 +28,12 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.main ==
 #include	<stdlib.h>
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  main
+ *  Description:  
+ * =====================================================================================
+ */
 int
 main ( int argc, char *argv[] )
 {<CURSOR>
@@ -40,13 +58,13 @@ union |?UNION_NAME| {<CURSOR>
 
 typedef union |UNION_NAME| |UNION_NAME:c|;
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.printf ==
+== idioms.printf == insert ==
 printf ( "<CURSOR>\n" );
-== idioms.scanf ==
+== idioms.scanf == insert ==
 scanf ( "<CURSOR>", & );
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.calloc ==
-|?POINTER|	= (<CURSOR><+TYPE+>*)calloc ( (size_t)(<+COUNT+>), sizeof(<+TYPE+>) );
+|?POINTER|	= calloc ( (size_t)(<CURSOR><+COUNT+>), sizeof(<+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -57,7 +75,7 @@ free (|POINTER|);
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.malloc ==
-|?POINTER|	= (<CURSOR><+TYPE+>*)malloc ( sizeof(<+TYPE+>) );
+|?POINTER|	= malloc ( sizeof(<CURSOR><+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -108,8 +126,8 @@ if( fclose(|FILEPOINTER|) == EOF ) {			/* close output file   */
 }
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.fprintf ==
+== idioms.fprintf == insert ==
 fprintf ( |?FILEPOINTER|, "<CURSOR>\n",  );
-== idioms.fscanf ==
+== idioms.fscanf == insert ==
 fscanf ( |?FILEPOINTER|, "<CURSOR>", & );
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

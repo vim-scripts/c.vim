@@ -34,13 +34,13 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 union |?UNION_NAME| {<CURSOR>
 <SPLIT>};				// ----------  end of union |UNION_NAME|  ----------
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.printf ==
+== idioms.printf == insert ==
 printf ( "<CURSOR>\n" );
-== idioms.scanf ==
+== idioms.scanf == insert ==
 scanf ( "<CURSOR>", & );
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.calloc ==
-|?POINTER|	= (<CURSOR><+TYPE+>*)calloc ( (size_t)(<+COUNT+>), sizeof(<+TYPE+>) );
+|?POINTER|	= calloc ( (size_t)(<CURSOR><+COUNT+>), sizeof(<+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -51,7 +51,7 @@ free (|POINTER|);
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.malloc ==
-|?POINTER|	= (<CURSOR><+TYPE+>*)malloc ( sizeof(<+TYPE+>) );
+|?POINTER|	= malloc ( sizeof(<CURSOR><+TYPE+>) );
 if ( |POINTER|==NULL ) {
 	fprintf ( stderr, "\ndynamic memory allocation failed\n" );
 	exit (EXIT_FAILURE);
@@ -102,8 +102,8 @@ if( fclose(|FILEPOINTER|) == EOF ) {			// close output file
 }
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== idioms.fprintf ==
+== idioms.fprintf == insert ==
 fprintf ( |?FILEPOINTER|, "<CURSOR>\n",  );
-== idioms.fscanf ==
+== idioms.fscanf == insert ==
 fscanf ( |?FILEPOINTER|, "<CURSOR>", & );
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

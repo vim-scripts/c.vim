@@ -1,4 +1,12 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.9
+================================================================================
++ Two additional hotkeys (+ ex commands) for preprocessor statements.
++ Compile-link-run: improved error detection.
++ Menu Run: hardcopy can print any buffer.
++ Several minor improvements and bugfixes.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.8
 ================================================================================
 + Hotkeys are shown in the menus.

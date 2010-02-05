@@ -1,4 +1,4 @@
-"###############################################################################################
+"#################################################################################
 "
 "       Filename:  c.vim
 "
@@ -17,7 +17,7 @@
 "
 "        Version:  see variable  g:C_Version  below
 "        Created:  04.11.2000
-"        License:  Copyright (c) 2000-2009, Fritz Mehner
+"        License:  Copyright (c) 2000-2010, Fritz Mehner
 "                  This program is free software; you can redistribute it and/or
 "                  modify it under the terms of the GNU General Public License as
 "                  published by the Free Software Foundation, version 2 of the
@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.95 2009/10/19 13:01:35 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.106 2010/02/02 13:24:41 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,9 +41,9 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.8.1"  							" version number of this script; do not change
+let g:C_Version= "5.10"  							" version number of this script; do not change
 "
-"###############################################################################################
+"#################################################################################
 "
 "  Global variables (with default values) which can be overridden.
 "
@@ -237,7 +237,6 @@ let s:C_ExpansionCounter       = {}
 let s:C_TJT										 = '[ 0-9a-zA-Z_]*'
 let s:C_TemplateJumpTarget1    = '<+'.s:C_TJT.'+>\|{+'.s:C_TJT.'+}'
 let s:C_TemplateJumpTarget2    = '<-'.s:C_TJT.'->\|{-'.s:C_TJT.'-}'
-let s:C_Template               = {}
 let s:C_Macro                  = {'|AUTHOR|'         : 'first name surname',
 											\						'|AUTHORREF|'      : '',
 											\						'|EMAIL|'          : '',
@@ -251,6 +250,9 @@ let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
 											\							':c' : 'capitalize'		,
 											\							':L' : 'legalize name'	,
 											\						}
+let s:C_ActualStyle					= 'default'
+let s:C_ActualStyleLast			= s:C_ActualStyle
+let s:C_Template             = { 'default' : {} }
 
 let s:C_ForTypes     = [
     \ 'char '              ,
@@ -690,6 +692,8 @@ function! C_InitMenus ()
 	exe "imenu  <silent>  ".s:Snippets.'.edit\ &global\ templates<Tab>\\ntg  <C-C>:call C_EditTemplates("global")<CR>'
 	exe "amenu  <silent>  ".s:Snippets.'.reread\ &templates<Tab>\\ntr             :call C_RereadTemplates()<CR>'
 	exe "imenu  <silent>  ".s:Snippets.'.reread\ &templates<Tab>\\ntr        <C-C>:call C_RereadTemplates()<CR>'
+	exe "amenu            ".s:Snippets.'.switch\ template\ st&yle<Tab>\\nts       :CStyle<Space>'
+	exe "imenu            ".s:Snippets.'.switch\ template\ st&yle<Tab>\\nts  <C-C>:CStyle<Space>'
 	"
 	"===============================================================================================
 	"----- Menu : C++ ---------------------------------------------------------   {{{2
@@ -762,21 +766,15 @@ function! C_InitMenus ()
 	"
 	"----- Submenu : C++   library  (algorithm - locale) ----------------------------------------------
 	"
-	exe "amenu ".s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\).alg\.\.loc<Tab>C\/C\+\+   <Nop>'
-	exe "amenu ".s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\).-Sep0-          					<Nop>'
-	call C_CIncludeMenus ( s:Cpp.'.#include\ <alg\.\.loc>\ \(&1\)', s:Cpp_StandardLibs1 )
-	"
-	"----- Submenu : C++   library  (map - vector) ----------------------------------------------------
-	"
-	exe "amenu ".s:Cpp.'.#include\ <map\.\.vec>\ \(&2\).map\.\.vec<Tab>C\/C\+\+   <Nop>'
-	exe "amenu ".s:Cpp.'.#include\ <map\.\.vec>\ \(&2\).-Sep0-          					<Nop>'
-	call C_CIncludeMenus ( s:Cpp.'.#include\ <map\.\.vec>\ \(&2\)', s:Cpp_StandardLibs2 )
+	exe "amenu ".s:Cpp.'.&#include\ <alg\.\.vec><Tab>\\+ps.alg\.\.vec<Tab>C\/C\+\+   <Nop>'
+	exe "amenu ".s:Cpp.'.&#include\ <alg\.\.vec><Tab>\\+ps.-Sep0-          					<Nop>'
+	call C_CIncludeMenus ( s:Cpp.'.&#include\ <alg\.\.vec><Tab>\\+ps', s:Cpp_StandardLibs )
 	"
 	"----- Submenu : C     library  (cassert - ctime) -------------------------------------------------
 	"
-	exe "amenu ".s:Cpp.'.#include\ <cX>\ \(&3\).cX<Tab>C\/C\+\+ 	<Nop>'
-	exe "amenu ".s:Cpp.'.#include\ <cX>\ \(&3\).-Sep0-        		<Nop>'
-	call C_CIncludeMenus ( s:Cpp.'.#include\ <cX>\ \(&3\)', s:Cpp_StandardLibs3 )
+	exe "amenu ".s:Cpp.'.&#include\ <cX><Tab>\\+pc.cX<Tab>C\/C\+\+ 	<Nop>'
+	exe "amenu ".s:Cpp.'.&#include\ <cX><Tab>\\+pc.-Sep0-        		<Nop>'
+	call C_CIncludeMenus ( s:Cpp.'.&#include\ <cX><Tab>\\+pc', s:Cpp_CStandardLibs )
 	"
 	"----- End Submenu : C     library  (cassert - ctime) ---------------------------------------------
 	"
@@ -902,10 +900,10 @@ function! C_InitMenus ()
 		exe "amenu  ".s:Run.'.-Sep00-                 <Nop>'
 	endif
 	"
-	exe "amenu  <silent>  ".s:Run.'.save\ and\ &compile<Tab>\\rc\ \ \<A-F9\>         :call C_Compile()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "imenu  <silent>  ".s:Run.'.save\ and\ &compile<Tab>\\rc\ \ \<A-F9\>    <C-C>:call C_Compile()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "amenu  <silent>  ".s:Run.'.&link<Tab>\\rl\ \ \ \ \<F9\>                         :call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "imenu  <silent>  ".s:Run.'.&link<Tab>\\rl\ \ \ \ \<F9\>                    <C-C>:call C_Link()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.save\ and\ &compile<Tab>\\rc\ \ \<A-F9\>         :call C_Compile()<CR>:call C_HlMessage()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.save\ and\ &compile<Tab>\\rc\ \ \<A-F9\>    <C-C>:call C_Compile()<CR>:call C_HlMessage()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.&link<Tab>\\rl\ \ \ \ \<F9\>                     :call C_Link()<CR>:call C_HlMessage()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.&link<Tab>\\rl\ \ \ \ \<F9\>                <C-C>:call C_Link()<CR>:call C_HlMessage()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.&run<Tab>\\rr\ \ \<C-F9\>                        :call C_Run()<CR>'
 	exe "imenu  <silent>  ".s:Run.'.&run<Tab>\\rr\ \ \<C-F9\>                   <C-C>:call C_Run()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ &arg\.<Tab>\\ra\ \ \<S-F9\>         :call C_Arguments()<CR>'
@@ -920,24 +918,23 @@ function! C_InitMenus ()
 	exe "amenu  <silent>  ".s:Run.'.-SEP1-                            :'
 	"
 	if s:C_SplintIsExecutable==1
-		exe "amenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                                :call C_SplintCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-		exe "imenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                           <C-C>:call C_SplintCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                                :call C_SplintCheck()<CR>:call C_HlMessage()<CR>'
+		exe "imenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                           <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\ri       :call C_SplintArguments()<CR>'
 		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\ri  <C-C>:call C_SplintArguments()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.-SEP2-                          :'
 	endif
 	"
 	if s:C_CodeCheckIsExecutable==1
-		exe "amenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                               :call C_CodeCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
-		exe "imenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                          <C-C>:call C_CodeCheck()<CR>:redraw<CR>:call C_HlMessage()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                               :call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
+		exe "imenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                          <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\re      :call C_CodeCheckArguments()<CR>'
 		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\re <C-C>:call C_CodeCheckArguments()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.-SEP3-                          :'
 	endif
 	"
-	exe "amenu            ".s:Run.'.in&dent<Tab>\\rd                                  :call C_Indent("a")<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "imenu            ".s:Run.'.in&dent<Tab>\\rd                             <C-C>:call C_Indent("a")<CR>:redraw<CR>:call C_HlMessage()<CR>'
-	exe "vmenu            ".s:Run.'.in&dent<Tab>\\rd                             <C-C>:call C_Indent("v")<CR>:redraw<CR>:call C_HlMessage()<CR>'
+	exe "amenu    <silent>  ".s:Run.'.in&dent<Tab>\\rd                                  :call C_Indent()<CR>'
+	exe "imenu    <silent>  ".s:Run.'.in&dent<Tab>\\rd                             <C-C>:call C_Indent()<CR>'
 	if	s:MSWIN
 		exe "amenu  <silent>  ".s:Run.'.&hardcopy\ to\ printer<Tab>\\rh                 :call C_Hardcopy("n")<CR>'
 		exe "imenu  <silent>  ".s:Run.'.&hardcopy\ to\ printer<Tab>\\rh            <C-C>:call C_Hardcopy("n")<CR>'
@@ -1001,21 +998,18 @@ let s:C_C99Libs       = [
   \ 'tg&math\.h',  '&wchar\.h',   'wct&ype\.h',
   \ ]
 "
-let s:Cpp_StandardLibs1       = [
-  \ '&algorithm', '&bitset',  '&complex',    '&deque',
-  \ '&exception', '&fstream', 'f&unctional', 'iomani&p',
-  \ '&ios',       'iosf&wd',  'io&stream',   'istrea&m',
-  \ 'iterato&r',  '&limits',  'lis&t',       'l&ocale',
+let s:Cpp_StandardLibs       = [
+  \ '&algorithm', '&bitset',    '&complex',    '&deque',
+  \ '&exception', '&fstream',   'f&unctional', 'iomani&p',
+  \ '&ios',       'iosf&wd',    'io&stream',   'istrea&m',
+  \ 'iterato&r',  '&limits',    'lis&t',       'l&ocale',
+  \ '&map',       'memor&y',    '&new',        'numeri&c',
+  \ '&ostream',   '&queue',     '&set',        'sst&ream',
+  \ 'st&ack',     'stde&xcept', 'stream&buf',  'str&ing',
+  \ '&typeinfo',  '&utility',   '&valarray',   'v&ector',
   \ ]
 "
-let s:Cpp_StandardLibs2       = [
-  \ '&map',      'memor&y',    '&new',       'numeri&c',
-  \ '&ostream',  '&queue',     '&set',       'sst&ream',
-  \ 'st&ack',    'stde&xcept', 'stream&buf', 'str&ing',
-  \ '&typeinfo', '&utility',   '&valarray',  'v&ector',
-  \ ]
-"
-let s:Cpp_StandardLibs3       = [
+let s:Cpp_CStandardLibs       = [
   \ 'c&assert', 'c&ctype',  'c&errno',  'c&float',
   \ 'c&limits', 'cl&ocale', 'c&math',   'cset&jmp',
   \ 'cs&ignal', 'cstdar&g', 'cst&ddef', 'c&stdio',
@@ -1076,6 +1070,10 @@ endfunction    " ----------  end of function C_Input ----------
 "------------------------------------------------------------------------------
 "  C_AdjustLineEndComm: adjust line-end comments     {{{1
 "------------------------------------------------------------------------------
+"
+" C comment or C++ comment:
+let	s:c_cppcomment= '\(\/\*.\{-}\*\/\|\/\/.*$\)'
+
 function! C_AdjustLineEndComm ( mode ) range
 	"
 	if !exists("b:C_LineEndCommentColumn")
@@ -1101,52 +1099,58 @@ function! C_AdjustLineEndComm ( mode ) range
 	while linenumber <= pos1
 		let	line= getline(".")
 
-		if     match( line, '^\s*\/\*.\{-}\*\/' ) == 0
-			\ || match( line, '^\s*\/\/.*$' ) == 0
-			" comment with leading whitespaces
-			let idx1	= 0
-			let idx2	= 0
-		else
-			" look for a C comment
-			let idx1	= 1 + match( line, '\s*\/\*.\{-}\*\/' )
-			let idx2	= 1 + match( line,    '\/\*.\{-}\*\/' )
-			if idx2 == 0
-				" look for a C++ comment
-				let idx1	= 1 + match( line, '\s*\/\/.*$' )
-				let idx2	= 1 + match( line,    '\/\/.*$' )
+		" line is not a pure comment but contains one
+		"
+		if  match( line, '^\s*'.s:c_cppcomment ) < 0 &&  match( line, s:c_cppcomment ) > 0
+      "
+      " disregard comments starting in a string
+      "
+			let	idx1	      = -1
+			let	idx2	      = -1
+			let	commentstart= -2
+			let	commentend	= 0
+			while commentstart < idx2 && idx2 < commentend
+				let start	      = commentend
+				let idx2	      = match( line, s:c_cppcomment, start )
+				let commentstart= match   ( line, '"[^"]\+"', start )
+				let commentend	= matchend( line, '"[^"]\+"', start )
+			endwhile
+      "
+      " try to adjust the comment
+      "
+			let idx1	= 1 + match( line, '\s*'.s:c_cppcomment, start )
+			let idx2	= 1 + idx2
+			call setpos(".", [ 0, linenumber, idx1, 0 ] )
+			let vpos1	= virtcol(".")
+			call setpos(".", [ 0, linenumber, idx2, 0 ] )
+			let vpos2	= virtcol(".")
+
+			if   ! (   vpos2 == b:C_LineEndCommentColumn
+						\	|| vpos1 > b:C_LineEndCommentColumn
+						\	|| idx2  == 0 )
+
+				exe ":.,.retab"
+				" insert some spaces
+				if vpos2 < b:C_LineEndCommentColumn
+					let	diff	= b:C_LineEndCommentColumn-vpos2
+					call setpos(".", [ 0, linenumber, vpos2, 0 ] )
+					let	@"	= ' '
+					exe "normal	".diff."P"
+				endif
+
+				" remove some spaces
+				if vpos1 < b:C_LineEndCommentColumn && vpos2 > b:C_LineEndCommentColumn
+					let	diff	= vpos2 - b:C_LineEndCommentColumn
+					call setpos(".", [ 0, linenumber, b:C_LineEndCommentColumn, 0 ] )
+					exe "normal	".diff."x"
+				endif
+
 			endif
-		endif
-
-		let	ln	= line(".")
-		call setpos(".", [ 0, ln, idx1, 0 ] )
-		let vpos1	= virtcol(".")
-		call setpos(".", [ 0, ln, idx2, 0 ] )
-		let vpos2	= virtcol(".")
-
-		if   ! (   vpos2 == b:C_LineEndCommentColumn
-					\	|| vpos1 > b:C_LineEndCommentColumn
-					\	|| idx2  == 0 )
-
-			exe ":.,.retab"
-			" insert some spaces
-			if vpos2 < b:C_LineEndCommentColumn
-				let	diff	= b:C_LineEndCommentColumn-vpos2
-				call setpos(".", [ 0, ln, vpos2, 0 ] )
-				let	@"	= ' '
-				exe "normal	".diff."P"
-			endif
-
-			" remove some spaces
-			if vpos1 < b:C_LineEndCommentColumn && vpos2 > b:C_LineEndCommentColumn
-				let	diff	= vpos2 - b:C_LineEndCommentColumn
-				call setpos(".", [ 0, ln, b:C_LineEndCommentColumn, 0 ] )
-				exe "normal	".diff."x"
-			endif
-
 		endif
 		let linenumber=linenumber+1
 		normal j
 	endwhile
+	"
 	" restore tab expansion settings and cursor position
 	let &expandtab	= save_expandtab
 	call setpos('.', save_cursor)
@@ -1207,15 +1211,12 @@ function! C_MultiLineEndComments ( )
 	"
 	" ----- find the longest line -----
 	let	maxlength		= 0
-	let	linenumber	= pos0
 	normal '<
-	while linenumber <= pos1
-		if  getline(".") !~ "^\\s*$"  && maxlength<virtcol("$")
+	for linenumber in range( pos0, pos1 )
+		if  getline(linenumber) !~ '^\s*$'  && maxlength<virtcol("$")
 			let maxlength= virtcol("$")
 		endif
-		let linenumber=linenumber+1
-		normal j
-	endwhile
+	endfor
 	"
 	if maxlength < b:C_LineEndCommentColumn
 	  let maxlength = b:C_LineEndCommentColumn
@@ -1224,16 +1225,14 @@ function! C_MultiLineEndComments ( )
 	endif
 	"
 	" ----- fill lines with blanks -----
-	let	linenumber	= pos0
-	while linenumber <= pos1
+	for linenumber in range( pos0, pos1 )
 		exe ":".linenumber
-		if getline(".") !~ "^\\s*$"
+		if getline(linenumber) !~ '^\s*$'
 			let diff	= maxlength - virtcol("$")
 			exe "normal	".diff."A "
 			call C_InsertTemplate('comment.end-of-line-comment')
 		endif
-		let linenumber=linenumber+1
-	endwhile
+	endfor
 	"
 	" ----- back to the begin of the marked block -----
 	stopinsert
@@ -1642,7 +1641,7 @@ function! C_CodeFor( direction, mode )
 		if startval == ''
 			let startval	= '0'
 		endif
-		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' < '.endval.'; '.loopvar.' += '.incval.' )'
+		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' < '.endval.'; '.loopvar.' += '.incval." )"
 	else
 		if endval == ''
 			let endval	= '0'
@@ -1650,7 +1649,7 @@ function! C_CodeFor( direction, mode )
 		if startval == ''
 			let startval	= 'n-1'
 		endif
-		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' >= '.endval.'; '.loopvar.' -= '.incval.' )'
+		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' >= '.endval.'; '.loopvar.' -= '.incval." )"
 	endif
 	"
 	" use internal formatting to avoid conficts when using == below
@@ -1659,7 +1658,9 @@ function! C_CodeFor( direction, mode )
 
 	" ----- normal mode ----------------
 	if a:mode=='a'
+		let zz	= zz." {\n}"
 		put =zz
+		normal k
 		normal 2==
 	endif
 	" ----- visual mode ----------------
@@ -1680,13 +1681,13 @@ function! C_CodeFor( direction, mode )
 	"
 	normal ^
 	if missing == 1
-		let match	= search( '\<'.incval.'\>' )
+		let match	= search( '\<'.incval.'\>', 'W', line(".") )
 	else
 		if missing == 2
-			let match	= search( '\<'.endval.'\>' )
+			let match	= search( '\<'.endval.'\>', 'W', line(".") )
 		else
 			if missing == 3
-				let match	= search( '\<'.startval.'\>' )
+				let match	= search( '\<'.startval.'\>', 'W', line(".") )
 			endif
 		endif
 	endif
@@ -1721,13 +1722,11 @@ function! C_ProtoPick (mode)
 	" remove C/C++-comments, leading and trailing whitespaces, squeeze whitespaces
 	"
 	let prototyp   = ''
-	let	linenumber = pos1
-	while linenumber <= pos2
+	for linenumber in range( pos1, pos2 )
 		let newline			= getline(linenumber)
 		let newline 	  = substitute( newline, s:C_CppComment, "", "" ) " remove C++ comment
 		let prototyp		= prototyp." ".newline
-		let linenumber	= linenumber+1
-	endwhile
+	endfor
 	"
 	let prototyp  = substitute( prototyp, '^\s\+', "", "" )					" remove leading whitespaces
 	let prototyp  = substitute( prototyp, s:C_CComment, "", "g" )		" remove (multiline) C comments
@@ -1843,7 +1842,6 @@ let s:LastShellReturnCode	= 0			" for compile / link / run only
 
 function! C_Compile ()
 
-	let	l:currentbuffer	= bufname("%")
 	let s:C_HlMessage = ""
 	exe	":cclose"
 	let	Sou		= expand("%:p")											" name of the file in the current buffer
@@ -1991,7 +1989,6 @@ function! C_Run ()
 		if s:LastShellReturnCode == 0
 			" clear the last linking message if any"
 			let s:C_HlMessage = ""
-			:redraw!
 			call C_HlMessage()
 		endif
 		"
@@ -2287,42 +2284,39 @@ endfunction    " ----------  end of function C_CodeCheck ----------
 "  C_Indent : run indent(1)       {{{1
 "------------------------------------------------------------------------------
 "
-function! C_Indent ( mode )
+function! C_Indent ( )
 	if !executable("indent")
-		let s:C_HlMessage	= ' indent is not executable or not installed! '
+		echomsg 'indent is not executable or not installed!'
 		return
 	endif
-	let	l:currentbuffer=bufname("%")
+	let	l:currentbuffer=expand("%:p")
 	if &filetype != "c" && &filetype != "cpp"
-		let s:C_HlMessage = ' "'.l:currentbuffer.'" seems not to be a C/C++ file '
+		echomsg '"'.l:currentbuffer.'" seems not to be a C/C++ file '
 		return
 	endif
-	let s:C_HlMessage    = ""
-
-	if a:mode=="a"
-		if C_Input("indent whole file [y/n/Esc] : ", "y" ) != "y"
-			return
-		endif
-		exe	":update"
-		if has("MSWIN")
-			silent exe ":%!indent"
-		else
-			silent exe ":%!indent 2> ".s:C_IndentErrorLog
-		endif
-		let s:C_HlMessage = ' File "'.l:currentbuffer.'" reformatted.'
+	if C_Input("indent whole file [y/n/Esc] : ", "y" ) != "y"
+		return
 	endif
+	:update
 
-	if a:mode=="v"
-		if has("MSWIN")
-			silent exe ":'<,'>!indent"
+	exe	":cclose"
+	if s:MSWIN
+		silent exe ":%!indent "
+	else
+		silent exe ":%!indent 2> ".s:C_IndentErrorLog
+		redraw!
+		if getfsize( s:C_IndentErrorLog ) > 0
+			exe ':edit! '.s:C_IndentErrorLog
+			let errorlogbuffer	= bufnr("%")
+			exe ':%s/^indent: Standard input/indent: '.escape( l:currentbuffer, '/' ).'/'
+			setlocal errorformat=indent:\ %f:%l:%m
+			:cbuffer
+			exe ':bdelete! '.errorlogbuffer
+			exe	':botright cwindow'
 		else
-			silent exe ":'<,'>!indent 2> ".s:C_IndentErrorLog
+			echomsg 'File "'.l:currentbuffer.'" reformatted.'
 		endif
-		let s:C_HlMessage = ' File "'.l:currentbuffer.'" (lines '.line("'<").'-'.line("'>").') reformatted. '
-	endif
-
-	if v:shell_error != 0
-		let s:C_HlMessage = ' Indent reported an error when processing file "'.l:currentbuffer.'". '
+		setlocal errorformat=
 	endif
 
 endfunction    " ----------  end of function C_Indent ----------
@@ -2331,6 +2325,7 @@ endfunction    " ----------  end of function C_Indent ----------
 "  C_HlMessage : indent message     {{{1
 "------------------------------------------------------------------------------
 function! C_HlMessage ()
+	redraw!
 	echohl Search
 	echo s:C_HlMessage
 	echohl None
@@ -2347,7 +2342,6 @@ function! C_Settings ()
 	let txt = txt.'                  company :  "'.s:C_Macro['|COMPANY|']."\"\n"
 	let txt = txt.'                  project :  "'.s:C_Macro['|PROJECT|']."\"\n"
 	let txt = txt.'         copyright holder :  "'.s:C_Macro['|COPYRIGHTHOLDER|']."\"\n"
-	let txt = txt.'           template style :  "'.s:C_Macro['|STYLE|']."\"\n"
 	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
 	let txt = txt.'         C file extension :  "'.s:C_CExtension.'"  (everything else is C++)'."\n"
 	let txt = txt.'    extension for objects :  "'.s:C_ObjExtension."\"\n"
@@ -2355,7 +2349,9 @@ function! C_Settings ()
 	let txt = txt.'           compiler flags :  "'.s:C_CFlags."\"\n"
 	let txt = txt.'             linker flags :  "'.s:C_LFlags."\"\n"
 	let txt = txt.'                libraries :  "'.s:C_Libs."\"\n"
-	let txt = txt.'   code snippet directory :  '.s:C_CodeSnippets."\n"
+	let txt = txt.'   code snippet directory :  "'.s:C_CodeSnippets."\"\n"
+	" ----- template files  ------------------------
+	let txt = txt.'           template style :  "'.s:C_ActualStyle."\"\n"
 	if s:installation == 'system'
 		let txt = txt.'global template directory :  '.s:C_GlobalTemplateDir."\n"
 		if filereadable( s:C_LocalTemplateFile )
@@ -2406,9 +2402,8 @@ endfunction    " ----------  end of function C_Settings ----------
 function! C_Hardcopy (mode)
   let outfile = expand("%")
   if outfile == ""
-    redraw
-    echohl WarningMsg | echo " no file name " | echohl None
-    return
+		let s:C_HlMessage = 'Buffer has no name.'
+		call C_HlMessage()
   endif
 	let outdir	= getcwd()
 	if filewritable(outdir) != 2
@@ -2600,8 +2595,9 @@ endfunction    " ----------  end of function C_RemoveGuiMenus  ----------
 "  rebuild commands and the menu from the (changed) template file
 "------------------------------------------------------------------------------
 function! C_RereadTemplates ()
-    let s:C_Template     = {}
-    let s:C_FileVisited  = []
+		let s:style						= 'default'
+    let s:C_Template     	= { 'default' : {} }
+    let s:C_FileVisited  	= []
     call C_ReadTemplates(s:C_GlobalTemplateFile)
     echomsg "templates rebuilt from '".s:C_GlobalTemplateFile."'"
 		"
@@ -2663,6 +2659,7 @@ endfunction    " ----------  end of function C_EditTemplates  ----------
 "  read the template file(s), build the macro and the template dictionary
 "
 "------------------------------------------------------------------------------
+let	s:style			= 'default'
 function! C_ReadTemplates ( templatefile )
 
   if !filereadable( a:templatefile )
@@ -2685,24 +2682,27 @@ function! C_ReadTemplates ( templatefile )
 		" if not a comment :
     if line !~ s:C_MacroCommentRegex
       "
-			" IF
+			"-------------------------------------------------------------------------------
+			" IF |STYLE| IS ...
+			"-------------------------------------------------------------------------------
       "
       let string  = matchlist( line, s:C_TemplateIf )
       if !empty(string) 
-				if s:C_Macro['|STYLE|'] != string[1]
-					let	skipline	= 1
+				if !has_key( s:C_Template, string[1] )
+					" new s:style
+					let	s:style	= string[1]
+					let	s:C_Template[s:style]	= {}
+					continue
 				endif
 			endif
 			"
+			"-------------------------------------------------------------------------------
 			" ENDIF
+			"-------------------------------------------------------------------------------
       "
       let string  = matchlist( line, s:C_TemplateEndif )
       if !empty(string)
-				let	skipline	= 0
-				continue
-			endif
-			"
-      if skipline == 1
+				let	s:style	= 'default'
 				continue
 			endif
       "
@@ -2725,17 +2725,17 @@ function! C_ReadTemplates ( templatefile )
         continue                                            " next line
       endif
       "
-      " single template header
+      " template header
       "
       let name  = matchstr( line, s:C_TemplateLineRegex )
       "
       if name != ''
         let part  = split( name, '\s*==\s*')
         let item  = part[0]
-        if has_key( s:C_Template, item ) && s:C_TemplateOverwrittenMsg == 'yes'
+        if has_key( s:C_Template[s:style], item ) && s:C_TemplateOverwrittenMsg == 'yes'
           echomsg "existing C/C++ template '".item."' overwritten"
         endif
-        let s:C_Template[item] = ''
+        let s:C_Template[s:style][item] = ''
 				let skipmacros	= 1
         "
         let s:C_Attribute[item] = 'below'
@@ -2744,15 +2744,52 @@ function! C_ReadTemplates ( templatefile )
         endif
       else
         if item != ''
-          let s:C_Template[item] = s:C_Template[item].line."\n"
+          let s:C_Template[s:style][item] .= line."\n"
         endif
       endif
     endif
 		"
   endfor	" ---------  read line  ---------
 
+	let s:C_ActualStyle	= 'default'
+	if s:C_Macro['|STYLE|'] != ''
+		let s:C_ActualStyle	= s:C_Macro['|STYLE|']
+	endif
+	let s:C_ActualStyleLast	= s:C_ActualStyle
+
 	call C_SetSmallCommentStyle()
 endfunction    " ----------  end of function C_ReadTemplates  ----------
+
+"------------------------------------------------------------------------------
+" C_Style{{{1
+" ex-command CStyle : callback function
+"------------------------------------------------------------------------------
+function! C_Style ( style )
+	let lstyle  = substitute( a:style, '^\s\+', "", "" )	" remove leading whitespaces
+	let lstyle  = substitute( lstyle, '\s\+$', "", "" )		" remove trailing whitespaces
+	if has_key( s:C_Template, lstyle )
+		if len( s:C_Template[lstyle] ) == 0
+			echomsg "style '".lstyle."' : no templates defined"
+			return
+		endif
+		let s:C_ActualStyleLast	= s:C_ActualStyle
+		let s:C_ActualStyle	= lstyle
+		if len( s:C_ActualStyle ) > 1 && s:C_ActualStyle != s:C_ActualStyleLast
+			echomsg "template style is '".lstyle."'"
+		endif
+	else
+		echomsg "style '".lstyle."' does not exist"
+	endif
+endfunction    " ----------  end of function C_Style  ----------
+
+"------------------------------------------------------------------------------
+" C_StyleList     {{{1
+" ex-command CStyle
+"------------------------------------------------------------------------------
+function!	C_StyleList ( ArgLead, CmdLine, CursorPos )
+	" show all types / types beginning with a:ArgLead
+	return filter( copy(keys( s:C_Template) ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
+endfunction    " ----------  end of function C_StyleList  ----------
 
 "------------------------------------------------------------------------------
 " C_OpenFold     {{{1
@@ -2781,8 +2818,10 @@ endfunction    " ----------  end of function C_OpenFold  ----------
 "------------------------------------------------------------------------------
 function! C_InsertTemplate ( key, ... )
 
-	if !has_key( s:C_Template, a:key )
-		echomsg "Template '".a:key."' not found. Please check your template file in '".s:C_GlobalTemplateDir."'"
+	if !has_key( s:C_Template[s:C_ActualStyle], a:key ) &&
+	\  !has_key( s:C_Template['default'], a:key )
+		echomsg "style '".a:key."' / template '".a:key
+	\        ."' not found. Please check your template file in '".s:C_GlobalTemplateDir."'"
 		return
 	endif
 
@@ -3009,7 +3048,11 @@ endfunction    " ----------  end of function C_JumpCtrlJ  ----------
 "------------------------------------------------------------------------------
 function! C_ExpandUserMacros ( key )
 
-  let template 								= s:C_Template[ a:key ]
+	if has_key( s:C_Template[s:C_ActualStyle], a:key )
+		let template 								= s:C_Template[s:C_ActualStyle][ a:key ]
+	else
+		let template 								= s:C_Template['default'][ a:key ]
+	endif
 	let	s:C_ExpansionCounter		= {}										" reset the expansion counter
 
   "------------------------------------------------------------------------------
@@ -3223,22 +3266,6 @@ endfunction    " ----------  end of function C_InsertTemplateWrapper  ----------
 "-------------------------------------------------------------------------------
 "   Comment : C/C++ File Sections             {{{1
 "-------------------------------------------------------------------------------
-let s:CFileSectionOrdered	= [ 
-	\ "Header\ File\ Includes", 
-	\ "Local\ Macros"					, 
-	\ "Local\ Type\ Def\."		, 
-	\ "Local\ Data\ Types"		, 
-	\ "Local\ Variables"			, 
-	\ "Local\ Prototypes"			, 
-	\ "Exp\.\ Function\ Def\.", 
-	\ "Local\ Function\ Def\.", 
-	\ "Local\ Class\ Def\."		, 
-	\ "Exp\.\ Class\ Impl\."	, 
-	\ "Local\ Class\ Impl\."	, 
-	\ "All\ sections,\ C"		  ,
-	\ "All\ sections,\ C++"	  ,
-	\ ]
-
 let s:CFileSection	= { 
 	\ "Header\ File\ Includes" : "file-section-cpp-header-includes"               , 
 	\ "Local\ Macros"					 : "file-section-cpp-macros"                        , 
@@ -3256,20 +3283,7 @@ let s:CFileSection	= {
 	\ }
 
 function!	C_CFileSectionList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return s:CFileSectionOrdered
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in keys(s:CFileSection)
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( sort(keys( s:CFileSection)) ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function C_CFileSectionList  ----------
 
 function! C_CFileSectionListInsert ( arg )
@@ -3287,18 +3301,6 @@ endfunction    " ----------  end of function C_CFileSectionListInsert  ---------
 "-------------------------------------------------------------------------------
 "   Comment : H File Sections             {{{1
 "-------------------------------------------------------------------------------
-let s:HFileSectionOrdered	= [ 
-	\	"Header\ File\ Includes"   ,
-	\	"Exported\ Macros"         ,
-	\	"Exported\ Type\ Def\."    ,
-	\	"Exported\ Data\ Types"    ,
-	\	"Exported\ Variables"      ,
-	\	"Exported\ Funct\.\ Decl\.",
-	\	"Exported\ Class\ Def\."   ,
-	\	"All\ sections,\ C"        ,
-	\	"All\ sections,\ C++"      ,
-	\ ]
-
 let s:HFileSection	= { 
 	\	"Header\ File\ Includes"    : "file-section-hpp-header-includes"               ,
 	\	"Exported\ Macros"          : "file-section-hpp-macros"                        ,
@@ -3312,20 +3314,7 @@ let s:HFileSection	= {
 	\ }
 
 function!	C_HFileSectionList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return s:HFileSectionOrdered
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in keys(s:HFileSection)
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( sort(keys( s:HFileSection)) ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function C_HFileSectionList  ----------
 
 function! C_HFileSectionListInsert ( arg )
@@ -3344,30 +3333,17 @@ endfunction    " ----------  end of function C_HFileSectionListInsert  ---------
 "   Comment : Keyword Comments             {{{1
 "-------------------------------------------------------------------------------
 let s:KeywordComment	= { 
-	\	'\:BUG\:'          : 'keyword-bug',
-	\	'\:COMPILER\:'     : 'keyword-compiler',
-	\	'\:TODO\:'         : 'keyword-todo',
-	\	'\:TRICKY\:'       : 'keyword-tricky',
-	\	'\:WARNING\:'      : 'keyword-warning',
-	\	'\:WORKAROUND\:'   : 'keyword-workaround',
-	\	'\:new\ keyword\:' : 'keyword-keyword',
+	\	'BUG'          : 'keyword-bug',
+	\	'COMPILER'     : 'keyword-compiler',
+	\	'TODO'         : 'keyword-todo',
+	\	'TRICKY'       : 'keyword-tricky',
+	\	'WARNING'      : 'keyword-warning',
+	\	'WORKAROUND'   : 'keyword-workaround',
+	\	'new\ keyword' : 'keyword-keyword',
 	\ }
 
 function!	C_KeywordCommentList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return sort(keys(s:KeywordComment))
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in keys(s:KeywordComment)
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( sort(keys( s:KeywordComment)) ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function C_KeywordCommentList  ----------
 
 function! C_KeywordCommentListInsert ( arg )
@@ -3398,20 +3374,7 @@ let s:SpecialComment	= {
 	\ }
 
 function!	C_SpecialCommentList ( ArgLead, CmdLine, CursorPos )
-	"
-	" show all types
-	if a:ArgLead == ''
-		return sort(keys(s:SpecialComment))
-	endif
-	"
-	" show types beginning with a:ArgLead
-	let	expansions	= []
-	for item in keys(s:SpecialComment)
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
+	return filter( copy( sort(keys( s:SpecialComment)) ), 'v:val =~ "\\<'.a:ArgLead.'\\w*"' )
 endfunction    " ----------  end of function C_SpecialCommentList  ----------
 
 function! C_SpecialCommentListInsert ( arg )
@@ -3427,9 +3390,8 @@ function! C_SpecialCommentListInsert ( arg )
 endfunction    " ----------  end of function C_SpecialCommentListInsert  ----------
 
 "-------------------------------------------------------------------------------
-" preprocessor: Standard Library Includes
+" Standard Library Includes
 "-------------------------------------------------------------------------------
-
 function! C_CleanDirNameList ( list )
 	let	result	= copy( a:list )
 	let	index		= 0
@@ -3440,57 +3402,76 @@ function! C_CleanDirNameList ( list )
 	return result
 endfunction    " ----------  end of function C_CleanDirNameList  ----------
 
-let	s:C_StandardLibsClean	= C_CleanDirNameList(s:C_StandardLibs)
+let	s:C_StandardLibsClean			= C_CleanDirNameList( s:C_StandardLibs )
+let	s:C_C99LibsClean					= C_CleanDirNameList( s:C_C99Libs )
+let	s:Cpp_StandardLibsClean		= C_CleanDirNameList( s:Cpp_StandardLibs )
+let	s:Cpp_CStandardLibsClean	= C_CleanDirNameList( s:Cpp_CStandardLibs )
 
-function! C_StdLibraryIncludesInsert ( arg )
-	if index( s:C_StandardLibsClean, a:arg ) >= 0
+"-------------------------------------------------------------------------------
+" callback functions used in the filetype plugin ftplugin/c.vim
+" callback functions
+"-------------------------------------------------------------------------------
+
+function! C_IncludesInsert ( arg, List )
+	if index( a:List, a:arg ) >= 0
 		let	zz	= "#include\t<".a:arg.'>'
 		put =zz
 	else
 		echomsg "entry ".a:arg." does not exist"
 	endif
+endfunction    " ----------  end of function C_IncludesInsert
+"
+function! C_StdLibraryIncludesInsert ( arg )
+	call C_IncludesInsert ( a:arg, s:C_StandardLibsClean )
 endfunction    " ----------  end of function C_StdLibraryIncludesInsert
 
-function!	C_StdLibraryIncludesList ( ArgLead, CmdLine, CursorPos )
-	" show all libs
-	if a:ArgLead == ''
-		return s:C_StandardLibsClean
-	endif
-	" show libs beginning with a:ArgLead
-	let	expansions	= []
-	for item in s:C_StandardLibsClean
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
-			call add( expansions, item )
-		endif
-	endfor
-	return	expansions
-endfunction    " ----------  end of function C_StdLibraryIncludesList  ----------
-
-let	s:C_C99LibsClean	= C_CleanDirNameList(s:C_C99Libs)
-
 function! C_C99LibraryIncludesInsert ( arg )
-	if index( s:C_C99LibsClean, a:arg ) >= 0
-		let	zz	= "#include\t<".a:arg.'>'
-		put =zz
-	else
-		echomsg "entry ".a:arg." does not exist"
-	endif
+	call C_IncludesInsert ( a:arg, s:C_C99LibsClean )
 endfunction    " ----------  end of function C_C99LibraryIncludesInsert
 
-function!	C_C99LibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+function! C_CppLibraryIncludesInsert ( arg )
+	call C_IncludesInsert ( a:arg, s:Cpp_StandardLibsClean )
+endfunction    " ----------  end of function C_CppLibraryIncludesInsert
+
+function! C_CppCLibraryIncludesInsert ( arg )
+	call C_IncludesInsert ( a:arg, s:Cpp_CStandardLibsClean )
+endfunction    " ----------  end of function C_CppCLibraryIncludesInsert
+
+"-------------------------------------------------------------------------------
+" callback functions used in the filetype plugin ftplugin/c.vim
+" custom completion
+"-------------------------------------------------------------------------------
+
+function!	C_IncludesList ( ArgLead, CmdLine, CursorPos, List )
 	" show all libs
 	if a:ArgLead == ''
-		return s:C_C99LibsClean
+		return a:List
 	endif
 	" show libs beginning with a:ArgLead
 	let	expansions	= []
-	for item in s:C_C99LibsClean
+	for item in a:List
 		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
 			call add( expansions, item )
 		endif
 	endfor
 	return	expansions
+endfunction    " ----------  end of function C_IncludesList  ----------
+"
+function!	C_StdLibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	return C_IncludesList ( a:ArgLead, a:CmdLine, a:CursorPos, s:C_StandardLibsClean )
+endfunction    " ----------  end of function C_StdLibraryIncludesList  ----------
+
+function!	C_C99LibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	return C_IncludesList ( a:ArgLead, a:CmdLine, a:CursorPos, s:C_C99LibsClean )
 endfunction    " ----------  end of function C_C99LibraryIncludesList  ----------
+
+function!	C_CppLibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	return C_IncludesList ( a:ArgLead, a:CmdLine, a:CursorPos, s:Cpp_StandardLibsClean )
+endfunction    " ----------  end of function C_CppLibraryIncludesList  ----------
+
+function!	C_CppCLibraryIncludesList ( ArgLead, CmdLine, CursorPos )
+	return C_IncludesList ( a:ArgLead, a:CmdLine, a:CursorPos, s:Cpp_CStandardLibsClean )
+endfunction    " ----------  end of function C_CppCLibraryIncludesList  ----------
 
 "------------------------------------------------------------------------------
 "  show / hide the c-support menus
@@ -3519,25 +3500,40 @@ if has("autocmd")
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
-	autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
-				\     call C_InsertTemplateWrapper() | endif
-	"
-	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
-	"
-	if s:C_TypeOfH=='c'
-		autocmd BufNewFile,BufEnter  *.h  :set filetype=c
+	if !exists( 'g:C_Styles' )
+		"-------------------------------------------------------------------------------
+		" template styles are the default settings
+		"-------------------------------------------------------------------------------
+		autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
+					\     call C_InsertTemplateWrapper() | endif
+		"
+		"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
+		"
+		if s:C_TypeOfH=='c'
+			autocmd BufNewFile,BufEnter  *.h  :set filetype=c
+		endif
+		"
+		" C/C++ source code files which should not be preprocessed.
+		"
+		autocmd BufNewFile,BufRead  *.i  :set filetype=c
+		autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
+		"
+	else
+		"-------------------------------------------------------------------------------
+		" template styles are related to file extensions 
+		"-------------------------------------------------------------------------------
+		for [ pattern, stl ] in items( g:C_Styles )
+			exe "autocmd BufNewFile,BufRead,BufEnter ".pattern." call C_Style( '".stl."' )"
+			exe "autocmd BufNewFile                  ".pattern." call C_InsertTemplateWrapper() 	|	:w!"
+		endfor
+		"
 	endif
-	"
-	" C/C++ source code files which should not be preprocessed.
-	"
-	autocmd BufNewFile,BufRead  *.i  :set filetype=c
-	autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
 	"
 	" Wrap error descriptions in the quickfix window.
 	"
 	autocmd BufReadPost quickfix  setlocal wrap | setlocal linebreak
 	"
-	exe 'autocmd BufRead *.'.join( split( s:C_SourceCodeExtensions, '\s\+'), '\|*.' )
+	exe 'autocmd BufRead *.'.join( s:C_SourceCodeExtensionsList, '\|*.' )
 				\     .' call C_HighlightJumpTargets()'
 	"
 endif " has("autocmd")

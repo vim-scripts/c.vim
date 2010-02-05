@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                 October 19 2009
+*csupport.txt*                  C/C++ Support               February 05 2010
 
 C/C++ Support                                           *c-support* *csupport*
-                              Plugin version 5.9
+                             Plugin version 5.10
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -30,6 +30,7 @@ keystroke.
  1.3.1   Normal mode, insert mode.              |csupport-prep-normal-mode|
  1.3.2   Visual mode.                           |csupport-prep-visual-mode|
  1.3.3   Block out code with #if 0 .. #endif    |csupport-prep-if0|
+ 1.3.4   Ex-commands                            |csupport-prep-ex|
  1.4    Menu 'Idioms'                           |csupport-idioms|
  1.4.1   Item 'function'                        |csupport-idioms-function|
  1.4.2   for-loop control                       |csupport-idioms-for-loop|
@@ -43,6 +44,7 @@ keystroke.
  1.6.1   Normal mode, insert mode.              |csupport-c++-normal-mode|
  1.6.2   Visual mode.                           |csupport-c++-visual-mode|
  1.6.3   Method implementation                  |csupport-c++-method-impl|
+ 1.6.4  Ex commands                             |csupport-c++-ex|
  1.7    Menu 'Run'                              |csupport-run|
  1.7.1   Minimal make functionality             |csupport-run-buffer|
  1.7.2   Command line arguments                 |csupport-run-cmdline-args|
@@ -74,6 +76,7 @@ keystroke.
  5.3.4  The macros <+text+> etc.                |csupport-templates-jump|
  5.3.5  Command Ctrl-j                          |csupport-Ctrl-j|
  5.4    Switching between template sets         |csupport-templates-sets|
+ 5.5    Binding a style to a file extension     |csupport-templates-bind|
  6.    C/C++ Dictionaries                       |csupport-dictionary|
  7.    Extend ctags                             |csupport-ctags|
  7.1   Make and qmake                           |csupport-ctags-make|
@@ -167,7 +170,7 @@ comments in the marked block will be aligned:
                        )                        /*  */
 
 The realignment will not be done for comments with nothing else than leading
-whitespaces. These commnents are usually captions:
+whitespaces. These comments are usually captions:
 
   max = other.max;                    /* the maximum value */
   len = other.len;                         /* the length        */
@@ -288,10 +291,10 @@ with comments of similar appearance, e.g.
 
 These section comments can also be inserted using the hotkey \ccs for C/C++
 files, or \chs for H-files. These hotkeys will start the command
-'CFileSectionList' or 'HFileSectionList'  on the command line:
+'CFileSection' or 'HFileSection'  on the command line:
 
- :CFileSectionList 
- :HFileSectionList 
+ :CFileSection 
+ :HFileSection 
 
 Now type a <Tab> to start the selection menu to choose from.
 
@@ -311,9 +314,9 @@ These are preliminary comments to document places where works will be resumed
 shortly. They are usually not meant for the final documentation.  These
 comments are easily found by searching for the keyword.
 The keyword comments can also be inserted using the hotkey \ckc . This hotkey
-starts the command 'KeywordCommentList' on the command line:
+starts the command 'KeywordComment' on the command line:
 
- :KeywordCommentList
+ :KeywordComment
 
 Now type a <Tab> to start the selection menu to choose from.
 
@@ -326,9 +329,9 @@ construct (e.g. a fall through cases in a switch statement, an empty loop):
   ....
 
 The special comments can also be inserted using the hotkey \csc . This hotkey
-starts the command 'SpecialCommentList' on the command line:
+starts the command 'SpecialComment' on the command line:
 
- :SpecialCommentList
+ :SpecialComment
 
 Now type a <Tab> to start the selection menu to choose from.
 
@@ -527,6 +530,22 @@ The menu item 'remove #if #endif' removes such a construct if the cursor is
 in the middle of such a section or on one of the two enclosing lines. Nested
 constructs will be untouched.
 
+1.3.4  EX-COMMANDS                                          *csupport-prep-ex*
+
+There are 4 additional Ex command which can be used to insert include
+statements:
+
+ Ex command             hotkey     includes
+ -------------------------------------------------------------------------
+ :IncludeStdLibrary     \ps        C standard library
+ :IncludeC99Library     \pc        C99 library
+ :IncludeCppLibrary     \+ps       C++ standard library
+ :IncludeCppCLibrary    \+pc       C standard library ( #include <c...> )
+
+Type :Inc<Tab> and choose one of the commands. Now type an additional space
+and a <Tab> to show the whole list list or type a space and a few leading
+characters to reduce this list.
+
 ------------------------------------------------------------------------------
 1.4  MENU 'Idioms'                                           *csupport-idioms*
 ------------------------------------------------------------------------------
@@ -551,13 +570,13 @@ for-loops: the highlighted lines will be set in braces.
 1.4.2  for-loop control                             *csupport-idioms-for-loop*
 
 The menu items 'for( x=0; ... )' and 'for( x=n-1; ... )' can be used to write
-the control statement for a for-loop countig upward or downward. These items
+the control statement for a for-loop counting upward or downward. These items
 start an input dialog
 
  [TYPE (expand)] VARIABLE [START [END [INCR.]]] :
 
 asking for at least the name of the loop variable. The other parameters are
-optional. The type is restricted the following integral data types:
+optional. The type is restricted to the following integral data types:
 
    char
    int
@@ -744,7 +763,7 @@ item 'try .. catch' will insert the following lines:
   }
   catch ( const &ExceptObj ) {    // handle exception:
   }
-  catch (...) {   // handle exception: unspezified
+  catch (...) {   // handle exception: unspecified
   }
 
 The cursor will go into the try block.
@@ -768,6 +787,11 @@ called the first time you will see just an scope resolution operator.  If you
 specify the scope this is used the next time you call this item.  If you use
 one of the menu items to generate a class (see |csupport-templates|) the
 scope will be extracted and used for the next method.
+
+1.6.4  EX COMMANDS                                           *csupport-c++-ex*
+
+There are 4 additional Ex command which can be used to insert include
+statements. Please see |csupport-prep-ex|.
 
 ------------------------------------------------------------------------------
 1.7  MENU 'Run'                                                 *csupport-run*
@@ -896,9 +920,9 @@ not, the menu item will *NOT' be visible.
 
 1.7.7  INDENT                                            *csupport-run-indent*
 
-The formatter 'indent' can be run over the whole buffer or a marked region.
-Before formatting the whole buffer this buffer will be saved to disk and you
-will be asked for a confirmation.
+The formatter 'indent' can be run over the whole buffer.  Before formatting a
+buffer this buffer will be saved to disk and you will be asked for a
+confirmation.
 
 Indent has many options. These are kept in the file '.indent.pro' in your home
 directory. See the indent manual for more information.
@@ -910,7 +934,7 @@ Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
 The hardcopy goes to the current working directory.  If the buffer contains
 documentation or other material from non-writable directories the hardcopy
-goes to the HOME directory. The otput destination will be shown in a message.
+goes to the HOME directory. The output destination will be shown in a message.
 
 The print header contains date and time for the current locale. The definition
 used is
@@ -984,7 +1008,7 @@ The hotkey is \hp (for "help plugin").
 
 Displaying a manual
 -------------------
-The root menu item 'show maual' shows the manual for the word under the
+The root menu item 'show manual' shows the manual for the word under the
 cursor. If there is more than one manual a selection list will be presented.
 If there is no word under the cursor you can type in a name.  An interface to
 the on-line reference manuals must be installed (usually man(1) for
@@ -1100,6 +1124,8 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   \+co      cout  <<  << endl;                  (n,i)
   \+c       class                               (n,i)
+  \+ps      #include <...> STL                  (n,i)
+  \+pc      #include <c..> C                    (n,i)
   \+cn      class (using new)                   (n,i)
   \+ci      class implementation                (n,i)
   \+cni     class (using new) implementation    (n,i)
@@ -1315,7 +1341,7 @@ follows.
 As *** SUPERUSER *** :
 
 (1) Find the Vim installation directory.
-The Vim ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
+The Vim Ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
 that. Beyond this directory you will find the Vim installation,  e.g. in
 '/usr/local/share/vim/vim71' if Vim version 7.1 has been installed.
 
@@ -1335,7 +1361,7 @@ Create your private snippet directory:
 
   mkdir --parents  ~/.vim/c-support/codesnippets
 
-You may want to copy the snippets comming with this plugin (in
+You may want to copy the snippets coming with this plugin (in
 $VIM/vimfiles/c-support/codesnippets) into the new directory or to set a
 link to the global directory.
 
@@ -1846,6 +1872,10 @@ The syntax is as follows:
    
   == ENDIF ==
 
+Includes outside an IF-ENDIF construct are associated with the default style
+'default'. A style set does not have to a complete set of templates. For an
+incomplete set the other templates are taken from the default style.
+
 IF, IS, and ENDIF are keywords.
 
 HINT. Use these constructs to avoid overwriting your templates when updating
@@ -1866,6 +1896,23 @@ includes with an appropriate IF-construct:
 
 Keep a copy of the main template file 'Templates' because this file will be
 overwritten if you do not update manually.
+
+==============================================================================
+5.5  BINDING A STYLE TO A FILE EXTENSION             *csupport-templates-bind*
+==============================================================================
+
+You can bind the existing styles to one or more filename extensions. To do so
+assign a Dictionary to the global variable g:C_Styles in '~/.vimrc' :
+
+let g:C_Styles = { '*.c,*.h' : 'default', '*.cc,*.cpp,*.hh' : 'CPP' }
+
+A Dictionary is created with a comma separated list of entries in curly
+braces.  Each entry has a key and a value, separated by a colon.  Each key can
+only appear once. The keys are themselves a comma separated list of filename
+pattern. The values are existing styles defined in the template files.
+The given style will be set automatically when switching to a buffer or
+opening a new buffer with the associated filename pattern and supersedes the
+macro *|STYLE|* .
 
 ==============================================================================
 6.  C/C++ DICTIONARY                                     *csupport-dictionary*
