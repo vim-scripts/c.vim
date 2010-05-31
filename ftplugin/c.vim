@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.57 2010/02/05 13:21:11 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.58 2010/05/14 19:13:40 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -367,9 +367,9 @@ inoremap    <buffer>  <silent>  <LocalLeader>+c.   <Esc>:call C_InsertTemplate("
  map    <buffer>  <silent>  <LocalLeader>rr         :call C_Run()<CR>
  map    <buffer>  <silent>  <LocalLeader>ra         :call C_Arguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rm         :call C_Make()<CR>
- map    <buffer>  <silent>  <LocalLeader>rg         :call C_MakeArguments()<CR>
+ map    <buffer>  <silent>  <LocalLeader>rma        :call C_MakeArguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rp         :call C_SplintCheck()<CR>:call C_HlMessage()<CR>
- map    <buffer>  <silent>  <LocalLeader>ri         :call C_SplintArguments()<CR>
+ map    <buffer>  <silent>  <LocalLeader>rpa        :call C_SplintArguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rd         :call C_Indent()<CR>
  map    <buffer>  <silent>  <LocalLeader>rh         :call C_Hardcopy("n")<CR>
  map    <buffer>  <silent>  <LocalLeader>rs         :call C_Settings()<CR>
@@ -381,9 +381,9 @@ imap    <buffer>  <silent>  <LocalLeader>rl    <C-C>:call C_Link()<CR>:call C_Hl
 imap    <buffer>  <silent>  <LocalLeader>rr    <C-C>:call C_Run()<CR>
 imap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call C_Arguments()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rm    <C-C>:call C_Make()<CR>
-imap    <buffer>  <silent>  <LocalLeader>rg    <C-C>:call C_MakeArguments()<CR>
+imap    <buffer>  <silent>  <LocalLeader>rma   <C-C>:call C_MakeArguments()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rp    <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>
-imap    <buffer>  <silent>  <LocalLeader>ri    <C-C>:call C_SplintArguments()<CR>
+imap    <buffer>  <silent>  <LocalLeader>rpa   <C-C>:call C_SplintArguments()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rd    <C-C>:call C_Indent()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rh    <C-C>:call C_Hardcopy("n")<CR>
 imap    <buffer>  <silent>  <LocalLeader>rs    <C-C>:call C_Settings()<CR>
@@ -398,9 +398,9 @@ imap    <buffer>  <silent>  <LocalLeader>ro    <C-C>:call C_Toggle_Gvim_Xterm()<
 "
 if executable("check") 
   map    <buffer>  <silent>  <LocalLeader>rk         :call C_CodeCheck()<CR>:call C_HlMessage()<CR>
-  map    <buffer>  <silent>  <LocalLeader>re         :call C_CodeCheckArguments()<CR>
+  map    <buffer>  <silent>  <LocalLeader>rka        :call C_CodeCheckArguments()<CR>
  imap    <buffer>  <silent>  <LocalLeader>rk    <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>
- imap    <buffer>  <silent>  <LocalLeader>re    <C-C>:call C_CodeCheckArguments()<CR>
+ imap    <buffer>  <silent>  <LocalLeader>rka   <C-C>:call C_CodeCheckArguments()<CR>
 endif
 " ---------- plugin help -----------------------------------------------------
 "

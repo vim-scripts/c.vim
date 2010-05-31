@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support               February 05 2010
+*csupport.txt*                  C/C++ Support                    May 14 2010
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.10
+                             Plugin version 5.11
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -578,20 +578,24 @@ start an input dialog
 asking for at least the name of the loop variable. The other parameters are
 optional. The type is restricted to the following integral data types:
 
-   char
-   int
-   long int
-   long
-   short int
-   short
-   size_t
-   unsigned char
-   unsigned int
-   unsigned long int
-   unsigned long
-   unsigned short int
-   unsigned short
-   unsigned
+  char
+  int
+  long
+  long int
+  long long
+  long long int
+  short
+  short int
+  size_t
+  unsigned 
+  unsigned char
+  unsigned int
+  unsigned long
+  unsigned long int
+  unsigned long long
+  unsigned long long int
+  unsigned short
+  unsigned short int
 
 One of these types can be specified by typing it completely or by typing zero
 or more characters of its name and completing them to the full name by using
@@ -868,6 +872,8 @@ The item 'make' runs the external make program.
 The item 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
 when called by the item 'make'.
+For the first and only the first argument the file name expansion will work
+(use the Tab-key).
 
 
 1.7.5  SPLINT                                            *csupport-run-splint*
@@ -1152,11 +1158,11 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   \rr       run                                 (n,i)
   \ra       set comand line arguments           (n,i)
   \rm       run make                            (n,i)
-  \rg       cmd. line arg. for make             (n,i)
+  \rma      cmd. line arg. for make             (n,i)
   \rp       run splint                          (n,i)
-  \ri       cmd. line arg. for splint           (n,i)
+  \rpa      cmd. line arg. for splint           (n,i)
   \rk       run CodeCheck (TM)                  (n,i)
-  \re       cmd. line arg. for CodeCheck (TM)   (n,i)
+  \rka      cmd. line arg. for CodeCheck (TM)   (n,i)
   \rd       run indent                          (n,v,i)
   \rh       hardcopy buffer                     (n,v,i)
   \rs       show plugin settings                (n,i)
@@ -1477,7 +1483,7 @@ possible.
  ----------------------------------------------------------------------------
  PREDEFINED TAGS
  ----------------------------------------------------------------------------
- <CURSOR>             The cursor position after insertion of a template
+ <CURSOR>,{CURSOR}    The cursor position after insertion of a template
  <+text+>,<-text->,   Jump targets in templates. Jump with Ctrl-j.
  {+text+},{-text-}    See |csupport-templates-jump|.
 
@@ -1488,6 +1494,8 @@ A dependent template file can start with its own macro section. There is no
 need to have all user defined macros in the master file.
 When the first template definition is found (see below) macro definitions are
 no longer recognized.
+Use the tag variant with curly braces if the indentation of the following line
+is wrong after template insertion.
 
 ------------------------------------------------------------------------------
 5.2.1  USER DEFINED FORMATS FOR DATE AND TIME        *csupport-templates-date*

@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.106 2010/02/02 13:24:41 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.115 2010/05/31 11:08:21 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.10"  							" version number of this script; do not change
+let g:C_Version= "5.11"  							" version number of this script; do not change
 "
 "#################################################################################
 "
@@ -70,9 +70,9 @@ else
 	"
 	" user / system wide installation (Linux/Unix)
 	"
-	if match( expand("<sfile>"), $VIM ) >= 0
+	if match( expand("<sfile>"), $VIM ) == 0
 		" system wide installation
-		let s:plugin_dir  = $VIM.'/vimfiles/'
+		let s:plugin_dir		= $VIM.'/vimfiles/'
 		let s:installation	= 'system'
 	else
 		" user installation assumed
@@ -255,20 +255,24 @@ let s:C_ActualStyleLast			= s:C_ActualStyle
 let s:C_Template             = { 'default' : {} }
 
 let s:C_ForTypes     = [
-    \ 'char '              ,
-    \ 'int '               ,
-    \ 'long int '          ,
-    \ 'long '              ,
-    \ 'short int '         ,
-    \ 'short '             ,
-    \ 'size_t '            ,
-    \ 'unsigned char '     ,
-    \ 'unsigned int '      ,
-    \ 'unsigned long int ' ,
-    \ 'unsigned long '     ,
-    \ 'unsigned short int ', 
-    \ 'unsigned short '    , 
-    \ 'unsigned '          , 
+    \ 'char'                  ,
+    \ 'int'                   ,
+    \ 'long'                  ,
+    \ 'long int'              ,
+    \ 'long long'             ,
+    \ 'long long int'         ,
+    \ 'short'                 ,
+    \ 'short int'             ,
+    \ 'size_t'                ,
+    \ 'unsigned'              , 
+    \ 'unsigned char'         ,
+    \ 'unsigned int'          ,
+    \ 'unsigned long'         ,
+    \ 'unsigned long int'     ,
+    \ 'unsigned long long'    ,
+    \ 'unsigned long long int',
+    \ 'unsigned short'        ,
+    \ 'unsigned short int'    ,
     \ ]
 
 let s:MsgInsNotAvail	= "insertion not available for a fold" 
@@ -912,24 +916,24 @@ function! C_InitMenus ()
 	exe "amenu  <silent>  ".s:Run.'.-SEP0-                            :'
 	exe "amenu  <silent>  ".s:Run.'.&make<Tab>\\rm                                    :call C_Make()<CR>'
 	exe "imenu  <silent>  ".s:Run.'.&make<Tab>\\rm                               <C-C>:call C_Make()<CR>'
-	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rg           :call C_MakeArguments()<CR>'
-	exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rg      <C-C>:call C_MakeArguments()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma          :call C_MakeArguments()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma     <C-C>:call C_MakeArguments()<CR>'
 	"
 	exe "amenu  <silent>  ".s:Run.'.-SEP1-                            :'
 	"
 	if s:C_SplintIsExecutable==1
 		exe "amenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                                :call C_SplintCheck()<CR>:call C_HlMessage()<CR>'
 		exe "imenu  <silent>  ".s:Run.'.s&plint<Tab>\\rp                           <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>'
-		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\ri       :call C_SplintArguments()<CR>'
-		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\ri  <C-C>:call C_SplintArguments()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\rpa      :call C_SplintArguments()<CR>'
+		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ spl&int<Tab>\\rpa <C-C>:call C_SplintArguments()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.-SEP2-                          :'
 	endif
 	"
 	if s:C_CodeCheckIsExecutable==1
-		exe "amenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                               :call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
-		exe "imenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                          <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
-		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\re      :call C_CodeCheckArguments()<CR>'
-		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\re <C-C>:call C_CodeCheckArguments()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                                :call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
+		exe "imenu  <silent>  ".s:Run.'.CodeChec&k<Tab>\\rk                           <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>'
+		exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\rka      :call C_CodeCheckArguments()<CR>'
+		exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ arg\.\ for\ Cod&eCheck<Tab>\\rka <C-C>:call C_CodeCheckArguments()<CR>'
 		exe "amenu  <silent>  ".s:Run.'.-SEP3-                          :'
 	endif
 	"
@@ -1183,14 +1187,11 @@ function! C_LineEndComment ( )
 	" ----- trim whitespaces -----
 	exe 's/\s*$//'
 	let linelength= virtcol("$") - 1
+	let	diff	= 1
 	if linelength < b:C_LineEndCommentColumn
 		let diff	= b:C_LineEndCommentColumn -1 -linelength
-		exe "normal	".diff."A "
 	endif
-	" append at least one blank
-	if linelength >= b:C_LineEndCommentColumn
-		exe "normal A "
-	endif
+	exe "normal	".diff."A "
 	call C_InsertTemplate('comment.end-of-line-comment')
 endfunction		" ---------- end of function  C_LineEndComment  ----------
 "
@@ -1210,19 +1211,8 @@ function! C_MultiLineEndComments ( )
   exe pos0.','.pos1.'s/\s*$//'
 	"
 	" ----- find the longest line -----
-	let	maxlength		= 0
-	normal '<
-	for linenumber in range( pos0, pos1 )
-		if  getline(linenumber) !~ '^\s*$'  && maxlength<virtcol("$")
-			let maxlength= virtcol("$")
-		endif
-	endfor
-	"
-	if maxlength < b:C_LineEndCommentColumn
-	  let maxlength = b:C_LineEndCommentColumn
-	else
-	  let maxlength = maxlength+1		" at least 1 blank
-	endif
+	let maxlength	= max( map( range(pos0, pos1), "virtcol([v:val, '$'])" ) )
+	let	maxlength	= max( [b:C_LineEndCommentColumn, maxlength+1] )
 	"
 	" ----- fill lines with blanks -----
 	for linenumber in range( pos0, pos1 )
@@ -1584,7 +1574,7 @@ function!	C_ForTypeComplete ( ArgLead, CmdLine, CursorPos )
 	" show types beginning with a:ArgLead
 	let	expansions	= []
 	for item in s:C_ForTypes
-		if match( item, '\<'.a:ArgLead.'\w*' ) == 0
+		if match( item, '\<'.a:ArgLead.'\s*\w*' ) == 0
 			call add( expansions, item )
 		endif
 	endfor
@@ -1597,38 +1587,47 @@ endfunction    " ----------  end of function C_ForTypeComplete  ----------
 function! C_CodeFor( direction, mode )
 	"
 	if a:direction == 'up'
-		let	string	= 'INCR.'
+		let	updown	= 'INCR.'
 	else
-		let	string	= 'DECR.'
+		let	updown	= 'DECR.'
 	endif
-	let	string	= C_Input( '[TYPE (expand)] VARIABLE [START [END ['.string.']]] : ', '', 'customlist,C_ForTypeComplete' )
+	let	string	= C_Input( '[TYPE (expand)] VARIABLE [START [END ['.updown.']]] : ', '', 'customlist,C_ForTypeComplete' )
 	if string == ''
 		return
 	endif
 	"
-	let part		= ['']
-	let nextindex	= -1
+	let nextindex			= -1
+	let loopvar_type	= ''
 	for item in s:C_ForTypes
-		let nextindex	= matchend( string, '^'.item )
-		if nextindex >= 0
-			let part[0]	= item
-			let	string	= strpart( string, nextindex-1 )
+		let nextindex	= matchend( string, '^\s*'.item )
+		if nextindex > 0
+			let loopvar_type	= item
+			let	string				= strpart( string, nextindex )
 		endif
 	endfor
-	let part	= part + split( string )
+	if loopvar_type != ''
+		let loopvar_type	.= ' '
+		if string == ''
+			let	string	= C_Input( 'VARIABLE [START [END ['.updown.']]] : ', '' )
+			if string == ''
+				return
+			endif
+		endif
+	endif
+	let part	= split( string )
 
-	if len( part ) 	> 5
+	if len( part ) 	> 4
     echohl WarningMsg | echomsg "for loop construction : to many arguments " | echohl None
 		return
 	endif
 
 	let missing	= 0
-	while len(part) < 5
+	while len(part) < 4
 		let part	= part + ['']
 		let missing	= missing+1
 	endwhile
 
-	let [ loopvar_type, loopvar, startval, endval, incval ]	= part
+	let [ loopvar, startval, endval, incval ]	= part
 
 	if incval==''
 		let incval	= '1'
@@ -1943,9 +1942,9 @@ function! C_Link ()
 		let	s:LastShellReturnCode	= 0
 		let v:statusmsg = ''
 		if s:MSWIN
-			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o \"".ExeEsc."\" \"".ObjEsc."\""
+			silent exe "make ".s:C_LFlags." -o \"".ExeEsc."\" \"".ObjEsc."\" ".s:C_Libs
 		else
-			silent exe "make ".s:C_LFlags." ".s:C_Libs." -o ".ExeEsc." ".ObjEsc
+			silent exe "make ".s:C_LFlags." -o ".ExeEsc." ".ObjEsc." ".s:C_Libs
 		endif
 		if v:statusmsg == ''
 			let s:C_HlMessage = "'".Exe."' : linking successful"
@@ -2163,7 +2162,7 @@ endfunction    " ----------  end of function C_XtermSize ----------
 let s:C_MakeCmdLineArgs   = ""     " command line arguments for Run-make; initially empty
 
 function! C_MakeArguments ()
-	let	s:C_MakeCmdLineArgs= C_Input("make command line arguments : ",s:C_MakeCmdLineArgs )
+	let	s:C_MakeCmdLineArgs= C_Input( 'make command line arguments : ', s:C_MakeCmdLineArgs, 'file' )
 endfunction    " ----------  end of function C_MakeArguments ----------
 "
 function! C_Make()
@@ -2981,18 +2980,22 @@ function! C_InsertTemplate ( key, ... )
   "  position the cursor
   "------------------------------------------------------------------------------
   exe ":".pos1
-  let mtch = search( '<CURSOR>', 'c', pos2 )
+  let mtch = search( '<CURSOR>\|{CURSOR}', 'c', pos2 )
 	if mtch != 0
 		let line	= getline(mtch)
-		if line =~ '<CURSOR>$'
-			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+		if line =~ '<CURSOR>\|{CURSOR}$'
+			call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
 			if  a:0 != 0 && a:1 == 'v' && getline(".") =~ '^\s*$'
 				normal J
 			else
-				:startinsert!
+				if getpos(".")[2] < len(getline(".")) || mode == 'insert'
+					:startinsert
+				else
+					:startinsert!
+				endif
 			endif
 		else
-			call setline( mtch, substitute( line, '<CURSOR>', '', '' ) )
+			call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
 			:startinsert
 		endif
 	else
