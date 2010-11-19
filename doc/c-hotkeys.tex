@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2006-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.34 2010/05/14 19:13:40 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.36 2010/11/19 12:47:55 mehner Exp $
 %%                
 %%        Notes:  
 %%                
@@ -28,8 +28,8 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.11}
-\newcommand{\ReleaseDate}{ May 2010}
+\newcommand{\Pluginversion}{5.12}
+\newcommand{\ReleaseDate}{ November 2010}
 
 %%----------------------------------------------------------------------
 %%  luximono : Type1-font
@@ -78,7 +78,7 @@ Plugin: http://vim.sourceforge.net\\
 \vspace{5.0mm}
 %
 %%======================================================================
-%%  table, left part
+%%  SIDE 1
 %%======================================================================
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
 \begin{tabular}[]{|p{10mm}|p{60mm}|}
@@ -179,7 +179,7 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\ns'  & show   prototype(s)       \hfill (n,i)\\
 %
 \hline \verb'\ntl' & edit local templates      \hfill (n,i)\\
-\hline \verb'\ntg' & edit global templates     \hfill (n,i)\\
+\hline \verb'\ntg' & edit global templates$^1$ \hfill (n,i)\\
 \hline \verb'\ntr' & reread the templates      \hfill (n,i)\\
 \hline \verb'\nts' & change templates style    \hfill (n,i)\\
 \hline
@@ -207,18 +207,28 @@ Plugin: http://vim.sourceforge.net\\
 \hline
 \end{tabular}\\
 %
+\begin{minipage}[b]{64mm}%
+\scriptsize{%
+\vspace{10mm}
+\hrulefill\\
+$^1$ {systemwide installation only}\\
+}%
+\end{minipage}\\
+%
+%
 %%======================================================================
-%%  table, right part
+%%  SIDE 2
 %%======================================================================
 %
 %%~~~~~ TABULAR : begin ~~~~~~~~~~
-\begin{tabular}[]{|p{12mm}|p{62mm}|}
+\begin{tabular}[]{|p{12mm}|p{60mm}|}
 %%----------------------------------------------------------------------
 %%  C++ menu
 %%----------------------------------------------------------------------
 \hline 
-\multicolumn{2}{|r|}{\textsl{C\textbf{+}+}} \\
+\multicolumn{2}{|r|}{\textsl{C\textbf{++}}} \\
 \hline \verb'\+co'  & \verb'cout << << endl; '                \hfill (n,i)\\
+\hline \verb'\+"'   & \verb'<< ""'                \hfill (n,i)\\
 \hline \verb'\+c'   & class                                   \hfill (n,i)\\
 \hline \verb'\+ps'  & \verb$#include<...> STL$                \hfill (n,i)\\
 \hline \verb'\+pc'  & \verb$#include<c..> C$                  \hfill (n,i)\\
@@ -239,6 +249,21 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\+ca'  & \verb'catch'                            \hfill (n,v,i)\\
 \hline \verb'\+c.'  & \verb'catch(...)'                       \hfill (n,v,i)\\
 \hline 
+%%
+%%----------------------------------------------------------------------
+%%  show plugin help
+%%----------------------------------------------------------------------
+\hline 
+\multicolumn{2}{|r|}{\textsl{\textbf{H}elp and Menus}}\\
+\hline \verb'\hm'   & show manual   \hfill (n,i)\\
+\hline \verb'\hp'   & help (c-support) \hfill (n,i)\\
+\hline \verb'\lcs'  & load    Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline \verb'\ucs'  & unload  Menus\hfill \scriptsize{(n \& GUI only)}\\
+\hline 
+\end{tabular}
+\vspace{100mm}
+%%~~~~~ TABULAR : begin ~~~~~~~~~~
+\begin{tabular}[]{|p{12mm}|p{58mm}|}
 %%----------------------------------------------------------------------
 %%  run menu
 %%----------------------------------------------------------------------
@@ -263,62 +288,42 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\rx'  & set xterm size              \hfill (n,i, only Unix \& GUI)\\
 \hline \verb'\ro'  & change output destination   \hfill (n,i)\\
 \hline
-\end{tabular}
-%
-%%----------------------------------------------------------------------
-%%  load / unload menu entry
-%%----------------------------------------------------------------------
-\begin{tabular}[]{|p{12mm}|p{52mm}|}
+%\end{tabular}
+%\begin{spacing}{1.2}
+%\begin{tabular}[]{|p{12mm}|p{58mm}|}
 \hline
-%\multicolumn{2}{|r|}{\textsl{Menu(s)}}\\
-%%----------------------------------------------------------------------
-%%  show plugin help
-%%----------------------------------------------------------------------
-%\hline 
-\multicolumn{2}{|r|}{\textsl{\textbf{H}elp and Menus}}\\
-\hline \verb'\hm'   & show manual   \hfill (n,i)\\
-\hline \verb'\hp'   & help (c-support) \hfill (n,i)\\
-\hline \verb'\lcs'  & load    Menus\hfill \scriptsize{(n \& GUI only)}\\
-\hline \verb'\ucs'  & unload  Menus\hfill \scriptsize{(n \& GUI only)}\\
+\multicolumn{2}{|r|}{\textbf{Additional Mappings}}\\
+\hline
+\hline \textbf{typing}   & \textbf{expansion}\\
+\hline \verb'/*'   		& \verb'/*  */'                          				            \hfill (i)\\
+\hline \verb'/*'   		& \verb'/* '\fbox{\small{(multiline) marked text}}\verb' */' 				\hfill (v)\\
+\hline \verb'/*<CR>'  & \verb'/*'\hfill (i)\newline\verb' * |'\newline\verb' */'\\
+\hline \verb'{<CR>'  	& \verb'{'\hfill (i)\newline\verb'  |'\newline\verb'}' 		\\
+\hline \verb'{<CR>'  	& \verb'{'\hfill (v)\newline\verb'  '\fbox{\small{(multiline) marked text}}\newline\verb'}'\\
 \hline 
 \end{tabular}
+%\end{spacing}
 %%~~~~~ TABULAR :  end  ~~~~~~~~~~
+%\vspace{60mm}
 %
 %
-\begin{minipage}[b]{66mm}%
-\vspace{10mm}
+\begin{minipage}[b]{60mm}%
+%\vspace{10mm}
 %
 \begin{flushleft}
 %
 \textit{Ex commands:}
 \begin{description}
 %
-\item [CFileSection] 
-C/C++--file sections (same as \verb'\ccs')
-%
-\item [HFileSection]
-H--file sections (same as \verb'\chs')
-%
-\item [KeywordComment] 
-keyword comment (same as \verb'\ckc')
-%
-\item [SpecialComment] 
-special comment (same as \verb'\csc')
-%
-\item [IncludeStdLibrary] 
-standard library includes (same as \verb'\ps')
-%
-\item [IncludeC99Library] 
-C99 includes (same as \verb'\pc')
-%
-\item [IncludeCppLibrary] 
-STL includes (same as \verb'\+ps')
-%
-\item [IncludeCppCLibrary] 
-C includes (same as \verb'\+pc')
-%
-\item [CStyle] 
-C99 include (same as \verb'\nts')
+\item [CFileSection]       C/C++--file sections (same as \verb'\ccs')
+\item [HFileSection]       H--file sections (same as \verb'\chs')
+\item [KeywordComment]     keyword comment (same as \verb'\ckc')
+\item [SpecialComment]     special comment (same as \verb'\csc')
+\item [IncludeStdLibrary]  standard library includes (same as \verb'\ps')
+\item [IncludeC99Library]  C99 includes (same as \verb'\pc')
+\item [IncludeCppLibrary]  STL includes (same as \verb'\+ps')
+\item [IncludeCppCLibrary] C includes (same as \verb'\+pc')
+\item [CStyle]             C99 include (same as \verb'\nts')
 %
 \end{description}
 %
@@ -337,29 +342,6 @@ $^2$ \textbf{CodeCheck}$^{TM}$ is a product of Abraxas Software, Inc.
 }%
 \end{minipage}\\
 %
-\begin{minipage}[b]{64mm}%
-
-\setlength{\fboxsep}{.25mm}
-%%----------------------------------------------------------------------
-%%  Additional Mappings
-%%----------------------------------------------------------------------
-\begin{spacing}{1.2}
-\begin{tabular}[]{|p{12mm}|p{56mm}|}
-\hline
-\multicolumn{2}{|r|}{\textsl{Additional Mappings}}\\
-\hline
-\hline \textbf{typing}   & \textbf{expansion}\\
-\hline \verb'/*'   		& \verb'/*  */'                          				            \hfill (i)\\
-\hline \verb'/*'   		& \verb'/* '\fbox{\small{(multiline) marked text}}\verb' */' 				\hfill (v)\\
-\hline \verb'/*<CR>'  & \verb'/*'\hfill (i)\newline\verb' * |'\newline\verb' */'\\
-\hline \verb'{<CR>'  	& \verb'{'\hfill (i)\newline\verb'  |'\newline\verb'}' 		\\
-\hline \verb'{<CR>'  	& \verb'{'\hfill (v)\newline\verb'  '\fbox{\small{(multiline) marked text}}\newline\verb'}'\\
-\hline 
-\end{tabular}
-\end{spacing}
-%%~~~~~ TABULAR :  end  ~~~~~~~~~~
-%
-\end{minipage}%
 %
 \end{center}
 \end{multicols}

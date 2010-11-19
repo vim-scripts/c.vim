@@ -1,4 +1,4 @@
-README for c.vim (Version 5.11) / May 14 2010
+README for c.vim (Version 5.12) / November 19 2010
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -20,35 +20,37 @@ writing C/C++. See the help file csupport.txt for more information.
 ================================================================================
   INSTALLATION
 ================================================================================
-The subdirectories in the zip archive  cvim.zip  mirror the directory structure
-which is needed below the local installation directory $HOME/.vim/ for
-LINUX/UNIX ($VIM/vimfiles/ for Windows; find the value of $VIM with ":echo
-$VIM" from inside Vim).
 
-(0) Save the template files in '$HOME/.vim/c-support/templates/Templates' if
+(1)  LINUX
+----------
+
+The subdirectories in the zip archive  cvim.zip  mirror the directory structure
+which is needed below the local installation directory $HOME/.vim/ (find the
+value of $HOME with ":echo $HOME" from inside Vim).
+
+(1.0) Save the template files in '$HOME/.vim/c-support/templates/Templates' if
     you have changed any of them.
 
-(1) Copy the zip archive cvim.zip to $HOME/.vim and run
+(1.1) Copy the zip archive cvim.zip to $HOME/.vim and run
 
       unzip cvim.zip
 
-    If you have already an older version of bash-support and you have modified
+    If you have already an older version of c-support and you have modified
     the template files you may want to save your templates first and suppress
     overwriting them with
 
       unzip cvim.zip  -x *Templates *.template
 
-(2) Loading of plugin files must be enabled. If not use
+(1.2) Loading of plugin files must be enabled. If not use
 
       :filetype plugin on
 
     This is the minimal content of the file '$HOME/.vimrc'. Create one if there
-    is none. 
+    is none or use the files in $HOME/.vim/c-support/rc as a starting point.
 
-(3) Set at least some personal details in the file 
+(1.3) Set at least some personal details in the file 
     '$HOME/.vim/c-support/templates/Templates' 
-    (file '$VIM\c-support/templates/Templates' under Windows).  Here is the
-    minimal personalization (my settings as an example):
+    Here is the minimal personalization (my settings as an example):
 
       |AUTHOR|    = Dr. Fritz Mehner 
       |AUTHORREF| = fgm
@@ -58,10 +60,55 @@ $VIM" from inside Vim).
 
     (Read more about the template system in the plugin documentation)
 
-(4) Consider additional settings in the file '$HOME/.vimrc'.
-    The files customization.vimrc and customization.gvimrc are replacements or 
-    extensions for your .vimrc and .gvimrc ( _vimrc and _gvimrc under Windows).
-    You may want to use parts of them. The files are documented. 
+(1.4) Consider additional settings in the file '$HOME/.vimrc'.  The files
+    customization.vimrc and customization.gvimrc are replacements or extensions
+    for your .vimrc and .gvimrc.  You may want to use parts of them. The files
+    are documented. 
+
+
+(2)  WINDOWS
+------------
+
+The subdirectories in the zip archive  cvim.zip  mirror the directory structure
+which is needed below the local installation directory $HOME/vimfiles/ (find
+the value of $HOME with ":echo $HOME" from inside Vim).
+
+(2.0) Save the template files in '$HOME/vimfiles/c-support/templates/Templates' if
+    you have changed any of them.
+
+(2.1) Copy the zip archive cvim.zip to $HOME/vimfiles and run
+
+      unzip cvim.zip
+
+    If you have already an older version of c-support and you have modified
+    the template files you may want to save your templates first and suppress
+    overwriting them with
+
+      unzip cvim.zip  -x *Templates *.template
+
+(2.2) Loading of plugin files must be enabled. If not use
+
+      :filetype plugin on
+
+    This is the minimal content of the file '$HOME/_vimrc'. Create one if there
+    is none or use the files in $HOME/vimfiles/c-support/rc as a starting point.
+
+(2.3) Set at least some personal details in the file 
+    '$HOME/vimfiles/c-support/templates/Templates' 
+    Here is the minimal personalization (my settings as an example):
+
+      |AUTHOR|    = Dr. Fritz Mehner 
+      |AUTHORREF| = fgm
+      |EMAIL|     = mehner@fh-swf.de
+      |COMPANY|   = FH Südwestfalen, Iserlohn
+      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+
+    (Read more about the template system in the plugin documentation)
+
+(2.4) Consider additional settings in the file '$HOME/_vimrc'.  The files
+    customization.vimrc and customization.gvimrc are replacements or extensions
+    for your _vimrc and _gvimrc. You may want to use parts of them.  The files
+    are documented. 
 
 There are a lot of features and options which can be used and influenced:
 
@@ -94,15 +141,12 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.11
+  RELEASE NOTES FOR VERSION 5.12
 ================================================================================
-- New tag {CURSOR} to avoid indent problems in a few cases.
-- Three hotkeys renamed \rg -> \rma , \ri -> \rpa ,  \re -> \rka (better to remember).
-- 'long long' added to the for-idioms.
-- Bugfixes: for-idiom shows type as variable name if no variable name was given.
-- Bugfixes: for-idiom inserts standard types with 2+ words wrong.
-- Bugfixes: multiline end-of-line comments have wrong position in some cases.
-- Bugfixes: local installation looks like a system-wide installation in seldom cases.
+- New hotkeys \+" .
+- Windows: user installation now possible.
+- Bugfixe: for-idiom shows part of type definition as variable name in some cases.
+- Bugfixe: wrong cursor position for some templates.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 

@@ -1,4 +1,15 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.11
+================================================================================
+- New tag {CURSOR} to avoid indent problems in a few cases.
+- Three hotkeys renamed \rg -> \rma , \ri -> \rpa ,  \re -> \rka (better to remember).
+- 'long long' added to the for-idioms.
+- Bugfixes: for-idiom shows type as variable name if no variable name was given.
+- Bugfixes: for-idiom inserts standard types with 2+ words wrong.
+- Bugfixes: multiline end-of-line comments have wrong position in some cases.
+- Bugfixes: local installation looks like a system-wide installation in seldom cases.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.10
 ================================================================================
 - The plugin now handles different template styles without editing and

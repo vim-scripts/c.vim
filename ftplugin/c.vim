@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.58 2010/05/14 19:13:40 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.60 2010/11/19 12:47:44 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -15,6 +15,13 @@ if exists("b:did_C_ftplugin")
   finish
 endif
 let b:did_C_ftplugin = 1
+"
+" ---------- system installation or local installation ----------
+"
+let s:installation				= 'local'
+if match( expand("<sfile>"), escape( $VIM, ' \' ) ) == 0
+	let s:installation						= 'system'
+endif
 "
 " ---------- Do we have a mapleader other than '\' ? ------------
 "
@@ -176,7 +183,7 @@ vnoremap    <buffer>  <silent>  <LocalLeader>sb    <Esc>:call C_InsertTemplate("
 inoremap    <buffer>  <silent>  <LocalLeader>sb    <Esc>:call C_InsertTemplate("statements.block")<CR>
 "
 " ---------- preprocessor menu  ----------------------------------------------
-""
+"
  noremap    <buffer>  <LocalLeader>ps                  :IncludeStdLibrary<Space>
 inoremap    <buffer>  <LocalLeader>ps             <Esc>:IncludeStdLibrary<Space>
  noremap    <buffer>  <LocalLeader>pc                  :IncludeC99Library<Space>
@@ -302,13 +309,17 @@ inoremap    <buffer>  <silent>  <LocalLeader>ni    <Esc>:call C_ProtoInsert()<CR
 inoremap    <buffer>  <silent>  <LocalLeader>nc    <Esc>:call C_ProtoClear()<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>ns    <Esc>:call C_ProtoShow()<CR>
 "
- noremap    <buffer>  <silent>  <LocalLeader>ntl        :call C_EditTemplates("local")<CR>
- noremap    <buffer>  <silent>  <LocalLeader>ntg        :call C_EditTemplates("global")<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>ntl        :call C_BrowseTemplateFiles("Local")<CR>
+ if s:installation == 'system'
+	 noremap    <buffer>  <silent>  <LocalLeader>ntg        :call C_BrowseTemplateFiles("Global")<CR>
+ endif
  noremap    <buffer>  <silent>  <LocalLeader>ntr        :call C_RereadTemplates()<CR>
  noremap    <buffer>            <LocalLeader>nts   <Esc>:CStyle<Space>
 "
 " ---------- C++ menu ----------------------------------------------------
 "
+ noremap    <buffer>  <silent>  <LocalLeader>+"         :call C_InsertTemplate("cpp.cout-operator")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>+"    <Esc>:call C_InsertTemplate("cpp.cout-operator")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>+co        :call C_InsertTemplate("cpp.cout")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>+co   <Esc>:call C_InsertTemplate("cpp.cout")<CR>
 "

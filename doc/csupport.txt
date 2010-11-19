@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                    May 14 2010
+*csupport.txt*                  C/C++ Support                November 19 2010
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.11
+                             Plugin version 5.12
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -1129,6 +1129,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   -- C++ ----------------------------------------------------------------
 
   \+co      cout  <<  << endl;                  (n,i)
+  \+"       << ""                               (n,i)
   \+c       class                               (n,i)
   \+ps      #include <...> STL                  (n,i)
   \+pc      #include <c..> C                    (n,i)
@@ -1349,9 +1350,11 @@ As *** SUPERUSER *** :
 (1) Find the Vim installation directory.
 The Vim Ex command ':echo $VIM' gives '/usr/local/share/vim' or something like
 that. Beyond this directory you will find the Vim installation,  e.g. in
-'/usr/local/share/vim/vim71' if Vim version 7.1 has been installed.
+'/usr/local/share/vim/vim73' if Vim version 7.3 has been installed
+(Windows: 'C:\Program Files\Vim').
 
-(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'.
+(2) Create a new subdirectory 'vimfiles', e.g. '/usr/local/share/vim/vimfiles'
+(Windows: 'C:\Program Files\Vim\vimfiles').
 
 (3) Install C/C++ Support
 Copy the archive cvim.zip to this new directory and unpack it:
@@ -1375,8 +1378,8 @@ Create your private template directory:
 
   mkdir --parents  ~/.vim/c-support/template
 
-Create a private template file 'Templates' in this directory to overwrite some
-macros, e.g.
+Create a private template file 'Templates' (compulsory) in this directory to
+overwrite some macros, e.g.
 
  *|AUTHOR|*    = your name
  *|AUTHORREF|* = ...
@@ -1385,7 +1388,8 @@ macros, e.g.
  *|COPYRIGHT|* = ...
 
 You can also have local templates which overwrite the global ones. To suppress
-the messages in this case set a global variable in '~/.vimrc' :
+the messages in this case set a global variable in '~/.vimrc' (Windows:
+'~\_vimrc') :
 
   let g:C_TemplateOverwrittenMsg= 'no'
 
@@ -2083,18 +2087,23 @@ In visual mode the content of the new block will be indented.
 10.  WINDOWS PARTICULARITIES                                *csupport-windows*
 ==============================================================================
 
-The plugin should go into the directory structure below the local
-installation directory $HOME/.vim/ for LINUX/UNIX and $VIM/vimfiles/ for
-Windows.
+For a user installation the plugin should go into the directory structure below 
+  $HOME/vimfiles/
+for a system installation below
+  $VIM/vimfiles/
+
 The values of the two variables can be found from inside Vim:
    :echo $VIM
 or
    :echo $HOME
 
-Configuration files:
+The configuration files for a user are
 
-  LINUX/UNIX :   $HOME/.vimrc  and  $HOME/.gvimrc
-  Windows    :   $VIM/_vimrc   and  $VIM/_gvimrc
+  $HOME/_vimrc   and  $HOME/_gvimrc
+
+for the system
+
+  $VIM/_vimrc   and  $VIM/_gvimrc
 
 Compiler settings:
 
