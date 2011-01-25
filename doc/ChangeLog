@@ -1,4 +1,11 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.12
+================================================================================
+- New hotkeys \+" .
+- Windows: user installation now possible.
+- Bugfixe: for-idiom shows part of type definition as variable name in some cases.
+- Bugfixe: wrong cursor position for some templates.
+================================================================================
   RELEASE NOTES FOR VERSION 5.11
 ================================================================================
 - New tag {CURSOR} to avoid indent problems in a few cases.

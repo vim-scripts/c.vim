@@ -1,4 +1,4 @@
-README for c.vim (Version 5.12) / November 19 2010
+README for c.vim (Version 5.13) / January 21 2011
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -141,12 +141,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.12
+  RELEASE NOTES FOR VERSION 5.13
 ================================================================================
-- New hotkeys \+" .
-- Windows: user installation now possible.
-- Bugfixe: for-idiom shows part of type definition as variable name in some cases.
-- Bugfixe: wrong cursor position for some templates.
+- New hotkeys \rmc (run 'make clean') and \rme (executable to run).
+- Hotkeys for make are working when in a makefile.
+- Linker errors and errors during a make will be shown in a quickfix buffer.
+- Bugfix: detection of a systemwide installation can fail.
+- Bugfix: preprocessor directive '#if 0 #endif' not working.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 
@@ -160,6 +161,7 @@ doc/csupport.txt               The help file for the local on-line help.
                           
 ftplugin/c.vim                 A file type plug-in. Define hotkeys, creates a
                                local dictionary for each C/C++ file.
+ftplugin/make.vim              Access hotkeys for make(1) in makefiles.
 
 plugin/c.vim                   The C/C++ plug-in for GVIM.
 

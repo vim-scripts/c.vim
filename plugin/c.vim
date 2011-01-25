@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.122 2010/11/19 12:51:18 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.131 2011/01/25 21:12:31 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.12"  							" version number of this script; do not change
+let g:C_Version= "5.13"  							" version number of this script; do not change
 "
 "#################################################################################
 "
@@ -58,20 +58,20 @@ let s:installation				= 'local'
 let s:vimfiles						= $VIM
 let	s:sourced_script_file	= expand("<sfile>")
 let s:C_GlobalTemplateFile= ''
-let s:C_GlobalTemplateDir = ''
+let s:C_GlobalTemplateDir	= ''
 
 if	s:MSWIN
   " ==========  MS Windows  ======================================================
 	"
 	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
 		" system wide installation
-		let s:installation						= 'system'
-		let s:plugin_dir							= $VIM.'/vimfiles/'
-		let s:C_GlobalTemplateFile    = s:plugin_dir.'c-support/templates/Templates'
-		let s:C_GlobalTemplateDir     = fnamemodify( s:C_GlobalTemplateFile, ":p:h" ).'/'
+		let s:installation					= 'system'
+		let s:plugin_dir						= $VIM.'/vimfiles/'
+		let s:C_GlobalTemplateDir		= s:plugin_dir.'c-support/templates'
+		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
 	else
 		" user installation assumed
-		let s:plugin_dir  	= $HOME.'/vimfiles/'
+		let s:plugin_dir  					= $HOME.'/vimfiles/'
 	endif
 	"
 	let s:C_LocalTemplateFile     = $HOME.'/vimfiles/c-support/templates/Templates'
@@ -85,15 +85,15 @@ if	s:MSWIN
 else
   " ==========  Linux/Unix  ======================================================
 	"
-	if match( expand("<sfile>"), $VIM ) == 0
-		" system wide installation
-		let s:installation						= 'system'
-		let s:plugin_dir							= $VIM.'/vimfiles/'
-		let s:C_GlobalTemplateFile    = s:plugin_dir.'c-support/templates/Templates'
-		let s:C_GlobalTemplateDir     = fnamemodify( s:C_GlobalTemplateFile, ":p:h" ).'/'
-	else
+	if match( expand("<sfile>"), expand("$HOME") ) == 0
 		" user installation assumed
 		let s:plugin_dir  	= $HOME.'/.vim/'
+	else
+		" system wide installation
+		let s:installation					= 'system'
+		let s:plugin_dir						= $VIM.'/vimfiles/'
+		let s:C_GlobalTemplateDir		= s:plugin_dir.'c-support/templates'
+		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
 	endif
 	"
 	let s:C_LocalTemplateFile     = $HOME.'/.vim/c-support/templates/Templates'
@@ -151,7 +151,7 @@ let s:C_GuiSnippetBrowser     = 'gui'										" gui / commandline
 let s:C_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
 "
 let s:C_TemplateOverwrittenMsg= 'yes'
-let s:C_Ctrl_j								 = 'on'
+let s:C_Ctrl_j								= 'on'
 "
 let s:C_FormatDate						= '%x'
 let s:C_FormatTime						= '%X'
@@ -199,6 +199,11 @@ call C_CheckGlobal('C_SourceCodeExtensions   ')
 call C_CheckGlobal('C_TemplateOverwrittenMsg ')
 call C_CheckGlobal('C_TypeOfH                ')
 call C_CheckGlobal('C_XtermDefaults          ')
+call C_CheckGlobal('C_GlobalTemplateFile     ')
+
+if exists('g:C_GlobalTemplateFile') && g:C_GlobalTemplateFile != ''
+	let s:C_GlobalTemplateDir	= fnamemodify( s:C_GlobalTemplateFile, ":h" )
+endif
 "
 "----- some variables for internal use only -----------------------------------
 "
@@ -249,6 +254,9 @@ let s:C_TemplateLineRegex			 = '^==\s*\([a-zA-Z][0-9a-zA-Z'.s:C_TemplateNameDeli
 let s:C_TemplateLineRegex			.= ']\+\)\s*==\s*\([a-z]\+\s*==\)\?'
 let s:C_TemplateIf						 = '^==\s*IF\s\+|STYLE|\s\+IS\s\+'.s:C_MacroNameRegex.'\s*=='
 let s:C_TemplateEndif					 = '^==\s*ENDIF\s*=='
+"
+let s:C_Com1          				 = '/*'     " C-style : comment start
+let s:C_Com2          				 = '*/'     " C-style : comment end
 "
 let s:C_ExpansionCounter       = {}
 let s:C_TJT										 = '[ 0-9a-zA-Z_]*'
@@ -956,6 +964,10 @@ function! C_InitMenus ()
 	exe "amenu  <silent>  ".s:Run.'.-SEP0-                            :'
 	exe "amenu  <silent>  ".s:Run.'.&make<Tab>\\rm                                    :call C_Make()<CR>'
 	exe "imenu  <silent>  ".s:Run.'.&make<Tab>\\rm                               <C-C>:call C_Make()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.executable\ to\ run<Tab>\\rme                     :call C_MakeExeToRun()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.executable\ to\ run<Tab>\\rme                <C-C>:call C_MakeExeToRun()<CR>'
+	exe "amenu  <silent>  ".s:Run.'.&make\ clean<Tab>\\rmc                            :call C_MakeClean()<CR>'
+	exe "imenu  <silent>  ".s:Run.'.&make\ clean<Tab>\\rmc                       <C-C>:call C_MakeClean()<CR>'
 	exe "amenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma          :call C_MakeArguments()<CR>'
 	exe "imenu  <silent>  ".s:Run.'.cmd\.\ line\ ar&g\.\ for\ make<Tab>\\rma     <C-C>:call C_MakeArguments()<CR>'
 	"
@@ -1095,6 +1107,7 @@ endfunction    " ----------  end of function C_CIosFlagMenus  ----------
 "
 "------------------------------------------------------------------------------
 "  C_Input: Input after a highlighted prompt     {{{1
+"           3. argument : optional completion
 "------------------------------------------------------------------------------
 function! C_Input ( promp, text, ... )
 	echohl Search																					" highlight prompt
@@ -1885,6 +1898,10 @@ function! C_Compile ()
 	let	Obj		= expand("%:p:r").s:C_ObjExtension	" name of the object
 	let SouEsc= escape( Sou, s:escfilename )
 	let ObjEsc= escape( Obj, s:escfilename )
+	if s:MSWIN
+		let	SouEsc	= '"'.SouEsc.'"'
+		let	ObjEsc	= '"'.ObjEsc.'"'
+	endif
 
 	" update : write source file if necessary
 	exe	":update"
@@ -1903,11 +1920,7 @@ function! C_Compile ()
 		"
 		let v:statusmsg = ''
 		let	s:LastShellReturnCode	= 0
-		if s:MSWIN
-			exe		"make ".s:C_CFlags." \"".SouEsc."\" -o \"".ObjEsc."\""
-		else
-			exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
-		endif
+		exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
 		exe	"setlocal makeprg=".makeprg_saved
 		if v:statusmsg == ''
 			let s:C_HlMessage = "'".Obj."' : compilation successful"
@@ -1948,6 +1961,10 @@ function! C_Link ()
 	let	Exe		= expand("%:p:r").s:C_ExeExtension	" name of the executable
 	let ObjEsc= escape( Obj, s:escfilename )
 	let ExeEsc= escape( Exe, s:escfilename )
+	if s:MSWIN
+		let	ObjEsc	= '"'.ObjEsc.'"'
+		let	ExeEsc	= '"'.ExeEsc.'"'
+	endif
 
 	" no linkage if:
 	"   executable exists
@@ -1979,20 +1996,18 @@ function! C_Link ()
 		endif
 		let	s:LastShellReturnCode	= 0
 		let v:statusmsg = ''
-		if s:MSWIN
-			silent exe "make ".s:C_LFlags." -o \"".ExeEsc."\" \"".ObjEsc."\" ".s:C_Libs
-		else
-			silent exe "make ".s:C_LFlags." -o ".ExeEsc." ".ObjEsc." ".s:C_Libs
-		endif
+		silent exe "make ".s:C_LFlags." -o ".ExeEsc." ".ObjEsc." ".s:C_Libs
 		if v:statusmsg == ''
 			let s:C_HlMessage = "'".Exe."' : linking successful"
-		else
-			let s:C_HlMessage = "'".Exe."' : linking NOT successful"
 		endif
 		if v:shell_error != 0
 			let	s:LastShellReturnCode	= v:shell_error
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
+		"
+		" open error window if necessary
+		:redraw!
+		exe	":botright cwindow"
 	endif
 endfunction    " ----------  end of function C_Link ----------
 "
@@ -2004,14 +2019,19 @@ endfunction    " ----------  end of function C_Link ----------
 let s:C_OutputBufferName   = "C-Output"
 let s:C_OutputBufferNumber = -1
 let s:C_RunMsg1						 ="' does not exist or is not executable or object/source older then executable"
+let s:C_RunMsg2						 ="' does not exist or is not executable"
 "
 function! C_Run ()
 "
 	let s:C_HlMessage = ""
-	let Sou  		= expand("%:p")														" name of the source file
-	let Obj  		= expand("%:p:r").s:C_ObjExtension				" name of the object file
-	let Exe  		= expand("%:p:r").s:C_ExeExtension				" name of the executable
-	let ExeEsc  = escape( Exe, s:escfilename )						" name of the executable, escaped
+	let Sou  					= expand("%:p")											" name of the source file
+	let Obj  					= expand("%:p:r").s:C_ObjExtension	" name of the object file
+	let Exe  					= expand("%:p:r").s:C_ExeExtension	" name of the executable
+	let ExeEsc  			= escape( Exe, s:escfilename )			" name of the executable, escaped
+	let Quote					= ''
+	if s:MSWIN
+		let Quote					= '"'
+	endif
 	"
 	let l:arguments     = exists("b:C_CmdLineArgs") ? b:C_CmdLineArgs : ''
 	"
@@ -2022,21 +2042,23 @@ function! C_Run ()
 	"==============================================================================
 	if s:C_OutputGvim == "vim"
 		"
-		silent call C_Link()
-		if s:LastShellReturnCode == 0
-			" clear the last linking message if any"
-			let s:C_HlMessage = ""
-			call C_HlMessage()
-		endif
-		"
-		if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-			if s:MSWIN
-				exe		"!\"".ExeEsc."\" ".l:arguments
-			else
-				exe		"!".ExeEsc." ".l:arguments
-			endif
+		if s:C_MakeExecutableToRun !~ "^\s*$"
+			call C_HlMessage( "executable : '".s:C_MakeExecutableToRun."'" )
+			exe		'!'.Quote.s:C_MakeExecutableToRun.Quote.' '.l:arguments
 		else
-			echomsg "file '".Exe.s:C_RunMsg1
+
+			silent call C_Link()
+			if s:LastShellReturnCode == 0
+				" clear the last linking message if any"
+				let s:C_HlMessage = ""
+				call C_HlMessage()
+			endif
+			"
+			if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
+				exe		"!".Quote.ExeEsc.Quote." ".l:arguments
+			else
+				echomsg "file '".Exe.s:C_RunMsg1
+			endif
 		endif
 
 	endif
@@ -2047,8 +2069,9 @@ function! C_Run ()
 	if s:C_OutputGvim == "buffer"
 		let	l:currentbuffernr	= bufnr("%")
 		"
-		silent call C_Link()
-		"
+		if s:C_MakeExecutableToRun =~ "^\s*$"
+			call C_Link()
+		endif
 		if l:currentbuffer ==  bufname("%")
 			"
 			"
@@ -2072,21 +2095,28 @@ function! C_Run ()
 			" run programm
 			"
 			setlocal	modifiable
-			if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
-				if s:MSWIN
-					exe		"%!\"".ExeEsc."\" ".l:arguments
-				else
-					exe		"%!".ExeEsc." ".l:arguments
-				endif
+			if s:C_MakeExecutableToRun !~ "^\s*$"
+				call C_HlMessage( "executable : '".s:C_MakeExecutableToRun."'" )
+				exe		'%!'.Quote.s:C_MakeExecutableToRun.Quote.' '.l:arguments
 				setlocal	nomodifiable
 				"
 				if winheight(winnr()) >= line("$")
 					exe bufwinnr(l:currentbuffernr) . "wincmd w"
 				endif
 			else
-				setlocal	nomodifiable
-				:close
-				echomsg "file '".Exe.s:C_RunMsg1
+				"
+				if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
+					exe		"%!".Quote.ExeEsc.Quote." ".l:arguments
+					setlocal	nomodifiable
+					"
+					if winheight(winnr()) >= line("$")
+						exe bufwinnr(l:currentbuffernr) . "wincmd w"
+					endif
+				else
+					setlocal	nomodifiable
+					:close
+					echomsg "file '".Exe.s:C_RunMsg1
+				endif
 			endif
 			"
 		endif
@@ -2097,23 +2127,31 @@ function! C_Run ()
 	"==============================================================================
 	if s:C_OutputGvim == "xterm"
 		"
-		silent call C_Link()
-		"
-		if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
+		if s:C_MakeExecutableToRun !~ "^\s*$"
 			if s:MSWIN
-				exe		"!\"".ExeEsc."\" ".l:arguments
+				exe		'!'.Quote.s:C_MakeExecutableToRun.Quote.' '.l:arguments
 			else
-				silent exe '!xterm -title '.ExeEsc.' '.s:C_XtermDefaults.' -e '.s:C_Wrapper.' '.ExeEsc.' '.l:arguments.' &'
+				silent exe '!xterm -title '.s:C_MakeExecutableToRun.' '.s:C_XtermDefaults.' -e '.s:C_Wrapper.' '.s:C_MakeExecutableToRun.' '.l:arguments.' &'
 				:redraw!
+				call C_HlMessage( "executable : '".s:C_MakeExecutableToRun."'" )
 			endif
 		else
-			echomsg "file '".Exe.s:C_RunMsg1
+
+			silent call C_Link()
+			"
+			if	executable(Exe) && getftime(Exe) >= getftime(Obj) && getftime(Obj) >= getftime(Sou)
+				if s:MSWIN
+					exe		"!".Quote.ExeEsc.Quote." ".l:arguments
+				else
+					silent exe '!xterm -title '.ExeEsc.' '.s:C_XtermDefaults.' -e '.s:C_Wrapper.' '.ExeEsc.' '.l:arguments.' &'
+					:redraw!
+				endif
+			else
+				echomsg "file '".Exe.s:C_RunMsg1
+			endif
 		endif
 	endif
 
-		if v:statusmsg == ''
-			let s:C_HlMessage = ""
-		endif
 endfunction    " ----------  end of function C_Run ----------
 "
 "------------------------------------------------------------------------------
@@ -2197,18 +2235,40 @@ endfunction    " ----------  end of function C_XtermSize ----------
 "  C_MakeArguments : run make(1)       {{{1
 "------------------------------------------------------------------------------
 
-let s:C_MakeCmdLineArgs   = ""     " command line arguments for Run-make; initially empty
+let s:C_MakeCmdLineArgs   	= ''   " command line arguments for Run-make; initially empty
+let s:C_MakeExecutableToRun	= ''
+"
+function! C_Make()
+	exe	":cclose"
+	" update : write source file if necessary
+	exe	":update"
+	" run make
+	let makeprg_saved	= '"'.&makeprg.'"'
+	exe		"setlocal makeprg=make"
+	exe	":make ".s:C_MakeCmdLineArgs
+	exe	"setlocal makeprg=".makeprg_saved
+	exe	":botright cwindow"
+	"
+endfunction    " ----------  end of function C_Make ----------
+"
+function! C_MakeClean()
+	" run make clean
+	exe		":!make clean"
+endfunction    " ----------  end of function C_MakeClean ----------
 
 function! C_MakeArguments ()
 	let	s:C_MakeCmdLineArgs= C_Input( 'make command line arguments : ', s:C_MakeCmdLineArgs, 'file' )
 endfunction    " ----------  end of function C_MakeArguments ----------
-"
-function! C_Make()
-	" update : write source file if necessary
-	exe	":update"
-	" run make
-	exe		":!make ".s:C_MakeCmdLineArgs
-endfunction    " ----------  end of function C_Make ----------
+
+function! C_MakeExeToRun ()
+	let	s:C_MakeExecutableToRun = C_Input( 'executable to run [tab compl.]: ', '', 'file' )
+	if s:C_MakeExecutableToRun !~ "^\s*$"
+		if s:MSWIN
+			let s:C_MakeExecutableToRun = substitute(s:C_MakeExecutableToRun, '\\ ', ' ', 'g' )
+		endif
+		let	s:C_MakeExecutableToRun = escape( getcwd().'/', s:escfilename ).s:C_MakeExecutableToRun
+	endif
+endfunction    " ----------  end of function C_MakeExeToRun ----------
 "
 "------------------------------------------------------------------------------
 "  C_SplintArguments : splint command line arguments       {{{1
@@ -2361,10 +2421,14 @@ endfunction    " ----------  end of function C_Indent ----------
 "------------------------------------------------------------------------------
 "  C_HlMessage : indent message     {{{1
 "------------------------------------------------------------------------------
-function! C_HlMessage ()
+function! C_HlMessage ( ... )
 	redraw!
 	echohl Search
-	echo s:C_HlMessage
+	if a:0 == 0
+		echo s:C_HlMessage
+	else
+		echo a:1
+	endif
 	echohl None
 endfunction    " ----------  end of function C_HlMessage ----------
 "
@@ -2389,6 +2453,7 @@ function! C_Settings ()
 	let txt = txt.'   code snippet directory :  "'.s:C_CodeSnippets."\"\n"
 	" ----- template files  ------------------------
 	let txt = txt.'           template style :  "'.s:C_ActualStyle."\"\n"
+	let txt = txt.'      plugin installation :  "'.s:installation."\"\n"
 	if s:installation == 'system'
 		let txt = txt.'global template directory :  '.s:C_GlobalTemplateDir."\n"
 		if filereadable( s:C_LocalTemplateFile )
@@ -2642,7 +2707,7 @@ function! C_RereadTemplates ( msg )
 			if filereadable( s:C_GlobalTemplateFile )
 				call C_ReadTemplates( s:C_GlobalTemplateFile )
 			else
-				echomsg "Global template '.s:C_GlobalTemplateFile.' file not readable."
+				echomsg "Global template file '.s:C_GlobalTemplateFile.' not readable."
 				return
 			endif
 			let	messsage	= "Templates read from '".s:C_GlobalTemplateFile."'"
@@ -2658,7 +2723,7 @@ function! C_RereadTemplates ( msg )
 				call C_ReadTemplates( s:C_LocalTemplateFile )
 				let	messsage	= "Templates read from '".s:C_LocalTemplateFile."'"
 			else
-				echomsg "Local template '".s:C_LocalTemplateFile."' file not readable." 
+				echomsg "Local template file '".s:C_LocalTemplateFile."' not readable." 
 				return
 			endif
 			"
