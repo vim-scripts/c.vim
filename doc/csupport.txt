@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                January 25 2011
+*csupport.txt*                  C/C++ Support                    June 26 2011
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.13
+                             Plugin version 5.14
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -65,7 +65,7 @@ keystroke.
  3.    Hotkeys                                  |csupport-hotkeys|
  4.    Customization and configuration          |csupport-custom|
  4.1    Global variables                        |csupport-custom-glob-vars|
- 4.2    The root menu                           |csupport-custom-root-menu|
+ 4.2     The root menu                          |csupport-custom-root|
  4.3     System-wide installation               |csupport-system-wide|
  5.    Template files and tags                  |csupport-templates|
  5.1    Template files                          |csupport-templates-files|
@@ -822,21 +822,32 @@ in your ~/.vimrc file to jump over the error locations and make navigation
 easier.  The error list and the error locations in your source buffer will be
 synchronized.
 
+The filename extension for an object file can be set in ~.vimrc :
+
+  let g:C_ObjExtension = '.obj'
+
+The default is '.o' ('.obj' for Windows).
 
 LINK
 'link' makes an executable from the current buffer. If the buffer is not
 saved, or no object is available or the object is older then the source step
 'save and compile' is executed first.
+The linkging will only be tried if the current buffer contains a main
+function.
 
 The behavior of the compiler / linker is determined by the options assigned to
 the variables described in |csupport-custom-glob-vars| (4.group).
 
 RUN
-'run' runs the executable with the same name (extension .e) as the current
-buffer. If the buffer is not saved, or no executable is available or the
-executable is older then the source steps 'save and compile' and 'link' are
-executed first.
+'run' runs the executable with the same name  as the current buffer. If the
+buffer is not saved, or no executable is available or the executable is older
+then the source steps 'save and compile' and 'link' are executed first.
 
+The filename extension for an executable can be set in ~.vimrc :
+
+  let g:C_ExeExtension = '.exe'
+
+The default is the empty string.
 
 1.7.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
 
@@ -1263,39 +1274,41 @@ Several global variables are checked by the script to customize it:
   g:C_TemplateOverwrittenMsg 'yes'
   g:C_Ctrl_j                 'on'
 
-  g:C_CodeSnippets           plugin_dir."/c-support/codesnippets/"
-  g:C_Dictionary_File        ""
-  g:C_LoadMenus              "yes"
-  g:C_MenuHeader             "yes"
-  g:C_OutputGvim             "vim"
-  g:C_XtermDefaults          "-fa courier -fs 12 -geometry 80x24"
+  g:C_CodeSnippets           plugin_dir.'/c-support/codesnippets/'
+  g:C_Dictionary_File        ''
+  g:C_LoadMenus              'yes'
+  g:C_MenuHeader             'yes'
+  g:C_OutputGvim             'vim'
+  g:C_Root                   '&C\/C\+\+.'
+  g:C_XtermDefaults          '-fa courier -fs 12 -geometry 80x24'
   g:C_Printheader            "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
   g:C_MapLeader              '\'
   g:C_GuiSnippetBrowser      'gui'
   g:C_GuiTemplateBrowser     'gui'
 
   Linux/UNIX:
-   g:C_ObjExtension          ".o"
-   g:C_ExeExtension          ""
-   g:C_CCompiler             "gcc"
-   g:C_CplusCompiler         "g++"
-   g:C_Man                   "man"
+   g:C_ObjExtension          '.o'
+   g:C_ExeExtension          ''
+   g:C_CCompiler             'gcc'
+   g:C_CplusCompiler         'g++'
+   g:C_Man                   'man'
   Windows:
-   g:C_ObjExtension          ".obj"
-   g:C_ExeExtension          ".exe"
-   g:C_CCompiler             "gcc.exe"
-   g:C_CplusCompiler         "g++.exe"
-   g:C_Man                   "man.exe"
-  g:C_CFlags                 "-Wall -g -O0 -c"
-  g:C_LFlags                 "-Wall -g -O0"
-  g:C_Libs                   "-lm"
+   g:C_ObjExtension          '.obj'
+   g:C_ExeExtension          '.exe'
+   g:C_CCompiler             'gcc.exe'
+   g:C_CplusCompiler         'g++.exe'
+   g:C_Man                   'man.exe'
+  g:C_VimCompilerName        gcc
+  g:C_CFlags                 '-Wall -g -O0 -c'
+  g:C_LFlags                 '-Wall -g -O0'
+  g:C_Libs                   '-lm'
   g:C_LineEndCommColDefault  49
-  g:C_CExtension             "c"
-  g:C_TypeOfH                "cpp"
-  g:C_SourceCodeExtensions   "c cc cp cxx cpp CPP c++ C i ii"
+  g:C_CExtension             'c'
+  g:C_TypeOfH                'cpp'
+  g:C_SourceCodeExtensions   'c cc cp cxx cpp CPP c++ C i ii'
 
-  g:C_CodeCheckExeName       "check"
-  g:C_CodeCheckOptions       "-K13"
+  g:C_CodeCheckExeName       'check'
+  g:C_CodeCheckOptions       '-K13'
 
 The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -1312,12 +1325,13 @@ The variable plugin_dir will automatically be set to one of the following values
                                    (see |csupport-snippets|).
            g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
                                     word completion (see also |csupport-dictionary|)
-           g:C_Root               : the name of the root menu of this plugin
            g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
            g:C_MenuHeader         : Switch the submenu header on/off.
            g:C_OutputGvim         : when program is running output goes to the vim
                                     command line ("vim"), to a buffer ("buffer") or to
                                     an xterm ("xterm").
+           g:C_Root               : The name of the root menu entry of this plugin
+                                           (see |csupport-custom-root|).
            g:C_XtermDefaults      : the xterm defaults
            g:C_Printheader        : hardcopy: definition of the page header
            g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
@@ -1330,6 +1344,7 @@ The variable plugin_dir will automatically be set to one of the following values
                                         implementation files
            g:C_CCompiler              : The name of the C compiler.
            g:C_CplusCompiler          : The name of the C++ compiler.
+           g:C_VimCompilerName        : the compiler name used by :compiler
            g:C_Man                    : The name of the man utility.
            g:C_CFlags                 : Compiler flags used for a compilation.
            g:C_LFlags                 : Compiler flags used for linkage.
@@ -1347,19 +1362,21 @@ The variable plugin_dir will automatically be set to one of the following values
 To override the default add appropriate assignments to ~/.vimrc .
 
 ------------------------------------------------------------------------------
-4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
+4.2  THE ROOT MENU                                      *csupport-custom-root*
 ------------------------------------------------------------------------------
 
-The variable g:C_Root, if set (in ~/.vimrc or in ~/.gvimrc), gives the name of
-the single Vim root menu item in which the C/C++ submenus will be put.  The
-default is
-                  '&C\/C\+\+.'
-Note the terminating dot. A single root menu can be used if the screen is
-limited or several plugins are used in parallel.
+The variable g:C_Root, if set (in '.vimrc' or in '.gvimrc'), gives the name
+of the single gVim root menu entry in which the C/C++ submenus will be put.
+The default is
 
-If set to "", this single root menu item will not appear.  Now all submenus
-are put into the Vim root menu. This is nice for beginners in a lab
-installation or for C-only programmers.
+  '&C\/C\+\+.'
+                  ''
+Note the terminating dot. 
+
+If you want to set the plugin root menu into another menu, e.g. 'Plugin',
+this is done by the following line in '.vimrc'
+
+  let g:C_Root = '&Plugin.&C\/C\+\+.'
 
 ------------------------------------------------------------------------------
 4.3  SYSTEM-WIDE INSTALLATION                           *csupport-system-wide*
@@ -1406,7 +1423,7 @@ link to the global directory.
 
 Create your private template directory:
 
-  mkdir --parents  ~/.vim/c-support/template
+  mkdir --parents  ~/.vim/c-support/templates
 
 Create a private template file 'Templates' (compulsory) in this directory to
 overwrite some macros, e.g.

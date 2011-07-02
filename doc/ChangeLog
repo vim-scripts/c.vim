@@ -1,4 +1,13 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.13
+================================================================================
+- New hotkeys \rmc (run 'make clean') and \rme (executable to run).
+- Hotkeys for make are working when in a makefile.
+- Linker errors and errors during a make will be shown in a quickfix buffer.
+- Bugfix: detection of a systemwide installation can fail.
+- Bugfix: preprocessor directive '#if 0 #endif' not working.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.12
 ================================================================================
 - New hotkeys \+" .
