@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                November 19 2010
+*csupport.txt*                  C/C++ Support               September 11 2011
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.12
+                             Plugin version 5.15
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -49,21 +49,23 @@ keystroke.
  1.7.1   Minimal make functionality             |csupport-run-buffer|
  1.7.2   Command line arguments                 |csupport-run-cmdline-args|
  1.7.3   Run make                               |csupport-run-make|
- 1.7.4   Command line arguments for make        |csupport-run-make-args|
- 1.7.5   Splint                                 |csupport-run-splint|
- 1.7.6   CodeCheck                              |csupport-run-codecheck|
- 1.7.7   Indent                                 |csupport-run-indent|
- 1.7.8   Hardcopy                               |csupport-run-hardcopy|
- 1.7.9   Rebuild templates                      |csupport-run-templates|
- 1.7.10  Xterm size                             |csupport-run-xterm|
- 1.7.11  Output redirection                     |csupport-run-output|
+ 1.7.4   Executable to run                      |csupport-run-make-run|
+ 1.7.5   Run make clean                         |csupport-run-make-clean|
+ 1.7.6   Command line arguments for make        |csupport-run-make-args|
+ 1.7.7   Splint                                 |csupport-run-splint|
+ 1.7.8   CodeCheck                              |csupport-run-codecheck|
+ 1.7.9   Indent                                 |csupport-run-indent|
+ 1.7.10  Hardcopy                               |csupport-run-hardcopy|
+ 1.7.11  Rebuild templates                      |csupport-run-templates|
+ 1.7.12  Xterm size                             |csupport-run-xterm|
+ 1.7.13  Output redirection                     |csupport-run-output|
  1.8    Help                                    |csupport-help|
  
  2.    Usage without GUI                        |csupport-usage-vim|
  3.    Hotkeys                                  |csupport-hotkeys|
  4.    Customization and configuration          |csupport-custom|
  4.1    Global variables                        |csupport-custom-glob-vars|
- 4.2    The root menu                           |csupport-custom-root-menu|
+ 4.2     The root menu                          |csupport-custom-root|
  4.3     System-wide installation               |csupport-system-wide|
  5.    Template files and tags                  |csupport-templates|
  5.1    Template files                          |csupport-templates-files|
@@ -99,8 +101,8 @@ If the root menu 'C/C++' is not visible call it with the item "Load C Support"
 from the standard Tools-menu.
 The item "Load C Support" can also be used to unload the C/C++-root menu.
 
-Nearly all menu entries insert code snippets or comments. All these stuff is
-taken from template files and can be changed by the user to meet his
+Nearly all menu entries insert code snippets or comments. All of these are
+contained within template files and can be changed by the user to meet their
 requirements (see|csupport-templates|).
 
 ------------------------------------------------------------------------------
@@ -109,9 +111,9 @@ requirements (see|csupport-templates|).
 
 1.1.1  APPEND ALIGNED COMMENTS TO CONSECUTIVE LINES    *csupport-comm-aligned*
 
-In NORMAL MODE the menu items 'end-of-line comment' will append an comment to
+In NORMAL MODE, the menu item 'end-of-line comment' will append a comment to
 the current line.
-In VISUAL MODE these item will append aligned comments to all marked lines.
+In VISUAL MODE, this item will append aligned comments to all marked lines.
 Marking the first 4 lines
 
   print_double_array ( double array[],
@@ -128,9 +130,9 @@ and choosing 'end-of-line com. /**/' will yield.
                        char*  arrayname         /*  */
                        )                        /*  */
 
-If one ore more lines go beyond the starting column (s.below) the comments
-will start at the 2. column after the longest line.  The cursor will be
-positioned inside the first comment.
+If one or more lines go beyond the starting column (s.below), the comments
+will start at the second column after the longest line.  The cursor will then
+be positioned inside the first comment.
 
 The default starting column is 49 ( = (multiple of 2,4, or 8) + 1 ).  This can
 be changed by setting a global variable in the file ~/.vimrc , e.g. :
@@ -138,7 +140,7 @@ be changed by setting a global variable in the file ~/.vimrc , e.g. :
   let g:C_LineEndCommColDefault    = 45
 
 The starting column can also be set by the menu item
-'Comments->set end-of-line com. col' . Just position the cursor in an
+'Comments->set end-of-line com. col'.  Just position the cursor in an
 arbitrary column (column number is shown in the Vim status line) and choose
 this menu item.  This setting is buffer related.
 
@@ -258,7 +260,7 @@ needs not to be marked.
 Frame comments, file header comments and function, methods, class descriptions
 are read as templates from the appropriate files (see |csupport-templates|).
 
-There are to file description templates (menu items 'file description (impl.)'
+There are two file description templates (menu items 'file description (impl.)'
 and  'file description (header)', see also |csupport-templates|):
 
   comment.file-description         : files *.c *.cc *.cp *.cxx *.cpp *.CPP *.c++
@@ -310,7 +312,7 @@ Keywords are
 
  BUG COMPILER TODO TRICKY WARNING WORKAROUND user-defined-keyword
 
-These are preliminary comments to document places where works will be resumed
+These are preliminary comments to document places where work will be resumed
 shortly. They are usually not meant for the final documentation.  These
 comments are easily found by searching for the keyword.
 The keyword comments can also be inserted using the hotkey \ckc . This hotkey
@@ -355,15 +357,13 @@ by the macro (e.g. to update date and time).
 
 1.1.10 C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
 
-The menu item '// xxx -> /* xxx */' changes a C++ comment into an C comment.
+The menu item '/* xxx */ <-> // xxx' changes a C++ comment into a C comment
+and a C++ comment into a C comment (toggle).
 This is done for the current line in normal or insert mode and for a marked
 area of lines in visual mode.
-If there are multiple C comments only the first one will be changed:
-  printf ("\n");                     /* one */ /* two */ /* three */
-will be changed into
-  printf ("\n");                     // one  /* two */ /* three */
-
-The menu item '/* xxx */ -> // xxx' changes a C comment into an C++ comment.
+The hotkey \cx does the same. It can be used with a range:
+  3\cx
+changes the current line and the next 2 lines.
 
 ------------------------------------------------------------------------------
 1.2  MENU 'Statements'                                         *csupport-stat*
@@ -660,9 +660,10 @@ The default value is 'gui'.
 
 1.5.2   PICKING UP PROTOTYPES                                 *csupport-proto*
 
-PICK UP PROTOTYPES.
+PICK UP FUNCTION PROTOTYPES (key mappings \np, \nf).
+
 To make a prototype from a function head mark the function head and choose
-'Snippets -> pick up prototype'. From the first six lines of
+'Snippets -> pick up funct. prototype'. From the first six lines of
 
    void
   print_double_array (  double array[],  /* array to print                */
@@ -687,8 +688,11 @@ is produced and put in an internal buffer.
   implementations).
 Further prototypes can be picked up and gathered in the buffer.
 
-For C++ methods namespace names and class names will be removed
-(exception: 'std::' ). The first two lines of
+PICK UP METHOD PROTOTYPES (key mapping \nm).
+
+For C++ methods the menu item 'Snippets -> pick up method prototype' should be
+used.  Namespace names and class names will be removed (exception: 'std::' ).
+The first two lines of
 
   std::string
   ROBOT::Robot::get_name  ( void )
@@ -699,6 +703,16 @@ For C++ methods namespace names and class names will be removed
 result in the prototype
 
   std::string get_name ( void );
+
+The 3 lines 
+
+  template <class T>
+  const Stack<T>&
+  Stack<T>::operator = ( const Stack &other )
+
+result in the prototype
+
+  const Stack& operator = ( const Stack &other );
 
 Folding may help picking up prototypes (see |csupport-folding|).
 
@@ -820,21 +834,32 @@ in your ~/.vimrc file to jump over the error locations and make navigation
 easier.  The error list and the error locations in your source buffer will be
 synchronized.
 
+The filename extension for an object file can be set in ~.vimrc :
+
+  let g:C_ObjExtension = '.obj'
+
+The default is '.o' ('.obj' for Windows).
 
 LINK
 'link' makes an executable from the current buffer. If the buffer is not
 saved, or no object is available or the object is older then the source step
 'save and compile' is executed first.
+The linkging will only be tried if the current buffer contains a main
+function.
 
 The behavior of the compiler / linker is determined by the options assigned to
 the variables described in |csupport-custom-glob-vars| (4.group).
 
 RUN
-'run' runs the executable with the same name (extension .e) as the current
-buffer. If the buffer is not saved, or no executable is available or the
-executable is older then the source steps 'save and compile' and 'link' are
-executed first.
+'run' runs the executable with the same name  as the current buffer. If the
+buffer is not saved, or no executable is available or the executable is older
+then the source steps 'save and compile' and 'link' are executed first.
 
+The filename extension for an executable can be set in ~.vimrc :
+
+  let g:C_ExeExtension = '.exe'
+
+The default is the empty string.
 
 1.7.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
 
@@ -864,19 +889,38 @@ Vim function CR will keep the arguments, Esc will discard them.
 
 1.7.3  RUN make                                            *csupport-run-make*
 
-The item 'make' runs the external make program.
+The item 'make' runs the external make program.  An error window will be
+opened if the compiler or linker reports errors or warnings during the make
+process.  Quickfix commands can now be used to jump to an error location.
+
+When inside a makefile the hotkeys \rm, \rmc , and \rma are working (see
+|csupport-usage-vim|).
+The snippets collection contains a sample makefile which can easily adepted
+for small projcts.
+
+1.7.4  EXECUTABLE TO RUN                               *csupport-run-make-run*
+
+The item 'executable to run' asks for the name of the executable built by
+make.  If the name given is nonempty this executable will be run by the menu
+item 'run' (\rr, C-F9).
+To return to the default behavior (see |csupport-run-buffer|) remove the name
+with the another 'executable to run'.
+
+1.7.5  RUN make clean                                *csupport-run-make-clean*
+
+The item 'make' runs the external make program with the standard target 'clean'.
 
 
-1.7.4  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
+1.7.6  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
 
 The item 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
-when called by the item 'make'.
+when called by the menu item 'make'.
 For the first and only the first argument the file name expansion will work
 (use the Tab-key).
 
 
-1.7.5  SPLINT                                            *csupport-run-splint*
+1.7.7  SPLINT                                            *csupport-run-splint*
 
 Splint is a tool for statically checking C programs (see http://www.splint.org).
 Of course it has to be installed in order to be used within Vim.  The menu
@@ -894,7 +938,7 @@ When vim is started this plugin will check whether splint is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.6  CODECHECK                                      *csupport-run-codecheck*
+1.7.8  CODECHECK                                      *csupport-run-codecheck*
 
 CodeCheck (TM) is a commercial code analyzing tool produced by Abraxas
 Software, Inc.  (www.abraxas-software.com).
@@ -924,7 +968,7 @@ When vim is started this plugin will check whether CodeCheck is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.7  INDENT                                            *csupport-run-indent*
+1.7.9  INDENT                                            *csupport-run-indent*
 
 The formatter 'indent' can be run over the whole buffer.  Before formatting a
 buffer this buffer will be saved to disk and you will be asked for a
@@ -934,7 +978,7 @@ Indent has many options. These are kept in the file '.indent.pro' in your home
 directory. See the indent manual for more information.
 
 
-1.7.8  HARDCOPY                                        *csupport-run-hardcopy*
+1.7.10  HARDCOPY                                       *csupport-run-hardcopy*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
@@ -958,20 +1002,20 @@ or by setting a global variable in the file ~/.vimrc , e.g. :
 See :h printheader and :h strftime()  for more details.
 
 
-1.7.9  REBUILD TEMPLATES                              *csupport-run-templates*
+1.7.11  REBUILD TEMPLATES                             *csupport-run-templates*
 
 After editing one or more template files  a click on this item rereads the
 template files and rebuilds all templates.
 
 
-1.7.10  XTERM SIZE                                        *csupport-run-xterm*
+1.7.12  XTERM SIZE                                        *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu item. The default is 80 columns with 24 lines.
 This feature is not available under Windows.
 
 
-1.7.11  OUTPUT REDIRECTION                               *csupport-run-output*
+1.7.13  OUTPUT REDIRECTION                               *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -1030,150 +1074,160 @@ mappings are also described in the document c-hot-keys.pdf (reference card,
 part of this package).
 Hint: Typing speed matters. The combination of a leader ('\') and the
 following character(s) will only be recognized for a short time.
-The insert mode mappings start with ` (backtick).
+Some mappings can be used with range (of lines). In normal mode
+  \cl
+appends a end-of-line comment to the current line,  whereas 
+  4\cl
+appends end-of-line comments to the 4 lines starting with the current line.
 
 Legend:  (i) insert mode, (n) normal mode, (v) visual mode
+         [n] range
 
   -- Help ---------------------------------------------------------------
 
-  \hm       show manual for word under the cursor (n,i)
-  \hp       show plugin help                      (n,i)
+     \hm       show manual for word under the cursor (n,i)
+     \hp       show plugin help                      (n,i)
 
   -- Comments -----------------------------------------------------------
 
-  \cl       end-of-line comment                 (n,v,i)
-  \cj       adjust end-of-line comment(s)       (n,v,i)
-  \cs       set end-of-line comment column      (n)
-  \c*       code -> comment /* */               (n,v)
-  \cc       code -> comment //                  (n,v)
-  \co       comment -> code                     (n,v)
-  \cfr      frame comment                       (n,i)
-  \cfu      function comment                    (n,i)
-  \cme      method description                  (n,i)
-  \ccl      class description                   (n,i)
-  \cfdi     file description (implementation)   (n,i)
-  \cfdh     file description (header)           (n,i)
-  \ccs      C/C++-file section  (tab. compl.)   (n,i)
-  \chs      H-file section      (tab. compl.)   (n,i)
-  \ckc      keyword comment     (tab. compl.)   (n,i)
-  \csc      special comment     (tab. compl.)   (n,i)
-  \cd       date                                (n,v,i)
-  \ct       date \& time                        (n,v,i)
+  [n]\cl       end-of-line comment                 (n,v,i)
+  [n]\cj       adjust end-of-line comment(s)       (n,v,i)
+     \cs       set end-of-line comment column      (n)
+  [n]\c*       code -> comment /* */               (n,v)
+  [n]\cc       code -> comment //                  (n,v)
+  [n]\co       comment -> code                     (n,v)
+     \cfr      frame comment                       (n,i)
+     \cfu      function comment                    (n,i)
+     \cme      method description                  (n,i)
+     \ccl      class description                   (n,i)
+     \cfdi     file description (implementation)   (n,i)
+     \cfdh     file description (header)           (n,i)
+     \ccs      C/C++-file section  (tab. compl.)   (n,i)
+     \chs      H-file section      (tab. compl.)   (n,i)
+     \ckc      keyword comment     (tab. compl.)   (n,i)
+     \csc      special comment     (tab. compl.)   (n,i)
+     \cd       date                                (n,v,i)
+     \ct       date \& time                        (n,v,i)
+  [n]\cx       toggle comments: C <--> C++         (n,v,i)
 
   -- Statements ---------------------------------------------------------
 
-  \sd       do { } while                        (n,v,i)
-  \sf       for                                 (n,i)
-  \sfo      for { }                             (n,v,i)
-  \si       if                                  (n,i)
-  \sif      if { }                              (n,v,i)
-  \sie      if else                             (n,v,i)
-  \sife     if { } else { }                     (n,v,i)
-  \se       else { }                            (n,v,i)
-  \sw       while                               (n,i)
-  \swh      while { }                           (n,v,i)
-  \ss       switch                              (n,v,i)
-  \sc       case                                (n,i)
-  \s{ \sb   { }                                 (n,v,i)
+     \sd       do { } while                        (n,v,i)
+     \sf       for                                 (n,i)
+     \sfo      for { }                             (n,v,i)
+     \si       if                                  (n,i)
+     \sif      if { }                              (n,v,i)
+     \sie      if else                             (n,v,i)
+     \sife     if { } else { }                     (n,v,i)
+     \se       else { }                            (n,v,i)
+     \sw       while                               (n,i)
+     \swh      while { }                           (n,v,i)
+     \ss       switch                              (n,v,i)
+     \sc       case                                (n,i)
+     \s{ \sb   { }                                 (n,v,i)
 
   -- Preprocessor -------------------------------------------------------
 
-  \ps       choose a standard library include   (n,i)
-  \pc       choose a C99 include                (n,i)
-  \p<       #include <>                         (n,i)
-  \p"       #include ""                         (n,i)
-  \pd       #define                             (n,i)
-  \pu       #undef                              (n,i)
-  \pie      #if  #else #endif                   (n,v,i)
-  \pid      #ifdef #else #endif                 (n,v,i)
-  \pin      #ifndef #else #endif                (n,v,i)
-  \pind     #ifndef #def #endif                 (n,v,i)
-  \pi0      #if 0 #endif                        (n,v,i)
-  \pr0      remove #if 0 #endif                 (n,i)
-  \pe       #error                              (n,i)
-  \pl       #line                               (n,i)
-  \pp       #pragma                             (n,i)
+     \ps       choose a standard library include   (n,i)
+     \pc       choose a C99 include                (n,i)
+     \p<       #include <>                         (n,i)
+     \p"       #include ""                         (n,i)
+     \pd       #define                             (n,i)
+     \pu       #undef                              (n,i)
+     \pie      #if  #else #endif                   (n,v,i)
+     \pid      #ifdef #else #endif                 (n,v,i)
+     \pin      #ifndef #else #endif                (n,v,i)
+     \pind     #ifndef #def #endif                 (n,v,i)
+     \pi0      #if 0 #endif                        (n,v,i)
+     \pr0      remove #if 0 #endif                 (n,i)
+     \pe       #error                              (n,i)
+     \pl       #line                               (n,i)
+     \pp       #pragma                             (n,i)
 
   -- Idioms -------------------------------------------------------------
 
-  \if       function                            (n,v,i)
-  \isf      static function                     (n,v,i)
-  \im       main()                              (n,v,i)
-  \i0       for( x=0; x<n; x+=1 )               (n,v,i)
-  \in       for( x=n-1; x>=0; x-=1 )            (n,v,i)
-  \ie       enum   + typedef                    (n,i)
-  \is       struct + typedef                    (n,i)
-  \iu       union  + typedef                    (n,i)
-  \ip       printf()                            (n,i)
-  \isc      scanf()                             (n,i)
-  \ica      p=calloc()                          (n,i)
-  \ima      p=malloc()                          (n,i)
-  \isi      sizeof()                            (n,v,i)
-  \ias      assert()                            (n,v)
-  \ii       open input file                     (n,i)
-  \io       open output file                    (n,i)
+     \if       function                            (n,v,i)
+     \isf      static function                     (n,v,i)
+     \im       main()                              (n,v,i)
+  [n]\i0       for( x=0; x<n; x+=1 )               (n,v,i)
+  [n]\in       for( x=n-1; x>=0; x-=1 )            (n,v,i)
+     \ie       enum   + typedef                    (n,i)
+     \is       struct + typedef                    (n,i)
+     \iu       union  + typedef                    (n,i)
+     \ip       printf()                            (n,i)
+     \isc      scanf()                             (n,i)
+     \ica      p=calloc()                          (n,i)
+     \ima      p=malloc()                          (n,i)
+     \isi      sizeof()                            (n,v,i)
+     \ias      assert()                            (n,v)
+     \ii       open input file                     (n,i)
+     \io       open output file                    (n,i)
 
   -- Snippets -----------------------------------------------------------
 
-  \nr       read code snippet                   (n,i)
-  \nw       write code snippet                  (n,v,i)
-  \ne       edit code snippet                   (n,i)
-  \np       pick up prototype                   (n,v,i)
-  \ni       insert prototype(s)                 (n,i)
-  \nc       clear  prototype(s)                 (n,i)
-  \ns       show   prototype(s)                 (n,i)
-  \ntl      edit local templates                (n,i)
-  \ntg      edit global templates               (n,i)
-  \ntr      rebuild templates                   (n,i)
+     \nr       read code snippet                   (n,i)
+     \nw       write code snippet                  (n,v,i)
+     \ne       edit code snippet                   (n,i)
+  [n]\nf       pick up function prototype          (n,v,i)
+  [n]\np       pick up function prototype          (n,v,i)
+  [n]\nm       pick up method prototype            (n,v,i)
+     \ni       insert prototype(s)                 (n,i)
+     \nc       clear  prototype(s)                 (n,i)
+     \ns       show   prototype(s)                 (n,i)
+     \ntl      edit local templates                (n,i)
+     \ntg      edit global templates               (n,i)
+     \ntr      rebuild templates                   (n,i)
 
   -- C++ ----------------------------------------------------------------
 
-  \+co      cout  <<  << endl;                  (n,i)
-  \+"       << ""                               (n,i)
-  \+c       class                               (n,i)
-  \+ps      #include <...> STL                  (n,i)
-  \+pc      #include <c..> C                    (n,i)
-  \+cn      class (using new)                   (n,i)
-  \+ci      class implementation                (n,i)
-  \+cni     class (using new) implementation    (n,i)
-  \+mi      method implementation               (n,i)
-  \+ai      accessor implementation             (n,i)
+     \+co      cout  <<  << endl;                  (n,i)
+     \+"       << ""                               (n,i)
+     \+c       class                               (n,i)
+     \+ps      #include <...> STL                  (n,i)
+     \+pc      #include <c..> C                    (n,i)
+     \+cn      class (using new)                   (n,i)
+     \+ci      class implementation                (n,i)
+     \+cni     class (using new) implementation    (n,i)
+     \+mi      method implementation               (n,i)
+     \+ai      accessor implementation             (n,i)
 
-  \+tc      template class                      (n,i)
-  \+tcn     template class (using new)          (n,i)
-  \+tci     template class implementation       (n,i)
-  \+tcni    template class (using new) impl.    (n,i)
-  \+tmi     template method implementation      (n,i)
-  \+tai     template accessor implementation    (n,i)
+     \+tc      template class                      (n,i)
+     \+tcn     template class (using new)          (n,i)
+     \+tci     template class implementation       (n,i)
+     \+tcni    template class (using new) impl.    (n,i)
+     \+tmi     template method implementation      (n,i)
+     \+tai     template accessor implementation    (n,i)
 
-  \+tf      template function                   (n,i)
-  \+ec      error class                         (n,i)
-  \+tr      try ... catch                       (n,v,i)
-  \+ca      catch                               (n,v,i)
-  \+c.      catch(...)                          (n,v,i)
+     \+tf      template function                   (n,i)
+     \+ec      error class                         (n,i)
+     \+tr      try ... catch                       (n,v,i)
+     \+ca      catch                               (n,v,i)
+     \+c.      catch(...)                          (n,v,i)
 
   -- Run ----------------------------------------------------------------
 
-  \rc       save and compile                    (n,i)
-  \rl       link                                (n,i)
-  \rr       run                                 (n,i)
-  \ra       set comand line arguments           (n,i)
-  \rm       run make                            (n,i)
-  \rma      cmd. line arg. for make             (n,i)
-  \rp       run splint                          (n,i)
-  \rpa      cmd. line arg. for splint           (n,i)
-  \rk       run CodeCheck (TM)                  (n,i)
-  \rka      cmd. line arg. for CodeCheck (TM)   (n,i)
-  \rd       run indent                          (n,v,i)
-  \rh       hardcopy buffer                     (n,v,i)
-  \rs       show plugin settings                (n,i)
-  \rx       set xterm size                      (n, only Linux/UNIX & GUI)
-  \ro       change output destination           (n,i)
+    \rc       save and compile                    (n,i)
+    \rl       link                                (n,i)
+    \rr       run                                 (n,i)
+    \ra       set comand line arguments           (n,i)
+    \rm       run make                            (n,i)
+    \rmc      run 'make clean'                    (n,i)
+    \rme      executable to run                   (n,i)
+    \rma      cmd. line arg. for make             (n,i)
+    \rp       run splint                          (n,i)
+    \rpa      cmd. line arg. for splint           (n,i)
+    \rk       run CodeCheck (TM)                  (n,i)
+    \rka      cmd. line arg. for CodeCheck (TM)   (n,i)
+    \rd       run indent                          (n,v,i)
+ [n]\rh       hardcopy buffer                     (n,v,i)
+    \rs       show plugin settings                (n,i)
+    \rx       set xterm size                      (n, only Linux/UNIX & GUI)
+    \ro       change output destination           (n,i)
 
   -- Load / Unload C/C++ Support ----------------------------------------
 
-  \lcs      Load C/C++ Support Menus            (n, GUI only)
-  \ucs      Unload C/C++ Support Menus          (n, GUI only)
+    \lcs      Load C/C++ Support Menus            (n, GUI only)
+    \ucs      Unload C/C++ Support Menus          (n, GUI only)
 
 The hotkeys are defined in the file type plugin c.vim (part of this csupport
 plugin package) and described in the document c-hot-keys.pdf
@@ -1240,39 +1294,41 @@ Several global variables are checked by the script to customize it:
   g:C_TemplateOverwrittenMsg 'yes'
   g:C_Ctrl_j                 'on'
 
-  g:C_CodeSnippets           plugin_dir."/c-support/codesnippets/"
-  g:C_Dictionary_File        ""
-  g:C_LoadMenus              "yes"
-  g:C_MenuHeader             "yes"
-  g:C_OutputGvim             "vim"
-  g:C_XtermDefaults          "-fa courier -fs 12 -geometry 80x24"
+  g:C_CodeSnippets           plugin_dir.'/c-support/codesnippets/'
+  g:C_Dictionary_File        ''
+  g:C_LoadMenus              'yes'
+  g:C_MenuHeader             'yes'
+  g:C_OutputGvim             'vim'
+  g:C_Root                   '&C\/C\+\+.'
+  g:C_XtermDefaults          '-fa courier -fs 12 -geometry 80x24'
   g:C_Printheader            "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
   g:C_MapLeader              '\'
   g:C_GuiSnippetBrowser      'gui'
   g:C_GuiTemplateBrowser     'gui'
 
   Linux/UNIX:
-   g:C_ObjExtension          ".o"
-   g:C_ExeExtension          ""
-   g:C_CCompiler             "gcc"
-   g:C_CplusCompiler         "g++"
-   g:C_Man                   "man"
+   g:C_ObjExtension          '.o'
+   g:C_ExeExtension          ''
+   g:C_CCompiler             'gcc'
+   g:C_CplusCompiler         'g++'
+   g:C_Man                   'man'
   Windows:
-   g:C_ObjExtension          ".obj"
-   g:C_ExeExtension          ".exe"
-   g:C_CCompiler             "gcc.exe"
-   g:C_CplusCompiler         "g++.exe"
-   g:C_Man                   "man.exe"
-  g:C_CFlags                 "-Wall -g -O0 -c"
-  g:C_LFlags                 "-Wall -g -O0"
-  g:C_Libs                   "-lm"
+   g:C_ObjExtension          '.obj'
+   g:C_ExeExtension          '.exe'
+   g:C_CCompiler             'gcc.exe'
+   g:C_CplusCompiler         'g++.exe'
+   g:C_Man                   'man.exe'
+  g:C_VimCompilerName        gcc
+  g:C_CFlags                 '-Wall -g -O0 -c'
+  g:C_LFlags                 '-Wall -g -O0'
+  g:C_Libs                   '-lm'
   g:C_LineEndCommColDefault  49
-  g:C_CExtension             "c"
-  g:C_TypeOfH                "cpp"
-  g:C_SourceCodeExtensions   "c cc cp cxx cpp CPP c++ C i ii"
+  g:C_CExtension             'c'
+  g:C_TypeOfH                'cpp'
+  g:C_SourceCodeExtensions   'c cc cp cxx cpp CPP c++ C i ii'
 
-  g:C_CodeCheckExeName       "check"
-  g:C_CodeCheckOptions       "-K13"
+  g:C_CodeCheckExeName       'check'
+  g:C_CodeCheckOptions       '-K13'
 
 The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
@@ -1289,12 +1345,13 @@ The variable plugin_dir will automatically be set to one of the following values
                                    (see |csupport-snippets|).
            g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
                                     word completion (see also |csupport-dictionary|)
-           g:C_Root               : the name of the root menu of this plugin
            g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
            g:C_MenuHeader         : Switch the submenu header on/off.
            g:C_OutputGvim         : when program is running output goes to the vim
                                     command line ("vim"), to a buffer ("buffer") or to
                                     an xterm ("xterm").
+           g:C_Root               : The name of the root menu entry of this plugin
+                                           (see |csupport-custom-root|).
            g:C_XtermDefaults      : the xterm defaults
            g:C_Printheader        : hardcopy: definition of the page header
            g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
@@ -1307,6 +1364,7 @@ The variable plugin_dir will automatically be set to one of the following values
                                         implementation files
            g:C_CCompiler              : The name of the C compiler.
            g:C_CplusCompiler          : The name of the C++ compiler.
+           g:C_VimCompilerName        : the compiler name used by :compiler
            g:C_Man                    : The name of the man utility.
            g:C_CFlags                 : Compiler flags used for a compilation.
            g:C_LFlags                 : Compiler flags used for linkage.
@@ -1324,19 +1382,21 @@ The variable plugin_dir will automatically be set to one of the following values
 To override the default add appropriate assignments to ~/.vimrc .
 
 ------------------------------------------------------------------------------
-4.2  THE ROOT MENU                                 *csupport-custom-root-menu*
+4.2  THE ROOT MENU                                      *csupport-custom-root*
 ------------------------------------------------------------------------------
 
-The variable g:C_Root, if set (in ~/.vimrc or in ~/.gvimrc), gives the name of
-the single Vim root menu item in which the C/C++ submenus will be put.  The
-default is
-                  '&C\/C\+\+.'
-Note the terminating dot. A single root menu can be used if the screen is
-limited or several plugins are used in parallel.
+The variable g:C_Root, if set (in '.vimrc' or in '.gvimrc'), gives the name
+of the single gVim root menu entry in which the C/C++ submenus will be put.
+The default is
 
-If set to "", this single root menu item will not appear.  Now all submenus
-are put into the Vim root menu. This is nice for beginners in a lab
-installation or for C-only programmers.
+  '&C\/C\+\+.'
+                  ''
+Note the terminating dot. 
+
+If you want to set the plugin root menu into another menu, e.g. 'Plugin',
+this is done by the following line in '.vimrc'
+
+  let g:C_Root = '&Plugin.&C\/C\+\+.'
 
 ------------------------------------------------------------------------------
 4.3  SYSTEM-WIDE INSTALLATION                           *csupport-system-wide*
@@ -1363,6 +1423,13 @@ Copy the archive cvim.zip to this new directory and unpack it:
 (4) Generate the help tags:
   :helptags $VIM/vimfiles/doc
 
+SPECIAL CASES. Some Linux distributions use non-standard names for Vim
+directories. SUSE has a directory '/usr/share/vim/site' to put plugins in.
+These directories will not be found automatically.  After installing the
+plugin below '/usr/share/vim/site' the use of the templates will be enabled by
+the following line in '~/.vimrc':
+
+  let g:C_GlobalTemplateFile = '/usr/share/vim/site/c-support/templates/Templates'
 
 As *** USER *** :
 
@@ -1376,7 +1443,7 @@ link to the global directory.
 
 Create your private template directory:
 
-  mkdir --parents  ~/.vim/c-support/template
+  mkdir --parents  ~/.vim/c-support/templates
 
 Create a private template file 'Templates' (compulsory) in this directory to
 overwrite some macros, e.g.
@@ -1403,8 +1470,8 @@ The default is 'yes'.
 5.1  TEMPLATE FILES                                 *csupport-templates-files*
 ------------------------------------------------------------------------------
 
-Nearly all menu entries insert code snippets or comments. All these stuff is
-taken from template files and can be changed by the user to meet his
+Nearly all menu entries insert code snippets or comments. All of these are
+contained within template files and can be changed by the user to meet their
 requirements.
 
 The master template file is '$HOME/.vim/c-support/templates/Templates' for a

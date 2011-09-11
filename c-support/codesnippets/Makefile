@@ -21,9 +21,9 @@
 #               C++ extensions  :  cc cpp C
 #               C and C++ sources can be mixed.
 #               Prerequisites are generated automatically; makedepend is not
-#               needed (see documentation for GNU make Version 3.80, July 2002,
+#               needed (see documentation for GNU make Version 3.81, April 2006,
 #               section 4.13). The utility sed is used.
-#========================================== makefile template version 1.8 ======
+#========================================== makefile template version 1.9 ======
 
 # DEBUG can be set to YES to include debugging info, or NO otherwise
 DEBUG          := YES
@@ -131,7 +131,7 @@ endif
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),tarball)
 ifneq ($(MAKECMDGOALS),zip)
-include         $(PREREQUISITES)
+-include         $(PREREQUISITES)
 endif
 endif
 endif

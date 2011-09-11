@@ -3,7 +3,7 @@ $
 == cpp.cin ==
 cin	>> <CURSOR>;
 $
-== cpp.cout ==
+== cpp.cout == insert ==
 cout	<< <CURSOR> << endl;
 $
 == cpp.cout-operator == insert ==
@@ -64,8 +64,8 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //       Class:  |?CLASSNAME|
 //      Method:  get_|?ATTRIBUTE|
 //--------------------------------------------------------------------------------------
-inline int<CURSOR>
-|CLASSNAME|::get_|ATTRIBUTE| (  )
+inline |?RETURNTYPE|
+|CLASSNAME|::get_|ATTRIBUTE| (  ) const
 {
 	return |ATTRIBUTE|;
 }		// -----  end of method |CLASSNAME|::get_|ATTRIBUTE|  -----
@@ -75,12 +75,12 @@ inline int<CURSOR>
 //      Method:  set_|ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 inline void
-|CLASSNAME|::set_|ATTRIBUTE| ( <+argument list+> )
+|CLASSNAME|::set_|ATTRIBUTE| ( |RETURNTYPE| value )
 {
 	|ATTRIBUTE|	= value;
 	return ;
 }		// -----  end of method |CLASSNAME|::set_|ATTRIBUTE|  -----
-
+<CURSOR>
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.class-definition ==
 // =====================================================================================
@@ -90,7 +90,6 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class |CLASSNAME|
 {
   public:
-
     // ====================  LIFECYCLE     =======================================
     |CLASSNAME| ();                             // constructor
 
@@ -128,7 +127,6 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class |CLASSNAME|
 {
   public:
-
     // ====================  LIFECYCLE     =======================================
     |CLASSNAME| ();                             // constructor
     |CLASSNAME| ( const |CLASSNAME| &other );   // copy constructor
@@ -220,7 +218,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //      Method:  get_|?ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 template < class T >
-inline  int<CURSOR> |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
+inline |?RETURNTYPE| |CLASSNAME|<T>::get_|ATTRIBUTE| (  ) const
 {
 	return |ATTRIBUTE|;
 }		// -----  end of method |CLASSNAME|<T>::get_|ATTRIBUTE|  -----
@@ -230,11 +228,12 @@ inline  int<CURSOR> |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
 //      Method:  set_|ATTRIBUTE|
 //--------------------------------------------------------------------------------------
 template < class T >
-inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( <+argument list+> )
+inline void |CLASSNAME|<T>::set_|ATTRIBUTE| ( |RETURNTYPE| value )
 {
 	|ATTRIBUTE|	= value;
 	return ;
 }		// -----  end of method |CLASSNAME|<T>::set_|ATTRIBUTE|  -----
+<CURSOR>
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.template-class-definition ==
 // =====================================================================================
@@ -246,7 +245,6 @@ template < class T >
 class |CLASSNAME|
 {
   public:
-
     // ====================  LIFECYCLE     =======================================
     |CLASSNAME| ();                             // constructor
 
@@ -287,7 +285,6 @@ template < class T >
 class |CLASSNAME|
 {
   public:
-
     // ====================  LIFECYCLE     =======================================
     |CLASSNAME| ();                           // constructor
     |CLASSNAME| ( const |CLASSNAME| &other ); // copy constructor
@@ -388,11 +385,11 @@ catch (...) {		// handle exception: unspecified
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.catch ==
-catch ( <CURSOR>const &ExceptObj ) {		// handle exception:
+catch ( const <CURSOR> &ExceptObj ) {		// handle exception:
 <SPLIT>}
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.catch-points ==
-catch (...) {		// handle exception:
+catch (...) {		// handle exception: unspecified
 <SPLIT>}
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.extern ==

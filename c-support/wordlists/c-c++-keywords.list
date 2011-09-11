@@ -47,6 +47,7 @@ _Complex
 _Imaginary
 EXIT_FAILURE
 EXIT_SUCCESS
+size_t
 
 bool
 catch

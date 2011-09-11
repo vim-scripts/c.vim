@@ -1,9 +1,9 @@
 $-------------------------------------------------------------------------
 == preprocessor.include-global ==
-#include	<<CURSOR>>
+#include <<CURSOR>>
 $-------------------------------------------------------------------------
 == preprocessor.include-local ==
-#include	"<CURSOR>"
+#include "<CURSOR>"
 $-------------------------------------------------------------------------
 == preprocessor.define ==
 #define	<CURSOR>			//
