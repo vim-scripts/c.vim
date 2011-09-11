@@ -3,7 +3,7 @@ $
 == cpp.cin ==
 cin	>> <CURSOR>;
 $
-== cpp.cout == insert ==
+== cpp.cout ==
 cout	<< <CURSOR> << endl;
 $
 == cpp.cout-operator == insert ==
@@ -66,8 +66,8 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  *      Method:  get_|?ATTRIBUTE|
  *--------------------------------------------------------------------------------------
  */
-inline |?RETURNTYPE|
-|CLASSNAME|::get_|ATTRIBUTE| (  ) const
+inline int<CURSOR>
+|CLASSNAME|::get_|ATTRIBUTE| (  )
 {
 	return |ATTRIBUTE|;
 }		/* -----  end of method |CLASSNAME|::get_|ATTRIBUTE|  ----- */
@@ -79,12 +79,12 @@ inline |?RETURNTYPE|
  *--------------------------------------------------------------------------------------
  */
 inline void
-|CLASSNAME|::set_|ATTRIBUTE| ( |RETURNTYPE| value )
+|CLASSNAME|::set_|ATTRIBUTE| ( <+argument list+> )
 {
 	|ATTRIBUTE|	= value;
 	return ;
 }		/* -----  end of method |CLASSNAME|::set_|ATTRIBUTE|  ----- */
-<CURSOR>
+
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.class-definition ==
 /*
@@ -137,6 +137,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class |CLASSNAME|
 {
   public:
+
     /* ====================  LIFECYCLE     ======================================= */
     |CLASSNAME| ();                             /* constructor      */
     |CLASSNAME| ( const |CLASSNAME| &other );   /* copy constructor */
@@ -241,7 +242,7 @@ $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  *--------------------------------------------------------------------------------------
  */
 template < class T >
-inline  |?RETURNTYPE| |CLASSNAME|<T>::get_|ATTRIBUTE| (  ) const
+inline  int<CURSOR> |CLASSNAME|<T>::get_|ATTRIBUTE| (  )
 {
 	return |ATTRIBUTE|;
 }		/* -----  end of method |CLASSNAME|<T>::get_|ATTRIBUTE|  ----- */
@@ -253,7 +254,7 @@ inline  |?RETURNTYPE| |CLASSNAME|<T>::get_|ATTRIBUTE| (  ) const
  *--------------------------------------------------------------------------------------
  */
 template < class T >
-inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( |RETURNTYPE| value )
+inline  void |CLASSNAME|<T>::set_|ATTRIBUTE| ( <+argument list+> )
 {
 	|ATTRIBUTE|	= value;
 	return ;
@@ -271,6 +272,7 @@ template < class T >
 class |CLASSNAME|
 {
   public:
+
     /* ====================  LIFECYCLE     ======================================= */
     |CLASSNAME| ();                             /* constructor */
 
@@ -316,6 +318,7 @@ template < class T >
 class |CLASSNAME|
 {
   public:
+
     // ====================  LIFECYCLE     =======================================
     |CLASSNAME| ();                           /* constructor      */
     |CLASSNAME| ( const |CLASSNAME| &other ); /* copy constructor */
@@ -422,11 +425,11 @@ catch (...) {		/* handle exception: unspecified */
 
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.catch ==
-catch ( const <CURSOR> &ExceptObj ) {		/* handle exception: */
+catch ( <CURSOR>const &ExceptObj ) {		/* handle exception: */
 <SPLIT>}
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.catch-points ==
-catch (...) {		/* handle exception: unspecified */
+catch (...) {		/* handle exception: */
 <SPLIT>}
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.extern ==
@@ -434,28 +437,28 @@ extern "C" {<CURSOR>
 <SPLIT>}
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.open-input-file ==
-string    ifs_file_name = "<CURSOR>";                 /* input  file name */
-ifstream  ifs;                                /* create ifstream object */
+char *ifs_file_name = "<CURSOR>";		/* input  file name       */
+ifstream	ifs;							/* create ifstream object */
 
-ifs.open ( ifs_file_name.c_str() );           /* open ifstream */
+ifs.open (ifs_file_name);		/* open ifstream          */
 if (!ifs) {
 	cerr << "\nERROR : failed to open input  file " << ifs_file_name << endl;
 	exit (EXIT_FAILURE);
 }
 <SPLIT>{-continue here-}
-ifs.close ();                                 /* close ifstream */
+ifs.close ();		/* close ifstream         */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.open-output-file ==
-string    ofs_file_name = "<CURSOR>";                 /* input  file name */
-ofstream  ofs;                                /* create ofstream object */
+char *ofs_file_name = "<CURSOR>";		/* output file name       */
+ofstream	ofs;							/* create ofstream object */
 
-ofs.open ( ofs_file_name.c_str() );           /* open ofstream */
+ofs.open (ofs_file_name);		/* open ofstream          */
 if (!ofs) {
 	cerr << "\nERROR : failed to open output file " << ofs_file_name << endl;
 	exit (EXIT_FAILURE);
 }
 <SPLIT>{-continue here-}
-ofs.close ();                                 /* close ofstream */
+ofs.close ();		/* close ofstream         */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.namespace-std ==
 using namespace std;

@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.62 2010/12/28 18:54:11 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.60 2010/11/19 12:47:44 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -378,8 +378,6 @@ inoremap    <buffer>  <silent>  <LocalLeader>+c.   <Esc>:call C_InsertTemplate("
  map    <buffer>  <silent>  <LocalLeader>rr         :call C_Run()<CR>
  map    <buffer>  <silent>  <LocalLeader>ra         :call C_Arguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rm         :call C_Make()<CR>
- map    <buffer>  <silent>  <LocalLeader>rmc        :call C_MakeClean()<CR>
- map    <buffer>  <silent>  <LocalLeader>rme        :call C_MakeExeToRun()<CR>
  map    <buffer>  <silent>  <LocalLeader>rma        :call C_MakeArguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rp         :call C_SplintCheck()<CR>:call C_HlMessage()<CR>
  map    <buffer>  <silent>  <LocalLeader>rpa        :call C_SplintArguments()<CR>
@@ -394,8 +392,6 @@ imap    <buffer>  <silent>  <LocalLeader>rl    <C-C>:call C_Link()<CR>:call C_Hl
 imap    <buffer>  <silent>  <LocalLeader>rr    <C-C>:call C_Run()<CR>
 imap    <buffer>  <silent>  <LocalLeader>ra    <C-C>:call C_Arguments()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rm    <C-C>:call C_Make()<CR>
-imap    <buffer>  <silent>  <LocalLeader>rmc   <C-C>:call C_MakeClean()<CR>
-imap    <buffer>  <silent>  <LocalLeader>rme   <C-C>:call C_MakeExeToRun()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rma   <C-C>:call C_MakeArguments()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rp    <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>
 imap    <buffer>  <silent>  <LocalLeader>rpa   <C-C>:call C_SplintArguments()<CR>

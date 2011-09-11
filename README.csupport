@@ -1,4 +1,4 @@
-README for c.vim (Version 5.14) / June 01 2011
+README for c.vim (Version 5.12) / November 19 2010
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -60,12 +60,7 @@ value of $HOME with ":echo $HOME" from inside Vim).
 
     (Read more about the template system in the plugin documentation)
 
-(1.4) Make the plugin help accessable by typing the following command on the
-    Vim command line:
-
-    :helptags $HOME/.vim/doc/
-  
-(1.5) Consider additional settings in the file '$HOME/.vimrc'.  The files
+(1.4) Consider additional settings in the file '$HOME/.vimrc'.  The files
     customization.vimrc and customization.gvimrc are replacements or extensions
     for your .vimrc and .gvimrc.  You may want to use parts of them. The files
     are documented. 
@@ -110,12 +105,7 @@ the value of $HOME with ":echo $HOME" from inside Vim).
 
     (Read more about the template system in the plugin documentation)
 
-(2.4) Make the plugin help accessable by typing the following command on the
-    Vim command line:
-
-    :helptags $HOME\vimfiles\doc\
-  
-(2.5) Consider additional settings in the file '$HOME/_vimrc'.  The files
+(2.4) Consider additional settings in the file '$HOME/_vimrc'.  The files
     customization.vimrc and customization.gvimrc are replacements or extensions
     for your _vimrc and _gvimrc. You may want to use parts of them.  The files
     are documented. 
@@ -130,7 +120,11 @@ There are a lot of features and options which can be used and influenced:
   *  C/C++ dictionaries for keyword completion
   *  (re)moving the root menu
 
-Look at csupport help with
+Restart gVim/Vim generate the help tags  
+
+  :helptags ~/.vim/doc
+
+and look at csupport help with
 
   :help csupport 
 
@@ -147,12 +141,12 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.14
+  RELEASE NOTES FOR VERSION 5.12
 ================================================================================
-- A makefile can be run with C-F9
-- Linking ( Run menu, \rl, \rr ) will be supressed if buffer contains no main function.
-- Bugfix: correctly deactivate unwanted compiler messages in a quickfix buffer.
-- Several minor improvements.
+- New hotkeys \+" .
+- Windows: user installation now possible.
+- Bugfixe: for-idiom shows part of type definition as variable name in some cases.
+- Bugfixe: wrong cursor position for some templates.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 
@@ -166,7 +160,6 @@ doc/csupport.txt               The help file for the local on-line help.
                           
 ftplugin/c.vim                 A file type plug-in. Define hotkeys, creates a
                                local dictionary for each C/C++ file.
-ftplugin/make.vim              Access hotkeys for make(1) in makefiles.
 
 plugin/c.vim                   The C/C++ plug-in for GVIM.
 
