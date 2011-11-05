@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.146 2011/09/11 17:16:24 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.150 2011/10/14 18:10:21 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.15"  							" version number of this script; do not change
+let g:C_Version= "5.16"  							" version number of this script; do not change
 "
 "#################################################################################
 "
@@ -66,17 +66,15 @@ if	s:MSWIN
 	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
 		" system wide installation
 		let s:installation					= 'system'
-		let s:plugin_dir						= $VIM.'/vimfiles/'
-		let s:C_GlobalTemplateDir		= s:plugin_dir.'c-support/templates'
+		let s:plugin_dir						= $VIM.'/vimfiles'
+		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
 		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
 	else
 		" user installation assumed
-		let s:plugin_dir  					= $HOME.'/vimfiles/'
+		let s:plugin_dir  						= expand('<sfile>:p:h:h')
 	endif
 	"
-	let s:C_LocalTemplateFile     = $HOME.'/vimfiles/c-support/templates/Templates'
-	let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
-	let s:C_CodeSnippets  				= $HOME.'/vimfiles/c-support/codesnippets/'
+	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
 	let s:C_IndentErrorLog				= $HOME.'/_indent.errorlog'
 	"
   let s:escfilename 	= ''
@@ -87,18 +85,20 @@ else
 	"
 	if match( expand("<sfile>"), expand("$HOME") ) == 0
 		" user installation assumed
-		let s:plugin_dir  	= $HOME.'/.vim/'
+		let s:plugin_dir 						= expand('<sfile>:p:h:h')
+		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
+		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	else
 		" system wide installation
 		let s:installation					= 'system'
-		let s:plugin_dir						= $VIM.'/vimfiles/'
-		let s:C_GlobalTemplateDir		= s:plugin_dir.'c-support/templates'
+		let s:plugin_dir						= $VIM.'/vimfiles'
+		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
 		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
+		let s:C_LocalTemplateFile		= $HOME.'/.vim/c-support/templates/Templates'
+		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	endif
 	"
-	let s:C_LocalTemplateFile     = $HOME.'/.vim/c-support/templates/Templates'
-	let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
-	let s:C_CodeSnippets  				= $HOME.'/.vim/c-support/codesnippets/'
+	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
 	let s:C_IndentErrorLog				= $HOME.'/.indent.errorlog'
 	"
   let s:escfilename 	= ' \%#[]'
@@ -111,9 +111,9 @@ endif
 "  g:C_Dictionary_File  must be global
 "
 if !exists("g:C_Dictionary_File")
-  let g:C_Dictionary_File = s:plugin_dir.'c-support/wordlists/c-c++-keywords.list,'.
-        \                   s:plugin_dir.'c-support/wordlists/k+r.list,'.
-        \                   s:plugin_dir.'c-support/wordlists/stl_index.list'
+  let g:C_Dictionary_File = s:plugin_dir.'/c-support/wordlists/c-c++-keywords.list,'.
+        \                   s:plugin_dir.'/c-support/wordlists/k+r.list,'.
+        \                   s:plugin_dir.'/c-support/wordlists/stl_index.list'
 endif
 "
 "  Modul global variables (with default values) which can be overridden. {{{1
@@ -146,7 +146,7 @@ let s:C_OutputGvim            = 'vim'
 let s:C_Printheader           = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
 let s:C_Root  	       				= '&C\/C\+\+.'           " the name of the root menu of this plugin
 let s:C_TypeOfH               = 'cpp'
-let s:C_Wrapper               = s:plugin_dir.'c-support/scripts/wrapper.sh'
+let s:C_Wrapper               = s:plugin_dir.'/c-support/scripts/wrapper.sh'
 let s:C_XtermDefaults         = '-fa courier -fs 12 -geometry 80x24'
 let s:C_GuiSnippetBrowser     = 'gui'										" gui / commandline
 let s:C_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
@@ -195,13 +195,14 @@ call C_CheckGlobal('C_MenuHeader             ')
 call C_CheckGlobal('C_ObjExtension           ')
 call C_CheckGlobal('C_OutputGvim             ')
 call C_CheckGlobal('C_Printheader            ')
+call C_CheckGlobal('C_Root                   ')
 call C_CheckGlobal('C_SourceCodeExtensions   ')
 call C_CheckGlobal('C_TemplateOverwrittenMsg ')
 call C_CheckGlobal('C_TypeOfH                ')
 call C_CheckGlobal('C_VimCompilerName        ')
 call C_CheckGlobal('C_XtermDefaults          ')
 
-if exists('g:C_GlobalTemplateFile') && g:C_GlobalTemplateFile != ''
+if exists('g:C_GlobalTemplateFile') && !empty(g:C_GlobalTemplateFile)
 	let s:C_GlobalTemplateDir	= fnamemodify( s:C_GlobalTemplateFile, ":h" )
 endif
 "
@@ -277,7 +278,8 @@ let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
 											\						}
 let s:C_ActualStyle					= 'default'
 let s:C_ActualStyleLast			= s:C_ActualStyle
-let s:C_Template             = { 'default' : {} }
+let s:C_Template            = { 'default' : {} }
+let s:C_TemplatesLoaded			= 'no'
 
 let s:C_ForTypes     = [
     \ 'char'                  ,
@@ -701,7 +703,7 @@ function! C_InitMenus ()
 	"----- Menu : Snippets ----------------------------------------------------   {{{2
 	"===============================================================================================
 	"
-	if s:C_CodeSnippets != ""
+	if !empty(s:C_CodeSnippets)
 		exe "amenu  <silent> ".MenuSnippets.'.&read\ code\ snippet<Tab>\\nr       :call C_CodeSnippet("r")<CR>'
 		exe "imenu  <silent> ".MenuSnippets.'.&read\ code\ snippet<Tab>\\nr  <C-C>:call C_CodeSnippet("r")<CR>'
 		exe "amenu  <silent> ".MenuSnippets.'.&write\ code\ snippet<Tab>\\nw      :call C_CodeSnippet("w")<CR>'
@@ -1100,7 +1102,7 @@ endfunction    " ----------  end of function C_CIosFlagMenus  ----------
 function! C_Input ( promp, text, ... )
 	echohl Search																					" highlight prompt
 	call inputsave()																			" preserve typeahead
-	if a:0 == 0 || a:1 == ''
+	if a:0 == 0 || empty(a:1)
 		let retval	=input( a:promp, a:text )
 	else
 		let retval	=input( a:promp, a:text, a:1 )
@@ -1510,7 +1512,7 @@ function! C_CodeSnippet(mode)
 			else
 				let	l:snippetfile=input("edit snippet ", s:C_CodeSnippets, "file" )
 			endif
-			if l:snippetfile != ""
+			if !empty(l:snippetfile)
 				:execute "update! | split | edit ".l:snippetfile
 			endif
 		endif
@@ -1523,7 +1525,7 @@ function! C_CodeSnippet(mode)
 			else
 				let	l:snippetfile=input("write snippet ", s:C_CodeSnippets, "file" )
 			endif
-			if l:snippetfile != ""
+			if !empty(l:snippetfile)
 				if filereadable(l:snippetfile)
 					if confirm("File ".l:snippetfile." exists ! Overwrite ? ", "&Cancel\n&No\n&Yes") != 3
 						return
@@ -1548,7 +1550,7 @@ endfunction    " ----------  end of function C_CodeSnippets  ----------
 function!	C_ForTypeComplete ( ArgLead, CmdLine, CursorPos )
 	"
 	" show all types
-	if a:ArgLead == ''
+	if empty(a:ArgLead)
 		return s:C_ForTypes
 	endif
 	"
@@ -1570,7 +1572,7 @@ function! C_CodeFor( direction ) range
 	let updown	= ( a:direction == 'up' ? 'INCR.' : 'DECR.' )
 	let	string	= C_Input( '[TYPE (expand)] VARIABLE [START [END ['.updown.']]] : ', '',
 									\				'customlist,C_ForTypeComplete' )
-	if string == ''
+	if empty(string)
 		return
 	endif
 	"
@@ -1584,11 +1586,11 @@ function! C_CodeFor( direction ) range
 			let	string				= strpart( string, nextindex )
 		endif
 	endfor
-	if loopvar_type != ''
+	if !empty(loopvar_type)
 		let loopvar_type	.= ' '
-		if string == ''
+		if empty(string)
 			let	string	= C_Input( 'VARIABLE [START [END ['.updown.']]] : ', '' )
-			if string == ''
+			if empty(string)
 				return
 			endif
 		endif
@@ -1608,23 +1610,23 @@ function! C_CodeFor( direction ) range
 
 	let [ loopvar, startval, endval, incval ]	= part
 
-	if incval==''
+	if empty(incval)
 		let incval	= '1'
 	endif
 
 	if a:direction == 'up'
-		if endval == ''
+		if empty(endval)
 			let endval	= 'n'
 		endif
-		if startval == ''
+		if empty(startval)
 			let startval	= '0'
 		endif
 		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' < '.endval.'; '.loopvar.' += '.incval." )"
 	else
-		if endval == ''
+		if empty(endval)
 			let endval	= '0'
 		endif
-		if startval == ''
+		if empty(startval)
 			let startval	= 'n-1'
 		endif
 		let zz= 'for ( '.loopvar_type.loopvar.' = '.startval.'; '.loopvar.' >= '.endval.'; '.loopvar.' -= '.incval." )"
@@ -1728,7 +1730,7 @@ function! C_ProtoPick( type ) range
 		let resfct	= matchstr( fctname   , '\('.template_id.'\s*::\s*\)*'.template_id )
 		let resfct	= substitute( resfct, '\s\+', '', 'g' )
 
-		if  resret != '' && match( resfct, resret.'$' ) >= 0
+		if  !empty(resret) && match( resfct, resret.'$' ) >= 0
 			"-------------------------------------------------------------------------------
 			" remove scope resolution from the return type (keep 'std::')
 			"-------------------------------------------------------------------------------
@@ -1745,7 +1747,7 @@ function! C_ProtoPick( type ) range
 
 		let	prototyp	= returntype.fctname.parlist
 		"
-		if fctname == '' || parlist == ''
+		if empty(fctname) || empty(parlist)
 			echon 'No prototype saved. Wrong selection ?'
 			return
 		endif
@@ -1876,7 +1878,7 @@ function! C_Compile ()
 		let	s:LastShellReturnCode	= 0
 		exe		"make ".s:C_CFlags." ".SouEsc." -o ".ObjEsc
 		exe	"setlocal makeprg=".makeprg_saved
-		if v:statusmsg == ''
+		if empty(v:statusmsg)
 			let s:C_HlMessage = "'".Obj."' : compilation successful"
 		endif
 		if v:shell_error != 0
@@ -1972,7 +1974,7 @@ function! C_Link ()
 		endif
 		exe	"setlocal makeprg=".makeprg_saved
 		"
-		if v:statusmsg == ''
+		if empty(v:statusmsg)
 			let s:C_HlMessage = "'".Exe."' : linking successful"
 		" open error window if necessary
 		:redraw!
@@ -2131,7 +2133,7 @@ endfunction    " ----------  end of function C_Run ----------
 "------------------------------------------------------------------------------
 function! C_Arguments ()
 	let	Exe		  = expand("%:r").s:C_ExeExtension
-  if Exe == ""
+  if empty(Exe)
 		redraw
 		echohl WarningMsg | echo "no file name " | echohl None
 		return
@@ -2150,36 +2152,30 @@ endfunction    " ----------  end of function C_Arguments ----------
 function! C_Toggle_Gvim_Xterm ()
 
 	if s:C_OutputGvim == "vim"
-		if has("gui_running")
-			exe "aunmenu  <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm'
-			exe "amenu    <silent>  ".s:MenuRun.'.&output:\ BUFFER->xterm->vim              :call C_Toggle_Gvim_Xterm()<CR><CR>'
-			exe "imenu    <silent>  ".s:MenuRun.'.&output:\ BUFFER->xterm->vim         <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
-		endif
+		exe "aunmenu  <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm'
+		exe "amenu    <silent>  ".s:MenuRun.'.&output:\ BUFFER->xterm->vim<Tab>\\ro              :call C_Toggle_Gvim_Xterm()<CR><CR>'
+		exe "imenu    <silent>  ".s:MenuRun.'.&output:\ BUFFER->xterm->vim<Tab>\\ro         <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 		let	s:C_OutputGvim	= "buffer"
 	else
 		if s:C_OutputGvim == "buffer"
-			if has("gui_running")
 				exe "aunmenu  <silent>  ".s:MenuRun.'.&output:\ BUFFER->xterm->vim'
 				if (!s:MSWIN)
-					exe "amenu    <silent>  ".s:MenuRun.'.&output:\ XTERM->vim->buffer            :call C_Toggle_Gvim_Xterm()<CR><CR>'
-					exe "imenu    <silent>  ".s:MenuRun.'.&output:\ XTERM->vim->buffer       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:MenuRun.'.&output:\ XTERM->vim->buffer<Tab>\\ro            :call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "imenu    <silent>  ".s:MenuRun.'.&output:\ XTERM->vim->buffer<Tab>\\ro       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				else
-					exe "amenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm            :call C_Toggle_Gvim_Xterm()<CR><CR>'
-					exe "imenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "amenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro            :call C_Toggle_Gvim_Xterm()<CR><CR>'
+					exe "imenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				endif
-			endif
-			if (!s:MSWIN) && (s:C_Display != '')
+			if (!s:MSWIN) && (!empty(s:C_Display))
 				let	s:C_OutputGvim	= "xterm"
 			else
 				let	s:C_OutputGvim	= "vim"
 			endif
 		else
 			" ---------- output : xterm -> gvim
-			if has("gui_running")
 				exe "aunmenu  <silent>  ".s:MenuRun.'.&output:\ XTERM->vim->buffer'
-				exe "amenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm            :call C_Toggle_Gvim_Xterm()<CR><CR>'
-				exe "imenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
-			endif
+				exe "amenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro            :call C_Toggle_Gvim_Xterm()<CR><CR>'
+				exe "imenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 			let	s:C_OutputGvim	= "vim"
 		endif
 	endif
@@ -2335,7 +2331,7 @@ function! C_CodeCheck ()
 	:setlocal errorformat=%f(%l)%m
 	"
 	let l:arguments  = exists("b:C_CodeCheckCmdLineArgs") ? b:C_CodeCheckCmdLineArgs : ""
-	if l:arguments == ""
+	if empty( l:arguments )
 		let l:arguments	=	s:C_CodeCheckOptions
 	endif
 	exe	":make ".l:arguments." ".escape( l:currentbuffer, s:escfilename )
@@ -2439,7 +2435,7 @@ function! C_Settings ()
 		let txt = txt.'           xterm defaults :  '.s:C_XtermDefaults."\n"
 	endif
 	" ----- dictionaries ------------------------
-	if g:C_Dictionary_File != ""
+	if !empty(g:C_Dictionary_File)
 		let ausgabe= &dictionary
 		let ausgabe= substitute( ausgabe, ",", ",\n                           + ", "g" )
 		let txt = txt."       dictionary file(s) :  ".ausgabe."\n"
@@ -2476,7 +2472,7 @@ endfunction    " ----------  end of function C_Settings ----------
 "------------------------------------------------------------------------------
 function! C_Hardcopy () range
   let outfile = expand("%")
-  if outfile == ""
+  if empty(outfile)
 		let s:C_HlMessage = 'Buffer has no name.'
 		call C_HlMessage()
   endif
@@ -2513,7 +2509,7 @@ function! C_HelpCsupport ()
 	try
 		:help csupport
 	catch
-		exe ':helptags '.s:plugin_dir.'doc'
+		exe ':helptags '.s:plugin_dir.'/doc'
 		:help csupport
 	endtry
 endfunction    " ----------  end of function C_HelpCsupport ----------
@@ -2529,11 +2525,11 @@ function! C_Help( type )
 
 	let cuc		= getline(".")[col(".") - 1]		" character under the cursor
 	let	item	= expand("<cword>")							" word under the cursor
-	if cuc == '' || item == "" || match( item, cuc ) == -1
+	if empty(cuc) || empty(item) || match( item, cuc ) == -1
 		let	item=C_Input('name of the manual page : ', '' )
 	endif
 
-	if item == ""
+	if empty(item)
 		return
 	endif
 	"------------------------------------------------------------------------------
@@ -2691,6 +2687,7 @@ function! C_RereadTemplates ( msg )
 			"
 			if filereadable( s:C_GlobalTemplateFile )
 				call C_ReadTemplates( s:C_GlobalTemplateFile )
+				let s:C_TemplatesLoaded	= 'yes'     
 			else
 				echomsg "Global template file '".s:C_GlobalTemplateFile."' not readable."
 				return
@@ -2699,6 +2696,7 @@ function! C_RereadTemplates ( msg )
 			"
 			if filereadable( s:C_LocalTemplateFile )
 				call C_ReadTemplates( s:C_LocalTemplateFile )
+				let s:C_TemplatesLoaded	= 'yes'     
 				let messsage	= messsage." and '".s:C_LocalTemplateFile."'"
 			endif
 			"
@@ -2706,6 +2704,7 @@ function! C_RereadTemplates ( msg )
 			"
 			if filereadable( s:C_LocalTemplateFile )
 				call C_ReadTemplates( s:C_LocalTemplateFile )
+				let s:C_TemplatesLoaded	= 'yes'     
 				let	messsage	= "Templates read from '".s:C_LocalTemplateFile."'"
 			else
 				echomsg "Local template file '".s:C_LocalTemplateFile."' not readable." 
@@ -2737,7 +2736,7 @@ function! C_BrowseTemplateFiles ( type )
 				let	l:templatefile	= input("edit a template file", templatedir, "file" )
 			endif
 		endif
-		if l:templatefile != ""
+		if !empty(l:templatefile)
 			:execute "update! | split | edit ".l:templatefile
 		endif
 	else
@@ -2820,7 +2819,7 @@ function! C_ReadTemplates ( templatefile )
       "
       let name  = matchstr( line, s:C_TemplateLineRegex )
       "
-      if name != ''
+      if !empty(name)
         let part  = split( name, '\s*==\s*')
         let item  = part[0]
         if has_key( s:C_Template[s:style], item ) && s:C_TemplateOverwrittenMsg == 'yes'
@@ -2834,7 +2833,7 @@ function! C_ReadTemplates ( templatefile )
           let s:C_Attribute[item] = part[1]
         endif
       else
-        if item != ''
+        if !empty(item)
           let s:C_Template[s:style][item] .= line."\n"
         endif
       endif
@@ -2843,7 +2842,7 @@ function! C_ReadTemplates ( templatefile )
   endfor	" ---------  read line  ---------
 
 	let s:C_ActualStyle	= 'default'
-	if s:C_Macro['|STYLE|'] != ''
+	if !empty( s:C_Macro['|STYLE|'] )
 		let s:C_ActualStyle	= s:C_Macro['|STYLE|']
 	endif
 	let s:C_ActualStyleLast	= s:C_ActualStyle
@@ -2909,6 +2908,10 @@ endfunction    " ----------  end of function C_OpenFold  ----------
 "------------------------------------------------------------------------------
 function! C_InsertTemplate ( key, ... )
 
+	if s:C_TemplatesLoaded == 'no'
+		call C_RereadTemplates('no')        
+	endif
+
 	if !has_key( s:C_Template[s:C_ActualStyle], a:key ) &&
 	\  !has_key( s:C_Template['default'], a:key )
 		echomsg "style '".a:key."' / template '".a:key
@@ -2935,7 +2938,7 @@ function! C_InsertTemplate ( key, ... )
 	"
 	if a:0 == 0
 		let val = C_ExpandUserMacros (a:key)
-		if val	== ""
+		if empty(val)
 			return
 		endif
 		let val	= C_ExpandSingleMacro( val, '<SPLIT>', '' )
@@ -3012,7 +3015,7 @@ function! C_InsertTemplate ( key, ... )
 		if  a:1 == 'v'
 			let val = C_ExpandUserMacros (a:key)
 			let val	= C_ExpandSingleMacro( val, s:C_TemplateJumpTarget2, '' )
-			if val	== ""
+			if empty(val)
 				return
 			endif
 
@@ -3178,7 +3181,7 @@ function! C_ExpandUserMacros ( key )
 
 		let match	= matchlist( macro, s:C_ExpansionRegex )
 
-		if match[1] != ''
+		if !empty( match[1] )
 			let macroname	= '|'.match[1].'|'
 			"
 			" notify flag action, if any
@@ -3193,7 +3196,7 @@ function! C_ExpandUserMacros ( key )
 			else
 				let	name	= C_Input( match[1].flagaction.' : ', '' )
 			endif
-			if name == ""
+			if empty(name)
 				return ""
 			endif
 			"
@@ -3211,7 +3214,7 @@ function! C_ExpandUserMacros ( key )
 		let macro			= matchstr( template, s:C_NonExpansionRegex )
 		let match			= matchlist( macro, s:C_NonExpansionRegex )
 
-		if match[1] != ''
+		if !empty( match[1] )
 			let macroname	= '|'.match[1].'|'
 
 			if has_key( s:C_Macro, macroname )
@@ -3300,7 +3303,7 @@ endfunction    " ----------  end of function C_SetSmallCommentStyle  ----------
 "  C_InsertMacroValue     {{{1
 "------------------------------------------------------------------------------
 function! C_InsertMacroValue ( key )
-	if s:C_Macro['|'.a:key.'|'] == ''
+	if empty( s:C_Macro['|'.a:key.'|'] )
 		echomsg 'the tag |'.a:key.'| is empty'
 		return
 	endif
@@ -3542,7 +3545,7 @@ endfunction    " ----------  end of function C_CppCLibraryIncludesInsert
 
 function!	C_IncludesList ( ArgLead, CmdLine, CursorPos, List )
 	" show all libs
-	if a:ArgLead == ''
+	if empty(a:ArgLead)
 		return a:List
 	endif
 	" show libs beginning with a:ArgLead
@@ -3576,8 +3579,6 @@ endfunction    " ----------  end of function C_CppCLibraryIncludesList  --------
 "  define key mappings (gVim only)
 "------------------------------------------------------------------------------
 "
-if has("gui_running")
-	"
 	call C_ToolMenu()
 	"
 	if s:C_LoadMenus == 'yes'
@@ -3587,14 +3588,36 @@ if has("gui_running")
 	nmap  <unique>  <silent>  <Leader>lcs   :call C_CreateGuiMenus()<CR>
 	nmap  <unique>  <silent>  <Leader>ucs   :call C_RemoveGuiMenus()<CR>
 	"
-endif
-
 "------------------------------------------------------------------------------
 "  Automated header insertion
 "  Local settings for the quickfix window
+"
+"			Vim always adds the {cmd} after existing autocommands,
+"			so that the autocommands execute in the order in which
+"			they were given. The order matters!
 "------------------------------------------------------------------------------
 
 if has("autocmd")
+	"
+	"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
+	"
+	if s:C_TypeOfH=='c'
+		autocmd BufNewFile,BufEnter  *.h  :set filetype=c
+	endif
+	"
+	" C/C++ source code files which should not be preprocessed.
+	"
+	autocmd BufNewFile,BufRead  *.i  :set filetype=c
+	autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
+	"
+	" DELAYED LOADING OF THE TEMPLATE DEFINITIONS
+	"
+	autocmd BufNewFile,BufRead  *                   
+				\	if (&filetype=='cpp' || &filetype=='c') |
+				\	  if s:C_TemplatesLoaded == 'no'        |
+				\	  	call C_RereadTemplates('no')        |
+				\	  endif |
+				\ endif
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
 	"
@@ -3602,19 +3625,8 @@ if has("autocmd")
 		"-------------------------------------------------------------------------------
 		" template styles are the default settings
 		"-------------------------------------------------------------------------------
-		autocmd BufNewFile  * if (&filetype=='cpp' || &filetype=='c') |
+		autocmd BufNewFile  * if &filetype =~ '\(c\|cpp\)' && expand("%:e") !~ 'ii\?' |
 					\     call C_InsertTemplateWrapper() | endif
-		"
-		"  *.h has filetype 'cpp' by default; this can be changed to 'c' :
-		"
-		if s:C_TypeOfH=='c'
-			autocmd BufNewFile,BufEnter  *.h  :set filetype=c
-		endif
-		"
-		" C/C++ source code files which should not be preprocessed.
-		"
-		autocmd BufNewFile,BufRead  *.i  :set filetype=c
-		autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
 		"
 	else
 		"-------------------------------------------------------------------------------
@@ -3635,11 +3647,6 @@ if has("autocmd")
 				\     .' call C_HighlightJumpTargets()'
 	"
 endif " has("autocmd")
-"
-"------------------------------------------------------------------------------
-"  READ THE TEMPLATE FILES
-"------------------------------------------------------------------------------
-call C_RereadTemplates('no')
 "
 "=====================================================================================
 " vim: tabstop=2 shiftwidth=2 foldmethod=marker

@@ -1,4 +1,15 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.15
+================================================================================
+- New hotkey \cx C to C++ comments and vice versa.
+- Several hotkeys allow a range, e.g. '3\cl' (see help text and c-hotkey.pdf).
+- Improved prototype picking: \nf, \np picks up a function prototype, 
+  \nm picks up a method prototype (see documentation for more).
+- include-statements will now be inserted in the actual line (before: new line
+  below the actual line).
+- Several minor improvements.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.14
 ================================================================================
 - A makefile can be run with C-F9

@@ -49,10 +49,16 @@ EXIT_FAILURE
 EXIT_SUCCESS
 size_t
 
+alignas
+alignof
 bool
 catch
+char16_t
+char32_t
 class
+constexpr
 const_cast
+decltype
 delete
 dynamic_cast
 explicit
@@ -61,14 +67,19 @@ false
 friend
 mutable
 namespace
+new
+neexcept
+nullptr
 operator
 private
 protected
 public
 reinterpret_cast
+static_assert
 static_cast
 template
 this
+thread_local
 throw
 true
 typeid
@@ -178,7 +189,6 @@ locale
 
 map
 memory
-new
 numeric
 ostream
 queue

@@ -1,4 +1,4 @@
-README for c.vim (Version 5.15) / September 11 2011
+README for c.vim (Version 5.16) / November 05 2011
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -147,15 +147,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.15
+  RELEASE NOTES FOR VERSION 5.16
 ================================================================================
-- New hotkey \cx C to C++ comments and vice versa.
-- Several hotkeys allow a range, e.g. '3\cl' (see help text and c-hotkey.pdf).
-- Improved prototype picking: \nf, \np picks up a function prototype, 
-  \nm picks up a method prototype (see documentation for more).
-- include-statements will now be inserted in the actual line (before: new line
-  below the actual line).
-- Several minor improvements.
+- Plugin loads faster: loading the templates is delayed until the first use.
+- Plugin now works with pathogen.vim.
+- Menus will always be generated (for the use with :emenu).
+- Bugfix: no local templates available with a system-wide installation (thanks to Iain Arnell).
+- Several improvements.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 
