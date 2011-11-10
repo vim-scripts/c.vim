@@ -1,4 +1,13 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.16
+================================================================================
+- Plugin loads faster: loading the templates is delayed until the first use.
+- Plugin now works with pathogen.vim.
+- Menus will always be generated (for the use with :emenu).
+- Bugfix: no local templates available with a system-wide installation (thanks to Iain Arnell).
+- Several improvements.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.15
 ================================================================================
 - New hotkey \cx C to C++ comments and vice versa.

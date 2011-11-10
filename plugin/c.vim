@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.150 2011/10/14 18:10:21 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.152 2011/11/10 20:47:33 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.16"  							" version number of this script; do not change
+let g:C_Version= "5.16.1"  							" version number of this script; do not change
 "
 "#################################################################################
 "
@@ -54,42 +54,47 @@ let g:C_Version= "5.16"  							" version number of this script; do not change
 let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 "
-let s:installation				= 'local'
-let s:vimfiles						= $VIM
-let	s:sourced_script_file	= expand("<sfile>")
-let s:C_GlobalTemplateFile= ''
-let s:C_GlobalTemplateDir	= ''
+let s:installation					= '*undefined*'
+let s:C_GlobalTemplateFile	= ''
+let s:C_GlobalTemplateDir		= ''
 
 if	s:MSWIN
   " ==========  MS Windows  ======================================================
 	"
-	if match( s:sourced_script_file, escape( s:vimfiles, ' \' ) ) == 0
-		" system wide installation
+	" change '\' to '/' to avoid interpretation as escape character
+	if match(	substitute( expand("<sfile>"), '\', '/', 'g' ), 
+				\		substitute( expand("$HOME"),   '\', '/', 'g' ) ) == 0
+	" USER INSTALLATION ASSUMED
+		let s:installation					= 'local'
+		let s:plugin_dir  					= expand('<sfile>:p:h:h')
+		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
+		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
+	else
+		" SYSTEM WIDE INSTALLATION
 		let s:installation					= 'system'
 		let s:plugin_dir						= $VIM.'/vimfiles'
 		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
 		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
-	else
-		" user installation assumed
-		let s:plugin_dir  						= expand('<sfile>:p:h:h')
+		let s:C_LocalTemplateFile		= $HOME.'/vimfiles/c-support/templates/Templates'
+		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	endif
 	"
 	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
 	let s:C_IndentErrorLog				= $HOME.'/_indent.errorlog'
-	"
-  let s:escfilename 	= ''
-	let s:C_Display     = ''
+  let s:escfilename 						= ''
+	let s:C_Display    						= ''
 	"
 else
   " ==========  Linux/Unix  ======================================================
 	"
 	if match( expand("<sfile>"), expand("$HOME") ) == 0
-		" user installation assumed
+		" USER INSTALLATION ASSUMED
+		let s:installation					= 'local'
 		let s:plugin_dir 						= expand('<sfile>:p:h:h')
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	else
-		" system wide installation
+		" SYSTEM WIDE INSTALLATION
 		let s:installation					= 'system'
 		let s:plugin_dir						= $VIM.'/vimfiles'
 		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
@@ -100,9 +105,8 @@ else
 	"
 	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
 	let s:C_IndentErrorLog				= $HOME.'/.indent.errorlog'
-	"
-  let s:escfilename 	= ' \%#[]'
-	let s:C_Display			= $DISPLAY
+  let s:escfilename 						= ' \%#[]'
+	let s:C_Display								= $DISPLAY
 	"
 endif
 "
@@ -151,7 +155,7 @@ let s:C_XtermDefaults         = '-fa courier -fs 12 -geometry 80x24'
 let s:C_GuiSnippetBrowser     = 'gui'										" gui / commandline
 let s:C_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
 "
-let s:C_TemplateOverwrittenMsg= 'yes'
+let s:C_TemplateOverriddenMsg = 'no'
 let s:C_Ctrl_j								= 'on'
 "
 let s:C_FormatDate						= '%x'
@@ -169,38 +173,38 @@ function! C_CheckGlobal ( name )
   endif
 endfunction    " ----------  end of function C_CheckGlobal ----------
 "
-call C_CheckGlobal('C_CCompiler              ')
-call C_CheckGlobal('C_CExtension             ')
-call C_CheckGlobal('C_CFlags                 ')
-call C_CheckGlobal('C_CodeCheckExeName       ')
-call C_CheckGlobal('C_CodeCheckOptions       ')
-call C_CheckGlobal('C_CodeSnippets           ')
-call C_CheckGlobal('C_CplusCompiler          ')
-call C_CheckGlobal('C_Ctrl_j                 ')
-call C_CheckGlobal('C_ExeExtension           ')
-call C_CheckGlobal('C_FormatDate             ')
-call C_CheckGlobal('C_FormatTime             ')
-call C_CheckGlobal('C_FormatYear             ')
-call C_CheckGlobal('C_GlobalTemplateFile     ')
-call C_CheckGlobal('C_GuiSnippetBrowser      ')
-call C_CheckGlobal('C_GuiTemplateBrowser     ')
-call C_CheckGlobal('C_IndentErrorLog         ')
-call C_CheckGlobal('C_LFlags                 ')
-call C_CheckGlobal('C_Libs                   ')
-call C_CheckGlobal('C_LineEndCommColDefault  ')
-call C_CheckGlobal('C_LoadMenus              ')
-call C_CheckGlobal('C_LocalTemplateFile      ')
-call C_CheckGlobal('C_Man                    ')
-call C_CheckGlobal('C_MenuHeader             ')
-call C_CheckGlobal('C_ObjExtension           ')
-call C_CheckGlobal('C_OutputGvim             ')
-call C_CheckGlobal('C_Printheader            ')
-call C_CheckGlobal('C_Root                   ')
-call C_CheckGlobal('C_SourceCodeExtensions   ')
-call C_CheckGlobal('C_TemplateOverwrittenMsg ')
-call C_CheckGlobal('C_TypeOfH                ')
-call C_CheckGlobal('C_VimCompilerName        ')
-call C_CheckGlobal('C_XtermDefaults          ')
+call C_CheckGlobal('C_CCompiler            ')
+call C_CheckGlobal('C_CExtension           ')
+call C_CheckGlobal('C_CFlags               ')
+call C_CheckGlobal('C_CodeCheckExeName     ')
+call C_CheckGlobal('C_CodeCheckOptions     ')
+call C_CheckGlobal('C_CodeSnippets         ')
+call C_CheckGlobal('C_CplusCompiler        ')
+call C_CheckGlobal('C_Ctrl_j               ')
+call C_CheckGlobal('C_ExeExtension         ')
+call C_CheckGlobal('C_FormatDate           ')
+call C_CheckGlobal('C_FormatTime           ')
+call C_CheckGlobal('C_FormatYear           ')
+call C_CheckGlobal('C_GlobalTemplateFile   ')
+call C_CheckGlobal('C_GuiSnippetBrowser    ')
+call C_CheckGlobal('C_GuiTemplateBrowser   ')
+call C_CheckGlobal('C_IndentErrorLog       ')
+call C_CheckGlobal('C_LFlags               ')
+call C_CheckGlobal('C_Libs                 ')
+call C_CheckGlobal('C_LineEndCommColDefault')
+call C_CheckGlobal('C_LoadMenus            ')
+call C_CheckGlobal('C_LocalTemplateFile    ')
+call C_CheckGlobal('C_Man                  ')
+call C_CheckGlobal('C_MenuHeader           ')
+call C_CheckGlobal('C_ObjExtension         ')
+call C_CheckGlobal('C_OutputGvim           ')
+call C_CheckGlobal('C_Printheader          ')
+call C_CheckGlobal('C_Root                 ')
+call C_CheckGlobal('C_SourceCodeExtensions ')
+call C_CheckGlobal('C_TemplateOverriddenMsg')
+call C_CheckGlobal('C_TypeOfH              ')
+call C_CheckGlobal('C_VimCompilerName      ')
+call C_CheckGlobal('C_XtermDefaults        ')
 
 if exists('g:C_GlobalTemplateFile') && !empty(g:C_GlobalTemplateFile)
 	let s:C_GlobalTemplateDir	= fnamemodify( s:C_GlobalTemplateFile, ":h" )
@@ -2822,7 +2826,7 @@ function! C_ReadTemplates ( templatefile )
       if !empty(name)
         let part  = split( name, '\s*==\s*')
         let item  = part[0]
-        if has_key( s:C_Template[s:style], item ) && s:C_TemplateOverwrittenMsg == 'yes'
+        if has_key( s:C_Template[s:style], item ) && s:C_TemplateOverriddenMsg == 'yes'
           echomsg "existing C/C++ template '".item."' overwritten"
         endif
         let s:C_Template[s:style][item] = ''
