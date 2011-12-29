@@ -11,12 +11,16 @@ $-------------------------------------------------------------------------
 == preprocessor.undefine ==
 #undef	<CURSOR>			//
 $-------------------------------------------------------------------------
+== preprocessor.if-endif ==
+#if  |?CONDITION:u|
+<CURSOR><SPLIT>
+#endif     // -----  |CONDITION|  -----
+$-------------------------------------------------------------------------
 == preprocessor.if-else-endif ==
 #if  |?CONDITION:u|
 <CURSOR><SPLIT>
 #else      // -----  not |CONDITION|  -----
 <+ELSE PART+>
-
 #endif     // -----  not |CONDITION|  -----
 $-------------------------------------------------------------------------
 == preprocessor.ifdef-else-endif ==

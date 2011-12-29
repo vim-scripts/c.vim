@@ -1,4 +1,4 @@
-README for c.vim (Version 5.16.1) / November 10 2011
+README for c.vim (Version 5.17) / December 27 2011
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -147,9 +147,15 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.16.1
+  RELEASE NOTES FOR VERSION 5.17
 ================================================================================
-- Bugfix: problem with a system-wide installation under Windows (thanks to Ricardo Vrech).
+- Two new plugin tags: LICENSE,ORGANIZATION
+- System-wide installation: minimal Template file for a user will automatically
+  be added.
+- New menu item and hotkey: choose a makefile.
+- New idiom: realloc.
+- New preprocessor item: #if #endif.
+- New hotkeys: \ire, \ifs, \ifp, \pif.
 
   OLDER RELEASE NOTES : see file 'ChangeLog'
 

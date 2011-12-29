@@ -60,6 +60,14 @@ if ( |POINTER|==NULL ) {
 free (|POINTER|);
 |POINTER|	= NULL;
 
+$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== idioms.realloc ==
+|?POINTER|	= realloc ( |POINTER|, sizeof(<CURSOR><+TYPE+>) );
+if ( |POINTER|==NULL ) {
+	fprintf ( stderr, "\ndynamic memory reallocation failed\n" );
+	exit (EXIT_FAILURE);
+}
+
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == idioms.sizeof == insert ==
 sizeof(<CURSOR><SPLIT>)

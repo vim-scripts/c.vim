@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.152 2011/11/10 20:47:33 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.156 2011/12/27 21:05:07 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -41,7 +41,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "5.16.1"  							" version number of this script; do not change
+let g:C_Version= "5.17"  							" version number of this script; do not change
 "
 "#################################################################################
 "
@@ -57,6 +57,9 @@ let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 let s:installation					= '*undefined*'
 let s:C_GlobalTemplateFile	= ''
 let s:C_GlobalTemplateDir		= ''
+let s:C_LocalTemplateFile		= ''
+let s:C_LocalTemplateDir		= ''
+let s:C_FilenameEscChar 		= ''
 
 if	s:MSWIN
   " ==========  MS Windows  ======================================================
@@ -64,12 +67,14 @@ if	s:MSWIN
 	" change '\' to '/' to avoid interpretation as escape character
 	if match(	substitute( expand("<sfile>"), '\', '/', 'g' ), 
 				\		substitute( expand("$HOME"),   '\', '/', 'g' ) ) == 0
-	" USER INSTALLATION ASSUMED
+		"
+		" USER INSTALLATION ASSUMED
 		let s:installation					= 'local'
-		let s:plugin_dir  					= expand('<sfile>:p:h:h')
+		let s:plugin_dir  					= substitute( expand('<sfile>:p:h:h'), '\', '/', 'g' )
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	else
+		"
 		" SYSTEM WIDE INSTALLATION
 		let s:installation					= 'system'
 		let s:plugin_dir						= $VIM.'/vimfiles'
@@ -79,21 +84,21 @@ if	s:MSWIN
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	endif
 	"
-	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
-	let s:C_IndentErrorLog				= $HOME.'/_indent.errorlog'
-  let s:escfilename 						= ''
+  let s:C_FilenameEscChar 			= ''
 	let s:C_Display    						= ''
 	"
 else
   " ==========  Linux/Unix  ======================================================
 	"
 	if match( expand("<sfile>"), expand("$HOME") ) == 0
+		"
 		" USER INSTALLATION ASSUMED
 		let s:installation					= 'local'
 		let s:plugin_dir 						= expand('<sfile>:p:h:h')
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	else
+		"
 		" SYSTEM WIDE INSTALLATION
 		let s:installation					= 'system'
 		let s:plugin_dir						= $VIM.'/vimfiles'
@@ -103,12 +108,13 @@ else
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	endif
 	"
-	let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
-	let s:C_IndentErrorLog				= $HOME.'/.indent.errorlog'
-  let s:escfilename 						= ' \%#[]'
+  let s:C_FilenameEscChar 			= ' \%#[]'
 	let s:C_Display								= $DISPLAY
 	"
 endif
+"
+let s:C_CodeSnippets  				= s:plugin_dir.'/c-support/codesnippets/'
+let s:C_IndentErrorLog				= $HOME.'/.indent.errorlog'
 "
 "  Use of dictionaries  {{{1
 "  Key word completion is enabled by the filetype plugin 'c.vim'
@@ -145,6 +151,7 @@ let s:C_LFlags         				= '-Wall -g -O0'         " compiler flags: link   , d
 let s:C_Libs           				= '-lm'                  " libraries to use
 let s:C_LineEndCommColDefault = 49
 let s:C_LoadMenus      				= 'yes'
+let s:C_CreateMenusDelayed     = 'no'
 let s:C_MenuHeader     				= 'yes'
 let s:C_OutputGvim            = 'vim'
 let s:C_Printheader           = "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
@@ -193,6 +200,7 @@ call C_CheckGlobal('C_LFlags               ')
 call C_CheckGlobal('C_Libs                 ')
 call C_CheckGlobal('C_LineEndCommColDefault')
 call C_CheckGlobal('C_LoadMenus            ')
+call C_CheckGlobal('C_CreateMenusDelayed   ')
 call C_CheckGlobal('C_LocalTemplateFile    ')
 call C_CheckGlobal('C_Man                  ')
 call C_CheckGlobal('C_MenuHeader           ')
@@ -269,10 +277,12 @@ let s:C_TemplateJumpTarget1    = '<+'.s:C_TJT.'+>\|{+'.s:C_TJT.'+}'
 let s:C_TemplateJumpTarget2    = '<-'.s:C_TJT.'->\|{-'.s:C_TJT.'-}'
 let s:C_Macro                  = {'|AUTHOR|'         : 'first name surname',
 											\						'|AUTHORREF|'      : '',
-											\						'|EMAIL|'          : '',
 											\						'|COMPANY|'        : '',
-											\						'|PROJECT|'        : '',
 											\						'|COPYRIGHTHOLDER|': '',
+											\						'|EMAIL|'          : '',
+											\						'|LICENSE|'        : 'GNU General Public License',
+											\						'|ORGANIZATION|'   : '',
+											\						'|PROJECT|'        : '',
 											\						'|STYLE|'          : ''
 											\						}
 let	s:C_MacroFlag								= {	':l' : 'lowercase'			,
@@ -505,24 +515,30 @@ function! C_InitMenus ()
 	"
 	"
 	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHOR                :call C_InsertMacroValue("AUTHOR")<CR>'
-	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).AUTHOR&REF             :call C_InsertMacroValue("AUTHORREF")<CR>'
+	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHORREF             :call C_InsertMacroValue("AUTHORREF")<CR>'
 	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&COMPANY               :call C_InsertMacroValue("COMPANY")<CR>'
-	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER       :call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>'
+	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&COPYRIGHTHOLDER       :call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>'
 	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&EMAIL                 :call C_InsertMacroValue("EMAIL")<CR>'
+	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&LICENSE               :call C_InsertMacroValue("LICENSE")<CR>'
+	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&ORGANIZATION          :call C_InsertMacroValue("ORGANIZATION")<CR>'
 	exe "anoremenu  ".MenuComments.'.ta&gs\ (plugin).&PROJECT               :call C_InsertMacroValue("PROJECT")<CR>'
 	"
 	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHOR           <Esc>:call C_InsertMacroValue("AUTHOR")<CR>a'
-	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).AUTHOR&REF        <Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
+	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHORREF        <Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
 	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&COMPANY          <Esc>:call C_InsertMacroValue("COMPANY")<CR>a'
-	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER  <Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
+	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&COPYRIGHTHOLDER  <Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
 	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&EMAIL            <Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
+	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&LICENSE          <Esc>:call C_InsertMacroValue("LICENSE")<CR>a'
+	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&ORGANIZATION     <Esc>:call C_InsertMacroValue("ORGANIZATION")<CR>a'
 	exe "inoremenu  ".MenuComments.'.ta&gs\ (plugin).&PROJECT          <Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
 	"
 	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHOR          s<Esc>:call C_InsertMacroValue("AUTHOR")<CR>a'
-	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).AUTHOR&REF       s<Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
+	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&AUTHORREF       s<Esc>:call C_InsertMacroValue("AUTHORREF")<CR>a'
 	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&COMPANY         s<Esc>:call C_InsertMacroValue("COMPANY")<CR>a'
-	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).C&OPYRIGHTHOLDER s<Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
+	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&COPYRIGHTHOLDER s<Esc>:call C_InsertMacroValue("COPYRIGHTHOLDER")<CR>a'
 	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&EMAIL           s<Esc>:call C_InsertMacroValue("EMAIL")<CR>a'
+	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&LICENSE         s<Esc>:call C_InsertMacroValue("LICENSE")<CR>a'
+	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&ORGANIZATION    s<Esc>:call C_InsertMacroValue("ORGANIZATION")<CR>a'
 	exe "vnoremenu  ".MenuComments.'.ta&gs\ (plugin).&PROJECT         s<Esc>:call C_InsertMacroValue("PROJECT")<CR>a'
 	"
 	exe " menu  ".MenuComments.'.&date<Tab>\\cd                       <Esc>:call C_InsertDateAndTime("d")<CR>'
@@ -624,24 +640,26 @@ function! C_InitMenus ()
 	exe "imenu <silent> ".MenuIdioms.'.&union<Tab>\\iu                      <Esc>:call C_InsertTemplate("idioms.union" )<CR>'
 	exe "amenu          ".MenuIdioms.'.-SEP3-                      :'
 	"
-	exe "amenu <silent> ".MenuIdioms.'.scanf<Tab>\\isc                            :call C_InsertTemplate("idioms.scanf")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.scanf<Tab>\\isc                       <Esc>:call C_InsertTemplate("idioms.scanf")<CR>'
-	exe "amenu <silent> ".MenuIdioms.'.printf<Tab>\\ip                            :call C_InsertTemplate("idioms.printf")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.printf<Tab>\\ip                       <Esc>:call C_InsertTemplate("idioms.printf")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.&scanf<Tab>\\isc                            :call C_InsertTemplate("idioms.scanf")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.&scanf<Tab>\\isc                       <Esc>:call C_InsertTemplate("idioms.scanf")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.&printf<Tab>\\ip                            :call C_InsertTemplate("idioms.printf")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.&printf<Tab>\\ip                       <Esc>:call C_InsertTemplate("idioms.printf")<CR>'
 	"
 	exe "amenu          ".MenuIdioms.'.-SEP4-                       :'
-	exe "amenu <silent> ".MenuIdioms.'.p=ca&lloc\(n,sizeof(type)\)<Tab>\\ica      :call C_InsertTemplate("idioms.calloc")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.p=ca&lloc\(n,sizeof(type)\)<Tab>\\ica <Esc>:call C_InsertTemplate("idioms.calloc")<CR>'
-	exe "amenu <silent> ".MenuIdioms.'.p=m&alloc\(sizeof(type)\)<Tab>\\ima        :call C_InsertTemplate("idioms.malloc")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.p=m&alloc\(sizeof(type)\)<Tab>\\ima   <Esc>:call C_InsertTemplate("idioms.malloc")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.p=&calloc\(n,sizeof(type)\)<Tab>\\ica       :call C_InsertTemplate("idioms.calloc")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.p=&calloc\(n,sizeof(type)\)<Tab>\\ica  <Esc>:call C_InsertTemplate("idioms.calloc")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.p=&malloc\(sizeof(type)\)<Tab>\\ima         :call C_InsertTemplate("idioms.malloc")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.p=&malloc\(sizeof(type)\)<Tab>\\ima    <Esc>:call C_InsertTemplate("idioms.malloc")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.p=&realloc\(p,sizeof(type)\)<Tab>\\ire      :call C_InsertTemplate("idioms.realloc")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.p=&realloc\(p,sizeof(type)\)<Tab>\\ire <Esc>:call C_InsertTemplate("idioms.realloc")<CR>'
 	"
-	exe "anoremenu <silent> ".MenuIdioms.'.si&zeof(\ \)<Tab>\\isi                 :call C_InsertTemplate("idioms.sizeof")<CR>'
-	exe "inoremenu <silent> ".MenuIdioms.'.si&zeof(\ \)<Tab>\\isi            <Esc>:call C_InsertTemplate("idioms.sizeof")<CR>'
-	exe "vnoremenu <silent> ".MenuIdioms.'.si&zeof(\ \)<Tab>\\isi            <Esc>:call C_InsertTemplate("idioms.sizeof", "v")<CR>'
+	exe "anoremenu <silent> ".MenuIdioms.'.&sizeof(\ \)<Tab>\\isi                 :call C_InsertTemplate("idioms.sizeof")<CR>'
+	exe "inoremenu <silent> ".MenuIdioms.'.&sizeof(\ \)<Tab>\\isi            <Esc>:call C_InsertTemplate("idioms.sizeof")<CR>'
+	exe "vnoremenu <silent> ".MenuIdioms.'.&sizeof(\ \)<Tab>\\isi            <Esc>:call C_InsertTemplate("idioms.sizeof", "v")<CR>'
 	"
-	exe "anoremenu <silent> ".MenuIdioms.'.asse&rt(\ \)<Tab>\\ias                 :call C_InsertTemplate("idioms.assert")<CR>'
-	exe "inoremenu <silent> ".MenuIdioms.'.asse&rt(\ \)<Tab>\\ias            <Esc>:call C_InsertTemplate("idioms.assert")<CR>'
-	exe "vnoremenu <silent> ".MenuIdioms.'.asse&rt(\ \)<Tab>\\ias            <Esc>:call C_InsertTemplate("idioms.assert", "v")<CR>'
+	exe "anoremenu <silent> ".MenuIdioms.'.&assert(\ \)<Tab>\\ias                 :call C_InsertTemplate("idioms.assert")<CR>'
+	exe "inoremenu <silent> ".MenuIdioms.'.&assert(\ \)<Tab>\\ias            <Esc>:call C_InsertTemplate("idioms.assert")<CR>'
+	exe "vnoremenu <silent> ".MenuIdioms.'.&assert(\ \)<Tab>\\ias            <Esc>:call C_InsertTemplate("idioms.assert", "v")<CR>'
 
 	exe "amenu          ".MenuIdioms.'.-SEP5-                      :'
 	exe "amenu <silent> ".MenuIdioms.'.open\ &input\ file<Tab>\\ii               :call C_InsertTemplate("idioms.open-input-file")<CR>'
@@ -651,10 +669,10 @@ function! C_InitMenus ()
 	exe "imenu <silent> ".MenuIdioms.'.open\ &output\ file<Tab>\\io         <Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>'
 	exe "vmenu <silent> ".MenuIdioms.'.open\ &output\ file<Tab>\\io         <Esc>:call C_InsertTemplate("idioms.open-output-file", "v")<CR>'
 	"
-	exe "amenu <silent> ".MenuIdioms.'.fscanf                           :call C_InsertTemplate("idioms.fscanf")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.fscanf                      <Esc>:call C_InsertTemplate("idioms.fscanf")<CR>'
-	exe "amenu <silent> ".MenuIdioms.'.fprintf                          :call C_InsertTemplate("idioms.fprintf")<CR>'
-	exe "imenu <silent> ".MenuIdioms.'.fprintf                     <Esc>:call C_InsertTemplate("idioms.fprintf")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.fscanf<Tab>\\ifs                          :call C_InsertTemplate("idioms.fscanf")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.fscanf<Tab>\\ifs                     <Esc>:call C_InsertTemplate("idioms.fscanf")<CR>'
+	exe "amenu <silent> ".MenuIdioms.'.fprintf<Tab>\\ifp                         :call C_InsertTemplate("idioms.fprintf")<CR>'
+	exe "imenu <silent> ".MenuIdioms.'.fprintf<Tab>\\ifp                    <Esc>:call C_InsertTemplate("idioms.fprintf")<CR>'
 	"
 	"===============================================================================================
 	"----- Menu : C-Preprocessor ----------------------------------------------   {{{2
@@ -676,6 +694,9 @@ function! C_InitMenus ()
 	exe "amenu  ".MenuPreprocessor.'.&#undef<Tab>\\pu                             :call C_InsertTemplate("preprocessor.undefine")<CR>'
 	exe "imenu  ".MenuPreprocessor.'.&#undef<Tab>\\pu                        <Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>'
 	"
+	exe "amenu  ".MenuPreprocessor.'.#&if\ #endif<Tab>\\pif                        :call C_InsertTemplate("preprocessor.if-endif")<CR>'
+	exe "imenu  ".MenuPreprocessor.'.#&if\ #endif<Tab>\\pif                   <Esc>:call C_InsertTemplate("preprocessor.if-endif")<CR>'
+	exe "vmenu  ".MenuPreprocessor.'.#&if\ #endif<Tab>\\pif                   <Esc>:call C_InsertTemplate("preprocessor.if-endif", "v")<CR>'
 	exe "amenu  ".MenuPreprocessor.'.#&if\ #else\ #endif<Tab>\\pie                 :call C_InsertTemplate("preprocessor.if-else-endif")<CR>'
 	exe "imenu  ".MenuPreprocessor.'.#&if\ #else\ #endif<Tab>\\pie            <Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>'
 	exe "vmenu  ".MenuPreprocessor.'.#&if\ #else\ #endif<Tab>\\pie            <Esc>:call C_InsertTemplate("preprocessor.if-else-endif", "v")<CR>'
@@ -956,6 +977,8 @@ function! C_InitMenus ()
 	exe "amenu  <silent>  ".s:MenuRun.'.-SEP0-                            :'
 	exe "amenu  <silent>  ".s:MenuRun.'.&make<Tab>\\rm                                    :call C_Make()<CR>'
 	exe "imenu  <silent>  ".s:MenuRun.'.&make<Tab>\\rm                               <C-C>:call C_Make()<CR>'
+	exe "amenu  <silent>  ".s:MenuRun.'.&choose\ makefile<Tab>\\rcm                       :call C_ChooseMakefile()<CR>'
+	exe "imenu  <silent>  ".s:MenuRun.'.&choose\ makefile<Tab>\\rcm                  <C-C>:call C_ChooseMakefile()<CR>'
 	exe "amenu  <silent>  ".s:MenuRun.'.executable\ to\ run<Tab>\\rme                     :call C_MakeExeToRun()<CR>'
 	exe "imenu  <silent>  ".s:MenuRun.'.executable\ to\ run<Tab>\\rme                <C-C>:call C_MakeExeToRun()<CR>'
 	exe "amenu  <silent>  ".s:MenuRun.'.&make\ clean<Tab>\\rmc                            :call C_MakeClean()<CR>'
@@ -1855,8 +1878,8 @@ function! C_Compile ()
 	exe	":cclose"
 	let	Sou		= expand("%:p")											" name of the file in the current buffer
 	let	Obj		= expand("%:p:r").s:C_ObjExtension	" name of the object
-	let SouEsc= escape( Sou, s:escfilename )
-	let ObjEsc= escape( Obj, s:escfilename )
+	let SouEsc= escape( Sou, s:C_FilenameEscChar )
+	let ObjEsc= escape( Obj, s:C_FilenameEscChar )
 	if s:MSWIN
 		let	SouEsc	= '"'.SouEsc.'"'
 		let	ObjEsc	= '"'.ObjEsc.'"'
@@ -1929,8 +1952,8 @@ function! C_Link ()
 	let	Sou		= expand("%:p")						       		" name of the file (full path)
 	let	Obj		= expand("%:p:r").s:C_ObjExtension	" name of the object file
 	let	Exe		= expand("%:p:r").s:C_ExeExtension	" name of the executable
-	let ObjEsc= escape( Obj, s:escfilename )
-	let ExeEsc= escape( Exe, s:escfilename )
+	let ObjEsc= escape( Obj, s:C_FilenameEscChar )
+	let ExeEsc= escape( Exe, s:C_FilenameEscChar )
 	if s:MSWIN
 		let	ObjEsc	= '"'.ObjEsc.'"'
 		let	ExeEsc	= '"'.ExeEsc.'"'
@@ -2002,10 +2025,10 @@ let s:C_RunMsg2						 ="' does not exist or is not executable"
 function! C_Run ()
 "
 	let s:C_HlMessage = ""
-	let Sou  					= expand("%:p")											" name of the source file
-	let Obj  					= expand("%:p:r").s:C_ObjExtension	" name of the object file
-	let Exe  					= expand("%:p:r").s:C_ExeExtension	" name of the executable
-	let ExeEsc  			= escape( Exe, s:escfilename )			" name of the executable, escaped
+	let Sou  					= expand("%:p")												" name of the source file
+	let Obj  					= expand("%:p:r").s:C_ObjExtension		" name of the object file
+	let Exe  					= expand("%:p:r").s:C_ExeExtension		" name of the executable
+	let ExeEsc  			= escape( Exe, s:C_FilenameEscChar )	" name of the executable, escaped
 	let Quote					= ''
 	if s:MSWIN
 		let Quote					= '"'
@@ -2204,42 +2227,82 @@ function! C_XtermSize ()
 endfunction    " ----------  end of function C_XtermSize ----------
 "
 "------------------------------------------------------------------------------
-"  C_MakeArguments : run make(1)       {{{1
+"  run make(1)       {{{1
 "------------------------------------------------------------------------------
-
 let s:C_MakeCmdLineArgs   	= ''   " command line arguments for Run-make; initially empty
 let s:C_MakeExecutableToRun	= ''
+let s:C_Makefile						= ''
 "
+"------------------------------------------------------------------------------
+"  C_ChooseMakefile : choose a makefile       {{{1
+"------------------------------------------------------------------------------
+function! C_ChooseMakefile ()
+	let s:C_Makefile	= ''
+	" the path will be escaped:
+	let	s:C_Makefile	= C_Input ( "choose a Makefile: ", getcwd(), "file" )
+	if  s:MSWIN
+		let	s:C_Makefile	= substitute( s:C_Makefile, '\\ ', ' ', 'g' )
+	endif
+endfunction    " ----------  end of function C_ChooseMakefile  ----------
+"
+"------------------------------------------------------------------------------
+"  C_Make : run make       {{{1
+"------------------------------------------------------------------------------
 function! C_Make()
 	exe	":cclose"
 	" update : write source file if necessary
 	exe	":update"
 	" run make
-  exe ":compiler " . s:C_VimCompilerName
-	let makeprg_saved	= '"'.&makeprg.'"'
-	exe		"setlocal makeprg=make"
-	exe	":make ".s:C_MakeCmdLineArgs
-	exe	"setlocal makeprg=".makeprg_saved
+	if s:C_Makefile == ''
+		exe	":make ".s:C_MakeCmdLineArgs
+	else
+		exe	':lchdir  '.fnamemodify( s:C_Makefile, ":p:h" )
+		if  s:MSWIN
+			exe	':make -f "'.s:C_Makefile.'" '.s:C_MakeCmdLineArgs
+		else
+			exe	':make -f '.s:C_Makefile.' '.s:C_MakeCmdLineArgs
+		endif
+		exe	":lchdir -"
+	endif
 	exe	":botright cwindow"
 	"
 endfunction    " ----------  end of function C_Make ----------
 "
+"------------------------------------------------------------------------------
+"  C_MakeClean : run 'make clean'       {{{1
+"------------------------------------------------------------------------------
 function! C_MakeClean()
 	" run make clean
-	exe		":!make clean"
+	if s:C_Makefile == ''
+		exe	":make clean"
+	else
+		exe	':lchdir  '.fnamemodify( s:C_Makefile, ":p:h" )
+		if  s:MSWIN
+			exe	':make -f "'.s:C_Makefile.'" clean'
+		else
+			exe	':make -f '.s:C_Makefile.' clean'
+		endif
+		exe	":lchdir -"
+	endif
 endfunction    " ----------  end of function C_MakeClean ----------
 
+"------------------------------------------------------------------------------
+"  C_MakeArguments : get make command line arguments       {{{1
+"------------------------------------------------------------------------------
 function! C_MakeArguments ()
 	let	s:C_MakeCmdLineArgs= C_Input( 'make command line arguments : ', s:C_MakeCmdLineArgs, 'file' )
 endfunction    " ----------  end of function C_MakeArguments ----------
 
+"------------------------------------------------------------------------------
+"  C_MakeExeToRun : choose executable to run       {{{1
+"------------------------------------------------------------------------------
 function! C_MakeExeToRun ()
 	let	s:C_MakeExecutableToRun = C_Input( 'executable to run [tab compl.]: ', '', 'file' )
 	if s:C_MakeExecutableToRun !~ "^\s*$"
 		if s:MSWIN
 			let s:C_MakeExecutableToRun = substitute(s:C_MakeExecutableToRun, '\\ ', ' ', 'g' )
 		endif
-		let	s:C_MakeExecutableToRun = escape( getcwd().'/', s:escfilename ).s:C_MakeExecutableToRun
+		let	s:C_MakeExecutableToRun = escape( getcwd().'/', s:C_FilenameEscChar ).s:C_MakeExecutableToRun
 	endif
 endfunction    " ----------  end of function C_MakeExeToRun ----------
 "
@@ -2283,7 +2346,7 @@ function! C_SplintCheck ()
 	:setlocal makeprg=splint
 	"
 	let l:arguments  = exists("b:C_SplintCmdLineArgs") ? b:C_SplintCmdLineArgs : ' '
-	silent exe	"make ".l:arguments." ".escape(l:currentbuffer,s:escfilename)
+	silent exe	"make ".l:arguments." ".escape(l:currentbuffer,s:C_FilenameEscChar)
 	exe	"setlocal makeprg=".makeprg_saved
 	exe	":botright cwindow"
 	"
@@ -2338,7 +2401,7 @@ function! C_CodeCheck ()
 	if empty( l:arguments )
 		let l:arguments	=	s:C_CodeCheckOptions
 	endif
-	exe	":make ".l:arguments." ".escape( l:currentbuffer, s:escfilename )
+	exe	":make ".l:arguments." ".escape( l:currentbuffer, s:C_FilenameEscChar )
 	exe	':setlocal errorformat='
 	exe	":setlocal makeprg=".makeprg_saved
 	exe	":botright cwindow"
@@ -2411,11 +2474,13 @@ endfunction    " ----------  end of function C_HlMessage ----------
 function! C_Settings ()
 	let	txt =     " C/C++-Support settings\n\n"
 	let txt = txt.'                   author :  "'.s:C_Macro['|AUTHOR|']."\"\n"
-	let txt = txt.'                 initials :  "'.s:C_Macro['|AUTHORREF|']."\"\n"
-	let txt = txt.'                    email :  "'.s:C_Macro['|EMAIL|']."\"\n"
+	let txt = txt.'                authorref :  "'.s:C_Macro['|AUTHORREF|']."\"\n"
 	let txt = txt.'                  company :  "'.s:C_Macro['|COMPANY|']."\"\n"
-	let txt = txt.'                  project :  "'.s:C_Macro['|PROJECT|']."\"\n"
 	let txt = txt.'         copyright holder :  "'.s:C_Macro['|COPYRIGHTHOLDER|']."\"\n"
+	let txt = txt.'                    email :  "'.s:C_Macro['|EMAIL|']."\"\n"
+  let txt = txt.'                  licence :  "'.s:C_Macro['|LICENSE|']."\"\n"
+  let txt = txt.'             organization :  "'.s:C_Macro['|ORGANIZATION|']."\"\n"
+	let txt = txt.'                  project :  "'.s:C_Macro['|PROJECT|']."\"\n"
 	let txt = txt.'         C / C++ compiler :  '.s:C_CCompiler.' / '.s:C_CplusCompiler."\n"
 	let txt = txt.'         C file extension :  "'.s:C_CExtension.'"  (everything else is C++)'."\n"
 	let txt = txt.'    extension for objects :  "'.s:C_ObjExtension."\"\n"
@@ -2621,8 +2686,9 @@ function! C_Help( type )
 endfunction		" ---------- end of function  C_Help  ----------
 "
 "------------------------------------------------------------------------------
-"  remove <backspace><any character> in CYGWIN man(1) output   {{{1
-"  remove           _<any character> in CYGWIN man(1) output   {{{1
+"  C_RemoveSpecialCharacters   {{{1
+"  remove <backspace><any character> in CYGWIN man(1) output
+"  remove           _<any character> in CYGWIN man(1) output
 "------------------------------------------------------------------------------
 "
 function! s:C_RemoveSpecialCharacters ( )
@@ -2640,17 +2706,26 @@ function! s:C_RemoveSpecialCharacters ( )
 endfunction		" ---------- end of function  s:C_RemoveSpecialCharacters   ----------
 
 "------------------------------------------------------------------------------
+"  C_CreateMenusDelayed     {{{1
+"------------------------------------------------------------------------------
+let s:C_MenusVisible = 'no'								" state variable controlling the C-menus
+"
+function! C_CreateMenusDelayed ()
+	if s:C_CreateMenusDelayed == 'yes' && s:C_MenusVisible == 'no'
+		call C_CreateGuiMenus()
+	endif
+endfunction    " ----------  end of function C_CreateMenusDelayed  ----------
+"
+"------------------------------------------------------------------------------
 "  C_CreateGuiMenus     {{{1
 "------------------------------------------------------------------------------
-let s:C_MenuVisible = 0								" state variable controlling the C-menus
-"
 function! C_CreateGuiMenus ()
-	if s:C_MenuVisible != 1
+	if s:C_MenusVisible == 'no'
 		aunmenu <silent> &Tools.Load\ C\ Support
 		amenu   <silent> 40.1000 &Tools.-SEP100- :
 		amenu   <silent> 40.1030 &Tools.Unload\ C\ Support <C-C>:call C_RemoveGuiMenus()<CR>
 		call C_InitMenus()
-		let s:C_MenuVisible = 1
+		let s:C_MenusVisible = 'yes'
 	endif
 endfunction    " ----------  end of function C_CreateGuiMenus  ----------
 
@@ -2667,13 +2742,13 @@ endfunction    " ----------  end of function C_ToolMenu  ----------
 "  C_RemoveGuiMenus     {{{1
 "------------------------------------------------------------------------------
 function! C_RemoveGuiMenus ()
-	if s:C_MenuVisible == 1
+	if s:C_MenusVisible == 'yes'
 		exe "aunmenu <silent> ".s:C_Root
 		"
 		aunmenu <silent> &Tools.Unload\ C\ Support
 		call C_ToolMenu()
 		"
-		let s:C_MenuVisible = 0
+		let s:C_MenusVisible = 'no'
 	endif
 endfunction    " ----------  end of function C_RemoveGuiMenus  ----------
 
@@ -2682,52 +2757,74 @@ endfunction    " ----------  end of function C_RemoveGuiMenus  ----------
 "  rebuild commands and the menu from the (changed) template file
 "------------------------------------------------------------------------------
 function! C_RereadTemplates ( msg )
-		let s:style						= 'default'
-    let s:C_Template     	= { 'default' : {} }
-    let s:C_FileVisited  	= []
-		let	messsage					= ''
-		"
-		if s:installation == 'system'
-			"
-			if filereadable( s:C_GlobalTemplateFile )
-				call C_ReadTemplates( s:C_GlobalTemplateFile )
-				let s:C_TemplatesLoaded	= 'yes'     
-			else
-				echomsg "Global template file '".s:C_GlobalTemplateFile."' not readable."
-				return
-			endif
-			let	messsage	= "Templates read from '".s:C_GlobalTemplateFile."'"
-			"
-			if filereadable( s:C_LocalTemplateFile )
-				call C_ReadTemplates( s:C_LocalTemplateFile )
-				let s:C_TemplatesLoaded	= 'yes'     
-				let messsage	= messsage." and '".s:C_LocalTemplateFile."'"
-			endif
-			"
+	let s:style						= 'default'
+	let s:C_Template     	= { 'default' : {} }
+	let s:C_FileVisited  	= []
+	let	messsage					= ''
+	"
+	if s:installation == 'system'
+		"-------------------------------------------------------------------------------
+		" system installation
+		"-------------------------------------------------------------------------------
+		if filereadable( s:C_GlobalTemplateFile )
+			call C_ReadTemplates( s:C_GlobalTemplateFile )
 		else
-			"
-			if filereadable( s:C_LocalTemplateFile )
-				call C_ReadTemplates( s:C_LocalTemplateFile )
-				let s:C_TemplatesLoaded	= 'yes'     
-				let	messsage	= "Templates read from '".s:C_LocalTemplateFile."'"
-			else
-				echomsg "Local template file '".s:C_LocalTemplateFile."' not readable." 
-				return
+			echomsg "Global template file '".s:C_GlobalTemplateFile."' not readable."
+			return
+		endif
+		let	messsage	= "Templates read from '".s:C_GlobalTemplateFile."'"
+		"
+		if filereadable( s:C_LocalTemplateFile )
+			call C_ReadTemplates( s:C_LocalTemplateFile )
+			let messsage	= messsage." and '".s:C_LocalTemplateFile."'"
+			if s:C_Macro['|AUTHOR|'] == 'YOUR NAME'
+				echomsg "Please set your personal details in file '".s:C_LocalTemplateFile."'."
 			endif
-			"
+		else
+			let template	= [ '|AUTHOR|    = YOUR NAME', 
+						\						'|COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|'
+						\		]
+			if finddir( s:C_LocalTemplateDir ) == ''
+				" try to create a local template directory
+				if exists("*mkdir")
+					try 
+						call mkdir( s:C_LocalTemplateDir, "p" )
+						" write a default local template file
+						call writefile( template, s:C_LocalTemplateFile )
+					catch /.*/
+					endtry
+				endif
+			else
+				" write a default local template file
+				call writefile( template, s:C_LocalTemplateFile )
+			endif
 		endif
-		if a:msg == 'yes'
-			echomsg messsage.'.'
+		"
+	else
+		"-------------------------------------------------------------------------------
+		" local installation
+		"-------------------------------------------------------------------------------
+		if filereadable( s:C_LocalTemplateFile )
+			call C_ReadTemplates( s:C_LocalTemplateFile )
+			let	messsage	= "Templates read from '".s:C_LocalTemplateFile."'"
+		else
+			echomsg "Local template file '".s:C_LocalTemplateFile."' not readable." 
+			return
 		endif
+		"
+	endif
+	if a:msg == 'yes'
+		echomsg messsage.'.'
+	endif
 
 endfunction    " ----------  end of function C_RereadTemplates  ----------
-
+"
 "------------------------------------------------------------------------------
 "  C_BrowseTemplateFiles     {{{1
 "------------------------------------------------------------------------------
 function! C_BrowseTemplateFiles ( type )
 	let	templatefile	= eval( 's:C_'.a:type.'TemplateFile' )
-	let	templatedir		= eval('s:C_'.a:type.'TemplateDir')
+	let	templatedir		= eval( 's:C_'.a:type.'TemplateDir' )
 	if isdirectory( templatedir )
 		if has("browse") && s:C_GuiTemplateBrowser == 'gui'
 			let	l:templatefile	= browse(0,"edit a template file", templatedir, "" )
@@ -2914,6 +3011,7 @@ function! C_InsertTemplate ( key, ... )
 
 	if s:C_TemplatesLoaded == 'no'
 		call C_RereadTemplates('no')        
+		let s:C_TemplatesLoaded	= 'yes'
 	endif
 
 	if !has_key( s:C_Template[s:C_ActualStyle], a:key ) &&
@@ -3317,9 +3415,9 @@ function! C_InsertMacroValue ( key )
 		return
 	endif
 	if col(".") > 1
-		exe 'normal a'.s:C_Macro['|'.a:key.'|']
+		exe 'normal! a'.s:C_Macro['|'.a:key.'|']
 	else
-		exe 'normal i'.s:C_Macro['|'.a:key.'|']
+		exe 'normal! i'.s:C_Macro['|'.a:key.'|']
 	endif
 endfunction    " ----------  end of function C_InsertMacroValue  ----------
 
@@ -3583,15 +3681,15 @@ endfunction    " ----------  end of function C_CppCLibraryIncludesList  --------
 "  define key mappings (gVim only)
 "------------------------------------------------------------------------------
 "
-	call C_ToolMenu()
-	"
-	if s:C_LoadMenus == 'yes'
-		call C_CreateGuiMenus()
-	endif
-	"
-	nmap  <unique>  <silent>  <Leader>lcs   :call C_CreateGuiMenus()<CR>
-	nmap  <unique>  <silent>  <Leader>ucs   :call C_RemoveGuiMenus()<CR>
-	"
+call C_ToolMenu()
+"
+if s:C_LoadMenus == 'yes' && s:C_CreateMenusDelayed == 'no'
+	call C_CreateGuiMenus()
+endif
+"
+nmap  <unique>  <silent>  <Leader>lcs   :call C_CreateGuiMenus()<CR>
+nmap  <unique>  <silent>  <Leader>ucs   :call C_RemoveGuiMenus()<CR>
+"
 "------------------------------------------------------------------------------
 "  Automated header insertion
 "  Local settings for the quickfix window
@@ -3614,13 +3712,12 @@ if has("autocmd")
 	autocmd BufNewFile,BufRead  *.i  :set filetype=c
 	autocmd BufNewFile,BufRead  *.ii :set filetype=cpp
 	"
+	"
 	" DELAYED LOADING OF THE TEMPLATE DEFINITIONS
 	"
 	autocmd BufNewFile,BufRead  *                   
 				\	if (&filetype=='cpp' || &filetype=='c') |
-				\	  if s:C_TemplatesLoaded == 'no'        |
-				\	  	call C_RereadTemplates('no')        |
-				\	  endif |
+				\	  call C_CreateMenusDelayed()           |
 				\ endif
 	"
 	"  Automated header insertion (suffixes from the gcc manual)
@@ -3629,7 +3726,7 @@ if has("autocmd")
 		"-------------------------------------------------------------------------------
 		" template styles are the default settings
 		"-------------------------------------------------------------------------------
-		autocmd BufNewFile  * if &filetype =~ '\(c\|cpp\)' && expand("%:e") !~ 'ii\?' |
+		autocmd BufNewFile  * if &filetype =~ '^\(c\|cpp\)$' && expand("%:e") !~ 'ii\?' |
 					\     call C_InsertTemplateWrapper() | endif
 		"
 	else

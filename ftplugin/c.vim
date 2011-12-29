@@ -5,7 +5,7 @@
 "   Language :  C / C++
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.69 2011/08/28 15:46:38 mehner Exp $
+"   Revision :  $Id: c.vim,v 1.71 2011/12/27 21:04:33 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
@@ -209,16 +209,19 @@ inoremap    <buffer>  <silent>  <LocalLeader>p"   <Esc>:call C_InsertTemplate("p
 inoremap    <buffer>  <silent>  <LocalLeader>pd   <Esc>:call C_InsertTemplate("preprocessor.define")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>pu   <Esc>:call C_InsertTemplate("preprocessor.undefine")<CR>
 
+ noremap    <buffer>  <silent>  <LocalLeader>pif       :call C_InsertTemplate("preprocessor.if-endif")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>pie       :call C_InsertTemplate("preprocessor.if-else-endif")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>pid       :call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>pin       :call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>pind      :call C_InsertTemplate("preprocessor.ifndef-def-endif")<CR>
 
+vnoremap    <buffer>  <silent>  <LocalLeader>pif  <Esc>:call C_InsertTemplate("preprocessor.if-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>pie  <Esc>:call C_InsertTemplate("preprocessor.if-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>pid  <Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>pin  <Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif", "v")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>pind <Esc>:call C_InsertTemplate("preprocessor.ifndef-def-endif", "v")<CR>
                                      
+inoremap    <buffer>  <silent>  <LocalLeader>pif  <Esc>:call C_InsertTemplate("preprocessor.if-endif")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>pie  <Esc>:call C_InsertTemplate("preprocessor.if-else-endif")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>pid  <Esc>:call C_InsertTemplate("preprocessor.ifdef-else-endif")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>pin  <Esc>:call C_InsertTemplate("preprocessor.ifndef-else-endif")<CR>
@@ -277,6 +280,8 @@ inoremap    <buffer>  <silent>  <LocalLeader>isc   <Esc>:call C_InsertTemplate("
 inoremap    <buffer>  <silent>  <LocalLeader>ica   <Esc>:call C_InsertTemplate("idioms.calloc")<CR>
  noremap    <buffer>  <silent>  <LocalLeader>ima        :call C_InsertTemplate("idioms.malloc")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>ima   <Esc>:call C_InsertTemplate("idioms.malloc")<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>ire        :call C_InsertTemplate("idioms.realloc")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>ire   <Esc>:call C_InsertTemplate("idioms.realloc")<CR>
 "
  noremap    <buffer>  <silent>  <LocalLeader>isi        :call C_InsertTemplate("idioms.sizeof")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>isi   <Esc>:call C_InsertTemplate("idioms.sizeof")<CR>
@@ -292,6 +297,11 @@ vnoremap    <buffer>  <silent>  <LocalLeader>ii    <Esc>:call C_InsertTemplate("
  noremap    <buffer>  <silent>  <LocalLeader>io         :call C_InsertTemplate("idioms.open-output-file")<CR>
 inoremap    <buffer>  <silent>  <LocalLeader>io    <Esc>:call C_InsertTemplate("idioms.open-output-file")<CR>
 vnoremap    <buffer>  <silent>  <LocalLeader>io    <Esc>:call C_InsertTemplate("idioms.open-output-file", "v")<CR>
+"
+ noremap    <buffer>  <silent>  <LocalLeader>ifs        :call C_InsertTemplate("idioms.fscanf")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>ifs   <Esc>:call C_InsertTemplate("idioms.fscanf")<CR>
+ noremap    <buffer>  <silent>  <LocalLeader>ifp        :call C_InsertTemplate("idioms.fprintf")<CR>
+inoremap    <buffer>  <silent>  <LocalLeader>ifp   <Esc>:call C_InsertTemplate("idioms.fprintf")<CR>
 "
 " ---------- snippet menu : snippets -----------------------------------------
 "
@@ -402,6 +412,7 @@ inoremap    <buffer>  <silent>  <LocalLeader>+c.   <Esc>:call C_InsertTemplate("
  map    <buffer>  <silent>  <LocalLeader>rr         :call C_Run()<CR>
  map    <buffer>  <silent>  <LocalLeader>ra         :call C_Arguments()<CR>
  map    <buffer>  <silent>  <LocalLeader>rm         :call C_Make()<CR>
+ map    <buffer>  <silent>  <LocalLeader>rcm        :call C_ChooseMakefile()<CR>
  map    <buffer>  <silent>  <LocalLeader>rmc        :call C_MakeClean()<CR>
  map    <buffer>  <silent>  <LocalLeader>rme        :call C_MakeExeToRun()<CR>
  map    <buffer>  <silent>  <LocalLeader>rma        :call C_MakeArguments()<CR>

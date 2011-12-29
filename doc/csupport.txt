@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                November 05 2011
+*csupport.txt*                  C/C++ Support                December 28 2011
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.16
+                             Plugin version 5.17
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -49,16 +49,17 @@ keystroke.
  1.7.1   Minimal make functionality             |csupport-run-buffer|
  1.7.2   Command line arguments                 |csupport-run-cmdline-args|
  1.7.3   Run make                               |csupport-run-make|
+ 1.7.4   Choose Makefile                        |csupport-choose-makefile|
  1.7.4   Executable to run                      |csupport-run-make-run|
- 1.7.5   Run make clean                         |csupport-run-make-clean|
- 1.7.6   Command line arguments for make        |csupport-run-make-args|
- 1.7.7   Splint                                 |csupport-run-splint|
- 1.7.8   CodeCheck                              |csupport-run-codecheck|
- 1.7.9   Indent                                 |csupport-run-indent|
- 1.7.10  Hardcopy                               |csupport-run-hardcopy|
- 1.7.11  Rebuild templates                      |csupport-run-templates|
- 1.7.12  Xterm size                             |csupport-run-xterm|
- 1.7.13  Output redirection                     |csupport-run-output|
+ 1.7.6   Run make clean                         |csupport-run-make-clean|
+ 1.7.7   Command line arguments for make        |csupport-run-make-args|
+ 1.7.8   Splint                                 |csupport-run-splint|
+ 1.7.9   CodeCheck                              |csupport-run-codecheck|
+ 1.7.10  Indent                                 |csupport-run-indent|
+ 1.7.11  Hardcopy                               |csupport-run-hardcopy|
+ 1.7.12  Rebuild templates                      |csupport-run-templates|
+ 1.7.13  Xterm size                             |csupport-run-xterm|
+ 1.7.14  Output redirection                     |csupport-run-output|
  1.8    Help                                    |csupport-help|
  
  2.    Usage without GUI                        |csupport-usage-vim|
@@ -892,13 +893,24 @@ Vim function CR will keep the arguments, Esc will discard them.
 The item 'make' runs the external make program.  An error window will be
 opened if the compiler or linker reports errors or warnings during the make
 process.  Quickfix commands can now be used to jump to an error location.
+Make looks for a makefile in the current directory (but see below).
 
-When inside a makefile the hotkeys \rm, \rmc , and \rma are working (see
+When inside a makefile the hotkeys \rm, \rmc, \rcm,  and \rma are working (see
 |csupport-usage-vim|).
 The snippets collection contains a sample makefile which can easily adepted
 for small projcts.
 
-1.7.4  EXECUTABLE TO RUN                               *csupport-run-make-run*
+
+1.7.4  Choose Makefile                              *csupport-choose-makefile*
+
+The menu item 'choose makefile' let you specify a makefile in another
+directory than the current one. Now this makefile will be used instead of the
+one in the current directory (if any). Make is started from the directory in
+which the makefile is contained. The working directory for the current buffer
+will not be changed.
+
+
+1.7.5  EXECUTABLE TO RUN                               *csupport-run-make-run*
 
 The item 'executable to run' asks for the name of the executable built by
 make.  If the name given is nonempty this executable will be run by the menu
@@ -906,12 +918,16 @@ item 'run' (\rr, C-F9).
 To return to the default behavior (see |csupport-run-buffer|) remove the name
 with the another 'executable to run'.
 
-1.7.5  RUN make clean                                *csupport-run-make-clean*
 
-The item 'make' runs the external make program with the standard target 'clean'.
+1.7.6  RUN make clean                                *csupport-run-make-clean*
+
+The item 'make' runs the external make program with the standard target
+'clean'.  If an alternate makefile has been chosen
+(see|csupport-choose-makefile|), this one will be run from the directory in
+which the makefile is contained.
 
 
-1.7.6  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
+1.7.7  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
 
 The item 'command line arguments for make' calls an input dialog which asks
 for command line arguments for make. These arguments are forwarded to make
@@ -920,7 +936,7 @@ For the first and only the first argument the file name expansion will work
 (use the Tab-key).
 
 
-1.7.7  SPLINT                                            *csupport-run-splint*
+1.7.8  SPLINT                                            *csupport-run-splint*
 
 Splint is a tool for statically checking C programs (see http://www.splint.org).
 Of course it has to be installed in order to be used within Vim.  The menu
@@ -938,7 +954,7 @@ When vim is started this plugin will check whether splint is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.8  CODECHECK                                      *csupport-run-codecheck*
+1.7.9  CODECHECK                                      *csupport-run-codecheck*
 
 CodeCheck (TM) is a commercial code analyzing tool produced by Abraxas
 Software, Inc.  (www.abraxas-software.com).
@@ -968,7 +984,7 @@ When vim is started this plugin will check whether CodeCheck is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.9  INDENT                                            *csupport-run-indent*
+1.7.10  INDENT                                           *csupport-run-indent*
 
 The formatter 'indent' can be run over the whole buffer.  Before formatting a
 buffer this buffer will be saved to disk and you will be asked for a
@@ -978,7 +994,7 @@ Indent has many options. These are kept in the file '.indent.pro' in your home
 directory. See the indent manual for more information.
 
 
-1.7.10  HARDCOPY                                       *csupport-run-hardcopy*
+1.7.11  HARDCOPY                                       *csupport-run-hardcopy*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
@@ -1002,20 +1018,20 @@ or by setting a global variable in the file ~/.vimrc , e.g. :
 See :h printheader and :h strftime()  for more details.
 
 
-1.7.11  REBUILD TEMPLATES                             *csupport-run-templates*
+1.7.12  REBUILD TEMPLATES                             *csupport-run-templates*
 
 After editing one or more template files  a click on this item rereads the
 template files and rebuilds all templates.
 
 
-1.7.12  XTERM SIZE                                        *csupport-run-xterm*
+1.7.13  XTERM SIZE                                        *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu item. The default is 80 columns with 24 lines.
 This feature is not available under Windows.
 
 
-1.7.13  OUTPUT REDIRECTION                               *csupport-run-output*
+1.7.14  OUTPUT REDIRECTION                               *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -1134,6 +1150,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      \p"       #include ""                         (n,i)
      \pd       #define                             (n,i)
      \pu       #undef                              (n,i)
+     \pif      #if  #endif                         (n,v,i)
      \pie      #if  #else #endif                   (n,v,i)
      \pid      #ifdef #else #endif                 (n,v,i)
      \pin      #ifndef #else #endif                (n,v,i)
@@ -1158,10 +1175,13 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
      \isc      scanf()                             (n,i)
      \ica      p=calloc()                          (n,i)
      \ima      p=malloc()                          (n,i)
+     \ire      p=realloc()                         (n,i)
      \isi      sizeof()                            (n,v,i)
      \ias      assert()                            (n,v)
      \ii       open input file                     (n,i)
      \io       open output file                    (n,i)
+     \ifs      fscanf                              (n,i)
+     \ifp      fprintf                             (n,i)
 
   -- Snippets -----------------------------------------------------------
 
@@ -1212,6 +1232,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
     \ra       set comand line arguments           (n,i)
     \rm       run make                            (n,i)
     \rmc      run 'make clean'                    (n,i)
+    \rcm      choose makefile                     (n,i)
     \rme      executable to run                   (n,i)
     \rma      cmd. line arg. for make             (n,i)
     \rp       run splint                          (n,i)

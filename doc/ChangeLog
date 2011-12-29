@@ -1,4 +1,9 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.16.1
+================================================================================
+- Bugfix: problem with a system-wide installation under Windows (thanks to Ricardo Vrech).
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.16
 ================================================================================
 - Plugin loads faster: loading the templates is delayed until the first use.

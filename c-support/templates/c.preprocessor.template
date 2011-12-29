@@ -1,15 +1,20 @@
 $-------------------------------------------------------------------------
-== preprocessor.include-global ==
+== preprocessor.include-global == insert ==
 #include <<CURSOR>>
 $-------------------------------------------------------------------------
-== preprocessor.include-local ==
+== preprocessor.include-local == insert ==
 #include "<CURSOR>"
 $-------------------------------------------------------------------------
-== preprocessor.define ==
+== preprocessor.define == insert ==
 #define	<CURSOR>			/*  */
 $-------------------------------------------------------------------------
-== preprocessor.undefine ==
+== preprocessor.undefine == insert ==
 #undef	<CURSOR>			/*  */
+$-------------------------------------------------------------------------
+== preprocessor.if-endif ==
+#if  |?CONDITION:u|
+<CURSOR><SPLIT>
+#endif     /* -----  |CONDITION|  ----- */
 $-------------------------------------------------------------------------
 == preprocessor.if-else-endif ==
 #if  |?CONDITION:u|
