@@ -1,4 +1,20 @@
 ================================================================================
+  RELEASE NOTES FOR VERSION 5.18
+================================================================================
+
+
+================================================================================
+  RELEASE NOTES FOR VERSION 5.17
+================================================================================
+- Two new plugin tags: LICENSE,ORGANIZATION
+- System-wide installation: minimal Template file for a user will automatically
+  be added.
+- New menu item and hotkey: choose a makefile.
+- New idiom: realloc.
+- New preprocessor item: #if #endif.
+- New hotkeys: \ire, \ifs, \ifp, \pif.
+
+================================================================================
   RELEASE NOTES FOR VERSION 5.16.1
 ================================================================================
 - Bugfix: problem with a system-wide installation under Windows (thanks to Ricardo Vrech).

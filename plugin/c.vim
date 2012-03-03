@@ -27,7 +27,7 @@
 "                  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 "                  PURPOSE.
 "                  See the GNU General Public License version 2 for more details.
-"       Revision:  $Id: c.vim,v 1.156 2011/12/27 21:05:07 mehner Exp $
+"       Revision:  $Id: c.vim,v 1.162 2012/02/25 15:15:30 mehner Exp $
 "
 "------------------------------------------------------------------------------
 "
@@ -55,6 +55,8 @@ let s:MSWIN = has("win16") || has("win32")   || has("win64")    || has("win95")
 let s:UNIX	= has("unix")  || has("macunix") || has("win32unix")
 "
 let s:installation					= '*undefined*'
+let s:plugin_dir						= ''
+"
 let s:C_GlobalTemplateFile	= ''
 let s:C_GlobalTemplateDir		= ''
 let s:C_LocalTemplateFile		= ''
@@ -85,20 +87,17 @@ if	s:MSWIN
 	endif
 	"
   let s:C_FilenameEscChar 			= ''
-	let s:C_Display    						= ''
 	"
 else
   " ==========  Linux/Unix  ======================================================
 	"
 	if match( expand("<sfile>"), expand("$HOME") ) == 0
-		"
 		" USER INSTALLATION ASSUMED
 		let s:installation					= 'local'
 		let s:plugin_dir 						= expand('<sfile>:p:h:h')
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 	else
-		"
 		" SYSTEM WIDE INSTALLATION
 		let s:installation					= 'system'
 		let s:plugin_dir						= $VIM.'/vimfiles'
@@ -109,7 +108,6 @@ else
 	endif
 	"
   let s:C_FilenameEscChar 			= ' \%#[]'
-	let s:C_Display								= $DISPLAY
 	"
 endif
 "
@@ -187,6 +185,7 @@ call C_CheckGlobal('C_CodeCheckExeName     ')
 call C_CheckGlobal('C_CodeCheckOptions     ')
 call C_CheckGlobal('C_CodeSnippets         ')
 call C_CheckGlobal('C_CplusCompiler        ')
+call C_CheckGlobal('C_CreateMenusDelayed   ')
 call C_CheckGlobal('C_Ctrl_j               ')
 call C_CheckGlobal('C_ExeExtension         ')
 call C_CheckGlobal('C_FormatDate           ')
@@ -200,7 +199,6 @@ call C_CheckGlobal('C_LFlags               ')
 call C_CheckGlobal('C_Libs                 ')
 call C_CheckGlobal('C_LineEndCommColDefault')
 call C_CheckGlobal('C_LoadMenus            ')
-call C_CheckGlobal('C_CreateMenusDelayed   ')
 call C_CheckGlobal('C_LocalTemplateFile    ')
 call C_CheckGlobal('C_Man                  ')
 call C_CheckGlobal('C_MenuHeader           ')
@@ -1739,14 +1737,14 @@ function! C_ProtoPick( type ) range
 		"
 		let prototyp  = substitute( prototyp, '^template\s*<\s*class \w\+\s*>\s*', "", "" )
 		"
-		let idx 		= stridx( prototyp, '(' )								    		" start of the parameter list
-		let head   	= strpart( prototyp, 0, idx )
+		let idx     = stridx( prototyp, '(' )								    		" start of the parameter list
+		let head    = strpart( prototyp, 0, idx )
 		let parlist = strpart( prototyp, idx )
 		"
 		" remove the scope resolution operator
 		"
-		let	template_id	= '\h\w*\s*<[^>]\+>'
-		let	rgx2				= '\('.template_id.'\s*::\s*\)*\([~A-Za-z]\w*\|operator.\+\)\s*$'
+		let	template_id	= '\h\w*\s*\(<[^>]\+>\)\?'
+		let	rgx2				= '\('.template_id.'\s*::\s*\)*\([~]\?\h\w*\|operator.\+\)\s*$'
 		let idx 				= match( head, rgx2 )								    		" start of the function name
 		let returntype	= strpart( head, 0, idx )
 		let fctname	  	= strpart( head, idx )
@@ -2193,7 +2191,7 @@ function! C_Toggle_Gvim_Xterm ()
 					exe "amenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro            :call C_Toggle_Gvim_Xterm()<CR><CR>'
 					exe "imenu    <silent>  ".s:MenuRun.'.&output:\ VIM->buffer->xterm<Tab>\\ro       <C-C>:call C_Toggle_Gvim_Xterm()<CR><CR>'
 				endif
-			if (!s:MSWIN) && (!empty(s:C_Display))
+			if (!s:MSWIN) && (!empty($Display))
 				let	s:C_OutputGvim	= "xterm"
 			else
 				let	s:C_OutputGvim	= "vim"
@@ -2851,6 +2849,14 @@ endfunction    " ----------  end of function C_BrowseTemplateFiles  ----------
 "
 "------------------------------------------------------------------------------
 let	s:style			= 'default'
+
+function! C_CheckAndRereadTemplates ()
+	if s:C_TemplatesLoaded == 'no'
+		call C_RereadTemplates('no')        
+		let s:C_TemplatesLoaded	= 'yes'
+	endif
+endfunction    " ----------  end of function C_CheckAndRereadTemplates  ----------
+
 function! C_ReadTemplates ( templatefile )
 
   if !filereadable( a:templatefile )
@@ -2956,6 +2962,7 @@ endfunction    " ----------  end of function C_ReadTemplates  ----------
 " ex-command CStyle : callback function
 "------------------------------------------------------------------------------
 function! C_Style ( style )
+	call C_CheckAndRereadTemplates()
 	let lstyle  = substitute( a:style, '^\s\+', "", "" )	" remove leading whitespaces
 	let lstyle  = substitute( lstyle, '\s\+$', "", "" )		" remove trailing whitespaces
 	if has_key( s:C_Template, lstyle )
@@ -3139,7 +3146,9 @@ function! C_InsertTemplate ( key, ... )
 			if mode == 'insert'
 				let pos1  = line(".")
 				let pos2  = pos1
-				let	string= @*
+			" windows: recover area of the visual mode and yank, puts the selected area in the buffer
+    		normal gvy
+				let string	= eval('@"')
 				let replacement	= part[0].string.part[1]
 				" remove trailing '\n'
 				let replacement   = substitute( replacement, '\n$', '', '' )
@@ -3184,11 +3193,7 @@ function! C_InsertTemplate ( key, ... )
 			if  a:0 != 0 && a:1 == 'v' && getline(".") =~ '^\s*$'
 				normal J
 			else
-				if getpos(".")[2] < len(getline(".")) || mode == 'insert'
-					:startinsert
-				else
-					:startinsert!
-				endif
+				:startinsert!
 			endif
 		else
 			call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
@@ -3456,6 +3461,8 @@ endfunction    " ----------  end of function C_DateAndTime  ----------
 "------------------------------------------------------------------------------
 function! C_InsertTemplateWrapper ()
 	" prevent insertion for a file generated from a link error:
+	"
+	call C_CheckAndRereadTemplates()
 	if isdirectory(expand('%:p:h'))
 		if index( s:C_SourceCodeExtensionsList, expand('%:e') ) >= 0 
 			call C_InsertTemplate("comment.file-description")
@@ -3687,9 +3694,6 @@ if s:C_LoadMenus == 'yes' && s:C_CreateMenusDelayed == 'no'
 	call C_CreateGuiMenus()
 endif
 "
-nmap  <unique>  <silent>  <Leader>lcs   :call C_CreateGuiMenus()<CR>
-nmap  <unique>  <silent>  <Leader>ucs   :call C_RemoveGuiMenus()<CR>
-"
 "------------------------------------------------------------------------------
 "  Automated header insertion
 "  Local settings for the quickfix window
@@ -3719,26 +3723,27 @@ if has("autocmd")
 				\	if (&filetype=='cpp' || &filetype=='c') |
 				\	  call C_CreateMenusDelayed()           |
 				\ endif
-	"
-	"  Automated header insertion (suffixes from the gcc manual)
-	"
-	if !exists( 'g:C_Styles' )
+
 		"-------------------------------------------------------------------------------
-		" template styles are the default settings
+		" style switching :Automated header insertion (suffixes from the gcc manual)
 		"-------------------------------------------------------------------------------
-		autocmd BufNewFile  * if &filetype =~ '^\(c\|cpp\)$' && expand("%:e") !~ 'ii\?' |
-					\     call C_InsertTemplateWrapper() | endif
-		"
-	else
-		"-------------------------------------------------------------------------------
-		" template styles are related to file extensions 
-		"-------------------------------------------------------------------------------
-		for [ pattern, stl ] in items( g:C_Styles )
-			exe "autocmd BufNewFile,BufRead,BufEnter ".pattern." call C_Style( '".stl."' )"
-			exe "autocmd BufNewFile                  ".pattern." call C_InsertTemplateWrapper()"
-		endfor
-		"
-	endif
+			if !exists( 'g:C_Styles' )
+				"-------------------------------------------------------------------------------
+				" template styles are the default settings
+				"-------------------------------------------------------------------------------
+				autocmd BufNewFile  * if &filetype =~ '^\(c\|cpp\)$' && expand("%:e") !~ 'ii\?' |
+							\     call C_InsertTemplateWrapper() | endif
+				"
+			else
+				"-------------------------------------------------------------------------------
+				" template styles are related to file extensions 
+				"-------------------------------------------------------------------------------
+				for [ pattern, stl ] in items( g:C_Styles )
+					exe "autocmd BufNewFile,BufRead,BufEnter ".pattern." call C_Style( '".stl."' )"
+					exe "autocmd BufNewFile                  ".pattern." call C_InsertTemplateWrapper()"
+				endfor
+				"
+			endif
 	"
 	" Wrap error descriptions in the quickfix window.
 	"

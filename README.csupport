@@ -1,4 +1,4 @@
-README for c.vim (Version 5.17) / December 27 2011
+README for c.vim (Version 5.18) / March 03 2012
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -147,17 +147,13 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 'doc/csupport.txt'.
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 5.17
+  RELEASE NOTES
 ================================================================================
-- Two new plugin tags: LICENSE,ORGANIZATION
-- System-wide installation: minimal Template file for a user will automatically
-  be added.
-- New menu item and hotkey: choose a makefile.
-- New idiom: realloc.
-- New preprocessor item: #if #endif.
-- New hotkeys: \ire, \ifs, \ifp, \pif.
+- Hotkeys \lcs, \ucs removed.
+- Bugfix: delayed template initialization missing correct style.
+- Wrong cursor position when inserting some templates at the end of a line.
 
-  OLDER RELEASE NOTES : see file 'ChangeLog'
+  Please see file ./c-support/doc/ChangeLog .
 
 ================================================================================
   FILES
@@ -218,7 +214,7 @@ rc/customization.vimrc       Additional settings I use in .vimrc :  incremental
 
   Some ideas are taken from the following documents:
   1. Recommended C Style and Coding Standards (Indian Hill Style Guide)
-      www.doc.ic.ac.uk/lab/secondyear/cstyle/cstyle.html
+      http://ieng9.ucsd.edu/~cs30x/indhill-cstyle.html
   2. Programming in C++, Ellemtel Telecommunication Systems Laboratories
       www.it.bton.ac.uk/burks/burks/language/cpp/cppstyle/ellhome.htm
   3. C++ Coding Standard, Todd Hoff
