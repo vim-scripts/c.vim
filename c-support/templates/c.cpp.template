@@ -1,15 +1,4 @@
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-$
-== cpp.cin ==
-cin	>> <CURSOR>;
-$
-== cpp.cout == insert ==
-cout	<< <CURSOR> << endl;
-$
-== cpp.cout-operator == insert ==
-<< "<CURSOR>" 
-$
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.output-manipulator-boolalpha       == insert ==
 << boolalpha <CURSOR>
 == cpp.output-manipulator-dec             == insert ==
@@ -106,9 +95,13 @@ class |CLASSNAME|
 		/* ====================  OPERATORS     ======================================= */
 
 	protected:
+		/* ====================  METHODS       ======================================= */
+
 		/* ====================  DATA MEMBERS  ======================================= */
 
 	private:
+		/* ====================  METHODS       ======================================= */
+
 		/* ====================  DATA MEMBERS  ======================================= */
 
 }; /* -----  end of class |CLASSNAME|  ----- */
@@ -151,9 +144,13 @@ class |CLASSNAME|
     |CLASSNAME|& operator = ( const |CLASSNAME| &other ); /* assignment operator */
 
   protected:
+		/* ====================  METHODS       ======================================= */
+
 		/* ====================  DATA MEMBERS  ======================================= */
 
   private:
+		/* ====================  METHODS       ======================================= */
+
 		/* ====================  DATA MEMBERS  ======================================= */
 
 }; /* -----  end of class |CLASSNAME|  ----- */
@@ -281,9 +278,13 @@ class |CLASSNAME|
 		/* ====================  OPERATORS     ======================================= */
 
   protected:
+		/* ====================  METHODS       ======================================= */
+
     /* ====================  DATA MEMBERS  ======================================= */
 
   private:
+		/* ====================  METHODS       ======================================= */
+
     /* ====================  DATA MEMBERS  ======================================= */
 
 }; /* ----------  end of template class |CLASSNAME|  ---------- */
@@ -330,9 +331,13 @@ class |CLASSNAME|
     |CLASSNAME|& operator = ( const |CLASSNAME| &other ); // assignment operator
 
   protected:
+		/* ====================  METHODS       ======================================= */
+
     /* ====================  DATA MEMBERS  ======================================= */
 
   private:
+		/* ====================  METHODS       ======================================= */
+
     /* ====================  DATA MEMBERS  ======================================= */
 
 }; /* -----  end of template class |CLASSNAME|  ----- */
@@ -398,7 +403,7 @@ void<CURSOR> |?TEMPALTE_FUNCTION_NAME| ( <+argument list+> )
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.operator-in ==
 ostream &
-operator << ( ostream & os, const |?CLASSNAME| & obj )
+operator << ( ostream &os, const |?CLASSNAME| &obj )
 {
 	os << obj.<CURSOR> ;
 	return os;
@@ -406,7 +411,7 @@ operator << ( ostream & os, const |?CLASSNAME| & obj )
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.operator-out ==
 istream &
-operator >> ( istream & is, |?CLASSNAME| & obj )
+operator >> ( istream &is, |?CLASSNAME| &obj )
 {
 	is >> obj.<CURSOR> ;
 	return is;
@@ -446,7 +451,7 @@ if (!ifs) {
 ifs.close ();                                 /* close ifstream */
 $%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 == cpp.open-output-file ==
-string    ofs_file_name = "<CURSOR>";                 /* input  file name */
+string    ofs_file_name = "<CURSOR>";                 /* output file name */
 ofstream  ofs;                                /* create ofstream object */
 
 ofs.open ( ofs_file_name.c_str() );           /* open ofstream */

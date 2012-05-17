@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                January 06 2012
+*csupport.txt*                  C/C++ Support                     May 05 2012
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 5.18
+                             Plugin version 5.19
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -2165,6 +2165,16 @@ Open a block (modes: i,v):
                 |
               }
 In visual mode the content of the new block will be indented.
+
+The file customization.cpp.vim provides additional insert mode mappings to
+facilitate writting cin and cout statements, e.g.
+>
+	'<<' 		-> ' << |'
+	'<<"' 	-> ' << "|" '
+	'<<;' 	-> ' << "|\n";'
+  '>>' 		-> ' >> |'
+<
+Copy this file to ~/.vim/ftplugin and rename it to 'cpp.vim'.
 
 ==============================================================================
 10.  WINDOWS PARTICULARITIES                                *csupport-windows*

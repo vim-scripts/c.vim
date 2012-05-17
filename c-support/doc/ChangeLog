@@ -1,6 +1,9 @@
 ================================================================================
   RELEASE NOTES FOR VERSION 5.18
 ================================================================================
+- Hotkeys \lcs, \ucs removed.
+- Bugfix: delayed template initialization missing correct style.
+- Wrong cursor position when inserting some templates at the end of a line.
 
 
 ================================================================================

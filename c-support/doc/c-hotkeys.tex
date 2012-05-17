@@ -10,7 +10,7 @@
 %%    Copyright:  Copyright (C)  2006-2010  Dr.-Ing. Fritz Mehner  (mehner@fh-swf.de)
 %%      Version:  1.0
 %%      Created:  10.11.2006
-%%     Revision:  $Id: c-hotkeys.tex,v 1.50 2012/03/03 19:17:56 mehner Exp $
+%%     Revision:  $Id: c-hotkeys.tex,v 1.51 2012/04/17 19:02:59 mehner Exp $
 %%                
 %%        Notes:  
 %%                
@@ -28,7 +28,7 @@
 
 \setlength\parindent{0pt}
 
-\newcommand{\Pluginversion}{5.18}
+\newcommand{\Pluginversion}{5.19}
 \newcommand{\ReleaseDate}{\today}
 \newcommand{\Rep}{{\tiny{[n]}}}
 
@@ -135,7 +135,7 @@ Plugin: http://vim.sourceforge.net\\
 \hline \verb'\swh' & \verb'while { }'           \hfill (n,v,i)\\
 \hline \verb'\ss'  & \verb'switch'              \hfill (n,v,i)\\
 \hline \verb'\sc'  & \verb'case'                \hfill (n,i)\\
-\hline \verb'\s{ \sb'  & \verb'{ }'             \hfill (n,v,i)\\
+\hline \verb'\sb'  & \verb'{ }'                 \hfill (n,v,i)\\
 \hline
 %%----------------------------------------------------------------------
 %%  preprocessor menu
@@ -234,24 +234,25 @@ $^1$ {system-wide installation only}\\
 %%----------------------------------------------------------------------
 \hline 
 \multicolumn{2}{|r|}{\textsl{C\textbf{++}}} \\
-\hline \verb'\+co'  & \verb'cout << << endl; '                \hfill (n,i)\\
-\hline \verb'\+"'   & \verb'<< ""'                \hfill (n,i)\\
-\hline \verb'\+c'   & class                                   \hfill (n,i)\\
 \hline \verb'\+ps'  & \verb$#include<...> STL$                \hfill (n,i)\\
 \hline \verb'\+pc'  & \verb$#include<c..> C$                  \hfill (n,i)\\
+\hline
+\hline \verb'\+c'   & class                                   \hfill (n,i)\\
 \hline \verb'\+cn'  & class (using \verb'new')                \hfill (n,i)\\
-\hline \verb'\+ci'  & class  implementation                   \hfill (n,i)\\
-\hline \verb'\+cni' & class (using \verb'new') implementation \hfill (n,i)\\
-\hline \verb'\+mi'  & method implementation                   \hfill (n,i)\\
-\hline \verb'\+ai'  & accessor implementation                 \hfill (n,i)\\
 \hline \verb'\+tc'  & template class                          \hfill (n,i)\\
 \hline \verb'\+tcn' & template class (using \verb'new')       \hfill (n,i)\\
-\hline \verb'\+tci' & template class  implementation          \hfill (n,i)\\
-\hline \verb'\+tcni'& template class (using \verb'new') impl. \hfill (n,i)\\
-\hline \verb'\+tmi' & template method implementation          \hfill (n,i)\\
-\hline \verb'\+tai' & template accessor implementation        \hfill (n,i)\\
 \hline \verb'\+tf'  & template function                       \hfill (n,i)\\
 \hline \verb'\+ec'  & error class                             \hfill (n,i)\\
+\hline
+\hline \verb'\+ci'  & class  implementation                   \hfill (n,i)\\
+\hline \verb'\+cni' & class (using \verb'new') implementation \hfill (n,i)\\
+\hline \verb'\+tci' & template class  implementation          \hfill (n,i)\\
+\hline \verb'\+tcni'& template class (using \verb'new') impl. \hfill (n,i)\\
+\hline \verb'\+mi'  & method implementation                   \hfill (n,i)\\
+\hline \verb'\+ai'  & accessor implementation                 \hfill (n,i)\\
+\hline \verb'\+tmi' & template method implementation          \hfill (n,i)\\
+\hline \verb'\+tai' & template accessor implementation        \hfill (n,i)\\
+\hline
 \hline \verb'\+tr'  & \verb'try' \dots \verb'catch'           \hfill (n,v,i)\\
 \hline \verb'\+ca'  & \verb'catch'                            \hfill (n,v,i)\\
 \hline \verb'\+c.'  & \verb'catch(...)'                       \hfill (n,v,i)\\
