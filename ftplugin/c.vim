@@ -5,7 +5,6 @@
 "   Language :  C / C++
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: c.vim,v 1.72 2012/04/17 18:43:34 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "
