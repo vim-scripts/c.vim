@@ -1,30 +1,43 @@
-$
-$ =============================================================
-$ ========== USER MACROS ======================================
-$ =============================================================
-$
-|AUTHOR|    = YOUR NAME 
-|AUTHORREF| = 
-|EMAIL|     = 
-|COMPANY|   = 
-|COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
-|STYLE|     = default
-$
-$ =============================================================
-$ ========== FILE INCLUDES ====================================
-$ =============================================================
-$
-|includefile| = c.comments.template
-|includefile| = c.cpp.template
-|includefile| = c.idioms.template
-|includefile| = c.preprocessor.template
-|includefile| = c.statements.template
-$
-== IF |STYLE| IS CPP ==
-|includefile| = cpp.comments.template
-|includefile| = cpp.cpp.template
-|includefile| = cpp.idioms.template
-|includefile| = cpp.preprocessor.template
-|includefile| = cpp.statements.template
-== ENDIF ==
-$
+§ ==========================================================
+§  User Macros
+§ ==========================================================
+
+SetMacro( 'AUTHOR',      'Tiger Lee' )
+SetMacro( 'AUTHORREF',   'tiger' )
+SetMacro( 'COMPANY',     '' )
+SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
+SetMacro( 'EMAIL',       'c.vim@tigerlee.me' )
+SetMacro( 'LICENSE',     'GNU General Public License' )
+SetMacro( 'ORGANIZATION','' )
+
+SetStyle( 'CPP' )
+
+§ ==========================================================
+§  File Includes and Shortcuts
+§ ==========================================================
+
+MenuShortcut( 'Comments',     'c' )
+MenuShortcut( 'Statements',   's' )
+MenuShortcut( 'Idioms',       'i' )
+MenuShortcut( 'Preprocessor', 'p' )
+MenuShortcut( 'Snippets',     'n' )
+MenuShortcut( 'C++',          'c' )
+§
+IncludeFile( 'snippets.template'     )
+§
+== USE STYLES : C ==
+IncludeFile( 'c.comments.template'     )
+IncludeFile( 'c.cpp.template'          )
+IncludeFile( 'c.idioms.template'       )
+IncludeFile( 'c.preprocessor.template' )
+IncludeFile( 'c.statements.template'   )
+== ENDSTYLES ==
+§
+== USE STYLES : CPP ==
+IncludeFile( 'cpp.comments.template'     )
+IncludeFile( 'cpp.cpp.template'          )
+IncludeFile( 'cpp.idioms.template'       )
+IncludeFile( 'cpp.preprocessor.template' )
+IncludeFile( 'cpp.statements.template'   )
+== ENDSTYLES ==
+

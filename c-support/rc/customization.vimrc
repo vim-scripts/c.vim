@@ -3,7 +3,6 @@
 "  DESCRIPTION:  suggestion for a personal configuration file ~/.vimrc
 "       AUTHOR:  Dr.-Ing. Fritz Mehner
 "      CREATED:  04.04.2009
-"     REVISION:  $Id: customization.vimrc,v 1.6 2009/10/03 12:24:30 mehner Exp $
 "===================================================================================
 "
 "===================================================================================
