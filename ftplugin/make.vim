@@ -5,7 +5,6 @@
 "   Language :  make 
 "     Plugin :  c.vim 
 " Maintainer :  Fritz Mehner <mehner@fh-swf.de>
-"   Revision :  $Id: make.vim,v 1.4 2011/12/27 21:04:33 mehner Exp $
 "
 " ------------------------------------------------------------------------------
 "

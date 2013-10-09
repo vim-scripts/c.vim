@@ -1,168 +1,119 @@
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.end-of-line-comment == append ==
+== Comments.end-of-line-comment == append, nomenu ==
 // <CURSOR>
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.frame ==
-//----------------------------------------------------------------------
+== Comments.frame == map:cfr, shortcut:f  ==
+//-----------------------------------------------------------------------------
 //  <CURSOR>
-//----------------------------------------------------------------------
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.function ==
+//-----------------------------------------------------------------------------
+== Comments.function == map:cfu, shortcut:f  ==
 // ===  FUNCTION  ======================================================================
 //         Name:  |?FUNCTION_NAME|
 //  Description:  <CURSOR>
 // =====================================================================================
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.method ==
+== Comments.method == map:cme, shortcut:m  ==
 //--------------------------------------------------------------------------------------
 //       Class:  |?CLASSNAME|
-//      Method:  |?METHODNAME|
+//      Method:  |?CLASSNAME| :: |?METHODNAME|
 // Description:  <CURSOR>
 //--------------------------------------------------------------------------------------
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.class ==
+== Comments.class == map:ccl, shortcut:c  ==
 // =====================================================================================
 //        Class:  |?CLASSNAME|
 //  Description:  <CURSOR>
 // =====================================================================================
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description == start ==
+== Comments.file description impl == map:cfdi, shortcut:c, start, noindent ==
 // =====================================================================================
-// 
+//
 //       Filename:  |FILENAME|
-// 
+//
 //    Description:  <CURSOR>
-// 
+//
 //        Version:  1.0
 //        Created:  |DATE| |TIME|
 //       Revision:  none
-//       Compiler:  g++
-// 
+//       Compiler:  gcc
+//
 //         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-//        Company:  |ORGANIZATION|
-// 
+//   Organization:  |ORGANIZATION|
+//
 // =====================================================================================
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-description-header == start ==
+== Comments.file description header == map:cfdh, shortcut:h, start, noindent ==
 // =====================================================================================
-// 
+//
 //       Filename:  |FILENAME|
-// 
+//
 //    Description:  <CURSOR>
-// 
+//
 //        Version:  1.0
 //        Created:  |DATE| |TIME|
 //       Revision:  none
-//       Compiler:  g++
-// 
+//       Compiler:  gcc
+//
 //         Author:  |AUTHOR| (|AUTHORREF|), |EMAIL|
-//        Company:  |ORGANIZATION|
-// 
+//   Organization:  |ORGANIZATION|
+//
 // =====================================================================================
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-header-includes  == 
-// #####   HEADER FILE INCLUDES   ###################################################
+== ENDTEMPLATE ==
 
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-macros  == 
-// #####   MACROS  -  LOCAL TO THIS SOURCE FILE   ###################################
+== LIST: comments_c_sections == hash ==
+  'HEADER FILE INCLUDES'        : 'HEADER FILE INCLUDES   ###############################', 
+  'LOCAL MACROS'                : 'MACROS  -  LOCAL TO THIS SOURCE FILE   ###############', 
+  'LOCAL TYPE DEFINITIONS'      : 'TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #####', 
+  'LOCAL DATA TYPES'            : 'DATA TYPES  -  LOCAL TO THIS SOURCE FILE   ###########', 
+  'LOCAL VARIABLES'             : 'VARIABLES  -  LOCAL TO THIS SOURCE FILE   ############', 
+  'LOCAL PROTOTYPES'            : 'PROTOTYPES  -  LOCAL TO THIS SOURCE FILE   ###########', 
+  'EXP.  FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS   ########', 
+  'LOCAL FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #', 
+  'LOCAL CLASS DEFINITIONS'     : 'CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ####', 
+  'EXP.  CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES   #########', 
+  'LOCAL CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  LOCAL CLASSES   ############', 
+== LIST: comments_h_sections == hash ==
+  'HEADER FILE INCLUDES'           : 'HEADER FILE INCLUDES   ###########', 
+  'EXPORTED MACROS'                : 'EXPORTED MACROS   ################', 
+  'EXPORTED TYPE DEFINITIONS'      : 'EXPORTED TYPE DEFINITIONS   ######', 
+  'EXPORTED DATA TYPES'            : 'EXPORTED DATA TYPES   ############', 
+  'EXPORTED CLASS DEFINITIONS'     : 'EXPORTED CLASS DEFINITIONS   #####', 
+  'EXPORTED VARIABLES'             : 'EXPORTED VARIABLES   #############', 
+  'EXPORTED FUNCTION DECLARATIONS' : 'EXPORTED FUNCTION DECLARATIONS   #', 
+== LIST: comments_keywords == hash ==
+  'BUG'         : ':BUG:|DATE| |TIME|:|AUTHORREF|:',
+  'COMPILER'    : ':COMPILER:|DATE| |TIME|:|AUTHORREF|:',
+  'REMARK'      : ':REMARK:|DATE| |TIME|:|AUTHORREF|:',
+  'TODO'        : ':TODO:|DATE| |TIME|:|AUTHORREF|:',
+  'WARNING'     : ':WARNING:|DATE| |TIME|:|AUTHORREF|:',
+  'WORKAROUND'  : ':WORKAROUND:|DATE| |TIME|:|AUTHORREF|:',
+  'new keyword' : ':<CURSOR>:|DATE| |TIME|:|AUTHORREF|: {+COMMENT+}',
+== LIST: comments_special == list ==
+  'EMPTY'                         , 
+  'FALL THROUGH'                  , 
+  'IMPLICIT TYPE CONVERSION'      , 
+  'NO RETURN'                     , 
+  'NOT REACHED'                   , 
+  'TO BE IMPLEMENTED'             , 
+  'constant type is long'         , 
+  'constant type is unsigned'     , 
+  'constant type is unsigned long', 
+== LIST: comments_macros == list ==
+  'AUTHOR'      , 
+  'AUTHORREF'   , 
+  'COMPANY'     , 
+  'COPYRIGHT'   , 
+  'EMAIL'       , 
+  'ORGANIZATION', 
+== ENDLIST ==
 
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-typedefs  == 
-// #####   TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #########################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-data-types  == 
-// #####   DATA TYPES  -  LOCAL TO THIS SOURCE FILE   ###############################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-class-defs  == 
-// #####   CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ########################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-local-variables  == 
-// #####   VARIABLES  -  LOCAL TO THIS SOURCE FILE   ################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-prototypes  == 
-// #####   PROTOTYPES  -  LOCAL TO THIS SOURCE FILE   ###############################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-function-defs-exported  == 
-// #####   FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS   ############################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-function-defs-local  == 
-// #####   FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #####################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-class-implementations-exported  == 
-// #####   CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES   #############################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-cpp-class-implementations-local  == 
-// #####   CLASS IMPLEMENTATIONS  -  LOCAL CLASSES   ################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-header-includes  == 
-// #####   HEADER FILE INCLUDES   ###################################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-macros  ==
-// #####   EXPORTED MACROS   ########################################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-exported-typedefs  ==
-// #####   EXPORTED TYPE DEFINITIONS   ##############################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-exported-data-types  ==
-// #####   EXPORTED DATA TYPES   ####################################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-exported-class-defs  ==
-// #####   EXPORTED CLASS DEFINITIONS   #############################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-exported-variables  ==
-// #####   EXPORTED VARIABLES   #####################################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.file-section-hpp-exported-function-declarations  ==
-// #####   EXPORTED FUNCTION DECLARATIONS   #########################################
-
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.keyword-bug == append ==
- // :BUG:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-compiler == append ==
- // :COMPILER:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-todo == append ==
- // :TODO:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-tricky == append ==
- // :TRICKY:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-warning == append ==
- // :WARNING:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-workaround == append ==
- // :WORKAROUND:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-== comment.keyword-keyword == append ==
- // :|?KEYWORD:u|:|DATE| |TIME|:|AUTHORREF|: <CURSOR>
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== comment.special-empty == append ==
- // EMPTY<CURSOR>
-== comment.special-fall-through == append ==
- // FALL THROUGH<CURSOR>
-== comment.special-implicit-type-conversion == append ==
- // IMPLICIT TYPE CONVERSION<CURSOR>
-== comment.special-no-return == append ==
- // NO RETURN<CURSOR>
-== comment.special-not-reached == append ==
- // NOT REACHED<CURSOR>
-== comment.special-remains-to-be-implemented == append ==
- // REMAINS TO BE IMPLEMENTED<CURSOR>
-== comment.special-constant-type-is-long == append ==
- // constant type is long<CURSOR>
-== comment.special-constant-type-is-unsigned == append ==
- // constant type is unsigned<CURSOR>
-== comment.special-constant-type-is-unsigned-long == append ==
- // constant type is unsigned long<CURSOR>
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+== Comments.C file sections  == expandmenu, append, map:ccs, shortcut:s ==
+|PickList( 'C file sections', 'comments_c_sections' )|
+// #####   |PICK|####################<CURSOR>
+== Comments.H file sections  == expandmenu, append, map:chs, shortcut:s ==
+|PickList( 'H file sections', 'comments_h_sections' )|
+// #####   |PICK|########################################<CURSOR>
+== Comments.keyword comments == expandmenu, append, map:ckc, shortcut:k ==
+|PickList( 'keyword comments', 'comments_keywords' )|
+ // |PICK| <CURSOR>
+== Comments.special comments == expandmenu, append, map:csc, shortcut:s ==
+|PickList( 'special comments', 'comments_special' )|
+ // |PICK|<CURSOR>
+== Comments.macros == expandmenu, insert, map:cma, shortcut:m ==
+|PickList( 'macro', 'comments_macros' )|
+||PICK||<CURSOR>
+== ENDTEMPLATE ==

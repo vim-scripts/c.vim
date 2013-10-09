@@ -23,7 +23,7 @@
 #               Prerequisites are generated automatically; makedepend is not
 #               needed (see documentation for GNU make Version 3.81, April 2006,
 #               section 4.13). The utility sed is used.
-#========================================== makefile template version 1.9 ======
+#========================================== makefile template version 1.10 =====
 
 # DEBUG can be set to YES to include debugging info, or NO otherwise
 DEBUG          := YES
@@ -48,22 +48,6 @@ RELEASE_CFLAGS  := -Wall -ansi -pedantic -O3
 # ------------  linker flags  --------------------------------------------------
 DEBUG_LDFLAGS    := -g
 RELEASE_LDFLAGS  :=
-
-ifeq (YES, ${DEBUG})
-  CFLAGS       := ${DEBUG_CFLAGS}
-  CXXFLAGS     := ${DEBUG_CXXFLAGS}
-  LDFLAGS      := ${DEBUG_LDFLAGS}
-else
-  CFLAGS       := ${RELEASE_CFLAGS}
-  CXXFLAGS     := ${RELEASE_CXXFLAGS}
-  LDFLAGS      := ${RELEASE_LDFLAGS}
-endif
-
-ifeq (YES, ${PROFILE})
-  CFLAGS       := ${CFLAGS}   -pg -O3
-  CXXFLAGS     := ${CXXFLAGS} -pg -O3
-  LDFLAGS      := ${LDFLAGS}  -pg
-endif
 
 # ------------  additional system include directories  -------------------------
 GLOBAL_INC_DIR  =
@@ -98,6 +82,22 @@ EXE_CMDLINE     =
 #===============================================================================
 # The following statements usually need not to be changed
 #===============================================================================
+
+ifeq (YES, ${DEBUG})
+  CFLAGS       := ${DEBUG_CFLAGS}
+  CXXFLAGS     := ${DEBUG_CXXFLAGS}
+  LDFLAGS      := ${DEBUG_LDFLAGS}
+else
+  CFLAGS       := ${RELEASE_CFLAGS}
+  CXXFLAGS     := ${RELEASE_CXXFLAGS}
+  LDFLAGS      := ${RELEASE_LDFLAGS}
+endif
+
+ifeq (YES, ${PROFILE})
+  CFLAGS       := ${CFLAGS}   -pg -O3
+  CXXFLAGS     := ${CXXFLAGS} -pg -O3
+  LDFLAGS      := ${LDFLAGS}  -pg
+endif
 
 C_SOURCES       = $(filter     %.c, $(SOURCES))
 CPP_SOURCES     = $(filter-out %.c, $(SOURCES))
@@ -188,6 +188,7 @@ tarball:
 					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
 					rm --force $$lokaldir.tar.gz;               \
 					tar --exclude=$(TARBALL_EXCLUDE)            \
+					    --exclude=$(EXECUTABLE)                 \
 					    --create                                \
 					    --gzip                                  \
 					    --verbose                               \
@@ -196,7 +197,7 @@ tarball:
 # ------------ zip -------------------------------------------------------------
 zip:
 					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
-					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE)
+					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE) -x ${EXECUTABLE}
 
 .PHONY: clean tarball zip
 
