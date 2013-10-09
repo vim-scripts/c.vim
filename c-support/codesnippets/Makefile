@@ -35,7 +35,7 @@ PROFILE        := NO
 EXECUTABLE      := main
 
 # ------------  list of all source files  --------------------------------------
-SOURCES         := main.c 
+SOURCES         := main.c
 
 # ------------  compiler  ------------------------------------------------------
 CC              := gcc

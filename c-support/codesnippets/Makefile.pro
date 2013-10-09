@@ -6,16 +6,16 @@
 #        Usage: qmake
 #
 #      Version: 1.0
-#      Created: 
+#      Created:
 #     Revision: ---
-#       Author: 
-#      Company: 
-#        Email: 
+#       Author:
+#      Company:
+#        Email:
 #=======================================================================================
 
 TEMPLATE   = app
 CONFIG     = debug warn_on
-SOURCES   +=  
-HEADERS   +=  
-TARGET     = 
+SOURCES   +=
+HEADERS   +=
+TARGET     =
 

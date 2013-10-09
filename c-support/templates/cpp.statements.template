@@ -1,65 +1,63 @@
 == Statements.do while == map:sd, shortcut:d  ==
 do {
-<SPLIT>} while ( <CURSOR> );				// -----  end do-while  ----- 
+
+} while (<CURSOR>);    // -----  end do-while  -----
 == Statements.for == map:sf, shortcut:o  ==
-for ( <CURSOR>; ; )
+for (<CURSOR>; ;)
 §
 § The names INIT, CONDITION, INCREMENT, and 'for block' are used by the main
 § plugin plugin/c.vim . Please do not change.
 §
 == Statements.for block == map:sfo, shortcut:r  ==
-|DefaultMacro( 'CONDITION', '{+CONDITION+}' )|
-|DefaultMacro( 'INCREMENT', '{+INCREMENT+}' )|
-for ( |INIT|<CURSOR>; |CONDITION|; |INCREMENT| ) {
-<SPLIT>}
+|DefaultMacro('CONDITION', '{+CONDITION+}')|
+|DefaultMacro('INCREMENT', '{+INCREMENT+}')|
+for (|INIT|<CURSOR>; |CONDITION|; |INCREMENT|) {
+}
 == Statements.range-based for == map:sfr, shortcut:a  ==
-for ( <CURSOR>: <-EXPRESSION-> ){
-<SPLIT>}
+for (<CURSOR>: <-EXPRESSION->){
+}
 == Statements.if == map:si, shortcut:i  ==
-if ( <CURSOR> )
+if (<CURSOR>)
 == Statements.if block == map:sif, shortcut:f  ==
-if ( <CURSOR> ) {
-<SPLIT><-IF_PART->
+if (<CURSOR>) {
+  <-IF_PART->
 }
 == Statements.if else == map:sie, shortcut:e  ==
-if ( <CURSOR> )
-<SPLIT>else
+if (<CURSOR>)
+else
 == Statements.if block else == map:sife, shortcut:l  ==
-if ( <CURSOR> ) {
-<SPLIT><-IF_PART->
+if (<CURSOR>) {
+  <-IF_PART->
 }
 else {
-<-ELSE_PART->
+  <-ELSE_PART->
 }
 == Statements.else block == map:se, shortcut:e  ==
 else {
-<CURSOR><SPLIT>
+<CURSOR>
 }
 == Statements.while == map:sw, shortcut:w  ==
-while ( <CURSOR> )
+while (<CURSOR>)
 == Statements.while block == map:swh, shortcut:h  ==
-while ( <CURSOR> ) {
-<SPLIT>}
+while (<CURSOR>) {
+}
 == Statements.switch == map:ss, shortcut:s  ==
-switch ( <CURSOR> ) {
-	case <-LABEL->:	
-		<SPLIT>break;
-
-	case <-LABEL->:	
-		break;
-
-	case <-LABEL->:	
-		break;
-
-	default:	
-		break;
-}				// -----  end switch  ----- 
+switch (<CURSOR>) {
+  case <-LABEL->:
+    break;
+  case <-LABEL->:
+    break;
+  case <-LABEL->:
+    break;
+  default:
+    break;
+}  // -----  end switch  -----
 == Statements.case == map:sc, shortcut:c  ==
-case <CURSOR>:	
+case <CURSOR>:
 break;
 
 == Statements.block == map:sb, shortcut:b  ==
 {
-<CURSOR><SPLIT>
+<CURSOR>
 }
 

@@ -5,7 +5,7 @@
  *  <CURSOR>
  *-----------------------------------------------------------------------------*/
 == Comments.function == map:cfu, shortcut:f  ==
-/* 
+/*
  * ===  FUNCTION  ======================================================================
  *         Name:  |?FUNCTION_NAME|
  *  Description:  <CURSOR>
@@ -15,7 +15,7 @@
 /*
  *--------------------------------------------------------------------------------------
  *       Class:  |?CLASSNAME|
- *      Method:  |?CLASSNAME| :: |?METHODNAME|
+ *      Method:  |?CLASSNAME|::|?METHODNAME|
  * Description:  <CURSOR>
  *--------------------------------------------------------------------------------------
  */
@@ -66,25 +66,25 @@
 == ENDTEMPLATE ==
 
 == LIST: comments_c_sections == hash ==
-  'HEADER FILE INCLUDES'        : 'HEADER FILE INCLUDES   ###############################', 
-  'LOCAL MACROS'                : 'MACROS  -  LOCAL TO THIS SOURCE FILE   ###############', 
-  'LOCAL TYPE DEFINITIONS'      : 'TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #####', 
-  'LOCAL DATA TYPES'            : 'DATA TYPES  -  LOCAL TO THIS SOURCE FILE   ###########', 
-  'LOCAL VARIABLES'             : 'VARIABLES  -  LOCAL TO THIS SOURCE FILE   ############', 
-  'LOCAL PROTOTYPES'            : 'PROTOTYPES  -  LOCAL TO THIS SOURCE FILE   ###########', 
-  'EXP.  FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS   ########', 
-  'LOCAL FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #', 
-  'LOCAL CLASS DEFINITIONS'     : 'CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ####', 
-  'EXP.  CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES   #########', 
-  'LOCAL CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  LOCAL CLASSES   ############', 
+  'HEADER FILE INCLUDES'        : 'HEADER FILE INCLUDES   ###############################',
+  'LOCAL MACROS'                : 'MACROS  -  LOCAL TO THIS SOURCE FILE   ###############',
+  'LOCAL TYPE DEFINITIONS'      : 'TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #####',
+  'LOCAL DATA TYPES'            : 'DATA TYPES  -  LOCAL TO THIS SOURCE FILE   ###########',
+  'LOCAL VARIABLES'             : 'VARIABLES  -  LOCAL TO THIS SOURCE FILE   ############',
+  'LOCAL PROTOTYPES'            : 'PROTOTYPES  -  LOCAL TO THIS SOURCE FILE   ###########',
+  'EXP.  FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  EXPORTED FUNCTIONS   ########',
+  'LOCAL FUNCTION DEFINITIONS'  : 'FUNCTION DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   #',
+  'LOCAL CLASS DEFINITIONS'     : 'CLASS DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ####',
+  'EXP.  CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  EXPORTED CLASSES   #########',
+  'LOCAL CLASS IMPLEMENTATIONS' : 'CLASS IMPLEMENTATIONS  -  LOCAL CLASSES   ############',
 == LIST: comments_h_sections == hash ==
-  'HEADER FILE INCLUDES'           : 'HEADER FILE INCLUDES   ###########', 
-  'EXPORTED MACROS'                : 'EXPORTED MACROS   ################', 
-  'EXPORTED TYPE DEFINITIONS'      : 'EXPORTED TYPE DEFINITIONS   ######', 
-  'EXPORTED DATA TYPES'            : 'EXPORTED DATA TYPES   ############', 
-  'EXPORTED CLASS DEFINITIONS'     : 'EXPORTED CLASS DEFINITIONS   #####', 
-  'EXPORTED VARIABLES'             : 'EXPORTED VARIABLES   #############', 
-  'EXPORTED FUNCTION DECLARATIONS' : 'EXPORTED FUNCTION DECLARATIONS   #', 
+  'HEADER FILE INCLUDES'           : 'HEADER FILE INCLUDES   ###########',
+  'EXPORTED MACROS'                : 'EXPORTED MACROS   ################',
+  'EXPORTED TYPE DEFINITIONS'      : 'EXPORTED TYPE DEFINITIONS   ######',
+  'EXPORTED DATA TYPES'            : 'EXPORTED DATA TYPES   ############',
+  'EXPORTED CLASS DEFINITIONS'     : 'EXPORTED CLASS DEFINITIONS   #####',
+  'EXPORTED VARIABLES'             : 'EXPORTED VARIABLES   #############',
+  'EXPORTED FUNCTION DECLARATIONS' : 'EXPORTED FUNCTION DECLARATIONS   #',
 == LIST: comments_keywords == hash ==
   'BUG'         : ':BUG:|DATE| |TIME|:|AUTHORREF|:',
   'COMPILER'    : ':COMPILER:|DATE| |TIME|:|AUTHORREF|:',
@@ -94,22 +94,22 @@
   'WORKAROUND'  : ':WORKAROUND:|DATE| |TIME|:|AUTHORREF|:',
   'new keyword' : ':<CURSOR>:|DATE| |TIME|:|AUTHORREF|: {+COMMENT+}',
 == LIST: comments_special == list ==
-  'EMPTY'                         , 
-  'FALL THROUGH'                  , 
-  'IMPLICIT TYPE CONVERSION'      , 
-  'NO RETURN'                     , 
-  'NOT REACHED'                   , 
-  'TO BE IMPLEMENTED'             , 
-  'constant type is long'         , 
-  'constant type is unsigned'     , 
-  'constant type is unsigned long', 
+  'EMPTY'                         ,
+  'FALL THROUGH'                  ,
+  'IMPLICIT TYPE CONVERSION'      ,
+  'NO RETURN'                     ,
+  'NOT REACHED'                   ,
+  'TO BE IMPLEMENTED'             ,
+  'constant type is long'         ,
+  'constant type is unsigned'     ,
+  'constant type is unsigned long',
 == LIST: comments_macros == list ==
-  'AUTHOR'      , 
-  'AUTHORREF'   , 
-  'COMPANY'     , 
-  'COPYRIGHT'   , 
-  'EMAIL'       , 
-  'ORGANIZATION', 
+  'AUTHOR'      ,
+  'AUTHORREF'   ,
+  'COMPANY'     ,
+  'COPYRIGHT'   ,
+  'EMAIL'       ,
+  'ORGANIZATION',
 == ENDLIST ==
 
 == Comments.C file sections  == expandmenu, append, map:ccs, shortcut:s ==

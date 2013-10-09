@@ -1,13 +1,13 @@
 #===============================================================================
 #
 #         File: Makefile
-#  Description: 
+#  Description:
 #
 #        Usage: make              (generate executable(s)      )
 #               make clean        (remove objects, executables )
 #               make tarball      (generate compressed archive )
 #               make zip          (generate compressed archive )
-#                                  
+#
 #       Author: Dr.-Ing. Fritz Mehner
 #        Email: mehner@mfh-iserlohn.de
 #      Created: 03.04.2012
@@ -33,7 +33,7 @@ all:	$(TARGETS)
 
 %.o:	%.cc
 			$(CCP) $(CFLAGS) $*.cc
- 
+
 #---------- target 1 -------------------------------------
 # ----- C target
 target1:	target1.o
@@ -62,4 +62,4 @@ zip:
 #---------- clear up -------------------------------------
 clean:
 				rm  --force  $(TARGETS) *.o
- 
+
