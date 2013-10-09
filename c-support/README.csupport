@@ -1,4 +1,4 @@
-README for c.vim (Version 5.18) / March 03 2012
+README for c.vim (Version 6.0) / August 17 2012
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -52,11 +52,11 @@ value of $HOME with ":echo $HOME" from inside Vim).
     '$HOME/.vim/c-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|    = Dr. Fritz Mehner 
-      |AUTHORREF| = fgm
-      |EMAIL|     = mehner@fh-swf.de
-      |COMPANY|   = FH Südwestfalen, Iserlohn
-      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+       SetMacro( 'AUTHOR',      'Dr. Fritz Mehner' )
+       SetMacro( 'AUTHORREF',   'fgm' )
+       SetMacro( 'EMAIL',       'mehner.fritz@fh-swf.de' )
+       SetMacro( 'ORGANIZATION','FH Südwestfalen, Iserlohn' )
+       SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
 
     (Read more about the template system in the plugin documentation)
 
@@ -69,7 +69,6 @@ value of $HOME with ":echo $HOME" from inside Vim).
     customization.vimrc and customization.gvimrc are replacements or extensions
     for your .vimrc and .gvimrc.  You may want to use parts of them. The files
     are documented. 
-
 
 (2)  WINDOWS
 ------------
@@ -102,15 +101,15 @@ the value of $HOME with ":echo $HOME" from inside Vim).
     '$HOME/vimfiles/c-support/templates/Templates' 
     Here is the minimal personalization (my settings as an example):
 
-      |AUTHOR|    = Dr. Fritz Mehner 
-      |AUTHORREF| = fgm
-      |EMAIL|     = mehner@fh-swf.de
-      |COMPANY|   = FH Südwestfalen, Iserlohn
-      |COPYRIGHT| = Copyright (c) |YEAR|, |AUTHOR|
+       SetMacro( 'AUTHOR',      'Dr. Fritz Mehner' )
+       SetMacro( 'AUTHORREF',   'fgm' )
+       SetMacro( 'EMAIL',       'mehner.fritz@fh-swf.de' )
+       SetMacro( 'ORGANIZATION','FH Südwestfalen, Iserlohn' )
+       SetMacro( 'COPYRIGHT',   'Copyright (c) |YEAR|, |AUTHOR|' )
 
     (Read more about the template system in the plugin documentation)
 
-(2.4) Make the plugin help accessable by typing the following command on the
+(2.4) Make the plugin help accessible by typing the following command on the
     Vim command line:
 
     :helptags $HOME\vimfiles\doc\
@@ -149,9 +148,19 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 ================================================================================
   RELEASE NOTES
 ================================================================================
-- Hotkeys \lcs, \ucs removed.
-- Bugfix: delayed template initialization missing correct style.
-- Wrong cursor position when inserting some templates at the end of a line.
+
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++  The plug-in version 6.0+ is a rewriting of version 5.19.                ++
+  ++  The versions 6.0+ are based on a new and more powerful template system  ++
+  ++  (please see |template-support|for more information).                    ++
+  ++  The template syntax has changed!                                        ++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+- New template system (many thanks to Wolfgang Mehner)
+- A few new hotkeys and menu item.
+- A few hotkeys and menu items renamed.
 
   Please see file ./c-support/doc/ChangeLog .
 
@@ -160,6 +169,8 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 ================================================================================
 
 README.csupport                This file.
+
+autoload/mmtemplates/core.vim  The template system.
 
 doc/csupport.txt               The help file for the local on-line help. 
                           
@@ -187,6 +198,7 @@ c-support/wordlists/stl_index.list      STL: method and type names.
 c-support/doc/c-hotkeys.pdf  Hotkey reference card.
 c-support/doc/ChangeLog      The change log.
 
+rc/customization.cpp.vim     Additional mappings for C++.
 rc/customization.ctags       Additional settings I use in  .ctags to enable
                              navigation through makefiles ans qmake files with
                              the plug-in taglist.vim.

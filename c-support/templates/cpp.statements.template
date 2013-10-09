@@ -1,72 +1,65 @@
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.do-while ==
+== Statements.do while == map:sd, shortcut:d  ==
 do {
-<SPLIT>} while ( <CURSOR> );				// -----  end do-while  -----
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.for ==
+<SPLIT>} while ( <CURSOR> );				// -----  end do-while  ----- 
+== Statements.for == map:sf, shortcut:o  ==
 for ( <CURSOR>; ; )
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.for-block ==
-for ( <CURSOR>; ; ) {
+§
+§ The names INIT, CONDITION, INCREMENT, and 'for block' are used by the main
+§ plugin plugin/c.vim . Please do not change.
+§
+== Statements.for block == map:sfo, shortcut:r  ==
+|DefaultMacro( 'CONDITION', '{+CONDITION+}' )|
+|DefaultMacro( 'INCREMENT', '{+INCREMENT+}' )|
+for ( |INIT|<CURSOR>; |CONDITION|; |INCREMENT| ) {
 <SPLIT>}
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.if ==
+== Statements.range-based for == map:sfr, shortcut:a  ==
+for ( <CURSOR>: <-EXPRESSION-> ){
+<SPLIT>}
+== Statements.if == map:si, shortcut:i  ==
 if ( <CURSOR> )
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.if-block ==
+== Statements.if block == map:sif, shortcut:f  ==
 if ( <CURSOR> ) {
-<SPLIT><-IF PART->
+<SPLIT><-IF_PART->
 }
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.if-else ==
+== Statements.if else == map:sie, shortcut:e  ==
 if ( <CURSOR> )
 <SPLIT>else
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.if-block-else ==
+== Statements.if block else == map:sife, shortcut:l  ==
 if ( <CURSOR> ) {
-<SPLIT><-IF PART->
+<SPLIT><-IF_PART->
 }
 else {
-<+ELSE PART+>
+<-ELSE_PART->
 }
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.else-block ==
+== Statements.else block == map:se, shortcut:e  ==
 else {
 <CURSOR><SPLIT>
 }
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.while ==
+== Statements.while == map:sw, shortcut:w  ==
 while ( <CURSOR> )
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.while-block ==
+== Statements.while block == map:swh, shortcut:h  ==
 while ( <CURSOR> ) {
 <SPLIT>}
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.switch ==
+== Statements.switch == map:ss, shortcut:s  ==
 switch ( <CURSOR> ) {
-	case 1:	
+	case <-LABEL->:	
 		<SPLIT>break;
 
-	case 2:	
+	case <-LABEL->:	
 		break;
 
-	case 3:	
-		break;
-
-	case 4:	
+	case <-LABEL->:	
 		break;
 
 	default:	
 		break;
-}				// -----  end switch  -----
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.case ==
+}				// -----  end switch  ----- 
+== Statements.case == map:sc, shortcut:c  ==
 case <CURSOR>:	
 break;
 
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-== statements.block ==
+== Statements.block == map:sb, shortcut:b  ==
 {
 <CURSOR><SPLIT>
 }
-$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+

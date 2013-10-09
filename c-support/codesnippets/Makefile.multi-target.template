@@ -3,27 +3,27 @@
 #         File: Makefile
 #  Description: 
 #
-#        Usage: make              (generate executable(s)                    )
-#               make clean        (remove objects, executables, prerequisits )
-#               make tarball      (generate compressed archive               )
-#               make zip          (generate compressed archive               )
+#        Usage: make              (generate executable(s)      )
+#               make clean        (remove objects, executables )
+#               make tarball      (generate compressed archive )
+#               make zip          (generate compressed archive )
 #                                  
 #       Author: Dr.-Ing. Fritz Mehner
 #        Email: mehner@mfh-iserlohn.de
-#      Created: 
+#      Created: 03.04.2012
 #
 #===============================================================================
 
+TARGETS	= target1 target2
 
 CC              = gcc
 CCP             = g++
 CFLAGS          = -c -g -Wall
 LFLAGS          = -g
 SYS_LIBS        = -lm
-TARBALL_EXCLUDE = "*.{o,gz,zip}"
-ZIP_EXCLUDE     = *.o *.gz *.zip
+TARBALL_INCLUDE = *.{c,h,cc,hh} Makefile
+ZIP_INCLUDE     = $(TARBALL_INCLUDE)
 
-TARGETS	= target_1 target_2
 
 #---------- targets --------------------------------------
 all:	$(TARGETS)
@@ -35,36 +35,31 @@ all:	$(TARGETS)
 			$(CCP) $(CFLAGS) $*.cc
  
 #---------- target 1 -------------------------------------
-#  C  target
-target_1:	target_1.o
+# ----- C target
+target1:	target1.o
 					$(CC) $(LFLAGS) -o $@ $@.o  $(SYS_LIBS)
 
 #---------- target 2 -------------------------------------
-# C++ target
-target_2:	target_2.o
+# ----- C++ target
+target2:	target2.o
 					$(CCP) $(LFLAGS) -o $@ $@.o  $(SYS_LIBS)
-
-
-#---------- target 3 -------------------------------------
-
-
 
 #---------- tarball --------------------------------------
 tarball:
-					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
+					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/};\
 					rm --force $$lokaldir.tar.gz;              \
-					tar --exclude=$(TARBALL_EXCLUDE)           \
-					    --create                               \
+					tar --create                               \
 					    --gzip                                 \
 					    --verbose                              \
-					    --file  $$lokaldir.tar.gz *
+					    --file  $$lokaldir.tar.gz              \
+							$(TARBALL_INCLUDE)
 
 #---------- zip ------------------------------------------
 zip:
-					lokaldir=`pwd`; lokaldir=$${lokaldir##*/}; \
-					zip -r  $$lokaldir.zip * -x $(ZIP_EXCLUDE)
+					@lokaldir=`pwd`; lokaldir=$${lokaldir##*/};\
+					zip -r  $$lokaldir.zip $(ZIP_INCLUDE)
 
 #---------- clear up -------------------------------------
 clean:
-				rm  --force  $(EXECUTABLE) $(OBJECTS) $(PREREQUISITES)
+				rm  --force  $(TARGETS) *.o
  
