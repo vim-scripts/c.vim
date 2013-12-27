@@ -1,24 +1,33 @@
 " Vim syntax file
-"
+" Language: mm template engine : template library
+" Maintainer: Wolfgang Mehner <wolfgang-mehner@web.de>
+" Last Change: 12.08.2013
+" Version: 0.9.1-2
+
 if version < 600
-  syntax clear
+	syntax clear
 elseif exists("b:current_syntax")
-  "finish
+	finish
 endif
 
+"-------------------------------------------------------------------------------
+" Syntax
+"-------------------------------------------------------------------------------
+
 " comment
-syn match Comment   "^\$.*$"
+syn match Comment   "^§.*$"
 syn match Comment   "\%(==\)\@<=[^=]*$"
 
 " templates, lists, ...
-syn match Structure "^==\s*\%(TEMPLATE:\)\?[a-zA-Z0-9-+\.,_ ]\+==\%(.\+==\)\?"
+syn match Structure "^==\s*\%(TEMPLATE:\)\?[a-zA-Z0-9\-+.,_ ]\+==\%(.\+==\)\?"
 syn match Structure "^==\s*ENDTEMPLATE\s*=="
+
+syn match Structure "^==\s*HELP:[a-zA-Z0-9\-+.,_ ]\+==\%(.\+==\)\?"
+
+syn match Structure "^==\s*SEP:[a-zA-Z0-9\-+.,_ ]\+=="
 
 syn match Structure "^==\s*LIST:\s*[a-zA-Z0-9_]\+\s*==\%(.\+==\)\?"
 syn match Structure "^==\s*ENDLIST\s*=="
-
-syn match Structure "^==\s*HELP:[a-zA-Z0-9-+\.,_ ]\+==\%(.\+==\)\?"
-syn match Structure "^==\s*ENDHELP\s*=="
 
 " style sections
 syn match Statement "^==\s*IF\s\+|STYLE|\s\+IS\s\+[a-zA-Z0-9_]\+\s*=="
@@ -71,12 +80,15 @@ syn match Function  "|\zsSystem\ze("
 syn match Function  "|\zsVim\ze("
 
 " strings, macros, tags, jump targets
-syn match String    "\%(''\|'.\{-}[^']'\)"
-syn match String    "\%(\"\"\|\".\{-}[^\\]\"\)"
+syn match String    "'\%([^']\|''\)*'"
+syn match String    "\"\%([^\\]\|\\.\)*\""
 
 syn match Tag       "|?\?[a-zA-Z][a-zA-Z0-9_:]*|"
-syn match Tag       "<[a-zA-Z][a-zA-Z0-9_]*>"
+syn match Tag       "<CURSOR>\|{CURSOR}"
+syn match Tag       "<SPLIT>"
+syn match Tag       "<CONTENT>"
 
-syn match Search    "[<{][+-]\w*[+-][}>]"
+syn match Search    "<\([+-]\)\w*\1>"
+syn match Search    "{\([+-]\)\w*\1}"
 
 let b:current_syntax = "template"

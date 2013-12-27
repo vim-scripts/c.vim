@@ -218,7 +218,6 @@ class |CLASSNAME|
 //        Class:  |?CLASSNAME:c|
 //  Description:  <CURSOR>
 // =====================================================================================
- */
 template < class T >
 class |CLASSNAME|
 {
@@ -317,7 +316,6 @@ class |CLASSNAME|
 //      Method:  |CLASSNAME|
 // Description:  copy constructor
 //--------------------------------------------------------------------------------------
- */
 |CLASSNAME|::|CLASSNAME| ( const |CLASSNAME| &other )
 {
 }  // -----  end of method |CLASSNAME|::|CLASSNAME|  (copy constructor)  ----- 
@@ -327,7 +325,6 @@ class |CLASSNAME|
 //      Method:  ~|CLASSNAME|
 // Description:  destructor
 //--------------------------------------------------------------------------------------
- */
 |CLASSNAME|::~|CLASSNAME| ()
 {
 }  // -----  end of method |CLASSNAME|::~|CLASSNAME|  (destructor)  ----- 

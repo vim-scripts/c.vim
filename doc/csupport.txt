@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support                  August 20 2012
+*csupport.txt*                  C/C++ Support               December 28 2013
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 6.0
+                             Plugin version 6.1
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -15,7 +15,7 @@ keystroke.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++  The plug-in version 6.0+ is a rewriting of version 5.19+.               ++
 ++  The versions 5.0+ are based on a new and more powerful template system  ++
-++  (please see |template-support|for more information).                    ++
+++  (please see  |template-support| for more information).                    ++
 ++  The template syntax has changed!                                        ++
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -26,12 +26,13 @@ keystroke.
  1.1.2   Adjust end-of-line comments            |csupport-comm-realign|
  1.1.3   Code to comment                        |csupport-code-to-comm|
  1.1.4   Comment to code                        |csupport-comm-to-code|
- 1.1.5   Frame comments, file header, ...       |csupport-comm-frame|
- 1.1.6   File section comments         ..       |csupport-comm-sections|
- 1.1.7   Keyword comment, special comment       |csupport-comm-keyword|
- 1.1.8   Macros                                 |csupport-comm-macros|
- 1.1.9   Date and date+time                     |csupport-comm-date|
- 1.1.10  C to C++ comments and vice versa       |csupport-comm-c-cpp|
+ 1.1.5   Toggle non-C comments                  |csupport-comm-non-c|
+ 1.1.6   Frame comments, file header, ...       |csupport-comm-frame|
+ 1.1.7   File section comments         ..       |csupport-comm-sections|
+ 1.1.8   Keyword comment, special comment       |csupport-comm-keyword|
+ 1.1.9   Macros                                 |csupport-comm-macros|
+ 1.1.10  Date and date+time                     |csupport-comm-date|
+ 1.1.11  C to C++ comments and vice versa       |csupport-comm-c-cpp|
  1.2    Menu 'Statements'                       |csupport-stat|
  1.2.1   Normal mode, insert mode.              |csupport-stat-normal-mode|
  1.2.2   Visual mode.                           |csupport-stat-visual-mode|
@@ -53,23 +54,23 @@ keystroke.
  1.6.2   Visual mode.                           |csupport-c++-visual-mode|
  1.6.3   Implementation                         |csupport-c++-impl|
  1.7    Menu 'Run'                              |csupport-run|
- 1.7.1   Minimal make functionality             |csupport-run-buffer|
+ 1.7.1   Compile, link, run                     |csupport-run-buffer|
  1.7.2   Command line arguments                 |csupport-run-cmdline-args|
- 1.7.3   Run make                               |csupport-run-make|
- 1.7.4   Choose Makefile                        |csupport-choose-makefile|
- 1.7.4   Executable to run                      |csupport-run-make-run|
- 1.7.6   Run make clean                         |csupport-run-make-clean|
- 1.7.7   Command line arguments for make        |csupport-run-make-args|
- 1.7.8   Splint                                 |csupport-run-splint|
- 1.7.9   Cppcheck                               |csupport-run-cppcheck|
- 1.7.10  CodeCheck                              |csupport-run-codecheck|
- 1.7.11  Indent                                 |csupport-run-indent|
- 1.7.12  Hardcopy                               |csupport-run-hardcopy|
- 1.7.13  Rebuild templates                      |csupport-run-templates|
- 1.7.14  Xterm size                             |csupport-run-xterm|
- 1.7.15  Output redirection                     |csupport-run-output|
- 1.8    Help                                    |csupport-help|
- 
+ 1.7.3   Executable to run                      |csupport-run-make-run|
+ 1.7.4   Run debugger                           |csupport-run-debugger|
+ 1.7.5   Splint                                 |csupport-run-splint|
+ 1.7.6   Cppcheck                               |csupport-run-cppcheck|
+ 1.7.7   CodeCheck                              |csupport-run-codecheck|
+ 1.7.8   Indent                                 |csupport-run-indent|
+ 1.7.9   Hardcopy                               |csupport-run-hardcopy|
+ 1.7.10  Xterm size                             |csupport-run-xterm|
+ 1.7.11  Output redirection                     |csupport-run-output|
+ 1.8     Tool Box                               |csupport-toolbox|
+ 1.8.1    Make                                  |csupport-toolbox-make|
+ 1.9    Help                                    |csupport-help|
+ 1.10   Menu 'Doxygen'                          |csupport-doxygen|
+ 1.10.1  Enabling the menu                      |csupport-doxygen-enable|
+
  2.    Usage without GUI                        |csupport-usage-vim|
  3.    Hotkeys                                  |csupport-hotkeys|
  4.    Customization and configuration          |csupport-custom|
@@ -260,7 +261,18 @@ needs not to be marked.
 
 ------------------------------------------------------------------------------
 
-1.1.5  FRAME COMMENTS, FILE HEADER, ...                  *csupport-comm-frame*
+1.1.5  TOGGLE NON-C COMMENTS                             *csupport-comm-non-c*
+
+This menu item toggles the non-C comment for a single line or a marked range
+of lines for embedded non-C code. The default comment uses the hash characters
+'#'. The non-C comment can start with any string.  You can change the default
+by setting a global variable in '~/.vimrc':
+>
+ let g:C_NonCComment  = '^^'
+
+------------------------------------------------------------------------------
+
+1.1.6  FRAME COMMENTS, FILE HEADER, ...                  *csupport-comm-frame*
 
 Frame comments, file header comments and function, methods, class descriptions
 are read as templates from the appropriate files (see |csupport-templates|).
@@ -269,11 +281,11 @@ There are two file description templates (menu items 'file description impl'
 and  'file description header', see also |csupport-templates|):
 
   implementation  : files *.c *.cc *.cp *.cxx *.cpp *.CPP *.c++
-                                      *.C *.i *.ii 
+                                      *.C *.i *.ii
 
   header          : everything else with filetype 'c' or 'cpp'
 
-The appropriate template will also be included into a new file. The plugin 
+The appropriate template will also be included into a new file. The plugin
 decides on the basis of the file extension. The default is shown above. You
 can change the list by setting a global variable in '~/.vimrc':
 >
@@ -281,33 +293,33 @@ can change the list by setting a global variable in '~/.vimrc':
 
   let g:C_SourceCodeExtensions  = 'XYZ c cc cp cxx cpp CPP c++ C i ii'
 <
-A new file named 'test.XYZ' will now be considered a C implementation file. 
+A new file named 'test.XYZ' will now be considered a C implementation file.
 
 ------------------------------------------------------------------------------
 
-1.1.6  FILE SECTION COMMENTS                          *csupport-comm-sections*
+1.1.7  FILE SECTION COMMENTS                          *csupport-comm-sections*
 
 File section comments can be uses to separate typical C- and H-file sections
 with comments of similar appearance, e.g.
 >
  /* #####   HEADER FILE INCLUDES   ################################################### */
- 
+
  /* #####   MACROS  -  LOCAL TO THIS SOURCE FILE   ################################### */
- 
+
  /* #####   TYPE DEFINITIONS  -  LOCAL TO THIS SOURCE FILE   ######################### */
 <
 These section comments can also be inserted using the hotkey \ccs for C/C++
-files, or \chs for H-files. 
+files, or \chs for H-files.
 
 ------------------------------------------------------------------------------
 
-1.1.7  KEYWORD COMMENT, SPECIAL COMMENT                *csupport-comm-keyword*
+1.1.8  KEYWORD COMMENT, SPECIAL COMMENT                *csupport-comm-keyword*
 
 Keword comments are end-of-line comments:
 >
  /* :<keyword>:<date+time>:<author reference>: <arbitrary comment text> */
 y
-Keywords are 
+Keywords are
 
  BUG COMPILER REMARK TODO TRICKY WARNING WORKAROUND user-defined-keyword
 
@@ -328,22 +340,21 @@ The special comments can also be inserted using the hotkey \csc .
 
 ------------------------------------------------------------------------------
 
-1.1.8  MACROS (PLUGIN)                                  *csupport-comm-macros*
+1.1.9  MACROS (PLUGIN)                                  *csupport-comm-macros*
 
 The submenu 'macros' let you insert the predefined macros from the template
 system (see|csupport-templates-macros|).
 
 ------------------------------------------------------------------------------
 
-1.1.9  DATE AND DATE+TIME                                 *csupport-comm-date*
+1.1.10  DATE AND DATE+TIME                                *csupport-comm-date*
 
 The format for 'date' and 'date time' can be defined by the user (see
-|csupport-templates-date|). In visual mode the marked string will be replaced
-by the macro (e.g. to update date and time).
+|csupport-templates-date|). 
 
 ------------------------------------------------------------------------------
 
-1.1.10 C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
+1.1.11 C TO C++ COMMENTS AND VICE VERSA                  *csupport-comm-c-cpp*
 
 The menu item '/* xxx */ <-> // xxx' changes a C++ comment into a C comment
 and a C++ comment into a C comment (toggle).
@@ -559,7 +570,7 @@ optional. The type is restricted to the following integral data types:
   short
   short int
   size_t
-  unsigned 
+  unsigned
   unsigned char
   unsigned int
   unsigned long
@@ -631,7 +642,7 @@ variable in your ~/.vimrc :
 >
  let g:C_GuiSnippetBrowser = 'commandline'
 <
-The default value is 'gui'. 
+The default value is 'gui'.
 
 
 1.5.2   PICKING UP PROTOTYPES                                 *csupport-proto*
@@ -680,7 +691,7 @@ result in the prototype
 >
   std::string get_name ( void );
 <
-The 3 lines 
+The 3 lines
 >
   template <class T>
   const Stack<T>&
@@ -792,7 +803,7 @@ scope will be extracted and used for the next method.
 1.7  MENU 'Run'                                                 *csupport-run*
 ------------------------------------------------------------------------------
 
-1.7.1  MINIMAL MAKE FUNCTIONALITY                        *csupport-run-buffer*
+1.7.1  COMPILE, LINK, RUN                                *csupport-run-buffer*
 
 The 'Run' menu provides a minimal make functionality for single file projects
 (e.g. in education) :
@@ -805,16 +816,18 @@ An error window will be opened if the compiler reports errors and/or warnings.
 Quickfix commands can now be used to jump to an error location.
 
 Consider using maps like
+>
   map  <silent> <F7>    <Esc>:cprevious<CR>
   map  <silent> <F8>    <Esc>:cnext<CR>
+<
 in your ~/.vimrc file to jump over the error locations and make navigation
 easier.  The error list and the error locations in your source buffer will be
 synchronized.
 
 The filename extension for an object file can be set in ~.vimrc :
-
+>
   let g:C_ObjExtension = '.obj'
-
+<
 The default is '.o' ('.obj' for Windows).
 
 LINK
@@ -833,60 +846,33 @@ buffer is not saved, or no executable is available or the executable is older
 then the source steps 'save and compile' and 'link' are executed first.
 
 The filename extension for an executable can be set in ~.vimrc :
-
+>
   let g:C_ExeExtension = '.exe'
-
+<
 The default is the empty string.
+
 
 1.7.2  COMMAND LINE ARGUMENTS                      *csupport-run-cmdline-args*
 
 The item 'command line arguments' calls an input dialog which asks for command
 line arguments. These arguments are forwarded to the program which is run by
-the 'run' item. The arguments are kept until you change them.
-For the first and only the first argument file name expansion will work (use
-the Tab-key). Only the first string of the input can be expanded due to a
-restriction of the Vim input function. To expand two or more filenames
-specify them in reverse order: type the first characters of the last filename
-and expand them. Go to the start of the input and type the beginning of the
-last but one filename and expand it.
+the 'run' item. The arguments are kept until you change them.  Tab expansion
+can be used for filenames and directory names. The input will also be kept in
+the internal history. The ex command
+>
+  :CCmdlineArgs ...
+<
+can also be used to set the command line arguments.
 
 The arguments belong to the current buffer (that is, each buffer can have its
-own arguments).
-If the buffer gets a new name with "save as" the arguments will now belong to
-the buffer with the new name.
+own arguments).  If the buffer gets a new name with "save as" the arguments
+will now belong to the buffer with the new name.
 
 The command line arguments can be followed by pipes and redirections:
-
+>
   11 22 | sort -rn | head -10 > out
 
-Caveat: If you look for the current arguments by calling this menu item again
-be sure to leave it with a CR (not Esc !). Due to a limitation of an internal
-Vim function CR will keep the arguments, Esc will discard them.
-
-
-1.7.3  RUN make                                            *csupport-run-make*
-
-The item 'make' runs the external make program.  An error window will be
-opened if the compiler or linker reports errors or warnings during the make
-process.  Quickfix commands can now be used to jump to an error location.
-Make looks for a makefile in the current directory (but see below).
-
-When inside a makefile the hotkeys \rm, \rmc, \rcm,  and \rma are working (see
-|csupport-usage-vim|).
-The snippets collection contains a sample makefile which can easily adepted
-for small projcts.
-
-
-1.7.4  Choose Makefile                              *csupport-choose-makefile*
-
-The menu item 'choose makefile' let you specify a makefile in another
-directory than the current one. Now this makefile will be used instead of the
-one in the current directory (if any). Make is started from the directory in
-which the makefile is contained. The working directory for the current buffer
-will not be changed.
-
-
-1.7.5  EXECUTABLE TO RUN                               *csupport-run-make-run*
+1.7.3  EXECUTABLE TO RUN                               *csupport-run-make-run*
 
 The item 'executable to run' asks for the name of the executable built by
 make.  If the name given is nonempty this executable will be run by the menu
@@ -895,24 +881,29 @@ To return to the default behavior (see |csupport-run-buffer|) remove the name
 with the another 'executable to run'.
 
 
-1.7.6  RUN make clean                                *csupport-run-make-clean*
+1.7.4  RUN DEBUGGER                                    *csupport-run-debugger*
 
-The item 'make' runs the external make program with the standard target
-'clean'.  If an alternate makefile has been chosen
-(see|csupport-choose-makefile|), this one will be run from the directory in
-which the makefile is contained.
+Start a debugger from the menu item Run->'run debugger', with hotkey \rd. One of
+three debuggers can be started. The preference can be set with the variable
+g:C_Debugger (possible values: 'gdb', 'kdbg', 'ddd' ). The default is 'gdb').
+
+(1) gdb
+The program will be run as 'gdb  executable arguments' in an xterm.
+
+(2) kdbg
+The debugger kdbg will be started as an independent process. 
+
+(3) ddd
+The data display debugger ddd is a graphical front end for gdb. It will be
+started as an independent process.  The debugger ddd is not available under
+MS-Windows.
+
+If the executable to run was specified via Run->'executable to run' than this
+executable will be used for debugging. If no executable was specified yet you
+will be asked.
 
 
-1.7.7  COMMAND LINE ARGUMENTS FOR make                *csupport-run-make-args*
-
-The item 'command line arguments for make' calls an input dialog which asks
-for command line arguments for make. These arguments are forwarded to make
-when called by the menu item 'make'.
-For the first and only the first argument the file name expansion will work
-(use the Tab-key).
-
-
-1.7.8  SPLINT                                            *csupport-run-splint*
+1.7.5  SPLINT                                            *csupport-run-splint*
 
 Splint is a tool for statically checking C programs (see http://www.splint.org).
 Of course it has to be installed in order to be used within Vim.  The menu
@@ -930,20 +921,24 @@ When vim is started this plugin will check whether splint is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.9  CPPCHECK                                         *csupport-run-cppcheck*
+1.7.6  CPPCHECK                                         *csupport-run-cppcheck*
 
 Cppcheck (http://sourceforge.net/apps/mediawiki/cppcheck/) is tool for static
 C++ code analysis. Cppcheck only detects the types of bugs that the compilers
-normally fail to detect. 
+normally fail to detect.
 
 An error window will be opened if cppcheck has something to complain about.
 Quickfix commands can now be used to jump to an error location.  For easier
-navigation see tip under 'SAVE AND COMPILE' |csupport-run-buffer|.
-Cppcheck has many options. Predefined groups og checks can be enabled by the
-menu item 'cppcheck severity'. Please see the original documentation for more
-information.
+navigation see tip under 'SAVE AND COMPILE' |csupport-run-buffer|.  Cppcheck
+has many options. Predefined groups of checks can be enabled by the menu item
+'cppcheck severity'.  The ex command
+>
+  :CppcheckSeverity ...
+<
+can also be used to set the severity for cppcheck.  Please see the original
+documentation for more information.
 
-1.7.10  CODECHECK                                      *csupport-run-codecheck*
+1.7.7  CODECHECK                                      *csupport-run-codecheck*
 
 CodeCheck (TM) is a commercial code analyzing tool produced by Abraxas
 Software, Inc.  (www.abraxas-software.com).
@@ -973,7 +968,7 @@ When vim is started this plugin will check whether CodeCheck is executable. If
 not, the menu item will *NOT' be visible.
 
 
-1.7.11  INDENT                                           *csupport-run-indent*
+1.7.8  INDENT                                           *csupport-run-indent*
 
 The formatter 'indent' can be run over the whole buffer.  Before formatting a
 buffer this buffer will be saved to disk and you will be asked for a
@@ -983,7 +978,7 @@ Indent has many options. These are kept in the file '.indent.pro' in your home
 directory. See the indent manual for more information.
 
 
-1.7.12  HARDCOPY                                       *csupport-run-hardcopy*
+1.7.9  HARDCOPY                                       *csupport-run-hardcopy*
 
 Generates a PostScript file from the whole buffer or from a marked region.
 On a Windows system a printer dialog is displayed.
@@ -1007,20 +1002,14 @@ or by setting a global variable in the file ~/.vimrc , e.g. :
 See :h printheader and :h strftime()  for more details.
 
 
-1.7.13  REBUILD TEMPLATES                             *csupport-run-templates*
-
-After editing one or more template files  a click on this item rereads the
-template files and rebuilds all templates.
-
-
-1.7.14  XTERM SIZE                                        *csupport-run-xterm*
+1.7.10  XTERM SIZE                                        *csupport-run-xterm*
 
 The size of the xterm used for  running a program (below) can be set by this
 menu item. The default is 80 columns with 24 lines.
 This feature is not available under Windows.
 
 
-1.7.15  OUTPUT REDIRECTION                               *csupport-run-output*
+1.7.11  OUTPUT REDIRECTION                               *csupport-run-output*
 
 Running a program can be done in one of three ways:
 (1) Run the program from the gVim command line.
@@ -1052,7 +1041,28 @@ The default is "-fa courier -fs 12 -geometry 80x24" :
 See 'xterm -help' for more options. Xterms are not available under Windows.
 
 ------------------------------------------------------------------------------
-1.8  'help'                                                    *csupport-help*
+1.8  Menu 'Tool Box'                                        *csupport-toolbox*
+------------------------------------------------------------------------------
+
+Tools which can be used by several plugins are located in the Tool Box.
+Examples are tools for make(1) or doxygen.  The Tool Box has its own
+documentation:|toolbox|.
+To switch the Tool Box off add the following line to the file .vimrc
+>
+  let g:C_UseToolbox     = 'no'
+<
+1.8.1 Make                                            *csupport-toolbox-make*
+
+The tool box for make provides a small set hotkeys, menu items, and ex commands 
+for controlling make. Please see|toolbox-make|.
+To switch the make tool box off add the following line to the file .vimrc
+>
+  let g:C_UseTool_make  = 'no'
+<
+The hotkeys for the make tool are defined in the file ~/.vim/ftplugin/c.vim .
+
+------------------------------------------------------------------------------
+1.9  'help'                                                    *csupport-help*
 ------------------------------------------------------------------------------
 Plugin help
 -----------
@@ -1072,6 +1082,59 @@ the on-line reference manuals must be installed (usually man(1) for
 Linux/Unix, see|csupport-custom-glob-vars|).
 The hotkey is \hm (for "help manual").
 
+------------------------------------------------------------------------------
+1.10  MENU 'Doxygen'                                        *csupport-doxygen*
+------------------------------------------------------------------------------
+
+A menu 'Doxygen' with templates for writing Doxygen comments can optionally be
+included. It contains two kinds of entries. If the name includes a "block",
+the template inserts a whole Doxygen comment block. Other templates insert a
+line extending an existing block.
+
+The special entry 'brief, after member' can be used to append a brief
+description after a member. Similarly to 'Comments->end-of-line comment', it
+will append the comment to several lines when in visual mode. When marking the
+four lines within the enum
+>
+  enum Color
+  {
+    Background,
+    Transparent,
+    Black,
+    White
+  };   // -----  end of enum Color  -----
+<
+and then choosing 'brief, after member', the result will look like this
+>
+  enum Color
+  {
+    Background,                                 /*!< \brief  */
+    Transparent,                                /*!< \brief  */
+    Black,                                      /*!< \brief  */
+    White,                                      /*!< \brief  */
+  };   // -----  end of enum Color  -----
+<
+Now the elements can be documented one by one.
+This feature works like 'Comments->end-of-line comment' in every other aspect.
+The comments can be aligned using 'Comments->adjust end-of-line com.' and
+respect the column set by 'Comments->set end-of-line com. col' (see
+|csupport-comm-aligned|).
+
+
+1.10.1  ENABLING THE MENU                            *csupport-doxygen-enable*
+
+The 'Doxygen' submenu is disabled by default. To enable it, the template
+library has to be modified. In case of a local installation (the default),
+choose:
+  C/C++ -> Snippets -> edit local templates
+and for a global installation:
+  C/C++ -> Snippets -> edit global templates
+Open the main template file 'Templates' and uncomment the line >
+  §IncludeFile( 'doxygen.template' )
+by removing the leading '§' >
+  IncludeFile( 'doxygen.template' )
+After a restart of the editor, the 'Doxygen' menu will appear.
+
 ==============================================================================
 2.  USAGE WITHOUT GUI  (Vim)                              *csupport-usage-vim*
 ==============================================================================
@@ -1082,9 +1145,13 @@ part of this package).
 Hint: Typing speed matters. The combination of a leader ('\') and the
 following character(s) will only be recognized for a short time.
 Some mappings can be used with range (of lines). In normal mode
+>
   \cl
-appends a end-of-line comment to the current line,  whereas 
+<
+appends a end-of-line comment to the current line,  whereas
+>
   4\cl
+<
 appends end-of-line comments to the 4 lines starting with the current line.
 
 Legend:  (i) insert mode, (n) normal mode, (v) visual mode
@@ -1100,9 +1167,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
   [n]\cl       end-of-line comment                 (n,v,i)
   [n]\cj       adjust end-of-line comment(s)       (n,v,i)
      \cs       set end-of-line comment column      (n)
-  [n]\c*       code -> comment /* */               (n,v)
-  [n]\cc       code -> comment //                  (n,v)
-  [n]\co       comment -> code                     (n,v)
+  [n]\c*       code -> comment /* */               (n,v,i)
+  [n]\cc       code -> comment //                  (n,v,i)
+  [n]\co       comment -> code                     (n,v,i)
+  [n]\cn       toggle non-C comment                (n,v,i)
      \cfr      frame comment                       (n,i)
      \cfu      function comment                    (n,i)
      \cme      method description                  (n,i)
@@ -1234,11 +1302,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
     \rl       link                                (n,i)
     \rr       run                                 (n,i)
     \ra       set comand line arguments           (n,i)
-    \rm       run make                            (n,i)
-    \rmc      run 'make clean'                    (n,i)
-    \rcm      choose makefile                     (n,i)
-    \rme      executable to run                   (n,i)
-    \rma      cmd. line arg. for make             (n,i)
+    \rd       run debugger                        (n,i)
+
+    \re       executable to run                   (n,i)
+
     \rp       run splint                          (n,i)
     \rpa      cmd. line arg. for splint           (n,i)
     \rcc      run cppcheck                        (n,i)
@@ -1251,7 +1318,7 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
     \rx       set xterm size                      (n, only Linux/UNIX & GUI)
     \ro       change output destination           (n,i)
 
-The file perl-hot-keys.pdf contains a reference card for these key mappings.
+The file c-hotkeys.pdf contains a reference card for these key mappings.
 Multi-line inserts and code snippets will be indented after insertion.
 
 The hotkeys are defined in the template files (part of this csupport
@@ -1260,7 +1327,7 @@ plugin package) and described in the document c-hotkeys.pdf
 Changing the default map leader '\'
 -----------------------------------
 The map leader can be changed by the user by setting a global variable in the
-file .vimrc 
+file .vimrc
 >
  let g:C_MapLeader  = ','
 <
@@ -1294,7 +1361,7 @@ source file the file ~/.vimrc should contain a line
 A header file will only be opened if it already exists.
 
 The Shift-key is dead when you are working with Vim in a console terminal
-(non-Gui). You could add 
+(non-Gui). You could add
 >
   noremap   \a        :A<CR>
  inoremap   \a   <C-C>:A<CR>
@@ -1311,99 +1378,115 @@ to get a hot key for this case.
 
 Several global variables are checked by the script to customize it:
 
-  ----------------------------------------------------------------------------
-  GLOBAL VARIABLE           DEFAULT VALUE                    TAG (see below)
-  ----------------------------------------------------------------------------
-  g:C_GlobalTemplateFile     plugin_dir.'c-support/templates/Templates'
-  g:C_LocalTemplateFile      $HOME.'/.vim/c-support/templates/Templates'
-  g:C_Ctrl_j                 'on'
+ ----------------------------------------------------------------------------
+ GLOBAL VARIABLE           DEFAULT VALUE                    TAG (see below)
+ ----------------------------------------------------------------------------
+ g:C_CExtension             'c'
+ g:C_CFlags                 '-Wall -g -O0 -c'
+ g:C_CodeCheckExeName       'check'
+ g:C_CodeCheckOptions       '-K13'
+ g:C_CodeSnippets           plugin_dir.'/c-support/codesnippets/'
+ g:C_Ctrl_j                 'on'
+ g:C_Debugger               'gdb'
+ g:C_Dictionary_File        ''
+ g:C_GlobalTemplateFile     plugin_dir.'c-support/templates/Templates'
+ g:C_GuiSnippetBrowser      'gui'
+ g:C_GuiTemplateBrowser     'gui'
+ g:C_InsertFileHeader       'yes'
+ g:C_LFlags                 '-Wall -g -O0'
+ g:C_Libs                   '-lm'
+ g:C_LineEndCommColDefault  49
+ g:C_LoadMenus              'yes'
+ g:C_CreateMenusDelayed     'no'
+ g:C_LocalTemplateFile      $HOME.'/.vim/c-support/templates/Templates'
+ g:C_MapLeader              '\'
+ g:C_MenuHeader             'yes'
+ g:C_NonCComment            '#'
+ g:C_OutputGvim             'vim'
+ g:C_Printheader            "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
+ g:C_RootMenu               '&C\/C\+\+.'
+ g:C_SourceCodeExtensions   'c cc cp cxx cpp CPP c++ C i ii'
+ g:C_TypeOfH                'cpp'
+ g:C_VimCompilerName        gcc
+ g:C_XtermDefaults          '-fa courier -fs 12 -geometry 80x24'
 
-  g:C_CodeSnippets           plugin_dir.'/c-support/codesnippets/'
-  g:C_Dictionary_File        ''
-  g:C_LoadMenus              'yes'
-  g:C_MenuHeader             'yes'
-  g:C_OutputGvim             'vim'
-  g:C_RootMenu               '&C\/C\+\+.'
-  g:C_XtermDefaults          '-fa courier -fs 12 -geometry 80x24'
-  g:C_Printheader            "%<%f%h%m%<  %=%{strftime('%x %X')}     Page %N"
-  g:C_MapLeader              '\'
-  g:C_GuiSnippetBrowser      'gui'
-  g:C_GuiTemplateBrowser     'gui'
-
-  Linux/UNIX:
-   g:C_ObjExtension          '.o'
-   g:C_ExeExtension          ''
-   g:C_CCompiler             'gcc'
-   g:C_CplusCompiler         'g++'
-   g:C_Man                   'man'
-  Windows:
-   g:C_ObjExtension          '.obj'
-   g:C_ExeExtension          '.exe'
-   g:C_CCompiler             'gcc.exe'
-   g:C_CplusCompiler         'g++.exe'
-   g:C_Man                   'man.exe'
-  g:C_VimCompilerName        gcc
-  g:C_CFlags                 '-Wall -g -O0 -c'
-  g:C_LFlags                 '-Wall -g -O0'
-  g:C_Libs                   '-lm'
-  g:C_LineEndCommColDefault  49
-  g:C_CExtension             'c'
-  g:C_TypeOfH                'cpp'
-  g:C_SourceCodeExtensions   'c cc cp cxx cpp CPP c++ C i ii'
-
-  g:C_CodeCheckExeName       'check'
-  g:C_CodeCheckOptions       '-K13'
+ Linux/UNIX:
+  g:C_CCompiler             'gcc'
+  g:C_CplusCompiler         'g++'
+  g:C_ExeExtension          ''
+  g:C_Man                   'man'
+  g:C_ObjExtension          '.o'
+ Windows:
+  g:C_CCompiler             'gcc.exe'
+  g:C_CplusCompiler         'g++.exe'
+  g:C_ExeExtension          '.exe'
+  g:C_Man                   'man.exe'
+  g:C_ObjExtension          '.obj'
 
 The variable plugin_dir will automatically be set to one of the following values:
   $HOME.'/.vim/'        for Linux/Unix
   $VIM.'/vimfiles/'     for Windows
 
-  ----------------------------------------------------------------------------
 
- 1. group: g:C_GlobalTemplateFile    : sets the global template file (see|csupport-templates|)
-           g:C_LocalTemplateFile     : sets the local template file  (see|csupport-templates|)
-           g:C_Ctrl_j                : hotkey Ctrl-j  'on'/'off' (see|csupport-Ctrl-j|)
-
- 2. group: g:C_CodeSnippets       : The name of the code snippet directory
-                                   (see |csupport-snippets|).
-           g:C_Dictionary_File    : The name(s) of the dictionary file(s) used for
-                                    word completion (see also |csupport-dictionary|)
-           g:C_LoadMenus          : Load menus and mappings ("yes", "no") at startup.
-           g:C_MenuHeader         : Switch the submenu header on/off.
-           g:C_OutputGvim         : when program is running output goes to the vim
-                                    command line ("vim"), to a buffer ("buffer") or to
-                                    an xterm ("xterm").
-           g:C_RootMenu           : The name of the root menu entry of this plugin
-                                           (see |csupport-custom-root|).
-           g:C_XtermDefaults      : the xterm defaults
-           g:C_Printheader        : hardcopy: definition of the page header
-           g:C_MapLeader          : the map leader for hotkeys (see|csupport-usage-vim|)
-           g:C_GuiSnippetBrowser  : code snippet browser: 'gui', 'commandline'
-           g:C_GuiTemplateBrowser : code template browser: 'gui', 'explorer', 'commandline' 
- 
- 3. group: g:C_CExtension             : Extension of C files. Everything else is C++.
-           g:C_TypeOfH                : filetype of header files with extension 'h' (c,cpp)
-           g:C_SourceCodeExtensions   : filename extensions for C/C++
-                                        implementation files
-           g:C_CCompiler              : The name of the C compiler.
-           g:C_CplusCompiler          : The name of the C++ compiler.
-           g:C_VimCompilerName        : the compiler name used by :compiler
-           g:C_Man                    : The name of the man utility.
-           g:C_CFlags                 : Compiler flags used for a compilation.
-           g:C_LFlags                 : Compiler flags used for linkage.
-           g:C_Libs                   : Libraries to link with.
-           g:C_ObjExtension           : C/C+ file extension for objects
-                                        (leading point required if not empty)
-           g:C_ExeExtension           : C/C+ file extension for executables
-                                        (leading point required if not empty)
-           g:C_LineEndCommColDefault  : Default starting column for end-of-line comments.
-           g:C_CodeCheckExeName       : The name of the CodeCheck (TM) executable
-                                        (the default is 'check')
-           g:C_CodeCheckOptions       : Default options for CodeCheck (TM)
-                                       (see |csupport-run-codecheck|).
+ ----------------------------------------------------------------------------
+ GLOBAL VARIABLE           SHORT EXPLANATION
+ ----------------------------------------------------------------------------
+ g:C_CCompiler             : The name of the C compiler.
+ g:C_CExtension            : Extension of C files. Everything else is C++.
+ g:C_CFlags                : Compiler flags used for a compilation.
+ g:C_CodeCheckExeName      : The name of the CodeCheck (TM) executable (the
+                             default is 'check')
+ g:C_CodeCheckOptions      : Default options for CodeCheck (TM) (see
+                             |csupport-run-codecheck|).
+ g:C_CodeSnippets          : The name of the code snippet directory (see
+                             |csupport-snippets|).
+ g:C_CplusCompiler         : The name of the C++ compiler.
+ g:C_Ctrl_j                : hotkey Ctrl-j  'on'/'off' (see |csupport-Ctrl-j|)
+ g:C_Debugger              : the default debugging: 'gdb', 'kdbg', or 'ddd'
+ g:C_Dictionary_File       : The name(s) of the dictionary file(s) used for
+                             word completion (see also |csupport-dictionary|)
+ g:C_ExeExtension          : C/C+ file extension for executables (leading
+                             point required if not empty)
+ g:C_GlobalTemplateFile    : sets the global template file (see |csupport-templates|)
+ g:C_GuiSnippetBrowser     : code snippet browser: 'gui', 'commandline'
+ g:C_GuiTemplateBrowser    : code template browser: 'gui', 'explorer', 'commandline'
+ g:C_InsertFileHeader      : insert file prolog in a new file ('yes', 'no')
+ g:C_LFlags                : Compiler flags used for linkage.
+ g:C_Libs                  : Libraries to link with.
+ g:C_LineEndCommColDefault : Default starting column for end-of-line comments.
+ g:C_LoadMenus             : Load menus and mappings ("yes", "no") at startup.
+ g:C_CreateMenusDelayed    : Load menus only with filetypes 'c' or 'cpp'
+ g:C_LocalTemplateFile     : sets the local template file  (see |csupport-templates|)
+ g:C_Man                   : The name of the man utility.
+ g:C_MapLeader             : the map leader for hotkeys (see ||csupport-usage-vim|)
+ g:C_MenuHeader            : Switch the submenu header on/off.
+ g:C_NonCComment           : comment leader string for a non-C comment
+ g:C_ObjExtension          : C/C+ file extension for objects (leading point
+                             required if not empty)
+ g:C_OutputGvim            : when program is running output goes to the vim command 
+                             line ("vim"), to a buffer ("buffer") or to an xterm ("xterm").
+ g:C_Printheader           : hardcopy: definition of the page header
+ g:C_RootMenu              : The name of the root menu entry of this plugin
+                             (see |csupport-custom-root|).
+ g:C_SourceCodeExtensions  : filename extensions for C/C++ implementation files
+ g:C_TypeOfH               : filetype of header files with extension 'h' (c,cpp)
+ g:C_VimCompilerName       : the compiler name used by :compiler
+ g:C_XtermDefaults         : the xterm defaults
 
 To override the default add appropriate assignments to ~/.vimrc .
-
+The following global variables can be changed on the fly from the Vim command
+line, i.e. without restarting the editor:
+>
+  C_CCompiler
+  C_CFlags
+  C_LFlags
+  C_Libs
+  C_CplusCFlags
+  C_CplusCompiler
+  C_CplusLFlags
+  C_CplusLibs
+  C_Debugger
+<
 ------------------------------------------------------------------------------
 4.2  THE ROOT MENU                                      *csupport-custom-root*
 ------------------------------------------------------------------------------
@@ -1411,16 +1494,16 @@ To override the default add appropriate assignments to ~/.vimrc .
 The variable g:C_RootMenu, if set (in '.vimrc' or in '.gvimrc'), gives the
 name of the single gVim root menu entry in which the C/C++ submenus will be
 put.  The default is
-
+>
   '&C\/C\+\+.'
-                  ''
-Note the terminating dot. 
+<                 ''
+Note the terminating dot.
 
 If you want to set the plugin root menu into another menu, e.g. 'Plugin',
 this is done by the following line in '.vimrc'
-
+>
   let g:C_RootMenu = '&Plugin.&C\/C\+\+.'
-
+<
 ------------------------------------------------------------------------------
 4.3  SYSTEM-WIDE INSTALLATION                           *csupport-system-wide*
 ------------------------------------------------------------------------------
@@ -1451,23 +1534,23 @@ directories. SUSE has a directory '/usr/share/vim/site' to put plugins in.
 These directories will not be found automatically.  After installing the
 plugin below '/usr/share/vim/site' the use of the templates will be enabled by
 the following line in '~/.vimrc':
-
+>
   let g:C_GlobalTemplateFile = '/usr/share/vim/site/c-support/templates/Templates'
-
+<
 As *** USER *** :
 
 Create your private snippet directory:
-
+>
   mkdir --parents  ~/.vim/c-support/codesnippets
-
+<
 You may want to copy the snippets coming with this plugin (in
 $VIM/vimfiles/c-support/codesnippets) into the new directory or to set a
 link to the global directory.
 
 Create your private template directory:
-
+>
   mkdir --parents  ~/.vim/c-support/templates
-
+<
 Create a private template file 'Templates' (compulsory) in this directory to
 overwrite some macros, e.g.
 >
@@ -1479,9 +1562,9 @@ overwrite some macros, e.g.
 <
 You can also have local templates which override the global ones. To see a
 messages in this case set a global variable in '~/.vimrc' (Windows: '~\_vimrc'):
-
-	let g:Templates_MapInUseWarn = 0
-
+>
+  let g:Templates_MapInUseWarn = 0
+<
 The default is '1'.
 
 ==============================================================================
@@ -1513,7 +1596,7 @@ usually looks like this (my settings as an example):
  § ==========================================================
  §  User Macros
  § ==========================================================
- 
+
  SetMacro( 'AUTHOR',      'Dr. Fritz Mehner' )
  SetMacro( 'AUTHORREF',   'fgm' )
  SetMacro( 'COMPANY',     '' )
@@ -1521,13 +1604,13 @@ usually looks like this (my settings as an example):
  SetMacro( 'EMAIL',       'mehner.fritz@fh-swf.de' )
  SetMacro( 'LICENSE',     'GNU General Public License' )
  SetMacro( 'ORGANIZATION','FH Südwestfalen, Iserlohn' )
- 
+
  SetStyle( 'C' )
- 
+
  § ==========================================================
  §  File Includes and Shortcuts
  § ==========================================================
- 
+
  MenuShortcut( 'Comments',     'c' )
  MenuShortcut( 'Statements',   's' )
  MenuShortcut( 'Idioms',       'i' )
@@ -1595,7 +1678,7 @@ personalize templates.
  ----------------------------------------------------------------------------
  <CURSOR>           The cursor position after insertion of a template.
  <+text+>,<-text->  See |csupport-templates-jumptags|.
- {+text+},{-text-}  
+ {+text+},{-text-}
 
  <SPLIT>            The split point when inserting in visual mode
                     (see|csupport-templates|)
@@ -1632,10 +1715,10 @@ master template file is '$HOME/.vim/c-support/templates/Templates',  e.g.
 
 5.3.1    Template definition                *csupport-templates-definition*
 The template behind a menu entry is identified by a given name. The first part
-of the name identifies the menu name, the second part identifies the item. 
+of the name identifies the menu name, the second part identifies the item.
 A template definition starts with a template header with the following syntax:
 
-  == menu_name.template_name == options == 
+  == menu_name.template_name == options ==
 
 The options are described here: |template-support-options|.
 
@@ -1646,13 +1729,13 @@ There are four jump tag types which can be used as jump targets in templates:
  <+text+>   Can be jumped to by hitting Ctrl-j.
  {+text+}   Same as <+text+>. Used in cases where indentation gives unwanted
             results with the first one.
- 
+
  <-text->   Same as the two above. Will be removed if the template is used
  {-text-}   in visual mode.
 
 The text inside the brackets is userdefined and can be empty. The text can be
 composed from letters (uppercase and lowercase), digits, and underscores.
-After the insertion of an template these jump targets will be highlighted. 
+After the insertion of an template these jump targets will be highlighted.
 
 5.3.3  Command Ctrl-j                                        *csupport-Ctrl-j*
 
@@ -1744,7 +1827,7 @@ in the taglist window.
  1) Append the file customization.ctags to the file $HOME/.ctags .
 
  2) Add the following lines (from customization.vimrc) to $HOME/.vimrc :
-
+>
   "
   "-------------------------------------------------------------------
   " taglist.vim : toggle the taglist window
@@ -1761,7 +1844,7 @@ in the taglist window.
     " ----------  qmake : set file type for *.pro  ----------
     autocmd BufNewFile,BufRead *.pro  set filetype=qmake
   endif " has("autocmd")
-
+<
  3) restart vim/gvim
 
 The two maps will toggle the taglist window (hotkey F11) in all editing modes.
@@ -1786,7 +1869,7 @@ Now add the following lines to the file $HOME/.vimrc :
 >
   let tlist_template_settings  = 'template;t:template'
   "---------------------------------------------------------------
-  " plugin templates : set filetype for *.template  
+  " plugin templates : set filetype for *.template
   "---------------------------------------------------------------
   if has("autocmd")
     autocmd BufNewFile,BufRead Templates  set filetype=template
@@ -1818,7 +1901,7 @@ and a warning will be shown.
 Visual mode
 -----------
 A range of lines containing closed folds can be surrounded by constructs which
-have a visual mode, e.g. a for-loop: 
+have a visual mode, e.g. a for-loop:
 >
     for ( ; ; ) {
   +---  4 lines: {------------------------------------------------------------
@@ -1835,7 +1918,7 @@ There are a few additional filetype specific key mappings defined in
 
 Complete a classical C comment: '/*' => '/* | */' (modes: i,v).
 
-Complete a classical C multi-line comment (mode: i): 
+Complete a classical C multi-line comment (mode: i):
   '/*<CR>' =>  /*
                 * |
                 */
@@ -1860,7 +1943,7 @@ Copy this file to ~/.vim/ftplugin and rename it to 'cpp.vim'.
 10.  WINDOWS PARTICULARITIES                                *csupport-windows*
 ==============================================================================
 
-For a user installation the plugin should go into the directory structure below 
+For a user installation the plugin should go into the directory structure below
   $HOME/vimfiles/
 for a system installation below
   $VIM/vimfiles/
@@ -1914,12 +1997,25 @@ directory):
   - Use ':scriptnames' from the Vim command line.
 
 * Some hotkeys do not work.
-  - The hotkeys might be in use by your graphical desktop environment.  Under
-    KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop.  The key
+  - The hotkeys might be in use by your graphical desktop environment. Under
+    KDE Ctrl-F9 is the hotkey which let you switch to the 9. desktop. The key
     settings can usually be redefined.
+
+* The plug-in loads slowly.
+  - By default, the template library is read while the plug-in is loading,
+    since the templates also define most of the menu structure. To not slow
+    down the startup of Vim, you can choose to only create the C/C++-menu when
+    opening the first C/C++-file. For that, add this line to your ~/.vimrc:
+      let g:C_CreateMenusDelayed = 'yes'
+    The only downside is that you won't see the C/C++-menu before you start
+    working on a C-file, or use the menu entry "Tools->Load C Support".
 
 * Splint and/or CodeCheck menu item not visible.
   - The program is not installed or not found (path not set) or not executable.
+
+* Code incorrectly indented after template insertion. The indentation may be
+  incorrect inside blocks,  if the <CURSOR> tag also appears inside the block.
+  See |template-support-templ-tags| for a detailed explanation.
 
 ==============================================================================
 13.  RELEASE NOTES                                    *csupport-release-notes*
@@ -1927,4 +2023,4 @@ directory):
 See file c-support/doc/ChangeLog .
 
 ==============================================================================
-vim:tw=78:noet:ts=2:ft=help:norl:
+vim:tw=78:noet:ts=2:ft=help:norl:expandtab:

@@ -9,10 +9,10 @@
 "   VIM Version:  7.0+
 "        Author:  Wolfgang Mehner, wolfgang-mehner@web.de
 "  Organization:  
-"       Version:  0.9
+"       Version:  see variable g:Templates_Version below
 "       Created:  30.08.2011
-"      Revision:  04.02.2012
-"       License:  Copyright (c) 2012, Wolfgang Mehner
+"      Revision:  11.02.2013
+"       License:  Copyright (c) 2012-2013, Wolfgang Mehner
 "                 This program is free software; you can redistribute it and/or
 "                 modify it under the terms of the GNU General Public License as
 "                 published by the Free Software Foundation, version 2 of the
@@ -25,20 +25,15 @@
 "===============================================================================
 "
 "-------------------------------------------------------------------------------
-" TODO , TODO (win) , TODO (FM)
-" some todos can be found in the internal documentation
-"-------------------------------------------------------------------------------
-"
-"-------------------------------------------------------------------------------
-" Basic checks.   {{{1
+" === Basic Checks ===   {{{1
 "-------------------------------------------------------------------------------
 "
 " need at least 7.0
 if v:version < 700
-  echohl WarningMsg
+	echohl WarningMsg
 	echo 'The plugin templates.vim needs Vim version >= 7.'
 	echohl None
-  finish
+	finish
 endif
 "
 " prevent duplicate loading
@@ -46,14 +41,14 @@ endif
 if &cp || ( exists('g:Templates_Version') && ! exists('g:Templates_DevelopmentOverwrite') )
 	finish
 endif
-let g:Templates_Version= '0.9'     " version number of this script; do not change
+let g:Templates_Version= '0.9.2-1'     " version number of this script; do not change
 "
 if ! exists ( 'g:Templates_MapInUseWarn' )
 	let g:Templates_MapInUseWarn = 1
 endif
 "
 "----------------------------------------------------------------------
-"  === Modul setup. ===   {{{1
+"  === Modul Setup ===   {{{1
 "----------------------------------------------------------------------
 "
 let s:DebugGlobalOverwrite = 0
@@ -72,7 +67,9 @@ let s:Flagactions = {
 			\ ':L' : ' (-> legalize name)',
 			\ }
 "
-let s:MsgInsertionNotAvail = "insertion not available for a fold"
+let s:StandardPriority = 500
+"
+let g:CheckedFiletypes = {}
 "
 "----------------------------------------------------------------------
 "  s:StandardMacros : The standard macros.   {{{2
@@ -89,20 +86,19 @@ let s:StandardMacros = {
 			\ }
 "
 "----------------------------------------------------------------------
-"  s:FileReadNameSpace : The set of functions a template file can call.   {{{2
+"  s:StandardProperties : The standard properties.   {{{2
 "----------------------------------------------------------------------
 "
-let s:FileReadNameSpace = {
-			\ 'IncludeFile'  : 'ss\?',
-			\ 'SetFormat'    : 'ss',
-			\ 'SetMacro'     : 'ss',
-			\ 'SetPath'      : 'ss',
-			\ 'SetStyle'     : 's',
+let s:StandardProperties = {
+			\ 'Templates::EditTemplates::Map'   : 're',
+			\ 'Templates::RereadTemplates::Map' : 'rr',
+			\ 'Templates::ChooseStyle::Map'     : 'rs',
 			\
-			\ 'MenuShortcut' : 'ss',
-			\ 'SetMap'       : 'ss',
-			\ 'SetProperty'  : 'ss',
-			\ 'SetShortcut'  : 'ss',
+			\ 'Templates::EditTemplates::Shortcut'   : 'e',
+			\ 'Templates::RereadTemplates::Shortcut' : 'r',
+			\ 'Templates::ChooseStyle::Shortcut'     : 's',
+			\
+			\ 'Templates::Mapleader' : '\',
 			\ }
 "
 "----------------------------------------------------------------------
@@ -120,7 +116,7 @@ let s:TypeNames[ type({})  ] = 'd'  " dict
 "       not important right now.
 "
 "----------------------------------------------------------------------
-"  === Regular Expressions. ===   {{{1
+"  === Syntax: Regular Expressions ===   {{{1
 "----------------------------------------------------------------------
 "
 let s:RegexSettings = {
@@ -184,13 +180,15 @@ function! s:UpdateFileReadRegex ( regex, settings )
 				\                     .'\s*\%(\('.a:settings.TextOpt.'\)\s*'.delim.'\)\?'
 	let a:regex.TemplateEnd   = '^'.delim.'\s*ENDTEMPLATE\s*'.delim
 	"
+	let a:regex.HelpStart     = '^'.delim.'\s*HELP:\s*'.a:regex.TemplateNameC.'\s*'.delim
+				\                     .'\s*\%(\('.a:settings.TextOpt.'\)\s*'.delim.'\)\?'
+	"let a:regex.HelpEnd       = '^'.delim.'\s*ENDHELP\s*'.delim
+	"
+	let a:regex.MenuSep       = '^'.delim.'\s*SEP:\s*'.a:regex.TemplateNameC.'\s*'.delim
+	"
 	let a:regex.ListStart     = '^'.delim.'\s*LIST:\s*'.a:regex.MacroNameC.'\s*'.delim
 				\                     .'\s*\%(\('.a:settings.TextOpt.'\)\s*'.delim.'\)\?'
 	let a:regex.ListEnd       = '^'.delim.'\s*ENDLIST\s*'.delim
-	"
-	let a:regex.HelpStart     = '^'.delim.'\s*HELP:\s*'.a:regex.TemplateNameC.'\s*'.delim
-				\                     .'\s*\%(\('.a:settings.TextOpt.'\)\s*'.delim.'\)\?'
-	let a:regex.HelpEnd       = '^'.delim.'\s*ENDHELP\s*'.delim
 	"
 	" Special Hints
 	let a:regex.CommentHint   = a:settings.CommentHint
@@ -217,7 +215,6 @@ function! s:UpdateTemplateRegex ( regex, settings )
 	let a:regex.MacroName    = a:settings.MacroName
 	let a:regex.MacroNameC   = '\('.a:settings.MacroName.'\)'
 	let a:regex.MacroMatch   = '^'.a:settings.MacroStart.a:settings.MacroName.a:settings.MacroEnd.'$'
-	let a:regex.MacroSimple  = a:settings.MacroStart.a:settings.MacroName.a:settings.MacroEnd
 	"
 	" Syntax Categories
 	let a:regex.FunctionLine    = '^'.a:settings.MacroStart.'\('.a:regex.MacroNameC.'(\(.*\))\)'.a:settings.MacroEnd.'\s*\n'
@@ -227,6 +224,7 @@ function! s:UpdateTemplateRegex ( regex, settings )
 	let a:regex.FunctionInsert  = a:settings.MacroStart.'\(Insert\|InsertLine\)'.'(\(.\{-}\))'.a:settings.MacroEnd
 	let a:regex.MacroRequest    = a:settings.MacroStart.'?'.a:regex.MacroNameC.'\%(:\(\a\)\)\?'.a:settings.MacroEnd
 	let a:regex.MacroInsert     = a:settings.MacroStart.''.a:regex.MacroNameC.'\%(:\(\a\)\)\?'.a:settings.MacroEnd
+	let a:regex.MacroNoCapture  = a:settings.MacroStart.a:settings.MacroName.'\%(:\a\)\?'.a:settings.MacroEnd
 	let a:regex.ListItem        = a:settings.MacroStart.''.a:regex.MacroNameC.':ENTRY_*'.a:settings.MacroEnd
 	"
 	let a:regex.TextBlockFunctions = '^\%(C\|Comment\|Insert\|InsertLine\)$'
@@ -239,7 +237,7 @@ endfunction    " ----------  end of function s:UpdateTemplateRegex  ----------
 " }}}2
 "
 "----------------------------------------------------------------------
-"  === Script: Auxiliary functions. ===   {{{1
+"  === Script: Auxiliary Functions ===   {{{1
 "----------------------------------------------------------------------
 "
 "----------------------------------------------------------------------
@@ -365,7 +363,10 @@ endfunction    " ----------  end of function s:UserInput ----------
 "----------------------------------------------------------------------
 "
 function! mmtemplates#core#UserInputEx ( ArgLead, CmdLine, CursorPos )
-	return filter( copy( s:UserInputList ), 'v:val =~ "\\V\\<'.escape(a:ArgLead,'\').'\\w\\*"' )
+	if empty( a:ArgLead )
+		return copy( s:UserInputList )
+	endif
+	return filter( copy( s:UserInputList ), 'v:val =~ ''\V\<'.escape(a:ArgLead,'\').'\w\*''' )
 endfunction    " ----------  end of function mmtemplates#core#UserInputEx  ----------
 " }}}3
 "
@@ -396,10 +397,49 @@ function! s:DebugMsg ( msg, ... )
 endfunction    " ----------  end of function s:DebugMsg  ----------
 "
 "----------------------------------------------------------------------
+" s:OpenFold : Open fold and go to the first or last line of this fold.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:OpenFold ( mode )
+	if foldclosed(".") < 0
+		return
+	endif
+	" we are on a closed fold:
+	" get end position, open fold,
+	" jump to the last line of the previously closed fold
+	let foldstart = foldclosed(".")
+	let foldend		= foldclosedend(".")
+	normal zv
+	if a:mode == 'below'
+		exe ":".foldend
+	elseif a:mode == 'start'
+		exe ":".foldstart
+	endif
+endfunction    " ----------  end of function s:OpenFold  ----------
+"
+"----------------------------------------------------------------------
 "  mmtemplates#core#NewLibrary : Create a new template library.   {{{1
 "----------------------------------------------------------------------
 "
 function! mmtemplates#core#NewLibrary ( ... )
+	"
+	" ==================================================
+	"  options
+	" ==================================================
+	"
+	let i = 1
+	while i <= a:0
+		"
+		if a:[i] == 'debug' && i+1 <= a:0 && ! s:DebugGlobalOverwrite
+			let s:DebugLevel = a:[i+1]
+			let i += 2
+		else
+			if type ( a:[i] ) == type ( '' ) | call s:ErrorMsg ( 'Unknown option: "'.a:[i].'"' )
+			else                             | call s:ErrorMsg ( 'Unknown option at position '.i.'.' ) | endif
+			let i += 1
+		endif
+		"
+	endwhile
 	"
 	" ==================================================
 	"  data
@@ -408,16 +448,17 @@ function! mmtemplates#core#NewLibrary ( ... )
 	" library
 	let library   = {
 				\ 'macros'         : {},
+				\ 'properties'     : {},
 				\ 'resources'      : {},
 				\ 'templates'      : {},
 				\
-				\ 'temp_list'      : [],
+				\ 'menu_order'     : [],
 				\
 				\ 'styles'         : [ 'default' ],
 				\ 'current_style'  : 'default',
 				\
 				\ 'menu_shortcuts' : {},
-				\ 'menu_existing'  : {},
+				\ 'menu_existing'  : { 'base' : 0 },
 				\
 				\ 'regex_settings' : ( copy ( s:RegexSettings ) ),
 				\ 'regex_file'     : {},
@@ -425,42 +466,394 @@ function! mmtemplates#core#NewLibrary ( ... )
 				\
 				\ 'library_files'  : [],
 				\ }
-	" used by maps: 'map_commands'
+	" entry used by maps: 'map_commands'
 	"
-	call extend ( library.macros, s:StandardMacros, 'keep' )
+	call extend ( library.macros,     s:StandardMacros,     'keep' )
+	call extend ( library.properties, s:StandardProperties, 'keep' )
 	"
 	call s:UpdateFileReadRegex ( library.regex_file,     library.regex_settings )
 	call s:UpdateTemplateRegex ( library.regex_template, library.regex_settings )
 	"
 	" ==================================================
-	"  parameters
+	"  wrap up
 	" ==================================================
 	"
-	let i = 1
-	while i <= a:0
-		"
-"		if a:[i] == 'debug' && i+1 <= a:0 && ! s:DebugGlobalOverwrite
-"			let s:DebugLevel = a:[i+1]
-"			let i += 2
-"		else
-			if type ( a:[i] ) == type ( '' ) | call s:ErrorMsg ( 'Unknown option: "'.a:[i].'"' )
-			else                             | call s:ErrorMsg ( 'Unknown option at position '.i.'.' ) | endif
-			let i += 1
-"		endif
-		"
-	endwhile
-	"
-	" ==================================================
-	"  done
-	" ==================================================
+	let s:DebugLevel = s:DebugGlobalOverwrite   " reset debug
 	"
 	return library      " return the new library
 	"
 endfunction    " ----------  end of function mmtemplates#core#NewLibrary  ----------
 "
 "----------------------------------------------------------------------
-"  === Read Templates: Auxiliary functions. ===   {{{1
+"  === Read Templates: Auxiliary Functions ===   {{{1
 "----------------------------------------------------------------------
+"
+"----------------------------------------------------------------------
+"  s:TemplateTypeNames : Readable type names for templates.   {{{2
+"----------------------------------------------------------------------
+"
+let s:TemplateTypeNames = {
+			\ 'help' : 'help',
+			\ 'sep'  : 'separator',
+			\ 't'    : 'template',
+			\ }
+"
+"----------------------------------------------------------------------
+"  s:AddText : Add a text.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:AddText ( type, name, settings, lines )
+	"
+	if a:type == 'help'
+		call s:AddTemplate ( 'help', a:name, a:settings, a:lines )
+	elseif a:type == 'list'
+		call s:AddList ( 'list', a:name, a:settings, a:lines )
+	elseif a:type == 'template'
+		call s:AddTemplate ( 't', a:name, a:settings, a:lines )
+	endif
+	"
+endfunction    " ----------  end of function s:AddText  ----------
+"
+"----------------------------------------------------------------------
+"  s:AddList : Add a list.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:AddList ( type, name, settings, lines )
+	"
+	" ==================================================
+	"  checks
+	" ==================================================
+	"
+	" Error: empty name
+	if empty ( a:name )
+		call s:ErrorMsg ( 'List name can not be empty.' )
+		return
+	endif
+	"
+	" Warning: empty list
+	if empty ( a:lines )
+		call s:ErrorMsg ( 'Warning: Empty list: "'.a:name.'"' )
+	endif
+	"
+	" Warning: already existing
+	if s:t_runtime.overwrite_warning && has_key ( s:library.resources, 'list!'.a:name )
+		call s:ErrorMsg ( 'Warning: Overwriting list "'.a:name.'"' )
+	endif
+	"
+	" ==================================================
+	"  settings
+	" ==================================================
+	"
+	let type  = 'list'
+	let bare  = 0
+	"
+	for s in a:settings
+		"
+		if s == 'list'
+			let type = 'list'
+		elseif s == 'hash' || s == 'dict' || s == 'dictionary'
+			let type = 'dict'
+		elseif s == 'bare'
+			let bare = 1
+		else
+			call s:ErrorMsg ( 'Warning: Unknown setting in list "'.a:name.'": "'.s.'"' )
+		endif
+		"
+	endfor
+	"
+	if type == 'list'
+		if bare
+			let lines = escape( a:lines, '"' )
+			let lines = substitute( lines, '^\s*',     '"',    '' )
+			let lines = substitute( lines, '\s*\n$',   '"',    '' )
+			let lines = substitute( lines, '\s*\n\s*', '", "', 'g' )
+			exe 'let list = [ '.lines.' ]'
+		else
+			exe 'let list = [ '.substitute( a:lines, '\n', ' ', 'g' ).' ]'
+		end
+		call sort ( list )
+	elseif type == 'dict'
+		if bare
+			s:ErrorMsg ( 'bare hash: to be implemented' )
+		else
+			exe 'let list = { '.substitute( a:lines, '\n', ' ', 'g' ).' }'
+		end
+	endif
+	"
+	let s:library.resources[ 'list!'.a:name ] = list
+	"
+endfunction    " ----------  end of function s:AddList  ----------
+"
+"----------------------------------------------------------------------
+"  s:AddTemplate : Add a template.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:AddTemplate ( type, name, settings, lines )
+	"
+	let name = a:name
+	"
+	" ==================================================
+	"  checks
+	" ==================================================
+	"
+	" Error: empty name
+	if empty ( name )
+		call s:ErrorMsg ( 'Template name can not be empty.' )
+		return
+	endif
+	"
+	" Warning: empty template
+	if empty ( a:lines )
+		call s:ErrorMsg ( 'Warning: Empty template: "'.name.'"' )
+	endif
+	"
+	" ==================================================
+	"  new template
+	" ==================================================
+	"
+	if has_key ( s:library.templates, name.'!!type' )
+		let my_type    = a:type
+		let other_type = split ( s:library.templates[ name.'!!type' ], ',' )[0]
+		"
+		if my_type != other_type
+			if my_type == 't'
+				call s:ErrorMsg ( 'Template "'.name.'" can not overwrite an object of the same name of type "'.s:TemplateTypeNames[other_type].'".' )
+			elseif my_type == 'help'
+				call s:ErrorMsg ( 'Help template "'.name.'" can not overwrite an object of the same name of type "'.s:TemplateTypeNames[other_type].'".' )
+			endif
+			return
+		endif
+	else
+		"
+		" --------------------------------------------------
+		"  new template
+		" --------------------------------------------------
+		let type        = a:type
+		let placement   = 'below'
+		let indentation = '1'
+		"
+		let visual    = -1 != stridx ( a:lines, '<SPLIT>' )
+		let mp        = ''
+		let entry     = 1
+		let sc        = ''
+		"
+		" --------------------------------------------------
+		"  settings
+		" --------------------------------------------------
+		for s in a:settings
+			"
+			if s == 'start' || s == 'above' || s == 'below' || s == 'append' || s == 'insert'
+				let placement = s
+
+				" indentation
+			elseif s == 'indent'
+				let indentation = '1'
+			elseif s == 'noindent'
+				let indentation = '0'
+
+				" special insertion in visual mode:
+			elseif s == 'visual'
+				let visual = 1
+			elseif s == 'novisual'
+				let visual = 0
+
+				" map:
+			elseif s =~ '^map\s*:'
+				let mp = matchstr ( s, '^map\s*:\s*\zs'.s:library.regex_file.Mapping )
+
+				" entry and shortcut:
+			elseif s == 'nomenu'
+				let entry = 0
+			elseif s == 'expandmenu'
+				let entry = 2
+			elseif s =~ '^sc\s*:' || s =~ '^shortcut\s*:'
+				let sc = matchstr ( s, '^\w\+\s*:\s*\zs'.s:library.regex_file.Mapping )
+
+			else
+				call s:ErrorMsg ( 'Warning: Unknown setting in template "'.name.'": "'.s.'"' )
+			endif
+			"
+		endfor
+		"
+		" TODO: review this
+		if a:type == 'help'
+			let placement = 'help'
+		endif
+		"
+		" --------------------------------------------------
+		"  new template
+		" --------------------------------------------------
+		let s:library.templates[ name.'!!type' ] = type.','.placement.','.indentation
+		let s:library.templates[ name.'!!menu' ] = visual.",".string(mp).",".entry.",'',".string(sc)
+		"
+		call add ( s:library.menu_order, name )
+		"
+	endif
+	"
+	" ==================================================
+	"  text
+	" ==================================================
+	"
+	" the styles
+	if a:type == 'help'
+		" Warning: overwriting a style
+		if s:t_runtime.overwrite_warning && has_key ( s:library.templates, name.'!default' )
+			call s:ErrorMsg ( 'Warning: Overwriting a help template: "'.name.'"' )
+		endif
+		let s:library.templates[ name.'!default' ] = a:lines
+		return
+	elseif empty ( s:t_runtime.use_styles )
+		let styles = [ 'default' ]
+	else
+		let styles = s:t_runtime.use_styles
+	endif
+	"
+	" save the lines
+	for s in styles
+		"
+		" Warning: overwriting a style
+		if s:t_runtime.overwrite_warning && has_key ( s:library.templates, name.'!'.s )
+			call s:ErrorMsg ( 'Warning: Overwriting style in template "'.name.'": "'.s.'"' )
+		endif
+		"
+		let s:library.templates[ name.'!'.s ] = a:lines
+		"
+	endfor
+	"
+endfunction    " ----------  end of function s:AddTemplate  ----------
+"
+"----------------------------------------------------------------------
+"  s:AddSeparator : Add a menu separator.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:AddSeparator ( type, name, settings )
+	"
+	let name = a:name
+	"
+	" ==================================================
+	"  checks
+	" ==================================================
+	"
+	" Error: empty name
+	if empty ( name )
+		call s:ErrorMsg ( 'Separator name can not be empty.' )
+		return
+	endif
+	"
+	" ==================================================
+	"  new separator
+	" ==================================================
+	"
+	if has_key ( s:library.templates, name.'!!type' )
+		"
+		let my_type    = a:type
+		let other_type = split ( s:library.templates[ name.'!!type' ], ',' )[0]
+		"
+		if my_type != other_type
+			call s:ErrorMsg ( 'Separator "'.name.'" can not overwrite an object of the same name of type "'.s:TemplateTypeNames[other_type].'".' )
+			return
+		endif
+	else
+		"
+		let s:library.templates[ name.'!!type' ] = 'sep,,0'
+		let s:library.templates[ name.'!!menu' ] = "0,'',11,'',''"
+		"
+		call add ( s:library.menu_order, name )
+		"
+	endif
+	"
+endfunction    " ----------  end of function s:AddSeparator  ----------
+"
+"----------------------------------------------------------------------
+"  s:AddStyles : Add styles to the list.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:AddStyles ( styles )
+	"
+	" TODO: check for valid name
+	" add the styles to the list
+	for s in a:styles
+		if -1 == index ( s:library.styles, s )
+			call add ( s:library.styles, s )
+		endif
+	endfor
+	"
+endfunction    " ----------  end of function s:AddStyles  ----------
+"
+"----------------------------------------------------------------------
+"  s:UseStyles : Set the styles.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:UseStyles ( styles )
+	"
+	" 'use_styles' empty? -> we may have new styles
+	" otherwise           -> must be a subset, so no new styles
+	if empty ( s:t_runtime.use_styles )
+		" add the styles to the list
+		call s:AddStyles ( a:styles )
+	else
+		" are the styles a sub-set of the currently used styles?
+		for s in a:styles
+			if -1 == index ( s:t_runtime.use_styles, s )
+				call s:ErrorMsg ( 'Style "'.s.'" currently not in use.' )
+				return
+			endif
+		endfor
+	endif
+	"
+	" push the new style and use it as the current style
+	call add ( s:t_runtime.styles_stack, a:styles )
+	let  s:t_runtime.use_styles = a:styles
+	"
+endfunction    " ----------  end of function s:UseStyles  ----------
+"
+"----------------------------------------------------------------------
+"  s:RevertStyles : Revert the styles.   {{{2
+"----------------------------------------------------------------------
+"
+function! s:RevertStyles ( times )
+	"
+	" get the current top, and check whether any more styles can be removed
+	let state_lim = s:t_runtime.state_stack[ s:StateStackStyleTop ]
+	let state_top = len( s:t_runtime.styles_stack )
+	"
+	if state_lim > ( state_top - a:times )
+		call s:ErrorMsg ( 'Can not close any more style sections.' )
+		return
+	endif
+	"
+	" remove the top
+	call remove ( s:t_runtime.styles_stack, -1 * a:times, -1 )
+	"
+	" reset the current style
+	if state_top > a:times
+		let s:t_runtime.use_styles = s:t_runtime.styles_stack[ -1 ]
+	else
+		let s:t_runtime.use_styles = []
+	endif
+	"
+endfunction    " ----------  end of function s:RevertStyles  ----------
+"
+"----------------------------------------------------------------------
+"  === Read Templates: Template File Namespace ===   {{{1
+"----------------------------------------------------------------------
+"
+"----------------------------------------------------------------------
+"  s:FileReadNameSpace : The set of functions a template file can call.   {{{2
+"----------------------------------------------------------------------
+"
+let s:FileReadNameSpace = {
+			\ 'IncludeFile'  : 'ss\?',
+			\ 'SetFormat'    : 'ss',
+			\ 'SetMacro'     : 'ss',
+			\ 'SetPath'      : 'ss',
+			\ 'SetProperty'  : 'ss',
+			\ 'SetStyle'     : 's',
+			\
+			\ 'MenuShortcut' : 'ss',
+			\ }
+" 			\ 'SetMap'       : 'ss',
+" 			\ 'SetShortcut'  : 'ss',
 "
 "----------------------------------------------------------------------
 "  s:SetFormat : Set the format of |DATE|, ... (template function).   {{{2
@@ -558,12 +951,16 @@ function! s:SetMap ( name, map )
 endfunction    " ----------  end of function s:SetMap  ----------
 "
 "----------------------------------------------------------------------
-"  s:SetProperty : TODO (template function).   {{{2
+"  s:SetProperty : Set an existing property.   {{{2
 "----------------------------------------------------------------------
 "
-function! s:SetProperty ( name, shortcut )
+function! s:SetProperty ( name, value )
 	"
-	echo 'SetProperty: TO BE IMPLEMENTED'
+	let [ _, err ] = mmtemplates#core#Resource ( s:library, 'set', 'property', a:name , a:value )
+	"
+	if err != ''
+		return s:ErrorMsg ( 'Can not set the property "'.a:name.'".' )
+	endif
 	"
 endfunction    " ----------  end of function s:SetProperty  ----------
 "
@@ -584,300 +981,7 @@ function! s:SetShortcut ( name, shortcut )
 endfunction    " ----------  end of function s:SetShortcut  ----------
 "
 "----------------------------------------------------------------------
-"  s:AddStyles : Add styles to the list.   {{{2
-"----------------------------------------------------------------------
-"
-function! s:AddStyles ( styles )
-	"
-	" TODO: check for valid name
-	" add the styles to the list
-	for s in a:styles
-		if -1 == index ( s:library.styles, s )
-			call add ( s:library.styles, s )
-		endif
-	endfor
-	"
-endfunction    " ----------  end of function s:AddStyles  ----------
-"
-"----------------------------------------------------------------------
-"  s:UseStyles : Set the styles.   {{{2
-"----------------------------------------------------------------------
-"
-function! s:UseStyles ( styles )
-	"
-	" 'use_styles' empty? -> we may have new styles
-	" otherwise           -> must be a subset, so no new styles
-	if empty ( s:t_runtime.use_styles )
-		" add the styles to the list
-		call s:AddStyles ( a:styles )
-	else
-		" are the styles a sub-set of the currently used styles?
-		for s in a:styles
-			if -1 == index ( s:t_runtime.use_styles, s )
-				call s:ErrorMsg ( 'Style "'.s.'" currently not in use.' )
-				return
-			endif
-		endfor
-	endif
-	"
-	" push the new style and use it as the current style
-	call add ( s:t_runtime.styles_stack, a:styles )
-	let  s:t_runtime.use_styles = a:styles
-	"
-endfunction    " ----------  end of function s:UseStyles  ----------
-"
-"----------------------------------------------------------------------
-"  s:RevertStyles : Revert the styles.   {{{2
-"----------------------------------------------------------------------
-"
-function! s:RevertStyles ( times )
-	"
-	" get the current top, and check whether any more styles can be removed
-	let state_lim = s:t_runtime.state_stack[ s:StateStackStyleTop ]
-	let state_top = len( s:t_runtime.styles_stack )
-	"
-	if state_lim > ( state_top - a:times )
-		call s:ErrorMsg ( 'Can not close any more style sections.' )
-		return
-	endif
-	"
-	" remove the top
-	call remove ( s:t_runtime.styles_stack, -1 * a:times, -1 )
-	"
-	" reset the current style
-	if state_top > a:times
-		let s:t_runtime.use_styles = s:t_runtime.styles_stack[ -1 ]
-	else
-		let s:t_runtime.use_styles = []
-	endif
-	"
-endfunction    " ----------  end of function s:RevertStyles  ----------
-"
-"----------------------------------------------------------------------
-"  s:AddText : Add a text.   {{{1
-"----------------------------------------------------------------------
-"
-function! s:AddText ( type, name, settings, lines )
-	"
-	if a:type == 'help'
-		call s:AddTemplate ( 'help', a:name, a:settings, a:lines )
-	elseif a:type == 'list'
-		call s:AddList ( 'list', a:name, a:settings, a:lines )
-	elseif a:type == 'template'
-		call s:AddTemplate ( 't', a:name, a:settings, a:lines )
-	endif
-	"
-endfunction    " ----------  end of function s:AddText  ----------
-"
-"----------------------------------------------------------------------
-"  s:AddList : Add a list.   {{{1
-"----------------------------------------------------------------------
-"
-function! s:AddList ( type, name, settings, lines )
-	"
-	" ==================================================
-	"  checks
-	" ==================================================
-	"
-	" Error: empty name
-	if empty ( a:name )
-		call s:ErrorMsg ( 'List name can not be empty.' )
-		return
-	endif
-	"
-	" Warning: empty template
-	if empty ( a:lines )
-		call s:ErrorMsg ( 'Warning: Empty list: "'.a:name.'"' )
-	endif
-	"
-	" Warning: already existing
-	if s:t_runtime.overwrite_warning && has_key ( s:library.resources, 'list!'.a:name )
-		call s:ErrorMsg ( 'Warning: Overwriting list "'.a:name.'"' )
-	endif
-	"
-	" ==================================================
-	"  settings
-	" ==================================================
-	"
-	let type  = 'list'
-	let bare  = 0
-	"
-	for s in a:settings
-		"
-		if s == 'list'
-			let type = 'list'
-		elseif s == 'hash' || s == 'dict' || s == 'dictionary'
-			let type = 'dict'
-		elseif s == 'bare'
-			let bare = 1
-		else
-			call s:ErrorMsg ( 'Warning: Unknown setting in list "'.a:name.'": "'.s.'"' )
-		endif
-		"
-	endfor
-	"
-	if type == 'list'
-		if bare
-			let lines = escape( a:lines, '"' )
-			let lines = substitute( lines, '^\s*',     '"',    '' )
-			let lines = substitute( lines, '\s*\n$',   '"',    '' )
-			let lines = substitute( lines, '\s*\n\s*', '", "', 'g' )
-			exe 'let list = [ '.lines.' ]'
-		else
-			exe 'let list = [ '.substitute( a:lines, '\n', ' ', 'g' ).' ]'
-		end
-		call sort ( list )
-	elseif type == 'dict'
-		if bare
-			s:ErrorMsg ( 'bare hash: to be implemented' )
-		else
-			exe 'let list = { '.substitute( a:lines, '\n', ' ', 'g' ).' }'
-		end
-	endif
-	"
-	let s:library.resources[ 'list!'.a:name ] = list
-	"
-endfunction    " ----------  end of function s:AddList  ----------
-"
-"----------------------------------------------------------------------
-"  s:AddTemplate : Add a template.   {{{1
-"----------------------------------------------------------------------
-"
-function! s:AddTemplate ( type, name, settings, lines )
-	"
-	let name = a:name
-	"
-	" ==================================================
-	"  checks
-	" ==================================================
-	"
-	" Error: empty name
-	if empty ( name )
-		call s:ErrorMsg ( 'Template name can not be empty.' )
-		return
-	endif
-	"
-	" Warning: empty template
-	if empty ( a:lines )
-		call s:ErrorMsg ( 'Warning: Empty template: "'.name.'"' )
-	endif
-	"
-	" ==================================================
-	"  new template
-	" ==================================================
-	"
-	if ! has_key ( s:library.templates, name.'!!type' )
-		"
-		" --------------------------------------------------
-		"  new template
-		" --------------------------------------------------
-		"
-		let type        = a:type
-		let placement   = 'below'
-		let indentation = '1'
-		"
-		let entry     = 1
-		let sc        = ''
-		let mp        = ''
-		let visual    = -1 != stridx ( a:lines, '<SPLIT>' )
-		"
-		" --------------------------------------------------
-		"  settings
-		" --------------------------------------------------
-		for s in a:settings
-			"
-			if s == 'start' || s == 'above' || s == 'below' || s == 'append' || s == 'insert'
-				let placement = s
-
-				" entry and hot keys:
-			elseif s == 'nomenu'
-				let entry = 0
-			elseif s == 'expandmenu'
-				let entry = 2
-			elseif s =~ '^sc\s*:' || s =~ '^shortcut\s*:'
-				let sc = matchstr ( s, '^\w\+\s*:\s*\zs'.s:library.regex_file.Mapping )
-			elseif s =~ '^map\s*:'
-				let mp = matchstr ( s, '^map\s*:\s*\zs'.s:library.regex_file.Mapping )
-
-				" special insertion in visual mode:
-			elseif s == 'visual'
-				let visual = 1
-			elseif s == 'novisual'
-				let visual = 0
-
-				" indentation
-			elseif s == 'indent'
-				let indentation = '1'
-			elseif s == 'noindent'
-				let indentation = '0'
-
-" 				" picker:
-" 			elseif s == 'pick-file'
-" 				let type = 'pick-file'
-" 			elseif s == 'pick-list'
-" 				let type = 'pick-list'
-
-"				" lists:
-"			elseif s == 'single-line-list'
-"				let type = 'single-line-list'
-"			elseif s == 'multi-line-list'
-"				let type = 'multi-line-list'
-
-			else
-				call s:ErrorMsg ( 'Warning: Unknown setting in template "'.name.'": "'.s.'"' )
-			endif
-			"
-		endfor
-		"
-		" TODO: review this
-		if a:type == 'help'
-			let placement = 'help'
-		endif
-		"
-		" --------------------------------------------------
-		"  new template
-		" --------------------------------------------------
-		let s:library.templates[ name.'!!type' ] = type.','.placement.','.indentation
-		let s:library.templates[ name.'!!menu' ] = entry.",".visual.",'".sc."','".mp."'"
-		"
-		call add ( s:library.temp_list, name )
-		"
-	endif
-	"
-	" ==================================================
-	"  text
-	" ==================================================
-	"
-	" the styles
-	if a:type == 'help'
-		" Warning: overwriting a style
-		if s:t_runtime.overwrite_warning && has_key ( s:library.templates, name.'!default' )
-			call s:ErrorMsg ( 'Warning: Help is overwriting a template: "'.name.'"' )
-		endif
-		let s:library.templates[ name.'!default' ] = a:lines
-		return
-	elseif empty ( s:t_runtime.use_styles )
-		let styles = [ 'default' ]
-	else
-		let styles = s:t_runtime.use_styles
-	endif
-	"
-	" save the lines
-	for s in styles
-		"
-		" Warning: overwriting a style
-		if s:t_runtime.overwrite_warning && has_key ( s:library.templates, name.'!'.s )
-			call s:ErrorMsg ( 'Warning: Overwriting style in template "'.name.'": "'.s.'"' )
-		endif
-		"
-		let s:library.templates[ name.'!'.s ] = a:lines
-		"
-	endfor
-	"
-endfunction    " ----------  end of function s:AddTemplate  ----------
-"
-"----------------------------------------------------------------------
-"  s:IncludeFile : Read a template file (IncludeFile).   {{{1
+"  s:IncludeFile : Read a template file (template function).   {{{2
 "----------------------------------------------------------------------
 "
 function! s:IncludeFile ( templatefile, ... )
@@ -928,9 +1032,6 @@ function! s:IncludeFile ( templatefile, ... )
 	" debug:
 	call s:DebugMsg ( 'Reading '.templatefile.' ...', 2 )
 	"
-	" old format?
-	let format = 'new'   " TODO: review this
-	"
 	let state       = 'command'
 	let t_start     = 0
 	let last_styles = ''
@@ -941,7 +1042,7 @@ function! s:IncludeFile ( templatefile, ... )
 	"
 	let filelines = readfile( templatefile )
 	"
-  for line in filelines
+	for line in filelines
 		"
 		let firstchar = line[0]
 		"
@@ -1041,21 +1142,28 @@ function! s:IncludeFile ( templatefile, ... )
 					continue
 				endif
 				"
+				" separator?
+				let mlist = matchlist ( line, regex.MenuSep )
+				if ! empty ( mlist )
+					call s:AddSeparator ( 'sep', mlist[1], '' )
+					continue
+				endif
+				"
 				" start of text?
 				let mlist_template = matchlist ( line, regex.TemplateStart )
-				let mlist_list     = matchlist ( line, regex.ListStart )
 				let mlist_help     = matchlist ( line, regex.HelpStart )
+				let mlist_list     = matchlist ( line, regex.ListStart )
 				if ! empty ( mlist_template )
 					let state   = 'text'
 					let t_type  = 'template'
 					let t_start = 1
-				elseif ! empty ( mlist_list )
-					let state   = 'text'
-					let t_type  = 'list'
-					let t_start = 1
 				elseif ! empty ( mlist_help )
 					let state   = 'text'
 					let t_type  = 'help'
+					let t_start = 1
+				elseif ! empty ( mlist_list )
+					let state   = 'text'
+					let t_type  = 'list'
 					let t_start = 1
 				endif
 				"
@@ -1072,32 +1180,31 @@ function! s:IncludeFile ( templatefile, ... )
 			" ==================================================
 			"
 			if firstchar == regex.CommentHint || firstchar == regex.DelimHint
-			"if firstchar =~ '[=\$]' 
 				"
 				" comment or end of template?
 				if line =~ regex.CommentLine
-							\ || ( line =~ regex.TemplateEnd && format == 'new' )
-							\ || ( line =~ regex.ListEnd     && format == 'new' )
+							\ || line =~ regex.TemplateEnd
+							\ || line =~ regex.ListEnd
 					let state = 'command'
 					call s:AddText ( t_type, t_name, t_settings, t_lines )
 					continue
 				endif
 				"
-				" start of new template?
+				" start of new text?
 				let mlist_template = matchlist ( line, regex.TemplateStart )
-				let mlist_list     = matchlist ( line, regex.ListStart )
 				let mlist_help     = matchlist ( line, regex.HelpStart )
+				let mlist_list     = matchlist ( line, regex.ListStart )
 				if ! empty ( mlist_template )
 					call s:AddText ( t_type, t_name, t_settings, t_lines )
 					let t_type  = 'template'
 					let t_start = 1
-				elseif ! empty ( mlist_list )
-					call s:AddText ( t_type, t_name, t_settings, t_lines )
-					let t_type  = 'list'
-					let t_start = 1
 				elseif ! empty ( mlist_help )
 					call s:AddText ( t_type, t_name, t_settings, t_lines )
 					let t_type  = 'help'
+					let t_start = 1
+				elseif ! empty ( mlist_list )
+					call s:AddText ( t_type, t_name, t_settings, t_lines )
+					let t_type  = 'list'
 					let t_start = 1
 				else
 					let t_lines .= line."\n"    " read the line
@@ -1160,15 +1267,12 @@ endfunction    " ----------  end of function s:IncludeFile  ----------
 "  mmtemplates#core#ReadTemplates : Read a template file.   {{{1
 "----------------------------------------------------------------------
 "
-" TODO: what to do with library.temp_list during reloading?
-"
 function! mmtemplates#core#ReadTemplates ( library, ... )
 	"
 	" ==================================================
-	"  checks
+	"  parameters
 	" ==================================================
 	"
-	" check the arguments
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	elseif type( a:library ) == type( {} )
@@ -1177,14 +1281,11 @@ function! mmtemplates#core#ReadTemplates ( library, ... )
 		return s:ErrorMsg ( 'Argument "library" must be given as a dict or string.' )
 	endif
 	"
-	let mode = ''
-	let file = ''
-	"
 	" ==================================================
 	"  setup
 	" ==================================================
 	"
-	" library
+	" library and runtime information
 	let s:library   = t_lib
 	let s:t_runtime = {
 				\ 'state_stack'   : [],
@@ -1195,8 +1296,11 @@ function! mmtemplates#core#ReadTemplates ( library, ... )
 				\ 'overwrite_warning' : 0,
 				\ }
 	"
+	let mode = ''
+	let file = ''
+	"
 	" ==================================================
-	"  parameters
+	"  options
 	" ==================================================
 	"
 	let i = 1
@@ -1314,23 +1418,23 @@ function! mmtemplates#core#ReadTemplates ( library, ... )
 		echo 'Loading library: '.reltimestr( reltime( time_start ) )
 	endif
 	"
+	if mode == 'reload'
+		echo 'Reloaded the template library.'
+	endif
+	"
 	" ==================================================
 	"  wrap up
 	" ==================================================
 	"
-	unlet s:library     " remove script variables
-	unlet s:t_runtime   " ...
+	unlet s:library                             " remove script variables
+	unlet s:t_runtime                           " ...
 	"
-	let s:DebugLevel = s:DebugGlobalOverwrite  " reset debug
+	let s:DebugLevel = s:DebugGlobalOverwrite   " reset debug
 	"
-	if mode == 'reload'
-		echo 'Reloaded the template library.'
-	endif
-
 endfunction    " ----------  end of function mmtemplates#core#ReadTemplates  ----------
 "
 "----------------------------------------------------------------------
-" === Insert Templates: Auxiliary functions. ===   {{{1
+" === Templates ===   {{{1
 "----------------------------------------------------------------------
 "
 "----------------------------------------------------------------------
@@ -1339,9 +1443,9 @@ endfunction    " ----------  end of function mmtemplates#core#ReadTemplates  ---
 "
 function! s:ApplyFlag ( text, flag )
 	"
-  if a:flag == '' || a:flag == 'i'      " i : identity
+	if a:flag == '' || a:flag == 'i'      " i : identity
 		return a:text
-  elseif a:flag == 'l'                  " l : lowercase
+	elseif a:flag == 'l'                  " l : lowercase
 		return tolower(a:text)
 	elseif a:flag == 'u'                  " u : uppercase
 		return toupper(a:text)
@@ -1359,28 +1463,7 @@ function! s:ApplyFlag ( text, flag )
 endfunction    " ----------  end of function s:ApplyFlag  ----------
 "
 "----------------------------------------------------------------------
-" s:OpenFold : Open fold and go to the first or last line of this fold.   {{{2
-"----------------------------------------------------------------------
-"
-function! s:OpenFold ( mode )
-	if foldclosed(".") < 0
-		return
-	endif
-	" we are on a closed fold:
-	" get end position, open fold,
-	" jump to the last line of the previously closed fold
-	let foldstart = foldclosed(".")
-	let foldend		= foldclosedend(".")
-	normal zv
-	if a:mode == 'below'
-		exe ":".foldend
-	elseif a:mode == 'start'
-		exe ":".foldstart
-	endif
-endfunction    " ----------  end of function s:OpenFold  ----------
-"
-"----------------------------------------------------------------------
-" s:ReplaceMacros : Replace all the macros in a text.   {{{1
+" s:ReplaceMacros : Replace all the macros in a text.   {{{2
 "----------------------------------------------------------------------
 "
 function! s:ReplaceMacros ( text, m_local )
@@ -1410,7 +1493,7 @@ function! s:ReplaceMacros ( text, m_local )
 			let m_text = get ( s:library.macros, mlist[2], '' )
 		end
 		"
-		if m_text =~ s:library.regex_template.MacroSimple
+		if m_text =~ s:library.regex_template.MacroNoCapture
 			"
 			call add ( s:t_runtime.macro_stack, mlist[2] )
 			"
@@ -1434,56 +1517,8 @@ function! s:ReplaceMacros ( text, m_local )
 	"
 endfunction    " ----------  end of function s:ReplaceMacros  ----------
 "
-" "----------------------------------------------------------------------
-" " s:ReplaceMacrosOld : Replace all the macros in a text.   {{{1
-" "----------------------------------------------------------------------
-" "
-" function! s:ReplaceMacrosOld ( text, m_local, m_global )
-" 	"
-" 	" TODO: prevent recursion of macros
-" 	" TODO: should be rewritten, so that this works as expected:
-" 	"  |DDD| = test
-" 	"  |EEE| = |DDD|
-" 	" Expanding |EEE:u| will result in:
-" 	"  test
-" 	"
-" 	let text   = a:text
-" 	"
-" 	while 1
-" 		"
-" 		let mlist = matchlist ( text, s:library.regex_template.MacroInsert )
-" 		"
-" 		" no more macros?
-" 		if empty ( mlist )
-" 			break
-" 		endif
-" 		"
-" 		if has_key ( a:m_local,  mlist[1] )
-" 			let m_text = get ( a:m_local,  mlist[1] )
-" 		else
-" 			let m_text = get ( a:m_global, mlist[1], '' )
-" 		end
-" 		"
-" 		" apply flag?
-" 		if ! empty ( mlist[2] )
-" 			let m_text = s:ApplyFlag ( m_text, mlist[2] )
-" 		endif
-" 		"
-" 		" insert the replacement
-" 		let text = s:LiteralReplacement ( text, mlist[0], m_text, 'g' )
-" 		"
-" 	endwhile
-" 	"
-" 	return text
-" 	"
-" endfunction    " ----------  end of function s:ReplaceMacrosOld  ----------
-"
 "----------------------------------------------------------------------
-" === Templates ===   {{{1
-"----------------------------------------------------------------------
-"
-"----------------------------------------------------------------------
-" s:CheckHelp : Check a template (pick-file).   {{{2
+" s:CheckHelp : Check a template (help).   {{{2
 "----------------------------------------------------------------------
 "
 let s:NamespaceHelp = {
@@ -1498,32 +1533,6 @@ function! s:CheckHelp ( cmds, text, calls )
 endfunction    " ----------  end of function s:CheckHelp  ----------
 "
 " "----------------------------------------------------------------------
-" " s:CheckPickFile : Check a template (pick-file).   {{{2
-" "----------------------------------------------------------------------
-" "
-" let s:NamespacePickFile = {
-" 			\ 'Prompt'   : 's',
-" 			\ 'Path'     : 's', 'GetPath'    : 's',
-" 			\ }
-" "
-" function! s:CheckPickFile ( cmds, text, calls )
-" 	return [ a:cmds, a:text ]
-" endfunction    " ----------  end of function s:CheckPickFile  ----------
-" "
-" "----------------------------------------------------------------------
-" " s:CheckPickList : Check a template (pick-list).   {{{2
-" "----------------------------------------------------------------------
-" "
-" let s:NamespacePickList = {
-" 			\ 'Prompt' : 's',
-" 			\ 'List'   : '[ld]', 'GetList' : 's',
-" 			\ }
-" "
-" function! s:CheckPickList ( cmds, text, calls )
-" 	return [ a:cmds, a:text ]
-" endfunction    " ----------  end of function s:CheckPickList  ----------
-"
-"----------------------------------------------------------------------
 " s:CheckStdTempl : Check a template (standard).   {{{2
 "----------------------------------------------------------------------
 "
@@ -1672,10 +1681,11 @@ function! s:CheckTemplate ( template, type )
 	" the known functions
 	if a:type == 't'
 		let namespace = s:NamespaceStdTempl
-	elseif a:type == 'pick-file'
-		let namespace = s:NamespacePickFile
-	elseif a:type == 'pick-list'
-		let namespace = s:NamespacePickList
+"		" TODO: remove this code:
+" 	elseif a:type == 'pick-file'
+" 		let namespace = s:NamespacePickFile
+" 	elseif a:type == 'pick-list'
+" 		let namespace = s:NamespacePickList
 	elseif a:type == 'help'
 		let namespace = s:NamespaceHelp
 	endif
@@ -1709,10 +1719,11 @@ function! s:CheckTemplate ( template, type )
 	" checks depending on the type
 	if a:type == 't'
 		return s:CheckStdTempl( cmds, text, calls )
-	elseif a:type == 'pick-file'
-		return s:CheckPickFile( cmds, text, calls )
-	elseif a:type == 'pick-list'
-		return s:CheckPickList( cmds, text, calls )
+"		" TODO: remove this code:
+" 	elseif a:type == 'pick-file'
+" 		return s:CheckPickFile( cmds, text, calls )
+" 	elseif a:type == 'pick-list'
+" 		return s:CheckPickList( cmds, text, calls )
 	elseif a:type == 'help'
 		return s:CheckHelp( cmds, text, calls )
 	endif
@@ -1751,9 +1762,9 @@ function! s:GetTemplate ( name, style )
 			let template = get ( s:library.templates, name.'!default' )
 			let style    = 'default'
 		elseif style == 'default'
-			throw 'Template:Check:template does not have the default style'.
+			throw 'Template:Prepare:template does not have the default style'
 		else
-			throw 'Template:Check:template has neither the style "'.style.'" nor the default style'
+			throw 'Template:Prepare:template has neither the style "'.style.'" nor the default style'
 		endif
 	endif
 	"
@@ -1765,9 +1776,6 @@ function! s:GetTemplate ( name, style )
 		let cmds = ''
 		let text = template[ 6 : -1 ]
 	elseif head == "|T()|\n"      " only text (contains only macros without '?')
-		" TODO: special type for text
-		" TODO: no need to call 's:PrepareStdTempl', 
-		" once every other special forces an entry in the command block
 		let cmds = ''
 		let text = template[ 6 : -1 ]
 	elseif head == "|C()|\n"      " command and text block
@@ -1787,15 +1795,13 @@ function! s:GetTemplate ( name, style )
 		end
 		let s:library.templates[ a:name.'!'.style  ] = template
 		"
-"		echo cmds."<"
-"		echo text."<"
 	end
 	"
 	return [ cmds, text, type, placement, indentation ]
 endfunction    " ----------  end of function s:GetTemplate  ----------
 "
 "----------------------------------------------------------------------
-" s:GetPickList : Get the list (pick-list).   {{{2
+" s:GetPickList : Get the list used in a template.   {{{2
 "----------------------------------------------------------------------
 "
 function! s:GetPickList ( name )
@@ -1830,26 +1836,27 @@ function! s:GetPickList ( name )
 			endif
 		endfor
 		"
-	elseif type == 'pick-list'
-		"
-		for line in split( cmds, "\n" )
-			" the line will match and it will be a valid function
-			let [ f_name, f_param ] = matchlist ( line, regex.FunctionChecked )[ 1 : 2 ]
-			"
-			if f_name == 'List'
-				exe 'let list = '.f_param
-			elseif f_name == 'GetList'
-				"
-				let listname = matchstr ( f_param, regex.RemoveQuote )
-				if ! has_key ( s:library.resources, 'list!'.listname )
-					call s:ErrorMsg ( 'List "'.listname.'" does not exist.' )
-					return []
-				endif
-				let list = s:library.resources[ 'list!'.listname ]
-				"
-			endif
-		endfor
-		"
+"		" TODO: remove this code:
+" 	elseif type == 'pick-list'
+" 		"
+" 		for line in split( cmds, "\n" )
+" 			" the line will match and it will be a valid function
+" 			let [ f_name, f_param ] = matchlist ( line, regex.FunctionChecked )[ 1 : 2 ]
+" 			"
+" 			if f_name == 'List'
+" 				exe 'let list = '.f_param
+" 			elseif f_name == 'GetList'
+" 				"
+" 				let listname = matchstr ( f_param, regex.RemoveQuote )
+" 				if ! has_key ( s:library.resources, 'list!'.listname )
+" 					call s:ErrorMsg ( 'List "'.listname.'" does not exist.' )
+" 					return []
+" 				endif
+" 				let list = s:library.resources[ 'list!'.listname ]
+" 				"
+" 			endif
+" 		endfor
+" 		"
 	else
 		call s:ErrorMsg ( 'Template "'.a:name.'" is not a list picker.' )
 		return []
@@ -1864,7 +1871,7 @@ function! s:GetPickList ( name )
 endfunction    " ----------  end of function s:GetPickList  ----------
 "
 "----------------------------------------------------------------------
-" s:PrepareHelp : Prepare a template (pick-file).   {{{2
+" s:PrepareHelp : Prepare a template (help).   {{{2
 "----------------------------------------------------------------------
 "
 function! s:PrepareHelp ( cmds, text )
@@ -1956,148 +1963,6 @@ function! s:PrepareHelp ( cmds, text )
 endfunction    " ----------  end of function s:PrepareHelp  ----------
 "
 " "----------------------------------------------------------------------
-" " s:PreparePickFile : Prepare a template (pick-file).   {{{2
-" "----------------------------------------------------------------------
-" "
-" function! s:PreparePickFile ( cmds, text )
-" 	"
-" 	let regex = s:library.regex_template
-" 	"
-" 	let msg    = 'File'
-" 	let path   = ''
-" 	let text   = a:text
-" 	"
-" 	" ==================================================
-" 	"  command block
-" 	" ==================================================
-" 	"
-" 	for line in split( a:cmds, "\n" )
-" 		"
-" 		" the line will match and it will be a valid function
-" 		let [ f_name, f_param ] = matchlist ( line, regex.FunctionChecked )[ 1 : 2 ]
-" 		"
-" 		if f_name == 'C'
-" 			" ignore
-" 		elseif f_name == 'Prompt'
-" 			let msg = matchstr ( f_param, regex.RemoveQuote )
-" 		elseif f_name == 'Path'
-" 			let path = matchstr ( f_param, regex.RemoveQuote )
-" 		elseif f_name == 'GetPath'
-" 			"
-" 			let path = matchstr ( f_param, regex.RemoveQuote )
-" 			if ! has_key ( s:library.resources, 'path!'.path )
-" 				throw 'Template:Prepare:the resources "'.path.'" does not exist'
-" 			endif
-" 			let path = s:library.resources[ 'path!'.path ]
-" 		endif
-" 		"
-" 	endfor
-" 	"
-" 	" ==================================================
-" 	"  get the path
-" 	" ==================================================
-" 	"
-" 	let path = expand ( path )
-" 	let	file = s:UserInput ( msg.' : ', path, 'file' )
-" 	"
-" 	let m_local = copy ( s:t_runtime.macros )
-" 	"
-" 	let m_local.PICK_COMPL = file
-" 	let m_local.PATH_COMPL = fnamemodify ( file, ':h' )
-" 	"
-" 	let file = substitute ( file, '\V\^'.path, '', '' )
-" 	"
-" 	let m_local.PICK     = file
-" 	let m_local.PATH     = fnamemodify ( file, ':h'   )
-" 	let m_local.FILENAME = fnamemodify ( file, ':t'   )
-" 	let m_local.BASENAME = fnamemodify ( file, ':t:r' )
-" 	let m_local.SUFFIX   = fnamemodify ( file, ':e'   )
-" 	"
-" 	let text = s:ReplaceMacros ( text, m_local, s:library.macros )
-" 	"
-" 	return text
-" 	"
-" endfunction    " ----------  end of function s:PreparePickFile  ----------
-" "
-" "----------------------------------------------------------------------
-" " s:PreparePickList : Prepare a template (pick-list).   {{{2
-" "----------------------------------------------------------------------
-" "
-" function! s:PreparePickList ( cmds, text )
-" 	"
-" 	let regex = s:library.regex_template
-" 	"
-" 	let msg   = 'Choose'
-" 	let text  = a:text
-" 	let entry = ''
-" 	"
-" 	" ==================================================
-" 	"  command block
-" 	" ==================================================
-" 	"
-" 	for line in split( a:cmds, "\n" )
-" 		"
-" 		" the line will match and it will be a valid function
-" 		let [ f_name, f_param ] = matchlist ( line, regex.FunctionChecked )[ 1 : 2 ]
-" 		"
-" 		if f_name == 'C'
-" 			" ignore
-" 		elseif f_name == 'Prompt'
-" 			let msg = matchstr ( f_param, regex.RemoveQuote )
-" 		elseif f_name == 'List'
-" 			exe 'let list = '.f_param
-" 		elseif f_name == 'GetList'
-" 			"
-" 			let listname = matchstr ( f_param, regex.RemoveQuote )
-" 			if ! has_key ( s:library.resources, 'list!'.listname )
-" 				throw 'Template:Prepare:the resources "'.listname.'" does not exist'
-" 			endif
-" 			let list = s:library.resources[ 'list!'.listname ]
-" 			"
-" 		elseif f_name == 'Pick'
-" 			let entry = matchstr ( f_param, regex.RemoveQuote )
-" 		endif
-" 		"
-" 	endfor
-" 	"
-" 	" ==================================================
-" 	"  get the entry
-" 	" ==================================================
-" 	"
-" 	if ! exists ( 'list' )
-" 		throw 'Template:Check:no list specified'
-" 	endif
-" 	"
-" 	if type ( list ) == type ( [] )
-" 		let type = 'list'
-" 		let input_list = list
-" 	else
-" 		let type = 'dict'
-" 		let input_list = sort ( keys ( list ) )
-" 	endif
-" 	"
-" 	if empty ( entry )
-" 		let	entry = s:UserInput ( msg.' : ', '', 'customlist', input_list )
-" 	endif
-" 	"
-" 	let m_local     = copy ( s:t_runtime.macros )
-" 	let m_local.KEY = entry
-" 	"
-" 	" TODO: entry might not exist
-" 	if type == 'dict'
-" 		let entry = list[ entry ]
-" 	endif
-" 	"
-" 	let m_local.VALUE = entry
-" 	let m_local.PICK  = entry
-" 	"
-" 	let text = s:ReplaceMacros ( text, m_local, s:library.macros )
-" 	"
-" 	return text
-" 	"
-" endfunction    " ----------  end of function s:PreparePickList  ----------
-"
-"----------------------------------------------------------------------
 " s:PrepareStdTempl : Prepare a template (standard).   {{{2
 "----------------------------------------------------------------------
 "
@@ -2251,7 +2116,6 @@ function! s:PrepareStdTempl ( cmds, text )
 		if empty ( mlist )
 			break
 		endif
-		"echo '--'.mlist[1].'--'
 		"
 		exe 'let [ l_name, head_def, tail_def ] = ['.mlist[1].']'
 		let l_text = ''
@@ -2364,7 +2228,7 @@ function! s:PrepareStdTempl ( cmds, text )
 		"
 		if s_place == 'CONTENT'
 			if -1 == match( s_text, '<CONTENT>' )
-				throw 'Template:Check:surround template: <CONTENT> missing'
+				throw 'Template:Prepare:surround template: <CONTENT> missing'
 			endif
 			"
 			let mcontext = matchlist ( s_text, '\([^'."\n".']*\)'.'<CONTENT>'.'\([^'."\n".']*\)' )
@@ -2376,7 +2240,7 @@ function! s:PrepareStdTempl ( cmds, text )
 			let text = s:LiteralReplacement ( s_text, mcontext[0], text, '' )
 		elseif s_place == 'SPLIT'
 			if -1 == match( s_text, '<SPLIT>' )
-				throw 'Template:Check:surround template: <SPLIT> missing'
+				throw 'Template:Prepare:surround template: <SPLIT> missing'
 			endif
 			"
 			if match( s_text, '<SPLIT>\s*\n' ) >= 0
@@ -2477,10 +2341,11 @@ function! s:PrepareTemplate ( name, ... )
 	"
 	if type == 't'
 		let text = s:PrepareStdTempl( cmds, text )
-	elseif type == 'pick-file'
-		let text = s:PreparePickFile( cmds, text )
-	elseif type == 'pick-list'
-		let text = s:PreparePickList( cmds, text )
+"		" TODO: remove this code:
+" 	elseif type == 'pick-file'
+" 		let text = s:PreparePickFile( cmds, text )
+" 	elseif type == 'pick-list'
+" 		let text = s:PreparePickList( cmds, text )
 	elseif type == 'help'
 		let text = s:PrepareHelp( cmds, text )
 	endif
@@ -2514,11 +2379,15 @@ function! s:PrepareTemplate ( name, ... )
 endfunction    " ----------  end of function s:PrepareTemplate  ----------
 "
 "----------------------------------------------------------------------
-" s:InsertIntoBuffer : Insert a text into the buffer.   {{{1
+" === Insert Templates: Auxiliary Functions ===   {{{1
+"----------------------------------------------------------------------
+"
+"----------------------------------------------------------------------
+" s:InsertIntoBuffer : Insert a text into the buffer.   {{{2
 " (thanks to Fritz Mehner)
 "----------------------------------------------------------------------
 "
-function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
+function! s:InsertIntoBuffer ( text, placement, indentation, flag_mode )
 	"
 	" TODO: syntax
 	let regex = s:library.regex_template
@@ -2526,7 +2395,7 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 	let placement   = a:placement
 	let indentation = a:indentation == '1'
 	"
-	if a:flag_visual_mode == 0
+	if a:flag_mode != 'v'
 		" --------------------------------------------------
 		"  command and insert mode
 		" --------------------------------------------------
@@ -2539,14 +2408,14 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 			exe ':'.s:t_runtime.range[1]
 			call s:OpenFold('below')
 			let pos1 = line(".")+1
-			put = text
+			silent put = text
 			let pos2 = line(".")
 			"
 		elseif placement == 'above'
 			"
 			exe ':'.s:t_runtime.range[0]
 			let pos1 = line(".")
-			put! = text
+			silent put! = text
 			let pos2 = line(".")
 			"
 		elseif placement == 'start'
@@ -2554,17 +2423,16 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 			exe ':1'
 			call s:OpenFold('start')
 			let pos1 = 1
-			put! = text
+			silent put! = text
 			let pos2 = line(".")
 			"
 		elseif placement == 'append' || placement == 'insert'
 			"
 			if &foldenable && foldclosed(".") >= 0
-				echohl WarningMsg | echomsg s:MsgInsertionNotAvail | echohl None
-				return
+				throw 'Template:Insert:insertion not available for a closed fold'
 			elseif placement == 'append'
 				let pos1 = line(".")
-				put = text
+				silent put = text
 				let pos2 = line(".")-1
 				exe ":".pos1
 				:join!
@@ -2574,19 +2442,22 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 				let currentline = getline( "." )
 				let pos1 = line(".")
 				let pos2 = pos1 + count( split(text,'\zs'), "\n" )
-				"" assign to the unnamed register " :
-				"let @"=text
-				"normal p
-				exe 'normal! a'.text
+				if a:flag_mode == 'i'
+					exe 'normal! gi'.text
+				else
+					exe 'normal! a'.text
+				endif
 				" reformat only multi-line inserts and previously empty lines
 				if pos1 == pos2 && currentline != ''
 					let indentation = 0
 				endif
 			endif
 			"
+		else
+			throw 'Template:Insert:unknown placement "'.placement.'"'
 		endif
 		"
-	elseif a:flag_visual_mode == 1
+	elseif a:flag_mode == 'v'
 		" --------------------------------------------------
 		"  visual mode
 		" --------------------------------------------------
@@ -2605,7 +2476,7 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 			let part[1] = part[1][ 0: -2 ]  " remove trailing '\n'
 		else
 			let part = [ "", text[ 0: -2 ] ]  " remove trailing '\n'
-			echomsg 'SPLIT missing in template.'
+			echomsg 'tag <SPLIT> missing in template.'
 		endif
 		"
 		" 'visual' and placement 'insert':
@@ -2622,28 +2493,30 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 			" windows:  register @* does not work
 			" solution: recover area of the visual mode and yank,
 			"           puts the selected area into the buffer @"
+			let pos1 = line("'<")
+			let pos2 = line("'>") + len(split( text, '\n' )) - 1
 			normal gvy
-			let pos1 = line(".")
-			let pos2 = pos1
-			let str  = escape ( @",                 '\' )
 			let repl = escape ( part[0].@".part[1], '\&~' )
-			" TODO: substitute is not the best choice,
-			"       problematic when '\V'.@* matches before the actual position
-			exe ':s/\V'.str.'/'.repl.'/'
+			" substitute the selected area (using the '< and '> marks)
+			exe ':s/\%''<.*\%''>./'.repl.'/'
 			let indentation = 0
 		elseif placement == 'below'
-			:'<put! = part[0]
-			:'>put  = part[1]
-			let pos1 = line("'<") - len(split(part[0], '\n' ))
-			let pos2 = line("'>") + len(split(part[1], '\n' ))
+			silent '<put! = part[0]
+			silent '>put  = part[1]
+			let pos1 = line("'<") - len(split( part[0], '\n' ))
+			let pos2 = line("'>") + len(split( part[1], '\n' ))
+		elseif placement =~ '^\%(start\|above\|append\)$'
+			throw 'Template:Insert:usage in split mode not allowed for placement "'.placement.'"'
+		else
+			throw 'Template:Insert:unknown placement "'.placement.'"'
 		endif
 		"
 	endif
 	"
 	" proper indenting
 	if indentation
-		exe ":".pos1
-		exe "normal ".( pos2-pos1+1 )."=="
+		silent exe ":".pos1
+		silent exe "normal ".( pos2-pos1+1 )."=="
 	endif
 	"
 	return [ pos1, pos2 ]
@@ -2651,39 +2524,52 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
 endfunction    " ----------  end of function s:InsertIntoBuffer  ----------
 "
 "----------------------------------------------------------------------
-" s:PositionCursor : Position the cursor.   {{{1
+" s:PositionCursor : Position the cursor.   {{{2
 " (thanks to Fritz Mehner)
 "----------------------------------------------------------------------
 "
-function! s:PositionCursor ( placement, flag_visual_mode, pos1, pos2 )
+function! s:PositionCursor ( placement, flag_mode, pos1, pos2 )
 	"
-	" TODO: syntax
+	" :TODO:12.08.2013 11:03:WM: changeable syntax?
+	" :TODO:12.08.2013 12:00:WM: change behavior?
 	"
 	exe ":".a:pos1
 	let mtch = search( '<CURSOR>\|{CURSOR}', 'c', a:pos2 )
-	if mtch != 0  " CURSOR found:
+	if mtch != 0
+		" tag found (and cursor moved, we are now at the position of the match)
 		let line = getline(mtch)
 		if line =~ '<CURSOR>$\|{CURSOR}$'
+			" the tag is at the end of the line
 			call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
-			if a:flag_visual_mode == 1 && getline(".") =~ '^\s*$'
+			if a:flag_mode == 'v' && getline('.') =~ '^\s*$'
+			"if a:flag_mode == 'v' && getline('.') =~ '^\s*\%(<CURSOR>\|{CURSOR}\)\s*$'
+				" the line contains nothing but the tag: remove and join without
+				" changing the second line
 				normal J
+				"call setline( mtch, '' )
+				"normal gJ
 			else
+				" the line contains other characters: remove the tag and start appending
+				"call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
 				startinsert!
 			endif
 		else
+			" the line contains other characters: remove the tag and start inserting
 			call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
-			:startinsert
+			startinsert
 		endif
-	else          " no CURSOR found
+	else
+		" no tag found (and cursor not moved)
 		if a:placement == 'below'
-			exe ":".a:pos2       | " to the end of the block; needed for repeated inserts
+			" to the end of the block, needed for repeated inserts
+			exe ":".a:pos2
 		endif
 	endif
 	"
 endfunction    " ----------  end of function s:PositionCursor  ----------
 "
 "----------------------------------------------------------------------
-" s:HighlightJumpTargets : Highlight the jump targets.   {{{1
+" s:HighlightJumpTargets : Highlight the jump targets.   {{{2
 "----------------------------------------------------------------------
 "
 function! s:HighlightJumpTargets ( regex )
@@ -2696,16 +2582,28 @@ endfunction    " ----------  end of function s:HighlightJumpTargets  ----------
 "
 function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 	"
-	" TODO: check arguments, 'library' as a string
-	" TODO: t_name == '!pick'
-	" TODO: syntax for CURSOR, SPLIT, jump tags
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
+	if type( a:library ) == type( '' )
+		exe 'let t_lib = '.a:library
+	elseif type( a:library ) == type( {} )
+		let t_lib = a:library
+	else
+		return s:ErrorMsg ( 'Argument "library" must be given as a dict or string.' )
+	endif
+	"
+	if type( a:t_name ) != type( '' )
+		return s:ErrorMsg ( 'Argument "template_name" must be given as a string.' )
+	endif
 	"
 	" ==================================================
 	"  setup
 	" ==================================================
 	"
 	" library and runtime information
-	let s:library = a:library
+	let s:library = t_lib
 	let s:t_runtime = {
 				\ 'obj_stack'   : [],
 				\ 'macro_stack' : [],
@@ -2737,18 +2635,21 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 	let equalprg_save = &equalprg
 	set equalprg=
 	"
-	let flag_visual_mode = 0
-	let options          = []
+	let flag_mode = 'n'
+	let options   = []
 	"
 	" ==================================================
-	"  parameters
+	"  options
 	" ==================================================
 	"
 	let i = 1
 	while i <= a:0
 		"
-		if a:[i] == 'v' || a:[i] == 'visual'
-			let flag_visual_mode = 1
+		if a:[i] == 'i' || a:[i] == 'insert'
+			let flag_mode = 'i'
+			let i += 1
+		elseif a:[i] == 'v' || a:[i] == 'visual'
+			let flag_mode = 'v'
 			let i += 1
 		elseif a:[i] == 'placement' && i+1 <= a:0
 			let s:t_runtime.placement = a:[i+1]
@@ -2764,6 +2665,9 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 		elseif a:[i] == 'pick' && i+1 <= a:0
 			call add ( options, 'pick' )
 			call add ( options, a:[i+1] )
+			let i += 2
+		elseif a:[i] == 'debug' && i+1 <= a:0 && ! s:DebugGlobalOverwrite
+			let s:DebugLevel = a:[i+1]
 			let i += 2
 		else
 			if type ( a:[i] ) == type ( '' ) | call s:ErrorMsg ( 'Unknown option: "'.a:[i].'"' )
@@ -2795,10 +2699,10 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 			endif
 			"
 			" insert the text into the buffer
-			let [ pos1, pos2 ] = s:InsertIntoBuffer ( text, placement, indentation, flag_visual_mode )
+			let [ pos1, pos2 ] = s:InsertIntoBuffer ( text, placement, indentation, flag_mode )
 			"
 			" position the cursor
-			call s:PositionCursor ( placement, flag_visual_mode, pos1, pos2 )
+			call s:PositionCursor ( placement, flag_mode, pos1, pos2 )
 			"
 			" highlight jump targets
 			call s:HighlightJumpTargets ( regex.JumpTagBoth )
@@ -2835,7 +2739,11 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 		call call ( 's:ErrorMsg', [ 'Recursion detected while replacing the macro/s:' ] + cont +
 					\ s:t_runtime.macro_stack[ idx1 : -1 ] )
 		"
-"	catch /Template:Insert:.*/
+	catch /Template:Insert:.*/
+		"
+		let msg   = v:exception[ len( 'Template:Insert:') : -1 ]
+		call s:ErrorMsg ( 'Inserting "'.a:t_name.'":', msg )
+		"
 	catch /Template:.*/
 		"
 		let msg = v:exception[ len( 'Template:') : -1 ]
@@ -2854,9 +2762,10 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 		endif
 		let &equalprg = equalprg_save
 		"
-		" remove script variables
-		unlet s:library
-		unlet s:t_runtime
+		unlet s:library                             " remove script variables
+		unlet s:t_runtime                           " ...
+		"
+		let s:DebugLevel = s:DebugGlobalOverwrite   " reset debug
 		"
 	endtry
 	"
@@ -2868,28 +2777,47 @@ endfunction    " ----------  end of function mmtemplates#core#InsertTemplate  --
 "
 function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	else
-		call s:ErrorMsg ( 'Argument "library" must be given as a string.' )
-		return
+		return s:ErrorMsg ( 'Argument "library" must be given as a string.' )
 	endif
 	"
 	if type( a:localleader ) != type( '' )
 		call s:ErrorMsg ( 'Argument "localleader" must be given as a string.' )
 		return
 	elseif ! empty ( a:localleader )
-		let maplocalleader = a:localleader
+		if exists ( 'g:maplocalleader' )
+			let ll_save = g:maplocalleader
+		endif
+		let g:maplocalleader = a:localleader
 	endif
 	"
-	" the commands have been generated before
+	" ==================================================
+	"  reuse previous commands
+	" ==================================================
+	"
 	if has_key ( t_lib, 'map_commands' )
 		"let TimeStart = reltime()
 		exe t_lib.map_commands
+		if ! empty ( a:localleader )
+			if exists ( 'll_save' )
+				let g:maplocalleader = ll_save
+			else
+				unlet g:maplocalleader
+			endif
+		endif
 		"echo 'Executing maps: '.reltimestr( reltime( TimeStart ) )
 		return
 	endif
+	"
+	" ==================================================
+	"  setup
+	" ==================================================
 	"
 	" options
 	let options = '<buffer> <silent>'
@@ -2901,7 +2829,10 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	"
 	let cmd     = ''
 	"
-	" parameters
+	" ==================================================
+	"  options
+	" ==================================================
+	"
 	let i = 1
 	while i <= a:0
 		"
@@ -2921,12 +2852,24 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	"
 	"let TimeStart = reltime()
 	"
+	" ==================================================
+	"  generate new commands
+	" ==================================================
+	"
+	if has_key ( g:CheckedFiletypes, &filetype )
+		let echo_warning = 0
+	else
+		let g:CheckedFiletypes[ &filetype ] = 1
+		let echo_warning = g:Templates_MapInUseWarn != 0
+	endif
+	"
 	" go through all the templates
-	for t_name in t_lib.temp_list
+	for t_name in t_lib.menu_order
 		"
-		exe 'let [ entry, visual, shortcut, mp ] = ['.t_lib.templates[ t_name.'!!menu' ].']'
+		exe 'let [ visual, mp ] = ['.t_lib.templates[ t_name.'!!menu' ].'][0:1]'
 		"
 		" no map?
+		" separators have an empty string "map", so they are skipped here
 		if empty ( mp )
 			continue
 		endif
@@ -2935,22 +2878,26 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 			"
 			" map already existing?
 			if ! empty ( maparg( leader.mp, mode ) )
-				if g:Templates_MapInUseWarn != 0
+				if echo_warning
 					call s:ErrorMsg ( 'Mapping already in use: "'.leader.mp.'", mode "'.mode.'"' )
 				endif
 				continue
 			endif
 			"
-			" visual and insert mode: insert '<Esc>'
+			" insert and visual mode: insert '<Esc>'
 			if mode == 'n' | let esc = ''
 			else           | let esc = '<Esc>' | endif
 			"
-			" visual mode: template contains a split tag, or the mode is forced
-			if mode == 'v' && visual == 1 | let v = ',"v"'
-			else                          | let v = ''     | endif
+			" insert mode, flag 'i':
+			" change behavior of templates with placement 'insert'
+			" visual mode, flag 'v':
+			" template contains a split tag, or the mode is forced
+			if     mode == 'i'                | let flag = ',"i"'
+			elseif mode == 'v' && visual == 1 | let flag = ',"v"'
+			else                              | let flag = ''     | endif
 			"
 			" assemble the command to create the maps
-			let cmd .= mode.'noremap '.options.' '.leader.mp.' '.esc.':call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'"'.v.')<CR>'.sep
+			let cmd .= mode.'noremap '.options.' '.leader.mp.' '.esc.':call mmtemplates#core#InsertTemplate('.a:library.',"'.t_name.'"'.flag.')<CR>'.sep
 		endfor
 		"
 	endfor
@@ -2959,7 +2906,9 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	if do_jump_map
 		let jump_key = '<C-j>'   " TODO: configurable
 		if ! empty ( maparg( jump_key ) )
-			call s:ErrorMsg ( 'Mapping already in use: "'.jump_key.'"' )
+			if echo_warning
+				call s:ErrorMsg ( 'Mapping already in use: "'.jump_key.'"' )
+			endif
 		else
 			let jump_regex = string ( escape ( t_lib.regex_template.JumpTagBoth, '|' ) )
 			let cmd .= 'nnoremap '.options.' '.jump_key.' i<C-R>=mmtemplates#core#JumpToTag('.jump_regex.')<CR>'.sep
@@ -2972,15 +2921,16 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	" TODO: edit template
 	if do_special_maps
 		let special_maps = {
-					\ 're' : ':call mmtemplates#core#EditTemplateFiles('.a:library.',-1)<CR>',
-					\ 'rr' : ':call mmtemplates#core#ReadTemplates('.a:library.',"reload","all")<CR>',
-					\ 'rs' : ':call mmtemplates#core#ChooseStyle('.a:library.',"!pick")<CR>',
+					\ t_lib.properties[ 'Templates::EditTemplates::Map'   ] : ':call mmtemplates#core#EditTemplateFiles('.a:library.',-1)<CR>',
+					\ t_lib.properties[ 'Templates::RereadTemplates::Map' ] : ':call mmtemplates#core#ReadTemplates('.a:library.',"reload","all")<CR>',
+					\ t_lib.properties[ 'Templates::ChooseStyle::Map'     ] : ':call mmtemplates#core#ChooseStyle('.a:library.',"!pick")<CR>',
 					\ }
-					"\ 'rt' : ':call mmtemplates#core#InsertTemplate('.a:library.',"!pick")<CR>',
 		"
 		for [ mp, action ] in items ( special_maps )
 			if ! empty ( maparg( leader.mp ) )
-				call s:ErrorMsg ( 'Mapping already in use: "'.leader.mp.'"' )
+				if echo_warning
+					call s:ErrorMsg ( 'Mapping already in use: "'.leader.mp.'"' )
+				endif
 			else
 				let cmd .= ' noremap '.options.' '.leader.mp.'      '.action.sep
 				let cmd .= 'inoremap '.options.' '.leader.mp.' <Esc>'.action.sep
@@ -2991,28 +2941,83 @@ function! mmtemplates#core#CreateMaps ( library, localleader, ... )
 	let t_lib.map_commands = cmd
 	exe cmd
 	"
+	" ==================================================
+	"  wrap up
+	" ==================================================
+	"
+	if ! empty ( a:localleader )
+		if exists ( 'll_save' )
+			let g:maplocalleader = ll_save
+		else
+			unlet g:maplocalleader
+		endif
+	endif
+	"
 	"echo 'Generating maps: '.reltimestr( reltime( TimeStart ) )
 	"
 endfunction    " ----------  end of function mmtemplates#core#CreateMaps  ----------
 "
 "----------------------------------------------------------------------
-" === Create Menus: Auxiliary functions. ===   {{{1
+" === Create Menus: Auxiliary Functions ===   {{{1
 "----------------------------------------------------------------------
+"
+"----------------------------------------------------------------------
+" s:InsertShortcut : Insert a shortcut into a menu entry.   {{{2
+"
+" Inserts the shortcut by prefixing the appropriate character with '&',
+" or by appending " (<shortcut>)". If escaped is true, the appended string is
+" correctly escaped.
+"----------------------------------------------------------------------
+"
+function! s:InsertShortcut ( entry, shortcut, escaped )
+	if empty ( a:shortcut )
+		return a:entry
+	else
+		let entry = a:entry
+		let sc    = a:shortcut
+		if stridx ( tolower( entry ), tolower( sc ) ) == -1
+			if a:escaped | return entry.'\ (&'.sc.')'
+			else         | return entry.' (&'.sc.')'
+			endif
+		else
+			return substitute( entry, '\V\c'.sc, '\&&', '' )
+		endif
+	endif
+endfunction    " ----------  end of function s:InsertShortcut  ----------
 "
 "----------------------------------------------------------------------
 " s:CreateSubmenu : Create sub-menus, given they do not already exists.   {{{2
 "
 " The menu 'menu' can contain '&' and a trailing '.'. Both are ignored.
 "----------------------------------------------------------------------
-function! s:CreateSubmenu ( t_lib, root_menu, global_name, menu )
+"
+function! s:CreateSubmenu ( t_lib, root_menu, global_name, menu, priority )
+	"
+	" split point:
+	" a point, preceded by an even number of backslashes
+	" in turn, the backslashes must be preceded by a different character, or the
+	" beginning of the string
+	let level    = len( split( a:root_menu, '\%(\_^\|[^\\]\)\%(\\\\\)*\zs\.' ) )
+	let parts    =      split( a:menu,      '\%(\_^\|[^\\]\)\%(\\\\\)*\zs\.' )
+	let n_parts  = len( parts )
+	let level   += n_parts
+	"
+	let priority_str = ''
 	"
 	" go through the menu, clean up and check for new menus
 	let submenu = ''
-	for part in split( a:menu, '\.' )
+	for i in range( 1, len( parts ) )
+		"
+		let part = parts[ i-1 ]
+		"
+		if i == n_parts
+			let priority_str = repeat( '.', level-1 ).a:priority.'. '
+		endif
+		"
 		let clean = substitute( part, '&', '', 'g' )
 		if ! has_key ( a:t_lib.menu_existing, submenu.clean )
 			" a new menu!
-			let a:t_lib.menu_existing[ submenu.clean ] = 1
+			let a:t_lib.menu_existing[ submenu.clean ] = 0
 			"
 			" shortcut and menu entry
 			if has_key ( a:t_lib.menu_shortcuts, submenu.clean )
@@ -3029,11 +3034,11 @@ function! s:CreateSubmenu ( t_lib, root_menu, global_name, menu )
 			let assemble .= '.'
 			"
 			if -1 != stridx ( clean, '<TAB>' )
-				exe 'amenu '.a:root_menu.escape( assemble.clean, ' ' ).' :echo "This is a menu header."<CR>'
+				exe 'amenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).' :echo "This is a menu header."<CR>'
 			else
-				exe 'amenu '.a:root_menu.escape( assemble.clean, ' ' ).'<TAB>'.escape( a:global_name, ' .' ).' :echo "This is a menu header."<CR>'
+				exe 'amenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).'<TAB>'.escape( a:global_name, ' .' ).' :echo "This is a menu header."<CR>'
 			endif
-			exe 'amenu '.a:root_menu.escape( assemble,       ' ' ).'-Sep00- <Nop>'
+			exe 'amenu '.a:root_menu.escape( assemble,       ' ' ).'-TSep00- <Nop>'
 		endif
 		let submenu .= clean.'.'
 	endfor
@@ -3046,10 +3051,12 @@ endfunction    " ----------  end of function s:CreateSubmenu  ----------
 "
 function! s:CreateTemplateMenus ( t_lib, root_menu, global_name, t_lib_name )
 	"
+	let map_ldr = mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::Mapleader' ], 'right' )
+	"
 	" go through all the templates
-	for t_name in a:t_lib.temp_list
+	for t_name in a:t_lib.menu_order
 		"
-		exe 'let [ entry, visual, shortcut, mp ] = ['.a:t_lib.templates[ t_name.'!!menu' ].']'
+		exe 'let [ visual, mp, entry, _, shortcut ] = ['.a:t_lib.templates[ t_name.'!!menu' ].']'
 		"
 		" no menu entry?
 		if entry == 0
@@ -3061,7 +3068,21 @@ function! s:CreateTemplateMenus ( t_lib, root_menu, global_name, t_lib_name )
 		"
 		" menu does not exist?
 		if ! empty ( t_menu ) && ! has_key ( a:t_lib.menu_existing, t_menu[ 0 : -2 ] )
-			call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, t_menu[ 0 : -2 ] )
+			call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, t_menu[ 0 : -2 ], s:StandardPriority )
+		endif
+		"
+		if entry == 11
+			let m_key = t_menu[ 0 : -2 ]
+			if empty ( m_key )
+				let m_key = '!base'
+			endif
+			"
+			let sep_nr = a:t_lib.menu_existing[ m_key ] + 1
+			let a:t_lib.menu_existing[ m_key ] = sep_nr
+			"
+			exe 'amenu '.a:root_menu.escape( t_menu, ' ' ).'-TSep'.sep_nr.'- :'
+			"
+			continue
 		endif
 		"
 		" shortcut and menu entry
@@ -3078,23 +3099,25 @@ function! s:CreateTemplateMenus ( t_lib, root_menu, global_name, t_lib_name )
 		if empty ( mp )
 			let map_entry = ''
 		else
-			let map_entry = '<TAB>\\'.mp
+			let map_entry = '<TAB>'.map_ldr.mp
 		end
 		"
 		if entry == 1
 			" <Esc><Esc> prevents problems in insert mode
-			exe 'amenu '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
+			exe 'amenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
+			exe 'imenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i")<CR>'
 			if visual == 1
-				exe 'vmenu '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
+				exe 'vmenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
 			endif
 		elseif entry == 2
-			call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, t_menu.t_last.map_entry )
+			call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, t_menu.t_last.map_entry, s:StandardPriority )
 			"
 			for item in s:GetPickList ( t_name )
 				let item_entry = compl_entry.'.'.substitute ( substitute ( escape ( item, ' .' ), '&', '\&\&', 'g' ), '\w', '\&&', '' )
-				exe 'amenu '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","pick",'.string(item).')<CR>'
+				exe 'amenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","pick",'.string(item).')<CR>'
+				exe 'imenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i","pick",'.string(item).')<CR>'
 				if visual == 1
-					exe 'vmenu '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v","pick",'.string(item).')<CR>'
+					exe 'vmenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v","pick",'.string(item).')<CR>'
 				endif
 			endfor
 			"
@@ -3114,29 +3137,38 @@ endfunction    " ----------  end of function s:CreateTemplateMenus  ----------
 "
 function! s:CreateSpecialsMenus ( t_lib, root_menu, global_name, t_lib_name, specials_menu, styles_only )
 	"
-	" TODO: expansion of the 'styles'-menu should be configurable
+	" remove trailing point
+	let specials_menu = substitute( a:specials_menu, '\.$', '', '' )
 	"
-	let specials_menu = a:specials_menu
-	let specials_menu = substitute( specials_menu, '\.$', '', '' )
+	let map_ldr   = mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::Mapleader' ], 'right' )
+	let map_edit  = map_ldr.mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::EditTemplates::Map' ], 'right' )
+	let map_read  = map_ldr.mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::RereadTemplates::Map' ], 'right' )
+	let map_style = map_ldr.mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::ChooseStyle::Map' ], 'right' )
+	let sc_edit   = mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::EditTemplates::Shortcut' ], 'right' )
+	let sc_read   = mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::RereadTemplates::Shortcut' ], 'right' )
+	let sc_style  = mmtemplates#core#EscapeMenu ( a:t_lib.properties[ 'Templates::ChooseStyle::Shortcut' ], 'right' )
 	"
-	" new menu?
-	if ! has_key ( a:t_lib.menu_existing, substitute ( specials_menu, '&', '', 'g' ) )
-		call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, specials_menu )
-	endif
+	" create the specials menu
+	call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, specials_menu, s:StandardPriority )
 	"
 	if ! a:styles_only
-		" create edit, reread and choose templates
-		exe 'amenu <silent> '.a:root_menu.specials_menu.'.&edit\ templates'
+		" create edit and reread templates
+		let entry_edit = s:InsertShortcut ( '.edit\ templates',   sc_edit, 1 ).'<TAB>'.map_edit
+		let entry_read = s:InsertShortcut ( '.reread\ templates', sc_read, 1 ).'<TAB>'.map_read
+		exe 'amenu <silent> '.a:root_menu.specials_menu.entry_edit
 					\ .' :call mmtemplates#core#EditTemplateFiles('.a:t_lib_name.',-1)<CR>'
-		exe 'amenu <silent> '.a:root_menu.specials_menu.'.&reread\ templates'
+		exe 'amenu <silent> '.a:root_menu.specials_menu.entry_read
 					\ .' :call mmtemplates#core#ReadTemplates('.a:t_lib_name.',"reload","all")<CR>'
-		" 	exe 'amenu '.a:root_menu.specials_menu.'.choose\ &template'
-		" 				\ .' :call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"!pick")<CR>'
 	endif
 	"
 	" create a menu for all the styles
+	if sc_style == 's' | let entry_styles = '.choose &style<TAB>'.map_style
+	else               | let entry_styles = s:InsertShortcut ( '.choose style', sc_style, 0 ).'<TAB>'.map_style
+	endif
+	call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, specials_menu.entry_styles, s:StandardPriority )
+	"
 	for s in a:t_lib.styles
-		exe 'amenu <silent> '.a:root_menu.specials_menu.'.choose\ &style.'.escape( s, ' ' )
+		exe 'amenu <silent> '.a:root_menu.specials_menu.'.choose\ style.&'.s
 					\ .' :call mmtemplates#core#ChooseStyle('.a:t_lib_name.','.string(s).')<CR>'
 	endfor
 	"
@@ -3148,16 +3180,15 @@ endfunction    " ----------  end of function s:CreateSpecialsMenus  ----------
 "
 function! mmtemplates#core#CreateMenus ( library, root_menu, ... )
 	"
-	" TODO: correct escapes
-	" TODO: separate special entries
-	" TODO: mapleader configurable
-	"
 	" check for feature
 	if ! has ( 'menu' )
 		return
 	endif
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 		let s:library = t_lib
@@ -3171,19 +3202,28 @@ function! mmtemplates#core#CreateMenus ( library, root_menu, ... )
 		return
 	endif
 	"
-	" prepare
+	" ==================================================
+	"  setup
+	" ==================================================
+	"
+	" options
 	let root_menu     = substitute( a:root_menu, '&',   '', 'g' )
 	let global_name   = substitute(   root_menu, '\.$', '', ''  )
 	let root_menu     = global_name.'.'
 	let specials_menu = '&Run'
+	let priority      = s:StandardPriority
+	let existing      = []
 	"
+	" jobs
 	let do_reset     = 0
 	let do_templates = 0
 	let do_specials  = 0   " no specials
-	let existing     = []
 	let submenus     = []
 	"
-	" parameters
+	" ==================================================
+	"  options
+	" ==================================================
+	"
 	let i = 1
 	while i <= a:0
 		"
@@ -3200,6 +3240,9 @@ function! mmtemplates#core#CreateMenus ( library, root_menu, ... )
 			let i += 2
 		elseif a:[i] == 'specials_menu' && i+1 <= a:0
 			let specials_menu = a:[i+1]
+			let i += 2
+		elseif a:[i] == 'priority' && i+1 <= a:0
+			let priority = a:[i+1]
 			let i += 2
 		elseif a:[i] == 'do_all'
 			let do_reset     = 1
@@ -3226,21 +3269,25 @@ function! mmtemplates#core#CreateMenus ( library, root_menu, ... )
 		"
 	endwhile
 	"
+	" ==================================================
+	"  do the jobs
+	" ==================================================
+	"
 	" reset
 	if do_reset
-		call filter ( t_lib.menu_existing, 0 )
+		let t_lib.menu_existing = { '!base' : 0 }
 	endif
 	"
 	" existing menus
 	for name in existing
 		let name = substitute( name, '&', '', 'g' )
 		let name = substitute( name, '\.$', '', '' )
-		let t_lib.menu_existing[ name ] = 1
+		let t_lib.menu_existing[ name ] = 0
 	endfor
 	"
 	" sub-menus
 	for name in submenus
-		call s:CreateSubmenu ( t_lib, root_menu, global_name, name )
+		call s:CreateSubmenu ( t_lib, root_menu, global_name, name, priority )
 	endfor
 	"
 	" templates
@@ -3257,10 +3304,51 @@ function! mmtemplates#core#CreateMenus ( library, root_menu, ... )
 		call s:CreateSpecialsMenus ( t_lib, root_menu, global_name, a:library, specials_menu, 1 )
 	endif
 	"
-	" wrap up
-	unlet s:library
+	" ==================================================
+	"  wrap up
+	" ==================================================
+	"
+	unlet s:library                               " remove script variable
 	"
 endfunction    " ----------  end of function mmtemplates#core#CreateMenus  ----------
+"
+"----------------------------------------------------------------------
+" mmtemplates#core#EscapeMenu : Escape a string so it can be used as a menu item.   {{{1
+"----------------------------------------------------------------------
+"
+function! mmtemplates#core#EscapeMenu ( str, ... )
+	"
+	let mode = 'entry'
+	"
+	if a:0 > 0
+		if type( a:1 ) != type( '' )
+			return s:ErrorMsg ( 'Argument "mode" must be given as a string.' )
+		elseif a:1 == 'menu'
+			let mode = 'menu'
+		elseif a:1 == 'entry'
+			let mode = 'entry'
+		elseif a:1 == 'right'
+			let mode = 'right'
+		else
+			return s:ErrorMsg ( 'Unknown mode: '.a:1 )
+		endif
+	endif
+	"
+	" whole menu: do not escape '.'
+	if mode == 'menu'
+		let str = escape ( a:str, ' \|' )
+	else
+		let str = escape ( a:str, ' \|.' )
+	endif
+	"
+	" right-aligned text: do not escape '&'
+	if mode != 'right'
+		let str = substitute (   str, '&', '\&\&', 'g' )
+	endif
+	"
+	return str
+	"
+endfunction    " ----------  end of function mmtemplates#core#EscapeMenu  ----------
 "
 "----------------------------------------------------------------------
 " mmtemplates#core#ChooseStyle : Choose a style.   {{{1
@@ -3268,7 +3356,10 @@ endfunction    " ----------  end of function mmtemplates#core#CreateMenus  -----
 "
 function! mmtemplates#core#ChooseStyle ( library, style )
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	elseif type( a:library ) == type( {} )
@@ -3283,11 +3374,15 @@ function! mmtemplates#core#ChooseStyle ( library, style )
 		return
 	endif
 	"
-	" pick and change the style
+	" ==================================================
+	"  change the style
+	" ==================================================
+	"
+	" pick the style
 	if a:style == '!pick'
 		try
 			let style = s:UserInput( 'Style (currently '.t_lib.current_style.') : ', '', 
-						\				'customlist', t_lib.styles )
+						\ 'customlist', t_lib.styles )
 		catch /Template:UserInputAborted/
 			return
 		endtry
@@ -3295,13 +3390,15 @@ function! mmtemplates#core#ChooseStyle ( library, style )
 		let style = a:style
 	endif
 	"
-	" check the new style
+	" check and set the new style
 	if style == ''
 		" noop
 	elseif -1 != index ( t_lib.styles, style )
 		if t_lib.current_style != style
 			let t_lib.current_style = style
 			echo 'Changed style to "'.style.'".'
+		elseif a:style == '!pick'
+			echo 'Style stayed "'.style.'".'
 		endif
 	else
 		call s:ErrorMsg ( 'Style was not changed. Style "'.style.'" is not available.' )
@@ -3312,11 +3409,15 @@ endfunction    " ----------  end of function mmtemplates#core#ChooseStyle  -----
 "----------------------------------------------------------------------
 " mmtemplates#core#Resource : Access to various resources.   {{{1
 "----------------------------------------------------------------------
+"
 function! mmtemplates#core#Resource ( library, mode, ... )
 	"
 	" TODO mode 'special' for |DATE|, |TIME| and |year|
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	elseif type( a:library ) == type( {} )
@@ -3329,24 +3430,34 @@ function! mmtemplates#core#Resource ( library, mode, ... )
 		return [ '', 'Argument "mode" must be given as a string.' ]
 	endif
 	"
-	" some specials?
-	if a:mode == 'get' || a:mode == 'set'
+	" ==================================================
+	"  special inquiries
+	" ==================================================
+	"
+	if a:mode == 'add' || a:mode == 'get' || a:mode == 'set'
 		" continue below
-	elseif a:mode == 'style'
-		return [ t_lib.current_style, '' ]
+	elseif a:mode == 'escaped_mapleader'
+		return [ mmtemplates#core#EscapeMenu( t_lib.properties[ 'Templates::Mapleader' ], 'right' ), '' ]
 	elseif a:mode == 'jumptag'
 		return [ t_lib.regex_template.JumpTagBoth, '' ]
+	elseif a:mode == 'style'
+		return [ t_lib.current_style, '' ]
 	else
 		return [ '', 'Mode "'.a:mode.'" is unknown.' ]
 	endif
 	"
-	" type of 'resource'
-	let types = { 'macro' : 's', 'path' : 's', 'list' : '[ld]' }
+	" ==================================================
+	"  options
+	" ==================================================
 	"
-	" additional arguments
-	if a:mode == 'get' && a:0 < 2
+	" type of 'resource'
+	let types = { 'list' : '[ld]', 'macro' : 's', 'path' : 's', 'property' : 's' }
+	"
+	if a:mode == 'add' && a:0 != 3
+		return [ '', 'Mode "add" requires three additional arguments.' ]
+	elseif a:mode == 'get' && a:0 != 2
 		return [ '', 'Mode "get" requires two additional arguments.' ]
-	elseif a:mode == 'set' && a:0 < 3
+	elseif a:mode == 'set' && a:0 != 3
 		return [ '', 'Mode "set" requires three additional arguments.' ]
 	elseif type( a:1 ) != type( '' )
 		return [ '', 'Argument "resource" must be given as a string.' ]
@@ -3354,49 +3465,130 @@ function! mmtemplates#core#Resource ( library, mode, ... )
 		return [ '', 'Argument "key" must be given as a string.' ]
 	elseif ! has_key ( types, a:1 )
 		return [ '', 'Resource "'.a:1.'" does not exist.' ]
+	elseif a:mode == 'add' && a:1 != 'property'
+		return [ '', 'Can not execute add for resource of type "'.a:1.'".' ]
 	endif
+	"
+	" ==================================================
+	"  add, get or set
+	" ==================================================
 	"
 	let resource = a:1
 	let key      = a:2
 	"
-	" operation: 'get', 'set' or special?
-	if a:mode == 'get'
+	if a:mode == 'add'
+		"
+		let value = a:3
+		"
+		" add (property only)
+		if type( value ) != type( '' )
+			return [ '', 'Argument "value" must be given as a string.' ]
+		else
+			let t_lib.properties[ key ] = value
+			return [ '', '' ]
+		endif
+		"
+		return [ '', '' ]
+	elseif a:mode == 'get'
 		"
 		" get
-		if resource == 'macro'
+		if resource == 'list'
+			return [ get( t_lib.resources, 'list!'.key ), '' ]
+		elseif resource == 'macro'
 			return [ get( t_lib.macros, key ), '' ]
 		elseif resource == 'path'
 			return [ get( t_lib.resources, 'path!'.key ), '' ]
-		elseif resource == 'list'
-			return [ get( t_lib.resources, 'list!'.key ), '' ]
+		elseif resource == 'property'
+			if has_key ( t_lib.properties, key )
+				return [ t_lib.properties[ key ], '' ]
+			else
+				return [ '', 'Property "'.key.'" does not exist.' ]
+			endif
 		endif
 		"
 	elseif a:mode == 'set'
 		"
-		let value  = a:3
+		let value = a:3
 		"
 		" check type and set
 		if s:TypeNames[ type( value ) ] !~ types[ resource ]
 			return [ '', 'Argument "value" has the wrong type.' ]
+		elseif resource == 'list'
+			let t_lib.resources[ 'list!'.key ] = value
 		elseif resource == 'macro'
 			let t_lib.macros[ key ] = value
 		elseif resource == 'path'
 			let t_lib.resources[ 'path!'.key ] = value
-		elseif resource == 'list'
-			let t_lib.resources[ 'list!'.key ] = value
+		elseif resource == 'property'
+			if has_key ( t_lib.properties, key )
+				let t_lib.properties[ key ] = value
+				return [ '', '' ]
+			else
+				return [ '', 'Property "'.key.'" does not exist.' ]
+			endif
 		endif
 		"
-		return [ 0, '' ]
+		return [ '', '' ]
 	endif
 	"
 endfunction    " ----------  end of function mmtemplates#core#Resource  ----------
 "
 "----------------------------------------------------------------------
+" mmtemplates#core#ChangeSyntax : Change the syntax of the templates.   {{{1
+"-------------------------------------------------------------------------------
+"
+function! mmtemplates#core#ChangeSyntax ( library, category, ... )
+	"
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
+	if type( a:library ) == type( '' )
+		exe 'let t_lib = '.a:library
+	elseif type( a:library ) == type( {} )
+		let t_lib = a:library
+	else
+		return s:ErrorMsg ( 'Argument "library" must be given as a dict or string.' )
+	endif
+	"
+	if type( a:category ) != type( '' )
+		return s:ErrorMsg ( 'Argument "category" must be given as an integer or string.' )
+	endif
+	"
+	" ==================================================
+	"  set the syntax
+	" ==================================================
+	"
+	if a:category == 'comment'
+		"
+		if a:0 < 1
+			return s:ErrorMsg ( 'Not enough arguments for '.a:category.'.' )
+		elseif a:0 == 1
+			let t_lib.regex_settings.CommentStart = a:1
+			let t_lib.regex_settings.CommentHint  = a:1[0]
+		elseif a:0 == 2
+			let t_lib.regex_settings.CommentStart = a:1
+			let t_lib.regex_settings.CommentHint  = a:2[0]
+		endif
+		"
+		call s:UpdateFileReadRegex ( t_lib.regex_file, t_lib.regex_settings )
+		"
+	else
+		return s:ErrorMsg ( 'Unknown category: '.a:category )
+	endif
+	"
+endfunction    " ----------  end of function mmtemplates#core#ChangeSyntax  ----------
+"
+"-------------------------------------------------------------------------------
 " mmtemplates#core#ExpandText : Expand the macros in a text.   {{{1
 "----------------------------------------------------------------------
+"
 function! mmtemplates#core#ExpandText ( library, text )
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	elseif type( a:library ) == type( {} )
@@ -3409,7 +3601,11 @@ function! mmtemplates#core#ExpandText ( library, text )
 		return s:ErrorMsg ( 'Argument "text" must be given as a string.' )
 	endif
 	"
-	" runtime environment
+	" ==================================================
+	"  setup
+	" ==================================================
+	"
+	" library and runtime information
 	let s:library = t_lib
 	let s:t_runtime = {
 				\ 'macro_stack' : [],
@@ -3426,10 +3622,16 @@ function! mmtemplates#core#ExpandText ( library, text )
 	let m_local[ 'TIME' ]     = strftime( t_lib.macros[ 'TIME' ] )
 	let m_local[ 'YEAR' ]     = strftime( t_lib.macros[ 'YEAR' ] )
 	"
+	" ==================================================
+	"  do the job
+	" ==================================================
+	"
 	let res = ''
 	"
 	try
+		"
 		let res = s:ReplaceMacros ( a:text, m_local )
+		"
 	catch /Template:MacroRecursion/
 		"
 		let macro = s:t_runtime.macro_stack[ -1 ]
@@ -3444,34 +3646,30 @@ function! mmtemplates#core#ExpandText ( library, text )
 		call s:ErrorMsg ( msg )
 		"
 	finally
-		unlet s:library
-		unlet s:t_runtime
+		"
+		" ==================================================
+		"  wrap up
+		" ==================================================
+		"
+		unlet s:library                             " remove script variables
+		unlet s:t_runtime                           " ...
+		"
 	endtry
 	"
 	return res
 	"
 endfunction    " ----------  end of function mmtemplates#core#ExpandText  ----------
 "
-"----------------------------------------------------------------------
-" mmtemplates#core#JumpToTag : Access to various resources.   {{{1
-"----------------------------------------------------------------------
-function! mmtemplates#core#JumpToTag ( regex )
-	"
-  let match	= search( a:regex, 'c' )
-	if match > 0
-		" remove the target
-		call setline( match, substitute( getline('.'), a:regex, '', '' ) )
-	endif
-	"
-	return ''
-endfunction    " ----------  end of function mmtemplates#core#JumpToTag  ----------
-"
 "-------------------------------------------------------------------------------
 " mmtemplates#core#EditTemplateFiles : Choose and edit a template file.   {{{1
 "-------------------------------------------------------------------------------
+"
 function! mmtemplates#core#EditTemplateFiles ( library, file )
 	"
-	" check the arguments
+	" ==================================================
+	"  parameters
+	" ==================================================
+	"
 	if type( a:library ) == type( '' )
 		exe 'let t_lib = '.a:library
 	elseif type( a:library ) == type( {} )
@@ -3481,6 +3679,9 @@ function! mmtemplates#core#EditTemplateFiles ( library, file )
 	endif
 	"
 	if type( a:file ) == type( 0 )
+		if get( t_lib.library_files, a:file, '' ) == ''
+			return s:ErrorMsg ( 'No template file with index '.a:file.'.' )
+		endif
 		let file = t_lib.library_files[ a:file ]
 	elseif type( a:file ) == type( '' )
 		"
@@ -3496,6 +3697,10 @@ function! mmtemplates#core#EditTemplateFiles ( library, file )
 	else
 		return s:ErrorMsg ( 'Argument "file" must be given as an integer or string.' )
 	endif
+	"
+	" ==================================================
+	"  do the job
+	" ==================================================
 	"
 	" get the directory
 	let dir = fnamemodify ( file, ':h' )
@@ -3524,44 +3729,21 @@ function! mmtemplates#core#EditTemplateFiles ( library, file )
 	"
 endfunction    " ----------  end of function mmtemplates#core#EditTemplateFiles  ----------
 "
-"-------------------------------------------------------------------------------
-" mmtemplates#core#ChangeSyntax : Change the syntax of the templates.   {{{1
-"-------------------------------------------------------------------------------
-
-function! mmtemplates#core#ChangeSyntax ( library, category, ... )
+"----------------------------------------------------------------------
+" mmtemplates#core#JumpToTag : Jump to the next tag.   {{{1
+"----------------------------------------------------------------------
+"
+function! mmtemplates#core#JumpToTag ( regex )
 	"
-	" check the arguments
-	if type( a:library ) == type( '' )
-		exe 'let t_lib = '.a:library
-	elseif type( a:library ) == type( {} )
-		let t_lib = a:library
-	else
-		return s:ErrorMsg ( 'Argument "library" must be given as a dict or string.' )
+	let match	= search( a:regex, 'c' )
+	if match > 0
+		" remove the target
+		call setline( match, substitute( getline('.'), a:regex, '', '' ) )
 	endif
 	"
-	if type( a:category ) != type( '' )
-		return s:ErrorMsg ( 'Argument "category" must be given as an integer or string.' )
-	endif
-	"
-	if a:category == 'comment'
-		"
-		if a:0 < 1
-			return s:ErrorMsg ( 'Not enough arguments for '.a:category.'.' )
-		elseif a:0 == 1
-			let t_lib.regex_settings.CommentStart = a:1
-			let t_lib.regex_settings.CommentHint  = a:1[0]
-		elseif a:0 == 2
-			let t_lib.regex_settings.CommentStart = a:1
-			let t_lib.regex_settings.CommentHint  = a:2[0]
-		endif
-		"
-		call s:UpdateFileReadRegex ( t_lib.regex_file, t_lib.regex_settings )
-		"
-	else
-		return s:ErrorMsg ( 'Unknown category: '.a:category )
-	endif
-	"
-endfunction    " ----------  end of function mmtemplates#core#ChangeSyntax  ----------
+	return ''
+endfunction    " ----------  end of function mmtemplates#core#JumpToTag  ----------
+"
 " }}}1
 "
 " =====================================================================================
