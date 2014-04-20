@@ -1,7 +1,7 @@
-*csupport.txt*                  C/C++ Support               December 28 2013
+*csupport.txt*                  C/C++ Support                  March 22 2014
 
 C/C++ Support                                           *c-support* *csupport*
-                             Plugin version 6.1
+                             Plugin version 6.1.1
                         for Vim version 7.0 and above
                        Fritz Mehner  <mehner@fh-swf.de>
 
@@ -67,7 +67,8 @@ keystroke.
  1.7.11  Output redirection                     |csupport-run-output|
  1.8     Tool Box                               |csupport-toolbox|
  1.8.1    Make                                  |csupport-toolbox-make|
- 1.9    Help                                    |csupport-help|
+ 1.8.2    Other Tools                           |csupport-toolbox-others|
+ 1.9    Menu 'Help'                             |csupport-help|
  1.10   Menu 'Doxygen'                          |csupport-doxygen|
  1.10.1  Enabling the menu                      |csupport-doxygen-enable|
 
@@ -840,6 +841,11 @@ function.
 The behavior of the compiler / linker is determined by the options assigned to
 the variables described in |csupport-custom-glob-vars| (4.group).
 
+Note: The source is first compiled using the settings g:C_CFlags and then
+  linked using g:C_LFlags. Every time one setting is changed, the other has to
+  be changed accordingly. The flags in g:C_CFlags have to cause compilation
+  only. The same holds for g:C_CplusCFlags and g:C_CplusLFlags.
+
 RUN
 'run' runs the executable with the same name  as the current buffer. If the
 buffer is not saved, or no executable is available or the executable is older
@@ -871,6 +877,7 @@ will now belong to the buffer with the new name.
 The command line arguments can be followed by pipes and redirections:
 >
   11 22 | sort -rn | head -10 > out
+<
 
 1.7.3  EXECUTABLE TO RUN                               *csupport-run-make-run*
 
@@ -1041,11 +1048,11 @@ The default is "-fa courier -fs 12 -geometry 80x24" :
 See 'xterm -help' for more options. Xterms are not available under Windows.
 
 ------------------------------------------------------------------------------
-1.8  Menu 'Tool Box'                                        *csupport-toolbox*
+1.8  MENU 'Tool Box'                                        *csupport-toolbox*
 ------------------------------------------------------------------------------
 
 Tools which can be used by several plugins are located in the Tool Box.
-Examples are tools for make(1) or doxygen.  The Tool Box has its own
+Examples are tools for make(1) or doxygen. The Tool Box has its own
 documentation:|toolbox|.
 To switch the Tool Box off add the following line to the file .vimrc
 >
@@ -1061,13 +1068,26 @@ To switch the make tool box off add the following line to the file .vimrc
 <
 The hotkeys for the make tool are defined in the file ~/.vim/ftplugin/c.vim .
 
+1.8.2 Other Tools                                   *csupport-toolbox-others*
+
+In general, to enable a tool called <name>, add the following line to your
+.vimrc:
+>
+  let g:C_UseTool_<name> = 'yes'
+<
+For example:
+>
+  let g:C_UseTool_cmake   = 'yes'
+  let g:C_UseTool_doxygen = 'yes'
+<
 ------------------------------------------------------------------------------
-1.9  'help'                                                    *csupport-help*
+1.9  MENU 'Help'                                               *csupport-help*
 ------------------------------------------------------------------------------
+
 Plugin help
 -----------
-The root menu item 'help (plugin)' shows this plugin help in a help window.
-The help tags must have been generated with
+The menu item 'help (plugin)' shows this plugin help in a help window. The
+help tags must have been generated with
 >
   :helptags ~/.vim/doc
 <
@@ -1075,12 +1095,38 @@ The hotkey is \hp (for "help plugin").
 
 Displaying a manual
 -------------------
-The root menu item 'show manual' shows the manual for the word under the
-cursor. If there is more than one manual a selection list will be presented.
-If there is no word under the cursor you can type in a name.  An interface to
-the on-line reference manuals must be installed (usually man(1) for
-Linux/Unix, see|csupport-custom-glob-vars|).
-The hotkey is \hm (for "help manual").
+The menu item 'show manual' shows the manual for the word under the cursor. If
+there is more than one manual a selection list will be presented. If there is
+no word under the cursor you can type in a name. An interface to the on-line
+reference manuals must be installed (usually man(1) for Linux/Unix, see
+|csupport-custom-glob-vars|). The hotkey is \hm (for "help manual").
+
+English dictionary
+------------------
+The menu item 'english' opens an online dictionary for the word under the
+cursor.
+
+Doxygen reference
+-----------------
+The menu item 'doxygen cmd' opens the online reference for the Doxygen command
+under the cursor.
+
+------------------------------------------------------------------------------
+
+Under Windows, the browser for opening the online documentation has to be
+configured. To set the executable, the template library has to be modified.
+In case of a local installation (the default), choose:
+  C/C++ -> Snippets -> edit local templates
+and for a global installation:
+  C/C++ -> Snippets -> edit global templates
+Open the main template file 'Templates' and uncomment the line >
+ §SetMacro( 'HELP_BROWSER', '"C:\Program Files\Mozilla Firefox\firefox.exe"' )
+by removing the leading '§' >
+ SetMacro( 'HELP_BROWSER', '"C:\Program Files\Mozilla Firefox\firefox.exe"' )
+Then set the right executable. Mind the double quotes which escape the name of
+the executable.
+Finally, reread the template library using:
+  C/C++ -> Snippets -> reread templates
 
 ------------------------------------------------------------------------------
 1.10  MENU 'Doxygen'                                        *csupport-doxygen*
@@ -1159,6 +1205,10 @@ Legend:  (i) insert mode, (n) normal mode, (v) visual mode
 
   -- Help ---------------------------------------------------------------
 
+     \he       open an English dictionary for the    (n,i)
+               word under the cursor
+     \hd       open the reference for the Doxygen    (n,i)
+               command under the cursor
      \hm       show manual for word under the cursor (n,i)
      \hp       show plugin help                      (n,i)
 
@@ -1335,6 +1385,17 @@ The map leader is now a comma. The 'line end comment' command is now defined
 as ',cl'. This setting will be used as a so called local leader and influences
 only files with filetype 'c' and 'cpp'.
 
+The configured mapleader can also be used in the ftplugin, by calling the
+functions *C_SetMapLeader()* and *C_ResetMapLeader()* . The maps created
+between the two calls will use |g:C_MapLeader| as the |<LocalLeader>|:
+>
+  call C_SetMapLeader ()
+
+  map  <buffer>  <LocalLeader>eg  :echo "Example Map :)"<CR>
+
+  call C_ResetMapLeader ()
+<
+
 ==============================================================================
 3.  HOTKEYS                                                 *csupport-hotkeys*
 ==============================================================================
@@ -1487,6 +1548,10 @@ line, i.e. without restarting the editor:
   C_CplusLibs
   C_Debugger
 <
+If you change g:C_CFlags or g:C_LFlags, you have change to change the other
+accordingly. The same holds for g:C_CplusCFlags and g:C_CplusLFlags (see also
+|csupport-run-buffer|).
+
 ------------------------------------------------------------------------------
 4.2  THE ROOT MENU                                      *csupport-custom-root*
 ------------------------------------------------------------------------------
@@ -1508,8 +1573,15 @@ this is done by the following line in '.vimrc'
 4.3  SYSTEM-WIDE INSTALLATION                           *csupport-system-wide*
 ------------------------------------------------------------------------------
 
-A system-wide installation (one installation for all users) is done as
-follows.
+A system-wide installation (one installation for all users) of the plug-in can
+be done. This will mean however, that a user can not edit the template
+library, for example to set his own name. So in case of a system-wide
+installation, every user can have an own set of templates (called local
+templates), which are localed in each users' home directory.
+Note: As you might have guessed, this behavior is much more inspired by Linux
+than Windows.
+
+A system-wide installation is done as follows.
 
 As *** SUPERUSER *** :
 
@@ -2009,6 +2081,11 @@ directory):
       let g:C_CreateMenusDelayed = 'yes'
     The only downside is that you won't see the C/C++-menu before you start
     working on a C-file, or use the menu entry "Tools->Load C Support".
+
+* After changing g:C_LFlags / g:C_CplusLFlags my source can not be linked or
+  run.
+  - The settings g:C_CFlags / g:C_CplusCFlags have to be changed accordingly
+    (see |csupport-run-buffer|)
 
 * Splint and/or CodeCheck menu item not visible.
   - The program is not installed or not found (path not set) or not executable.

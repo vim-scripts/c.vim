@@ -11,7 +11,7 @@
 "  Organization:  
 "       Version:  see variable g:Templates_Version below
 "       Created:  30.08.2011
-"      Revision:  11.02.2013
+"      Revision:  28.03.2014
 "       License:  Copyright (c) 2012-2013, Wolfgang Mehner
 "                 This program is free software; you can redistribute it and/or
 "                 modify it under the terms of the GNU General Public License as
@@ -38,14 +38,103 @@ endif
 "
 " prevent duplicate loading
 " need compatible
-if &cp || ( exists('g:Templates_Version') && ! exists('g:Templates_DevelopmentOverwrite') )
+if &cp || ( exists('g:Templates_Version') && g:Templates_Version != 'searching' && ! exists('g:Templates_DevelopmentOverwrite') )
 	finish
 endif
-let g:Templates_Version= '0.9.2-1'     " version number of this script; do not change
 "
-if ! exists ( 'g:Templates_MapInUseWarn' )
-	let g:Templates_MapInUseWarn = 1
+let s:Templates_Version = '0.9.3'     " version number of this script; do not change
+"
+"----------------------------------------------------------------------
+"  --- Find Newest Version ---   {{{2
+"----------------------------------------------------------------------
+"
+if exists('g:Templates_DevelopmentOverwrite')
+	" skip ahead
+elseif exists('g:Templates_VersionUse')
+	"
+	" not the newest one: abort
+	if s:Templates_Version != g:Templates_VersionUse
+		finish
+	endif
+	"
+	" otherwise: skip ahead
+	"
+elseif exists('g:Templates_VersionSearch')
+	"
+	" add own version number to the list
+	call add ( g:Templates_VersionSearch, s:Templates_Version )
+	"
+	finish
+	"
+else
+	"
+	"-------------------------------------------------------------------------------
+	" s:VersionComp : Compare two version numbers.   {{{3
+	"
+	" Parameters:
+	"   op1 - first version number (string)
+	"   op2 - second version number (string)
+	" Returns:
+	"   result - -1, 0 or 1, to the specifications of sort() (integer)
+	"-------------------------------------------------------------------------------
+	function! s:VersionComp ( op1, op2 )
+		"
+		let l1 = split ( a:op1, '[.-]' )
+		let l2 = split ( a:op2, '[.-]' )
+		"
+		for i in range( 0, max( [ len( l1 ), len( l2 ) ] ) - 1 )
+			" until now, all fields where equal
+			if len ( l2 ) <= i
+				return -1                               " op1 has more fields -> sorts first
+			elseif len( l1 ) <= i
+				return 1                                " op2 has more fields -> sorts first
+			elseif str2nr ( l1[i] ) > str2nr ( l2[i] )
+				return -1                               " op1 is larger here -> sorts first
+			elseif str2nr ( l2[i] ) > str2nr ( l1[i] )
+				return 1                                " op2 is larger here -> sorts first
+			endif
+		endfor
+		"
+		return 0                                    " same amount of fields, all equal
+	endfunction    " ----------  end of function s:VersionComp  ----------
+	" }}}3
+	"-------------------------------------------------------------------------------
+	"
+	try
+		"
+		" collect all available version
+		let g:Templates_Version = 'searching'
+		let g:Templates_VersionSearch = []
+		"
+		runtime! autoload/mmtemplates/core.vim
+		"
+		" select the newest one
+		call sort ( g:Templates_VersionSearch, 's:VersionComp' )
+		"
+		let g:Templates_VersionUse = g:Templates_VersionSearch[ 0 ]
+		"
+		" run all scripts again, the newest one will be used
+		runtime! autoload/mmtemplates/core.vim
+		"
+		unlet g:Templates_VersionSearch
+		unlet g:Templates_VersionUse
+		"
+		finish
+		"
+	catch /.*/
+		"
+		" an error occurred, skip ahead
+		echohl WarningMsg
+		echomsg 'Search for the newest version number failed.'
+		echomsg 'Using this version ('.s:Templates_Version.').'
+		echohl None
+	endtry
+	"
 endif
+" }}}2
+"-------------------------------------------------------------------------------
+"
+let g:Templates_Version = s:Templates_Version     " version number of this script; do not change
 "
 "----------------------------------------------------------------------
 "  === Modul Setup ===   {{{1
@@ -53,6 +142,10 @@ endif
 "
 let s:DebugGlobalOverwrite = 0
 let s:DebugLevel           = s:DebugGlobalOverwrite
+"
+if ! exists ( 'g:Templates_MapInUseWarn' )
+	let g:Templates_MapInUseWarn = 1
+endif
 "
 let s:StateStackStyleTop    = -2
 let s:StateStackFile        = -1
@@ -409,7 +502,7 @@ function! s:OpenFold ( mode )
 	" jump to the last line of the previously closed fold
 	let foldstart = foldclosed(".")
 	let foldend		= foldclosedend(".")
-	normal zv
+	normal! zv
 	if a:mode == 'below'
 		exe ":".foldend
 	elseif a:mode == 'start'
@@ -2495,7 +2588,7 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_mode )
 			"           puts the selected area into the buffer @"
 			let pos1 = line("'<")
 			let pos2 = line("'>") + len(split( text, '\n' )) - 1
-			normal gvy
+			normal! gvy
 			let repl = escape ( part[0].@".part[1], '\&~' )
 			" substitute the selected area (using the '< and '> marks)
 			exe ':s/\%''<.*\%''>./'.repl.'/'
@@ -2516,7 +2609,7 @@ function! s:InsertIntoBuffer ( text, placement, indentation, flag_mode )
 	" proper indenting
 	if indentation
 		silent exe ":".pos1
-		silent exe "normal ".( pos2-pos1+1 )."=="
+		silent exe "normal! ".( pos2-pos1+1 )."=="
 	endif
 	"
 	return [ pos1, pos2 ]
@@ -2533,8 +2626,8 @@ function! s:PositionCursor ( placement, flag_mode, pos1, pos2 )
 	" :TODO:12.08.2013 11:03:WM: changeable syntax?
 	" :TODO:12.08.2013 12:00:WM: change behavior?
 	"
-	exe ":".a:pos1
-	let mtch = search( '<CURSOR>\|{CURSOR}', 'c', a:pos2 )
+	call setpos ( '.', [ bufnr('%'), a:pos1, 1, 0 ] )
+	let mtch = search( '\m<CURSOR>\|{CURSOR}', 'c', a:pos2 )
 	if mtch != 0
 		" tag found (and cursor moved, we are now at the position of the match)
 		let line = getline(mtch)
@@ -2545,9 +2638,9 @@ function! s:PositionCursor ( placement, flag_mode, pos1, pos2 )
 			"if a:flag_mode == 'v' && getline('.') =~ '^\s*\%(<CURSOR>\|{CURSOR}\)\s*$'
 				" the line contains nothing but the tag: remove and join without
 				" changing the second line
-				normal J
+				normal! J
 				"call setline( mtch, '' )
-				"normal gJ
+				"normal! gJ
 			else
 				" the line contains other characters: remove the tag and start appending
 				"call setline( mtch, substitute( line, '<CURSOR>\|{CURSOR}', '', '' ) )
@@ -2758,7 +2851,7 @@ function! mmtemplates#core#InsertTemplate ( library, t_name, ... ) range
 		" restore the state: folding and formatter program
 		if &foldenable
 			exe "set foldmethod=".foldmethod_save
-			normal zv
+			normal! zv
 		endif
 		let &equalprg = equalprg_save
 		"
@@ -3034,11 +3127,11 @@ function! s:CreateSubmenu ( t_lib, root_menu, global_name, menu, priority )
 			let assemble .= '.'
 			"
 			if -1 != stridx ( clean, '<TAB>' )
-				exe 'amenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).' :echo "This is a menu header."<CR>'
+				exe 'anoremenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).' :echo "This is a menu header."<CR>'
 			else
-				exe 'amenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).'<TAB>'.escape( a:global_name, ' .' ).' :echo "This is a menu header."<CR>'
+				exe 'anoremenu '.priority_str.a:root_menu.escape( assemble.clean, ' ' ).'<TAB>'.escape( a:global_name, ' .' ).' :echo "This is a menu header."<CR>'
 			endif
-			exe 'amenu '.a:root_menu.escape( assemble,       ' ' ).'-TSep00- <Nop>'
+			exe 'anoremenu '.a:root_menu.escape( assemble,       ' ' ).'-TSep00- <Nop>'
 		endif
 		let submenu .= clean.'.'
 	endfor
@@ -3080,7 +3173,7 @@ function! s:CreateTemplateMenus ( t_lib, root_menu, global_name, t_lib_name )
 			let sep_nr = a:t_lib.menu_existing[ m_key ] + 1
 			let a:t_lib.menu_existing[ m_key ] = sep_nr
 			"
-			exe 'amenu '.a:root_menu.escape( t_menu, ' ' ).'-TSep'.sep_nr.'- :'
+			exe 'anoremenu '.a:root_menu.escape( t_menu, ' ' ).'-TSep'.sep_nr.'- :'
 			"
 			continue
 		endif
@@ -3104,26 +3197,26 @@ function! s:CreateTemplateMenus ( t_lib, root_menu, global_name, t_lib_name )
 		"
 		if entry == 1
 			" <Esc><Esc> prevents problems in insert mode
-			exe 'amenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
-			exe 'imenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i")<CR>'
+			exe 'anoremenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
+			exe 'inoremenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i")<CR>'
 			if visual == 1
-				exe 'vmenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
+				exe 'vnoremenu <silent> '.a:root_menu.compl_entry.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
 			endif
 		elseif entry == 2
 			call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, t_menu.t_last.map_entry, s:StandardPriority )
 			"
 			for item in s:GetPickList ( t_name )
 				let item_entry = compl_entry.'.'.substitute ( substitute ( escape ( item, ' .' ), '&', '\&\&', 'g' ), '\w', '\&&', '' )
-				exe 'amenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","pick",'.string(item).')<CR>'
-				exe 'imenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i","pick",'.string(item).')<CR>'
+				exe 'anoremenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","pick",'.string(item).')<CR>'
+				exe 'inoremenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","i","pick",'.string(item).')<CR>'
 				if visual == 1
-					exe 'vmenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v","pick",'.string(item).')<CR>'
+					exe 'vnoremenu <silent> '.a:root_menu.item_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v","pick",'.string(item).')<CR>'
 				endif
 			endfor
 			"
-"			exe 'amenu '.a:root_menu.compl_entry.'.-\ choose\ -'.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
+"			exe 'anoremenu '.a:root_menu.compl_entry.'.-\ choose\ -'.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'")<CR>'
 "			if visual == 1
-"				exe 'vmenu '.a:root_menu.compl_entry.'.-\ choose\ -'.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
+"				exe 'vnoremenu '.a:root_menu.compl_entry.'.-\ choose\ -'.map_entry.' <Esc><Esc>:call mmtemplates#core#InsertTemplate('.a:t_lib_name.',"'.t_name.'","v")<CR>'
 "			endif
 		endif
 		"
@@ -3155,9 +3248,9 @@ function! s:CreateSpecialsMenus ( t_lib, root_menu, global_name, t_lib_name, spe
 		" create edit and reread templates
 		let entry_edit = s:InsertShortcut ( '.edit\ templates',   sc_edit, 1 ).'<TAB>'.map_edit
 		let entry_read = s:InsertShortcut ( '.reread\ templates', sc_read, 1 ).'<TAB>'.map_read
-		exe 'amenu <silent> '.a:root_menu.specials_menu.entry_edit
+		exe 'anoremenu <silent> '.a:root_menu.specials_menu.entry_edit
 					\ .' :call mmtemplates#core#EditTemplateFiles('.a:t_lib_name.',-1)<CR>'
-		exe 'amenu <silent> '.a:root_menu.specials_menu.entry_read
+		exe 'anoremenu <silent> '.a:root_menu.specials_menu.entry_read
 					\ .' :call mmtemplates#core#ReadTemplates('.a:t_lib_name.',"reload","all")<CR>'
 	endif
 	"
@@ -3168,7 +3261,7 @@ function! s:CreateSpecialsMenus ( t_lib, root_menu, global_name, t_lib_name, spe
 	call s:CreateSubmenu ( a:t_lib, a:root_menu, a:global_name, specials_menu.entry_styles, s:StandardPriority )
 	"
 	for s in a:t_lib.styles
-		exe 'amenu <silent> '.a:root_menu.specials_menu.'.choose\ style.&'.s
+		exe 'anoremenu <silent> '.a:root_menu.specials_menu.'.choose\ style.&'.s
 					\ .' :call mmtemplates#core#ChooseStyle('.a:t_lib_name.','.string(s).')<CR>'
 	endfor
 	"
@@ -3735,7 +3828,7 @@ endfunction    " ----------  end of function mmtemplates#core#EditTemplateFiles 
 "
 function! mmtemplates#core#JumpToTag ( regex )
 	"
-	let match	= search( a:regex, 'c' )
+	let match	= search( '\m'.a:regex, 'c' )
 	if match > 0
 		" remove the target
 		call setline( match, substitute( getline('.'), a:regex, '', '' ) )
@@ -3743,6 +3836,46 @@ function! mmtemplates#core#JumpToTag ( regex )
 	"
 	return ''
 endfunction    " ----------  end of function mmtemplates#core#JumpToTag  ----------
+"
+"----------------------------------------------------------------------
+" mmtemplates#core#SetMapleader : Set the local mapleader.   {{{1
+"----------------------------------------------------------------------
+"
+" list of lists: [ "<localleader>", "<globalleader>" ]
+let s:mapleader_stack = []
+"
+function! mmtemplates#core#SetMapleader ( localleader )
+	"
+	if empty ( a:localleader )
+		call add ( s:mapleader_stack, [] )
+	else
+		if exists ( 'g:maplocalleader' )
+			call add ( s:mapleader_stack, [ a:localleader, g:maplocalleader ] )
+		else
+			call add ( s:mapleader_stack, [ a:localleader ] )
+		endif
+		let g:maplocalleader = a:localleader
+	endif
+	"
+endfunction    " ----------  end of function mmtemplates#core#SetMapleader  ----------
+"
+"----------------------------------------------------------------------
+" mmtemplates#core#ResetMapleader : Reset the local mapleader.   {{{1
+"----------------------------------------------------------------------
+"
+function! mmtemplates#core#ResetMapleader ()
+	"
+	let ll_save = remove ( s:mapleader_stack, -1 )
+	"
+	if ! empty ( ll_save )
+		if len ( ll_save ) > 1
+			let g:maplocalleader = ll_save[1]
+		else
+			unlet g:maplocalleader
+		endif
+	endif
+	"
+endfunction    " ----------  end of function mmtemplates#core#ResetMapleader  ----------
 "
 " }}}1
 "

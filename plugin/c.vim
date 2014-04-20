@@ -40,7 +40,7 @@ endif
 if exists("g:C_Version") || &cp
  finish
 endif
-let g:C_Version= "6.1"  							" version number of this script; do not change
+let g:C_Version= "6.1.1"								" version number of this script; do not change
 "
 "===  FUNCTION  ================================================================
 "          NAME:  C_CheckGlobal
@@ -88,9 +88,7 @@ let g:C_Installation				= '*undefined*'
 let s:plugin_dir						= ''
 "
 let s:C_GlobalTemplateFile	= ''
-let s:C_GlobalTemplateDir		= ''
 let s:C_LocalTemplateFile		= ''
-let s:C_LocalTemplateDir		= ''
 let s:C_FilenameEscChar 		= ''
 
 let s:C_ToolboxDir					= []
@@ -98,25 +96,22 @@ let s:C_ToolboxDir					= []
 if	s:MSWIN
   " ==========  MS Windows  ======================================================
 	"
+	let s:plugin_dir	= substitute( expand('<sfile>:p:h:h'), '\', '/', 'g' )
+	"
 	" change '\' to '/' to avoid interpretation as escape character
 	if match(	substitute( expand("<sfile>"), '\', '/', 'g' ), 
 				\		substitute( expand("$HOME"),   '\', '/', 'g' ) ) == 0
 		"
 		" USER INSTALLATION ASSUMED
 		let g:C_Installation				= 'local'
-		let s:plugin_dir  					= substitute( expand('<sfile>:p:h:h'), '\', '/', 'g' )
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
-		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 		let s:C_ToolboxDir				 += [ s:plugin_dir.'/autoload/mmtoolbox/' ]
 	else
 		"
 		" SYSTEM WIDE INSTALLATION
 		let g:C_Installation				= 'system'
-		let s:plugin_dir						= $VIM.'/vimfiles'
-		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
-		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
+		let s:C_GlobalTemplateFile  = s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateFile		= $HOME.'/vimfiles/c-support/templates/Templates'
-		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 		let s:C_ToolboxDir				 += [
 					\	s:plugin_dir.'/autoload/mmtoolbox/',
 					\	$HOME.'/vimfiles/autoload/mmtoolbox/' ]
@@ -127,21 +122,18 @@ if	s:MSWIN
 else
   " ==========  Linux/Unix  ======================================================
 	"
+	let s:plugin_dir	= expand('<sfile>:p:h:h')
+	"
 	if match( expand("<sfile>"), resolve( expand("$HOME") ) ) == 0
 		" USER INSTALLATION ASSUMED
 		let g:C_Installation				= 'local'
-		let s:plugin_dir 						= expand('<sfile>:p:h:h')
 		let s:C_LocalTemplateFile		= s:plugin_dir.'/c-support/templates/Templates'
-		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 		let s:C_ToolboxDir				 += [ s:plugin_dir.'/autoload/mmtoolbox/' ]
 	else
 		" SYSTEM WIDE INSTALLATION
 		let g:C_Installation				= 'system'
-		let s:plugin_dir						= $VIM.'/vimfiles'
-		let s:C_GlobalTemplateDir		= s:plugin_dir.'/c-support/templates'
-		let s:C_GlobalTemplateFile  = s:C_GlobalTemplateDir.'/Templates'
+		let s:C_GlobalTemplateFile  = s:plugin_dir.'/c-support/templates/Templates'
 		let s:C_LocalTemplateFile		= $HOME.'/.vim/c-support/templates/Templates'
-		let s:C_LocalTemplateDir		= fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 		let s:C_ToolboxDir				 += [
 					\	s:plugin_dir.'/autoload/mmtoolbox/',
 					\	$HOME.'/.vim/autoload/mmtoolbox/' ]
@@ -179,7 +171,6 @@ else
 	let s:C_ObjExtension        = '.o'       " file extension for objects (leading point required)
 	let s:C_Man                 = 'man'      " the manual program
 endif
-let s:C_VimCompilerName				= 'gcc'      " the compiler name used by :compiler
 "
 call s:C_SetGlobalVariable ( 'C_CFlags', '-Wall -g -O0 -c')
 call s:C_SetGlobalVariable ( 'C_LFlags', '-Wall -g -O0'   )
@@ -250,13 +241,8 @@ call s:C_CheckGlobal('C_RootMenu             ')
 call s:C_CheckGlobal('C_SourceCodeExtensions ')
 call s:C_CheckGlobal('C_TypeOfH              ')
 call s:C_CheckGlobal('C_UseToolbox           ')
-call s:C_CheckGlobal('C_VimCompilerName      ')
 call s:C_CheckGlobal('C_XtermDefaults        ')
 
-if exists('g:C_GlobalTemplateFile') && !empty(g:C_GlobalTemplateFile)
-	let s:C_GlobalTemplateDir	= fnamemodify( s:C_GlobalTemplateFile, ":h" )
-endif
-"
 "----- some variables for internal use only -----------------------------------
 "
 let s:stdbuf	= ''
@@ -812,7 +798,7 @@ function! C_EndOfLineComment ( ... ) range
 			if linelength < b:C_LineEndCommentColumn
 				let diff	= b:C_LineEndCommentColumn -1 -linelength
 			endif
-			exe "normal	".diff."A "
+			exe "normal!	".diff."A "
 			call mmtemplates#core#InsertTemplate(g:C_Templates, template)
 		endif
 	endfor
@@ -961,7 +947,7 @@ function! C_PPIf0 (mode)
 	"
 	" search for the maximum option number (if any)
 	"
-	normal gg
+	normal! gg
 	while actual_line < search( s:C_If0_Txt."\\d\\+" )
 		let actual_line	= line(".")
 	 	let actual_opt  = matchstr( getline(actual_line), s:C_If0_Txt."\\d\\+" )
@@ -977,7 +963,7 @@ function! C_PPIf0 (mode)
 		let zz=    "\n#if  0     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n"
 		let zz= zz."\n#endif     ".s:C_Com1." ----- #if 0 : ".s:C_If0_Txt.s:C_If0_Counter." ----- ".s:C_Com2."\n\n"
 		put =zz
-		normal 4k
+		normal! 4k
 	endif
 
 	if a:mode=='v'
@@ -989,7 +975,7 @@ function! C_PPIf0 (mode)
 		exe ":".pos1."put! =zz"
 		"
 		if  &foldenable && foldclosed(".")
-			normal zv
+			normal! zv
 		endif
 	endif
 
@@ -1002,7 +988,7 @@ function! C_PPIf0Remove ()
 	"
 	" cursor on fold: open fold first
 	if  &foldenable && foldclosed(".")
-		normal zv
+		normal! zv
 	endif
 	"
 	let frstline	= searchpair( '^\s*#if\s\+0', '', '^\s*#endif\>.\+\<If0Label_', 'bn' )
@@ -1340,7 +1326,7 @@ function! C_ProtoInsert ()
 			put =protytype
 		endfor
 		let	lines	= s:C_PrototypeCounter	- 1
-		silent exe "normal =".lines."-"
+		silent exe "normal! =".lines."-"
 		call C_ProtoClear()
 	else
 		echo "currently no prototypes available"
@@ -1430,7 +1416,6 @@ function! C_Compile ()
 		"
 		" COMPILATION
 		"
-		exe ":compiler ".s:C_VimCompilerName
 		let v:statusmsg = ''
 		let	s:LastShellReturnCode	= 0
 		exe		"make ".compilerflags." ".SouEsc." -o ".ObjEsc
@@ -1525,7 +1510,6 @@ function! C_Link ()
 			exe		"setlocal makeprg=".g:C_CplusCompiler
 			let	linkerflags	= g:C_CplusLFlags 
 		endif
-		exe ":compiler ".s:C_VimCompilerName
 		let	s:LastShellReturnCode	= 0
 		let v:statusmsg = ''
 		if &filetype == "c" 
@@ -2097,12 +2081,12 @@ function! C_Settings ()
  	let txt = txt.'           template style :  "'.mmtemplates#core#Resource ( g:C_Templates, "style" )[0]."\"\n"
 	let txt = txt.'      plugin installation :  "'.g:C_Installation."\"\n"
 	if g:C_Installation == 'system'
-		let txt = txt.'global template directory :  '.s:C_GlobalTemplateDir."\n"
+		let txt = txt.'     global template file :  "'.s:C_GlobalTemplateFile."\"\n"
 		if filereadable( s:C_LocalTemplateFile )
-			let txt = txt.' local template directory :  '.s:C_LocalTemplateDir."\n"
+			let txt = txt.'      local template file :  "'.s:C_LocalTemplateFile."\"\n"
 		endif
 	else
-		let txt = txt.' local template directory :  '.s:C_LocalTemplateDir."\n"
+		let txt = txt.'      local template file :  "'.s:C_LocalTemplateFile."\"\n"
 	endif
 	if	!s:MSWIN
 		let txt = txt.'           xterm defaults :  '.s:C_XtermDefaults."\n"
@@ -2294,7 +2278,15 @@ function! C_Help( type )
 		endif
 
 		set filetype=man
-		silent exe ":%!".s:C_Man." ".catalog." ".item
+
+		" get the width of the newly opened window
+		" and set the width of man's output accordingly
+		let win_w = winwidth( winnr() )
+		if s:UNIX && win_w > 0
+			silent exe ":%! MANWIDTH=".win_w." ".s:C_Man." ".catalog." ".item
+		else
+			silent exe ":%!".s:C_Man." ".catalog." ".item
+		endif
 
 		if s:MSWIN
 			call s:C_RemoveSpecialCharacters()
@@ -2321,7 +2313,7 @@ function! s:C_RemoveSpecialCharacters ( )
 		silent exe ':%s/'.patternbold.'//g'
 	endif
 	setlocal nomodifiable
-	silent normal gg
+	silent normal! gg
 endfunction		" ---------- end of function  s:C_RemoveSpecialCharacters   ----------
 "
 "------------------------------------------------------------------------------
@@ -2346,6 +2338,29 @@ function! s:CheckAndRereadTemplates ()
 		call s:C_RereadTemplates('no')        
 	endif
 endfunction    " ----------  end of function s:CheckAndRereadTemplates  ----------
+"
+"------------------------------------------------------------------------------
+"  === Templates API ===   {{{1
+"------------------------------------------------------------------------------
+"
+"------------------------------------------------------------------------------
+"  C_SetMapLeader   {{{2
+"------------------------------------------------------------------------------
+function! C_SetMapLeader ()
+	if exists ( 'g:C_MapLeader' )
+		call mmtemplates#core#SetMapleader ( g:C_MapLeader )
+	endif
+endfunction    " ----------  end of function C_SetMapLeader  ----------
+"
+"------------------------------------------------------------------------------
+"  C_ResetMapLeader   {{{2
+"------------------------------------------------------------------------------
+function! C_ResetMapLeader ()
+	if exists ( 'g:C_MapLeader' )
+		call mmtemplates#core#ResetMapleader ()
+	endif
+endfunction    " ----------  end of function C_ResetMapLeader  ----------
+" }}}2
 "
 "===  FUNCTION  ================================================================
 "          NAME:  C_RereadTemplates     {{{1
@@ -2395,20 +2410,22 @@ function! s:C_RereadTemplates ( displaymsg )
 		"-------------------------------------------------------------------------------
 		" handle local template files
 		"-------------------------------------------------------------------------------
-		if finddir( s:C_LocalTemplateDir ) == ''
+		let templ_dir = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
+		"
+		if finddir( templ_dir ) == ''
 			" try to create a local template directory
 			if exists("*mkdir")
 				try 
-					call mkdir( s:C_LocalTemplateDir, "p" )
+					call mkdir( templ_dir, "p" )
 				catch /.*/
 				endtry
 			endif
 		endif
 
-		if isdirectory( s:C_LocalTemplateDir ) && !filereadable( s:C_LocalTemplateFile )
+		if isdirectory( templ_dir ) && !filereadable( s:C_LocalTemplateFile )
 			" write a default local template file
 			let template	= [	]
-			let sample_template_file	= fnamemodify( s:C_GlobalTemplateDir, ':h' ).'/rc/sample_template_file'
+			let sample_template_file	= s:plugin_dir.'/c-support/rc/sample_template_file'
 			if filereadable( sample_template_file )
 				for line in readfile( sample_template_file )
 					call add( template, line )
@@ -2477,7 +2494,7 @@ function! C_OpenFold ( mode )
 		" last line of the previously closed fold
 		let	foldstart	= foldclosed(".")
 		let	foldend		= foldclosedend(".")
-		normal zv
+		normal! zv
 		if a:mode == 'below'
 			exe ":".foldend
 		endif
@@ -2509,7 +2526,7 @@ function! C_JumpCtrlJ ()
 		if match( getline(".")[col(".") - 1], "[\]})\"'`]"  ) != 0
 			call search( "[\]})\"'`]", '', line(".") )
 		endif
-		normal l
+		normal! l
 	endif
 	return ''
 endfunction    " ----------  end of function C_JumpCtrlJ  ----------
@@ -2582,17 +2599,17 @@ function! s:CreateAdditionalMaps ()
 	"  Ctrl-F9   run executable
 	" Shift-F9   command line arguments
 	"
-	map  <buffer>  <silent>  <A-F9>       :call C_Compile()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>  <A-F9>  <C-C>:call C_Compile()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>  <A-F9>       :call C_Compile()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>  <A-F9>  <C-C>:call C_Compile()<CR>:call C_HlMessage()<CR>
 	"
-	map  <buffer>  <silent>    <F9>       :call C_Link()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>    <F9>  <C-C>:call C_Link()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>    <F9>       :call C_Link()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>    <F9>  <C-C>:call C_Link()<CR>:call C_HlMessage()<CR>
 	"
-	map  <buffer>  <silent>  <C-F9>       :call C_Run()<CR>
-	imap <buffer>  <silent>  <C-F9>  <C-C>:call C_Run()<CR>
+	noremap  <buffer>  <silent>  <C-F9>       :call C_Run()<CR>
+	inoremap <buffer>  <silent>  <C-F9>  <C-C>:call C_Run()<CR>
 	"
-	map  <buffer>            <S-F9>       :CCmdlineArgs<Space>
-	imap <buffer>            <S-F9>  <C-C>:CCmdlineArgs<Space>
+	noremap  <buffer>            <S-F9>       :CCmdlineArgs<Space>
+	inoremap <buffer>            <S-F9>  <C-C>:CCmdlineArgs<Space>
 	"
 
 	" ---------- KEY MAPPINGS : MENU ENTRIES -------------------------------------
@@ -2708,60 +2725,60 @@ function! s:CreateAdditionalMaps ()
 	"
 	" ---------- run menu --------------------------------------------------------
 	"
-	map  <buffer>  <silent>  <LocalLeader>rc         :call C_Compile()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rc    <C-C>:call C_Compile()<CR>:call C_HlMessage()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rl         :call C_Link()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rl    <C-C>:call C_Link()<CR>:call C_HlMessage()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rr         :call C_Run()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rr    <C-C>:call C_Run()<CR>
-	map  <buffer>  <silent>  <LocalLeader>re         :call C_ExeToRun()<CR>
-	imap <buffer>  <silent>  <LocalLeader>re    <C-C>:call C_ExeToRun()<CR>
-	map  <buffer>            <LocalLeader>ra         :CCmdlineArgs<Space>
-	imap <buffer>            <LocalLeader>ra    <C-C>:CCmdlineArgs<Space>
-	map  <buffer>  <silent>  <LocalLeader>rd         :call C_Debugger()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rd    <C-C>:call C_Debugger()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rp         :call C_SplintCheck()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rp    <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rpa        :call C_SplintArguments()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rpa   <C-C>:call C_SplintArguments()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rcc        :call C_CppcheckCheck()<CR>:call C_HlMessage()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rcc   <C-C>:call C_CppcheckCheck()<CR>:call C_HlMessage()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rccs       :call C_CppcheckSeverityInput()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rccs  <C-C>:call C_CppcheckSeverityInput()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rc         :call C_Compile()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rc    <C-C>:call C_Compile()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rl         :call C_Link()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rl    <C-C>:call C_Link()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rr         :call C_Run()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rr    <C-C>:call C_Run()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>re         :call C_ExeToRun()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>re    <C-C>:call C_ExeToRun()<CR>
+	noremap  <buffer>            <LocalLeader>ra         :CCmdlineArgs<Space>
+	inoremap <buffer>            <LocalLeader>ra    <C-C>:CCmdlineArgs<Space>
+	noremap  <buffer>  <silent>  <LocalLeader>rd         :call C_Debugger()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rd    <C-C>:call C_Debugger()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rp         :call C_SplintCheck()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rp    <C-C>:call C_SplintCheck()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rpa        :call C_SplintArguments()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rpa   <C-C>:call C_SplintArguments()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rcc        :call C_CppcheckCheck()<CR>:call C_HlMessage()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rcc   <C-C>:call C_CppcheckCheck()<CR>:call C_HlMessage()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rccs       :call C_CppcheckSeverityInput()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rccs  <C-C>:call C_CppcheckSeverityInput()<CR>
 
-	map  <buffer>  <silent>  <LocalLeader>ri         :call C_Indent()<CR>
-	imap <buffer>  <silent>  <LocalLeader>ri    <C-C>:call C_Indent()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rh         :call C_Hardcopy()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rh    <C-C>:call C_Hardcopy()<CR>
-	vmap <buffer>  <silent>  <LocalLeader>rh         :call C_Hardcopy()<CR>
-	map  <buffer>  <silent>  <LocalLeader>rs         :call C_Settings()<CR>
-	imap <buffer>  <silent>  <LocalLeader>rs    <C-C>:call C_Settings()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>ri         :call C_Indent()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>ri    <C-C>:call C_Indent()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rh         :call C_Hardcopy()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rh    <C-C>:call C_Hardcopy()<CR>
+	vnoremap <buffer>  <silent>  <LocalLeader>rh         :call C_Hardcopy()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>rs         :call C_Settings()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>rs    <C-C>:call C_Settings()<CR>
 	"
 	if has("unix")
-		map  <buffer>  <silent>  <LocalLeader>rx       :call C_XtermSize()<CR>
-		imap <buffer>  <silent>  <LocalLeader>rx  <C-C>:call C_XtermSize()<CR>
+		noremap  <buffer>  <silent>  <LocalLeader>rx       :call C_XtermSize()<CR>
+		inoremap <buffer>  <silent>  <LocalLeader>rx  <C-C>:call C_XtermSize()<CR>
 	endif
-	map  <buffer>  <silent>  <LocalLeader>ro         :call C_Toggle_Gvim_Xterm()<CR>
-	imap <buffer>  <silent>  <LocalLeader>ro    <C-C>:call C_Toggle_Gvim_Xterm()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>ro         :call C_Toggle_Gvim_Xterm()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>ro    <C-C>:call C_Toggle_Gvim_Xterm()<CR>
 	"
 	" Abraxas CodeCheck (R)
 	"
 	if s:C_CodeCheckIsExecutable==1
-		map  <buffer>  <silent>  <LocalLeader>rk       :call C_CodeCheck()<CR>:call C_HlMessage()<CR>
-		imap <buffer>  <silent>  <LocalLeader>rk  <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>
-		map  <buffer>  <silent>  <LocalLeader>rka      :call C_CodeCheckArguments()<CR>
-		imap <buffer>  <silent>  <LocalLeader>rka <C-C>:call C_CodeCheckArguments()<CR>
+		noremap  <buffer>  <silent>  <LocalLeader>rk       :call C_CodeCheck()<CR>:call C_HlMessage()<CR>
+		inoremap <buffer>  <silent>  <LocalLeader>rk  <C-C>:call C_CodeCheck()<CR>:call C_HlMessage()<CR>
+		noremap  <buffer>  <silent>  <LocalLeader>rka      :call C_CodeCheckArguments()<CR>
+		inoremap <buffer>  <silent>  <LocalLeader>rka <C-C>:call C_CodeCheckArguments()<CR>
 	endif
 	" ---------- plugin help -----------------------------------------------------
 	"
-	map  <buffer>  <silent>  <LocalLeader>hp         :call C_HelpCsupport()<CR>
-	imap <buffer>  <silent>  <LocalLeader>hp    <C-C>:call C_HelpCsupport()<CR>
-	map  <buffer>  <silent>  <LocalLeader>hm         :call C_Help("m")<CR>
-	imap <buffer>  <silent>  <LocalLeader>hm    <C-C>:call C_Help("m")<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>hp         :call C_HelpCsupport()<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>hp    <C-C>:call C_HelpCsupport()<CR>
+	noremap  <buffer>  <silent>  <LocalLeader>hm         :call C_Help("m")<CR>
+	inoremap <buffer>  <silent>  <LocalLeader>hm    <C-C>:call C_Help("m")<CR>
 	"
 	if !exists("g:C_Ctrl_j") || ( exists("g:C_Ctrl_j") && g:C_Ctrl_j != 'off' )
-		nmap  <buffer>  <silent>  <C-j>   i<C-R>=C_JumpCtrlJ()<CR>
-		imap  <buffer>  <silent>  <C-j>    <C-R>=C_JumpCtrlJ()<CR>
+		nnoremap  <buffer>  <silent>  <C-j>   i<C-R>=C_JumpCtrlJ()<CR>
+		inoremap  <buffer>  <silent>  <C-j>    <C-R>=C_JumpCtrlJ()<CR>
 	endif
 	"
 	" ---------- tool box --------------------------------------------------------

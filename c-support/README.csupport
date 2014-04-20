@@ -1,4 +1,4 @@
-README for c.vim (Version 6.1) / December 28 2013
+README for c.vim (Version 6.1.1) / March 22 2014
 
   *  DESCRIPTION
   *  INSTALLATION
@@ -63,12 +63,22 @@ value of $HOME with ":echo $HOME" from inside Vim).
 (1.4) Make the plugin help accessable by typing the following command on the
     Vim command line:
 
-    :helptags $HOME/.vim/doc/
+      :helptags $HOME/.vim/doc/
 
 (1.5) Consider additional settings in the file '$HOME/.vimrc'.  The files
     customization.vimrc and customization.gvimrc are replacements or extensions
     for your .vimrc and .gvimrc.  You may want to use parts of them. The files
     are documented.
+
+(1.6) To enable additional tools, add these lines to your '$HOME/.vimrc'. To
+    enable the CMake and Doxygen tools, use:
+
+      let g:C_UseTool_cmake    = 'yes'
+      let g:C_UseTool_doxygen  = 'yes'
+
+    For enabling the Doxygen templates, see chapter 1.10.1 of the documentation:
+
+      :help csupport-doxygen-enable
 
 (2)  WINDOWS
 ------------
@@ -112,12 +122,22 @@ the value of $HOME with ":echo $HOME" from inside Vim).
 (2.4) Make the plugin help accessible by typing the following command on the
     Vim command line:
 
-    :helptags $HOME\vimfiles\doc\
+      :helptags $HOME\vimfiles\doc\
 
 (2.5) Consider additional settings in the file '$HOME/_vimrc'.  The files
     customization.vimrc and customization.gvimrc are replacements or extensions
     for your _vimrc and _gvimrc. You may want to use parts of them.  The files
     are documented.
+
+(2.6) To enable additional tools, add these lines to your '$HOME/_vimrc'. To
+    enable the CMake and Doxygen tools, use:
+
+      let g:C_UseTool_cmake    = 'yes'
+      let g:C_UseTool_doxygen  = 'yes'
+
+    For enabling the Doxygen templates, see chapter 1.10.1 of the documentation:
+
+      :help csupport-doxygen-enable
 
 There are a lot of features and options which can be used and influenced:
 
@@ -135,7 +155,6 @@ Look at csupport help with
 
 or use the 'help' item in the root menu of this plug-in.
 
-file description header'
              +-----------------------------------------------+
              | +-------------------------------------------+ |
              | |    ** PLEASE READ THE DOCUMENTATION **    | |
@@ -160,27 +179,16 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ================================================================================
-  RELEASE NOTES FOR VERSION 6.1
+  RELEASE NOTES FOR VERSION 6.1.1
 ================================================================================
-- Map renamed: \rme -> \re.
-- New global variable g:C_InsertFileHeader (suppress file description comment for new files).
-- Two new ex commands: CCmdlineArgs, CMakeCmdlineArgs.
-- 'Run->cmd. line arg.' : tab expansion (files/directories)for all arguments.
-- Bugfix: template 'file description header' not loading (thanks to Marco Lasczok).
-- Bugfix: unnecessary characters in one template.
-- Prototype picker improved.
-- Toggle non-C-comments.
-- Run debugger.
-- Some global variables now changeable on the fly.
-- Menus now show the correct mapleader.
-- Bugfix: g:C_LoadMenus now works.
-- Bugfix: Prevent unnecessary rereading of the template library.
-- Added Doxygen templates and 'Doxygen->brief, after member'.
-- Added help menu entries: help English, help Doxygen
-- Improved "adjust end-of-line comment".
+- Added 'C_SetMapLeader' and 'C_ResetMapLeader'.
+- Bugfix: Resetting maplocalleader in filetype plug-in after setting it to the
+  value of g:C_MapLeader.
 - Bugfix: Setup of local templates in case of global installation.
-- Bugfix: Map and menu entry 'Snippets->edit global templates'.
-- Several internal improvements.
+- Bugfix: Better compatibility with custom mappings
+  (use "normal!" and "noremap" consistently).
+- 'Help->show manual' shows man page text with appropriate width (UNIX only).
+- Extended the documentation.
 
   Please see file ./c-support/doc/ChangeLog .
 
@@ -191,8 +199,11 @@ Any problems ? See the TROUBLESHOOTING section at the end of the help file
 README.csupport                This file.
 
 autoload/mmtemplates/core.vim  The template system.
+autoload/mmtoolbox/*           The toolbox (cmake, doxygen, make, ...).
 
 doc/csupport.txt               The help file for the local on-line help.
+doc/templatesupport.txt        The help file for the template system.
+doc/toolbox*.txt               The help files for the toolbox.
 
 ftplugin/c.vim                 A file type plug-in. Define hotkeys, creates a
                                local dictionary for each C/C++ file.
