@@ -1,0 +1,425 @@
+§ =============================================================
+§  Doxygen Comments
+§  - the templates in the "Comments" menu are created for the
+§    style "Doxygen"
+§  - the templates in the "Doxygen" menu are created for the
+§    style "default", so that they work for every style
+§ =============================================================
+
+== USE STYLES: Doxygen ==
+
+§ -------------------------------------------------------------
+§  frames, descriptions
+§ -------------------------------------------------------------
+
+§ The template "Comments.end-of-line-comment" is used for the menu entry
+§ "Comments.end-of-line comment", which is created by the plug-in itself.
+§ Do not change the name!
+
+== Comments.end-of-line-comment == append, nomenu ==
+// <CURSOR>
+== ENDTEMPLATE ==
+
+== Comments.frame == map:cfr, shortcut:f  ==
+//-----------------------------------------------------------------------------
+//  <CURSOR>
+//-----------------------------------------------------------------------------
+== Comments.function == map:cfu, shortcut:f  ==
+/*!
+ *  |DOX_CMD|brief  |DESCRIPTION|<CURSOR>
+ *  
+ *  |DOX_CMD|param  <+NAME+> <+DESCRIPTION+>
+ *  |DOX_CMD|return <+DESCRIPTION+>
+ *  <+DETAILED+>
+ */
+== Comments.method == map:cme, shortcut:m  ==
+/*!
+ *  |DOX_CMD|brief  |DESCRIPTION|<CURSOR>
+ *  
+ *  |DOX_CMD|param  <+NAME+> <+DESCRIPTION+>
+ *  |DOX_CMD|return <+DESCRIPTION+>
+ *  <+DETAILED+>
+ */
+== Comments.class == map:ccl, shortcut:c  ==
+/*!
+ *  |DOX_CMD|brief  |DESCRIPTION|<CURSOR>
+ *  
+ *  <+DETAILED+>
+ */
+== ENDTEMPLATE ==
+
+§ -------------------------------------------------------------
+§  files, sections
+§ -------------------------------------------------------------
+
+== SEP: Comments.sep_file ==
+
+== Comments.file description impl == map:cfdi, shortcut:c, start, noindent ==
+/*!
+ *    |DOX_CMD|file  |FILENAME|
+ *   |DOX_CMD|brief  |DESCRIPTION|<CURSOR>
+ *  
+ *  <+DETAILED+>
+ *  
+ *  |DOX_CMD|author  |AUTHOR| (|AUTHORREF|), |EMAIL|
+ *  
+ *  |DOX_CMD|internal
+ *       Created:  |DATE|
+ *      Revision:  none
+ *      Compiler:  gcc
+ *  Organization:  |ORGANIZATION|
+ *     Copyright:  |COPYRIGHT|
+ *  
+ *  This source code is released for free distribution under the terms of the
+ *  GNU General Public License as published by the Free Software Foundation.
+ */
+
+== Comments.file description header == map:cfdh, shortcut:h, start, noindent ==
+/*!
+ *    |DOX_CMD|file  |FILENAME|
+ *   |DOX_CMD|brief  |DESCRIPTION|<CURSOR>
+ *  
+ *  <+DETAILED+>
+ *  
+ *  |DOX_CMD|author  |AUTHOR| (|AUTHORREF|), |EMAIL|
+ *  
+ *  |DOX_CMD|internal
+ *       Created:  |DATE|
+ *      Revision:  none
+ *      Compiler:  gcc
+ *  Organization:  |ORGANIZATION|
+ *     Copyright:  |COPYRIGHT|
+ *  
+ *  This source code is released for free distribution under the terms of the
+ *  GNU General Public License as published by the Free Software Foundation.
+ */
+
+== Comments.C file sections  == expandmenu, append, map:ccs, shortcut:s ==
+|PickList( 'C file sections', 'comments_c_sections' )|
+/* #####   |PICK|#################### */<CURSOR>
+== Comments.H file sections  == expandmenu, append, map:chs, shortcut:s ==
+|PickList( 'H file sections', 'comments_h_sections' )|
+/* #####   |PICK|######################################## */<CURSOR>
+== ENDTEMPLATE ==
+
+§ -------------------------------------------------------------
+§  keywords, special and macros
+§ -------------------------------------------------------------
+
+== SEP: Comments.sep_develop ==
+
+== Comments.keyword comments == expandmenu, append, map:ckc, shortcut:k ==
+|PickList( 'keyword comments', 'comments_keywords' )|
+ // |PICK| <CURSOR>
+== Comments.special comments == expandmenu, append, map:csc, shortcut:s ==
+|PickList( 'special comments', 'comments_special' )|
+ // |PICK|<CURSOR>
+== Comments.macros == expandmenu, insert, map:cma, shortcut:m ==
+|PickList( 'macro', 'comments_macros' )|
+||PICK||<CURSOR>
+== Comments.date == insert, map:cd, shortcut:d ==
+|DATE|<CURSOR>
+== Comments.date time == insert, map:ct, shortcut:t ==
+|DATE| |TIME|<CURSOR>
+== ENDTEMPLATE ==
+
+== ENDSTYLES ==
+
+§ -------------------------------------------------------------
+§  special Doxygen sub-menu
+§ -------------------------------------------------------------
+
+== USE STYLES: default ==
+
+§ missing:
+§ - name
+
+== LIST: doxygen_command == list, bare ==
+a
+addindex
+addtogroup
+anchor
+arg
+attention
+author
+authors
+b
+brief
+bug
+c
+callgraph
+callergraph
+category
+cite
+class
+code
+cond
+copybrief
+copydetails
+copydoc
+copyright
+date
+def
+defgroup
+deprecated
+details
+dir
+docbookonly
+dontinclude
+dot
+dotfile
+e
+else
+elseif
+em
+endcode
+endcond
+enddocbookonly
+enddot
+endhtmlonly
+endif
+endinternal
+endlatexonly
+endlink
+endmanonly
+endmsc
+endrtfonly
+endsecreflist
+endverbatim
+endxmlonly
+enum
+example
+exception
+extends
+file
+fn
+headerfile
+hideinitializer
+htmlinclude
+htmlonly
+idlexcept
+if
+ifnot
+image
+implements
+include
+includelineno
+ingroup
+internal
+invariant
+interface
+latexonly
+li
+line
+link
+mainpage
+manonly
+memberof
+msc
+mscfile
+n
+name
+namespace
+nosubgrouping
+note
+overload
+p
+package
+page
+par
+paragraph
+param
+post
+pre
+private
+privatesection
+property
+protected
+protectedsection
+protocol
+public
+publicsection
+pure
+ref
+refitem
+related
+relates
+relatedalso
+relatesalso
+remark
+remarks
+result
+return
+returns
+retval
+rtfonly
+sa
+secreflist
+section
+see
+short
+showinitializer
+since
+skip
+skipline
+snippet
+struct
+subpage
+subsection
+subsubsection
+tableofcontents
+test
+throw
+throws
+todo
+tparam
+typedef
+union
+until
+var
+verbatim
+verbinclude
+version
+vhdlflow
+warning
+weakgroup
+xmlonly
+xrefitem
+== LIST: doxygen_esc_char == list ==
+	'$',
+	'@',
+	'&',
+	'~',
+	'<',
+	'>',
+	'#',
+	'%',
+	'"',
+	'.',
+	'::',
+== LIST: doxygen_page_cmd == hash ==
+	'mainpage' : '{+TITLE_OPT_+}',
+	'page'     : '{+REF+} {+TITLE+}',
+	'subpage'  : '{+REF+} {+TEXT_OPT_+}',
+
+	'tableofcontents' : '',
+
+	'section'       : '{+REF+} {+TITLE+}',
+	'subsection'    : '{+REF+} {+TITLE+}',
+	'subsubsection' : '{+REF+} {+TITLE+}',
+	'paragraph'     : '{+REF+} {+TITLE+}',
+
+	'anchor' : '{+REF+}',
+	'ref'    : '{+REF+} {+TEXT_OPT_+}',
+== ENDLIST ==
+
+§ The template "Doxygen.brief, after member" is used for the menu entry
+§ "Doxygen.brief, after member", which is created by the plug-in itself.
+§ Do not change the name!
+
+§ menu and map used for "brief, after member":
+SetProperty( 'Doxygen::BriefAM::Menu', 'Doxygen' )
+SetProperty( 'Doxygen::BriefAM::Map',  'dba' )
+
+== Doxygen.brief, after member == append, nomenu ==
+/*!< |DOX_CMD|brief <CURSOR> */
+== ENDTEMPLATE ==
+
+§ basic blocks
+
+== Doxygen.frame == below, map:dfr, sc:f ==
+/*!
+ *  |DOX_CMD|brief  <CURSOR>
+ */
+== Doxygen.overload block == below, map:do, sc:o ==
+/*!
+ *  |DOX_CMD|overload<CURSOR>
+ */
+== ENDTEMPLATE ==
+
+== SEP: Doxygen.sep1 ==
+
+§ basic commands
+
+== Doxygen.commands == below, map:dc, sc:c ==
+|PickList( 'Doxygen command', 'doxygen_command' )|
+ *  |DOX_CMD||KEY| <CURSOR>
+== Doxygen.brief == below, map:dbr, sc:b ==
+ *  |DOX_CMD|brief  <CURSOR>
+== Doxygen.parameter == below, map:dpa, sc:p ==
+ *  |DOX_CMD|param  <CURSOR>
+== Doxygen.return == below, map:dre, sc:r ==
+ *  |DOX_CMD|return <CURSOR>
+== Doxygen.escaped char == expandmenu, insert, map:de, sc:e ==
+|PickList( 'character', 'doxygen_esc_char' )|
+|DOX_CMD||KEY|<CURSOR>
+== ENDTEMPLATE ==
+
+== SEP: Doxygen.sep2 ==
+
+§ groups
+
+== Doxygen.defgroup block == below, map:dgd, sc:g ==
+/*!
+ *  |DOX_CMD|defgroup |?DOXYGEN_GROUP|
+ *  
+ *  |DOX_CMD|brief    <CURSOR>
+ *  
+ *  <+DETAILED+>
+ */
+== Doxygen.addtogroup blocks == below, noindent, map:dga, sc:g ==
+/*!
+ *  |DOX_CMD|addtogroup <CURSOR>|?DOXYGEN_GROUP|
+ *  |DOX_CMD|{
+ */
+
+<SPLIT>
+
+/*!
+ *  |DOX_CMD|}
+ */
+== Doxygen.ingroup == below, map:dgi, sc:i ==
+ *  |DOX_CMD|ingroup <CURSOR>|?DOXYGEN_GROUP|
+ *  
+== Doxygen.member group blocks == below, noindent, map:dgm, sc:m ==
+/*!
+ *  |DOX_CMD|name {+HEADER+}
+ */
+/*! |DOX_CMD|{ */
+
+<SPLIT>
+
+/*! |DOX_CMD|} */
+== ENDTEMPLATE ==
+
+== SEP: Doxygen.sep3 ==
+
+§ LaTeX formulas
+
+== Doxygen.LaTeX formula, in-text == insert, map:dfi, sc:f ==
+|DOX_CMD|f$ <CURSOR><SPLIT> |DOX_CMD|f$
+== Doxygen.LaTeX formula, separate == below, map:dfs, sc:f ==
+ *  |DOX_CMD|f[
+ *    <CURSOR><SPLIT>
+ *  |DOX_CMD|f]
+== Doxygen.LaTeX formula, environment == below, map:dfe, sc:f ==
+ *  |DOX_CMD|f{<CURSOR>}{
+ *    <SPLIT>{-FORMULA-}
+ *  |DOX_CMD|f}
+== ENDTEMPLATE ==
+
+== SEP: Doxygen.sep4 ==
+
+§ pages
+
+== Doxygen.page command == expandmenu, below, map:dpc, sc:a ==
+|PickList( 'Doxygen command', 'doxygen_page_cmd' )|
+ *  |DOX_CMD||KEY|<CURSOR> |VALUE|
+== Doxygen.page block == below, map:dpb, sc:a ==
+/*!
+ *  |DOX_CMD|page<CURSOR> {+REF+} {+TITLE+}
+ */
+== ENDTEMPLATE ==
+
+== ENDSTYLES ==
+
